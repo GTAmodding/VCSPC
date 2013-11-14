@@ -1,0 +1,36 @@
+#ifndef __CUTSCENEMGR
+#define __CUTSCENEMGR
+
+#define WIN32_LEAN_AND_MEAN
+
+enum eCutscenes
+{
+	CUT_JERA1,
+	CUT_JERA2,
+	CUT_JERA3,
+	CUT_LOUA1,
+	CUT_LOUA2,
+	CUT_LOUA3,
+	CUT_MARA1,
+	CUT_MARA2,
+	CUT_MARA5,
+	CUT_PHILA1,
+	CUT_PHILA2,
+	CUT_PHILA3,
+	CUT_PHILA4,
+	NUM_CUTSCENES
+};
+
+struct CutsceneData
+{
+	const char*		pName;
+	DWORD			index;
+};
+
+class CCutsceneMgr
+{
+public:
+	static void		SetProperCSPlrModel(char* pModel);
+};
+
+#endif

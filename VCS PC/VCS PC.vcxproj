@@ -1,0 +1,371 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Candidate|Win32">
+      <Configuration>Release Candidate</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E7870428-BF5D-4B3F-BD86-726018699DF8}</ProjectGuid>
+    <RootNamespace>VCSPC</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v100</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">false</LinkIncremental>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PreBuildEventUseInBuild>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</PreBuildEventUseInBuild>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PreBuildEventUseInBuild>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreLinkEventUseInBuild>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PreLinkEventUseInBuild>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">false</PreLinkEventUseInBuild>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath)</LibraryPath>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PostBuildEventUseInBuild>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</PostBuildEventUseInBuild>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VCSPC</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <PreprocessorDefinitions>DEBUG;_DEBUG;_INCLUDE_BETA_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\include;$(SolutionDir)dependencies\include\rwsdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Sync</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>binkw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)VCSPC.dll</OutputFile>
+      <Version>
+      </Version>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
+      <NoEntryPoint>false</NoEntryPoint>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>%40echo off
+if "%COMPUTERNAME%" == "ADRIAN-PC" (
+copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\VCSPC.dll"
+)
+
+if "%COMPUTERNAME%" == "FALLARBOR" (
+copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
+)</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+pushd $(SolutionDir)\dependencies\tools\
+call svnrev.cmd
+popd</Command>
+    </PreBuildEvent>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\include;$(SolutionDir)dependencies\include\rwsdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_NDEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>binkw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
+      <Version>
+      </Version>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>%40echo off
+"$(SolutionDir)encrypt" "$(TargetPath)"
+if "%COMPUTERNAME%" == "ADRIAN-PC" (
+copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\VCSPC.dll"
+)</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+pushd $(SolutionDir)\dependencies\tools\
+call svnrev.cmd
+popd</Command>
+    </PreBuildEvent>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <PreprocessorDefinitions>NDEBUG;COMPILE_RC;_INCLUDE_BETA_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\include;$(SolutionDir)dependencies\include\rwsdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Sync</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>binkw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
+      <Version>
+      </Version>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>%40echo off
+if "%COMPUTERNAME%" == "ADRIAN-PC" (
+copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\VCSPC.dll"
+)</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+pushd $(SolutionDir)\dependencies\tools\
+call svnrev.cmd
+popd</Command>
+    </PreBuildEvent>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="BlowFish.cpp" />
+    <ClCompile Include="Building.cpp" />
+    <ClCompile Include="C3DMarker.cpp" />
+    <ClCompile Include="Audio.cpp" />
+    <ClCompile Include="CCamera.cpp" />
+    <ClCompile Include="CClock.cpp" />
+    <ClCompile Include="CConfiscatedWeapons.cpp" />
+    <ClCompile Include="CCRC32.Cpp" />
+    <ClCompile Include="CDraw.cpp" />
+    <ClCompile Include="CFont.cpp" />
+    <ClCompile Include="CGangWeapons.cpp" />
+    <ClCompile Include="CGarages.cpp" />
+    <ClCompile Include="CGridref.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Darkel.cpp" />
+    <ClCompile Include="DLCManager.cpp" />
+    <ClCompile Include="EmpireMgr.cpp" />
+    <ClCompile Include="FileMgr.cpp" />
+    <ClCompile Include="Frontend.cpp" />
+    <ClCompile Include="CPad.cpp" />
+    <ClCompile Include="CPed.cpp" />
+    <ClCompile Include="CPedIntelligence.cpp" />
+    <ClCompile Include="CutsceneManager.cpp" />
+    <ClCompile Include="General.cpp" />
+    <ClCompile Include="Hud.cpp" />
+    <ClCompile Include="ModelInfo.cpp" />
+    <ClCompile Include="PlayerInfo.cpp" />
+    <ClCompile Include="PNGArchive.cpp" />
+    <ClCompile Include="Pools.cpp" />
+    <ClCompile Include="Replay.cpp" />
+    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="CShadows.cpp" />
+    <ClCompile Include="Stats.cpp" />
+    <ClCompile Include="CStreaming.cpp" />
+    <ClCompile Include="CText.cpp" />
+    <ClCompile Include="Messages.cpp" />
+    <ClCompile Include="Radar.cpp" />
+    <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="CTxdStore.cpp" />
+    <ClCompile Include="CWanted.cpp" />
+    <ClCompile Include="CWeaponInfo.cpp" />
+    <ClCompile Include="PcSave.cpp" />
+    <ClCompile Include="RWwrap.cpp" />
+    <ClCompile Include="Rs.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="UpdateManager.cpp" />
+    <ClCompile Include="UserDisplay.cpp" />
+    <ClCompile Include="VCSPC.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="VCSPC_SDK_Internal.cpp" />
+    <ClCompile Include="VideoPlayer.cpp" />
+    <ClCompile Include="WidescreenSupport.cpp" />
+    <ClCompile Include="World.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\Date.h" />
+    <ClInclude Include="..\common\DLCShared.h" />
+    <ClInclude Include="..\dependencies\include\BinkW32\bink.h" />
+    <ClInclude Include="..\dependencies\include\BinkW32\radbase.h" />
+    <ClInclude Include="..\dependencies\include\blowfish\Blowfish.h" />
+    <ClInclude Include="..\dependencies\include\rwsdk\rtpng.h" />
+    <ClInclude Include="..\dependencies\include\rwsdk\rtworld.h" />
+    <ClInclude Include="..\dependencies\include\rwsdk\rwcore.h" />
+    <ClInclude Include="AnimMgr.h" />
+    <ClInclude Include="Building.h" />
+    <ClInclude Include="C3DMarker.h" />
+    <ClInclude Include="Audio.h" />
+    <ClInclude Include="CCam.h" />
+    <ClInclude Include="CCamera.h" />
+    <ClInclude Include="CClock.h" />
+    <ClInclude Include="CConfiscatedWeapons.h" />
+    <ClInclude Include="CCRC32.H" />
+    <ClInclude Include="CutsceneManager.h" />
+    <ClInclude Include="CFont.h" />
+    <ClInclude Include="CGangWeapons.h" />
+    <ClInclude Include="CGarages.h" />
+    <ClInclude Include="CGridref.h" />
+    <ClInclude Include="Darkel.h" />
+    <ClInclude Include="DLCManager.h" />
+    <ClInclude Include="EmpireMgr.h" />
+    <ClInclude Include="FileMgr.h" />
+    <ClInclude Include="Frontend.h" />
+    <ClInclude Include="CPad.h" />
+    <ClInclude Include="CPed.h" />
+    <ClInclude Include="CPedIntelligence.h" />
+    <ClInclude Include="CPhysical.h" />
+    <ClInclude Include="Hud.h" />
+    <ClInclude Include="MemoryMgr.h" />
+    <ClInclude Include="ModelInfo.h" />
+    <ClInclude Include="PlayerInfo.h" />
+    <ClInclude Include="PNGArchive.h" />
+    <ClInclude Include="Pools.h" />
+    <ClInclude Include="Replay.h" />
+    <ClInclude Include="Script.h" />
+    <ClInclude Include="CShadows.h" />
+    <ClInclude Include="Stats.h" />
+    <ClInclude Include="CStreaming.h" />
+    <ClInclude Include="CText.h" />
+    <ClInclude Include="Messages.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="UpdateManager.h" />
+    <ClInclude Include="UserDisplay.h" />
+    <ClInclude Include="Radar.h" />
+    <ClInclude Include="Sprite.h" />
+    <ClInclude Include="CTxdStore.h" />
+    <ClInclude Include="CVehicle.h" />
+    <ClInclude Include="CWanted.h" />
+    <ClInclude Include="CWeaponInfo.h" />
+    <ClInclude Include="CWeaponSlot.h" />
+    <ClInclude Include="PcSave.h" />
+    <ClInclude Include="RWwrap.h" />
+    <ClInclude Include="Rs.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="handlingIDs.h" />
+    <ClInclude Include="General.h" />
+    <ClInclude Include="VCSPC_SDK_Internal.h" />
+    <ClInclude Include="VCSPC_SDK.h" />
+    <ClInclude Include="VideoPlayer.h" />
+    <ClInclude Include="WidescreenSupport.h" />
+    <ClInclude Include="World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LoadVars.inc" />
+    <None Include="SaveVars.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\common\win2000.asm" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
+</Project>
