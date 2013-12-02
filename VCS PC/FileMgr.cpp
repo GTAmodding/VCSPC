@@ -55,9 +55,8 @@ void CFileLoader::LoadLevels()
 		RwTexDictionarySetCurrent(pPushedDictionary);
 	}
 
-	// TODO: High level
-	patch(0x590D2B, 31 + m_pObjectsList->size() + m_pScenesList->size(), 4);
-	patch(0x590D68, 31 + m_pObjectsList->size() + m_pScenesList->size(), 4);
+	Memory::Patch<DWORD>(0x590D2B, 31 + m_pObjectsList->size() + m_pScenesList->size());
+	Memory::Patch<DWORD>(0x590D68, 31 + m_pObjectsList->size() + m_pScenesList->size());
 
 	// IMG
 	for ( auto it = m_pImagesList->cbegin(); it != m_pImagesList->cend(); it++ )
@@ -83,9 +82,9 @@ void CFileLoader::LoadLevels()
 	InitModelIndices();
 
 	// Wraps some calls
-	CEmpireManager::Initialise();
+	//CEmpireManager::Initialise();
 	InitPostIDEStuff();
-	//CEmpireManager::Process();
+	CPedModelInfoVCS::LoadPedColours();
 
 	for ( int i = 0; i < 20000; ++i )
 	{

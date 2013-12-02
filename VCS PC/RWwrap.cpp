@@ -275,22 +275,5 @@ RwImage* RwImageFindRasterFormat(RwImage* ipImage, RwInt32 nRasterType, RwInt32*
 	return pResult;
 }
 
-RwImage* RtPNGImageRead(const RwChar* imageName)
-{
-	DWORD		dwFunc = RW_RtPNGImageRead;
-	RwImage*	pResult;
-	_asm
-	{
-		push	imageName
-		call	dwFunc
-		mov		pResult, eax
-		add		esp, 4
-	}
-	return pResult;
-}
-
-void DoRWStuffEndOfFrame()
-{
-	DWORD dwFunc = (DWORD)FUNC_DoRWStuffEndOfFrame;
-	_asm call dwFunc
-}
+WRAPPER RwImage* RtPNGImageRead(const RwChar* imageName) { WRAPARG(imageName); EAXJMP(0x7CF9B0); }
+WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }

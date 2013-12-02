@@ -76,7 +76,7 @@ void CDarkel::DrawMessages()
 				float	fPosXOffset;
 				int		nTextLength;
 
-				sprintf(gString, "%d:%02d", nTimeLeft / 60000, (nTimeLeft % 60000) / 1000);
+				_snprintf(gString, sizeof(gString), "%d:%02d", nTimeLeft / 60000, (nTimeLeft % 60000) / 1000);
 				nTextLength = strlen(gString);
 				if ( nTextLength > 4 )
 					fPosXOffset = 12.5f * (nTextLength - 4);
@@ -95,7 +95,7 @@ void CDarkel::DrawMessages()
 			float	fPosXOffset;
 			int		nTextLength;
 
-			sprintf(gString, "%d/%d", TotalKillsNeeded - max(0, KillsNeeded), TotalKillsNeeded);
+			_snprintf(gString, sizeof(gString), "%d/%d", TotalKillsNeeded - max(0, KillsNeeded), TotalKillsNeeded);
 			nTextLength = strlen(gString);
 			if ( nTextLength > 4 )
 				fPosXOffset = 12.5f * (nTextLength - 4);

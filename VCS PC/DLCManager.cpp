@@ -57,12 +57,12 @@ void CDLCManager::LoadLevelFiles()
 		{
 			char		cLevelsPath[MAX_PATH];
 			char		cDLCName[32];
-			_snprintf(cLevelsPath, MAX_PATH, "dlc\\dlc%d\\content.dat", i);
+			_snprintf(cLevelsPath, sizeof(cLevelsPath), "dlc\\dlc%d\\content.dat", i);
 
 			if ( !CFileLoader::ParseLevelFile(cLevelsPath, cDLCName) )
 				m_pDLC[i]->Activate(false);
 
-			if ( _strnicmp(cDLCName, m_pDLC[i]->GetName(), 32) )
+			if ( _strnicmp(cDLCName, m_pDLC[i]->GetName(), sizeof(cDLCName)) )
 				m_pDLC[i]->Activate(false);
 		}
 	}

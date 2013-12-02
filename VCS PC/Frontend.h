@@ -16,6 +16,7 @@
 //#define					COMPILE_BOUNCING_ICONS
 //#define					COMPILE_SMOOTHBEATING_ICONS
 #define						COMPILE_BEATING_ICONS
+#define						INCLUDE_PROMO_BANNER
 
 #define MENU_INACTIVE_R			0x1E
 #define MENU_INACTIVE_G			0xFF
@@ -44,6 +45,10 @@
 #define MENU_INACTIVE_PINK_R	0x33
 #define MENU_INACTIVE_PINK_G	0x1C
 #define MENU_INACTIVE_PINK_B	0x27
+
+#define MODDB_RED_R				0xF4
+#define MODDB_RED_G				0x34
+#define MODDB_RED_B				0x34
 
 #define						MAX_AA				8
 #define						SET_FILE_VERSION	7

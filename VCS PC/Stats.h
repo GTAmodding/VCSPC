@@ -1,9 +1,6 @@
 #ifndef __CSTATS
 #define __CSTATS
 
-#define FUNC_CStats__CalcPlayerStat							0x559AF0
-#define FUNC_CStats__IncrementStat							0x55C180
-
 #define STATS_OFFSET        120
 #define STATS_BLANK_OFFSET  320
 
@@ -447,8 +444,8 @@ static_assert(MAX_BLANK_STATS == 338, "Messed up stats enumerators!");
 class CStats
 {
 public:
-	static long double	CalcPlayerStat(DWORD statID);
-	static void			IncrementStat(int statID, float amount);
+	static long double	CalcPlayerStat(unsigned int statID);
+	static void			IncrementStat(unsigned int statID, float fAmount);
 	static long			ConstructStatLine(long nStat, long& nIndents);
 	static void			BuildStatLine(char* pEntryName, void* pVal1, int nType, void* pVal2);
 };

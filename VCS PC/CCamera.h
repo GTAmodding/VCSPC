@@ -277,7 +277,7 @@ public:
 	// VCS PC class extension
 	static bool					bDontTouchFOVInWidescreen;
 
-	bool						GetFading() { return m_bFading; };
+	inline bool					GetFading() { return m_bFading; };
 	
 	void						GetWidescreenDimensions(CRect& rect);
 	void						CamShake(float strength);

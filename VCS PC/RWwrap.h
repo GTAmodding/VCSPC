@@ -1,8 +1,6 @@
 #ifndef __RWWRAP
 #define __RWWRAP
 
-#define WIN32_LEAN_AND_MEAN
-
 #define RW_RpClumpForAllAtomics				0x749B70
 #define RW_RpGeometryForAllMaterials		0x74C790
 #define RW_RwTextureCreate					0x7F37C0
@@ -20,10 +18,7 @@
 #define RW_RpClumpCreate					0x74A290
 #define RW_RwCameraClear					0x7EE340
 #define RW_RwImageDestroy					0x802740
-#define RW_RwImageFindRasterFormat			0x8042C0
-#define RW_RtPNGImageRead					0x7CF9B0
-
-#define FUNC_DoRWStuffEndOfFrame			0x53D840
+#define RW_RwImageFindRasterFormat			0x8042C0						
 
 void	DoRWStuffEndOfFrame();
 

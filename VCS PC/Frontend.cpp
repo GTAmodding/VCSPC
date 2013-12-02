@@ -220,6 +220,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	// Language
 	{ "FEH_LAN", 33, 3,
 		37, "FEL_ENG", ACTION_STANDARD, 28, 0, -72, 3, 0, 0,
+		//38, "FEL_SPA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		38, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 4, 0, 0, 3, 0, 0 },
 
@@ -360,11 +361,11 @@ void CMenuManager::DrawBackEnd()
 	RwRGBA		BorderColour(0, 0, 0, 255);*/
 
 	//textures[13]->DrawTexturedRect(&coords, &rgba);
-	textures[13].DrawTexturedRect(&CRect(-1.0, RsGlobal.MaximumHeight, RsGlobal.MaximumWidth, -1.0), &CRGBA(255, 255, 255, 255));
+	textures[13].Draw(CRect(-1.0f, RsGlobal.MaximumHeight, RsGlobal.MaximumWidth, -1.0f), CRGBA(255, 255, 255, 255));
 
 	if ( bCurrentScreen == 44 )
 	{
-		textures[14].DrawTexturedRect(&CRect(_x(245.0), _y(85.0), _x(25.0), _y(30.0)), &CRGBA(255, 255, 255, 255));
+		textures[14].Draw(CRect(_x(245.0f), _y(85.0f), _x(25.0f), _y(30.0f)), CRGBA(255, 255, 255, 255));
 		CUpdateManager::ReportUpdaterScreenSeen();	// Wrong place
 	}
 
@@ -379,14 +380,14 @@ void CMenuManager::DrawBackEnd()
 	CFont::SetTextColour(CRGBA(BaseColors[11]));
 	CFont::PrintString(_x(2.5), _ydown(13.0), MOD_VERSION" BUILD "BUILDNUMBER_STR);
 
-#if DEBUG
+#ifdef DEBUG
 	#ifdef MAKE_ZZCOOL_MOVIE_DEMO
 		CFont::PrintString(_x(2.5), _ydown(20.5), "DEMONSTRATION BUILD");
 	#else
 		CFont::PrintString(_x(2.5), _ydown(20.5), "DEV BUILD");
 	#endif
 #else
-	#if COMPILE_RC
+	#ifdef COMPILE_RC
 		CFont::PrintString(_x(2.5), _ydown(20.5), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
 	#else
 		CFont::PrintString(_x(2.5), _ydown(20.5), VERSION_NAME_UPPERCASE);
@@ -396,9 +397,38 @@ void CMenuManager::DrawBackEnd()
 	if ( bCurrentScreen != 44 )
 		CUpdateManager::Display();
 
-	CFont::SetTextOutline(0);
-	CFont::SetTextUseProportionalValues(true);
+#ifdef INCLUDE_PROMO_BANNER
+	if ( bCurrentScreen == 33 || bCurrentScreen == 34 || bCurrentScreen == 41 )
+	{
+		int			nDaysTillDeadline = static_cast<int>(GetCurrentDate().GetSecondsLeft(CDate(11, 12, 2013, true))) / (60*60*24);
+		if ( nDaysTillDeadline >= 0 )
+		{
+			textures[16].Draw(CRect(_x(135.0f), _y(122.5f), _x(15.0f), _y(2.5f)), CRGBA(255, 255, 255, 255));
 
+			CFont::SetTextUseProportionalValues(true);
+			CFont::SetTextLetterSize(_width(0.8f), _height(1.2f));
+			CFont::SetFontStyle(FONT_RageItalic);
+			//CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
+			//CFont::SetTextOutline(1);
+			CFont::SetTextAlignment(ALIGN_Center);
+
+			CFont::SetTextColour(CRGBA(MODDB_RED_R, MODDB_RED_G, MODDB_RED_B, 255));
+			CFont::PrintString(_x(75.0f), _y(115.0f), gxt->GetText("FEP_MOD"));
+
+			CFont::SetTextUseProportionalValues(false);
+			CFont::SetFontStyle(FONT_PagerFont);
+			CFont::SetTextLetterSize(_width(0.375f), _height(0.725f));
+			if ( nDaysTillDeadline >= 3 )
+				CFont::SetTextColour(CRGBA(255, 255, 255, 255));
+
+			CMessages::InsertNumberInString(gxt->GetText(nDaysTillDeadline == 1 ? "FEP_DY2" : "FEP_DYZ"), nDaysTillDeadline, -1, -1, -1, -1, -1, gString);
+			CFont::PrintString(_x(75.0f), _y(140.0f), gString);
+		}
+	}
+#endif
+
+	CFont::SetTextUseProportionalValues(true);
+	CFont::SetTextOutline(0);
 }
 
 void CMenuManager::DrawRadioStationIcons()
@@ -435,13 +465,13 @@ void CMenuManager::DrawRadioStationIcons()
 	do
 	{
 #if defined COMPILE_BOUNCING_ICONS
-		textures[bLoopCounter].DrawRadioIcon(_x(fPosition), _y(290.0 - (20.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _width(60.0), _height(60.0), &CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
+		textures[bLoopCounter].Draw(_x(fPosition), _y(290.0 - (20.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _width(60.0), _height(60.0), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
 #elif defined COMPILE_SMOOTHBEATING_ICONS
-		textures[bLoopCounter].DrawRadioIcon(_x(fPosition - (10.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _y(290.0 - (10.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _width(60.0 + (20.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _height(60.0 + (20.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), &CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
+		textures[bLoopCounter].Draw(_x(fPosition - (10.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _y(290.0 - (10.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _width(60.0 + (20.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _height(60.0 + (20.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
 #elif defined COMPILE_BEATING_ICONS
-		textures[bLoopCounter].DrawRadioIcon(_x(fPosition + (10.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _ymiddle(66.0 - (10.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _width(60.0 + (20.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _height(60.0 + (20.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), &CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
+		textures[bLoopCounter].Draw(_x(fPosition + (10.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _ymiddle(66.0 - (10.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _width(60.0 + (20.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _height(60.0 + (20.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
 #else
-		textures[bLoopCounter].DrawRadioIcon(_x(fPosition), _y(290.0), _width(60.0), _height(60.0), &CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
+		textures[bLoopCounter].Draw(_x(fPosition), _y(290.0), _width(60.0), _height(60.0), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
 #endif
 		++bLoopCounter;
 		fPosition -= 60.0;
@@ -516,7 +546,7 @@ void CMenuManager::DrawLeftColumn(MenuItem::MenuEntry& pPosition, const char* pT
 	if ( nEntrySpecialFlag >= ACTION_SAVE_1 && nEntrySpecialFlag <= ACTION_SAVE_12 && pRightText )
 	{
 		char		cSlotNumberText[4];
-		_snprintf(cSlotNumberText, 4, "%d", nEntrySpecialFlag);
+		sprintf(cSlotNumberText, "%d", nEntrySpecialFlag);
 
 		CFont::PrintString(fPosX + _xleft(25.0f), fPosY, pText);
 
@@ -577,7 +607,7 @@ void CMenuManager::DrawOutroSplash()
 			++outroPageFrameCounter;
 		outroTimer = CTimer::m_snTimeInMillisecondsPauseMode;
 	}
-	loadingTextures[0].DrawTexturedRect(&CRect(0.0, RsGlobal.MaximumHeight, RsGlobal.MaximumWidth, 0.0), &CRGBA(255, 255, 255, outroPageAlpha));
+	loadingTextures[0].Draw(CRect(0.0, RsGlobal.MaximumHeight, RsGlobal.MaximumWidth, 0.0), CRGBA(255, 255, 255, outroPageAlpha));
 	if ( outroPageAlpha == 255 && outroPageFrameCounter == 90 )
 		RsEventHandler(rsQUITAPP, NULL);
 
@@ -630,8 +660,8 @@ void CMenuManager::PrintStats()
 					fTextAlpha = 10.2 * (_ydown(100.0) - fStartingPos);
 			}
 
-			if ( fTextAlpha > 255.0 )
-				fTextAlpha = 255.0;
+			if ( fTextAlpha > 255.0f )
+				fTextAlpha = 255.0f;
 
 			CStats::ConstructStatLine(dwLoopCounter, nIndents);
 
@@ -641,7 +671,7 @@ void CMenuManager::PrintStats()
 			CFont::SetTextColour(CRGBA(255, 255, 255, fTextAlpha));
 			CFont::PrintString(_xleft(50.0f + (nIndents * 3.0f)), fStartingPos, gString);
 			CFont::SetTextAlignment(ALIGN_Right);
-			CFont::PrintString(_x(50.0), fStartingPos, gUString);
+			CFont::PrintString(_x(50.0f), fStartingPos, gUString);
 		}
 		++dwLoopCounter;
 	}
@@ -650,7 +680,7 @@ void CMenuManager::PrintStats()
 
 void CMenuManager::PrintUpdaterScreen()
 {
-	CFont::SetTextLetterSize(_width(0.8), _height(1.2));
+	CFont::SetTextLetterSize(_width(0.8f), _height(1.2f));
 	CFont::SetFontStyle(FONT_RageItalic);
 	CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
 	CFont::SetTextOutline(1);
@@ -715,7 +745,7 @@ void CMenuManager::PrintDLCScreen()
 			// Load a video
 			char			cVideoPath[64];
 			const CRect		videoFrame(_x(250.0f), _ymiddle(140.0f), _x(30.0f), _ymiddle(-65.0f));
-			_snprintf(cVideoPath, 64, "movies\\dlc%d.bik", m_nFocusedDLC);
+			_snprintf(cVideoPath, sizeof(cVideoPath), "movies\\dlc%d.bik", m_nFocusedDLC);
 
 			CVideoPlayer::Release();
 			CVideoPlayer::Create(cVideoPath, &videoFrame, false);
@@ -723,7 +753,7 @@ void CMenuManager::PrintDLCScreen()
 
 		char		cGXTName[8];
 		bool		bThisDLCIsEnabled = CDLCManager::GetDLC(static_cast<eExpansionPack>(m_nFocusedDLC))->IsActive();
-		_snprintf(cGXTName, 8, "FEE_D%02d", m_nFocusedDLC);
+		_snprintf(cGXTName, sizeof(cGXTName), "FEE_D%02d", m_nFocusedDLC);
 
 		CSprite2d::DrawRect(CRect(_x(251.5f), _ymiddle(195.5f), _x(26.5f), _ymiddle(-66.5f)), CRGBA(0, 0, 0, 255));
 		CSprite2d::DrawRect(CRect(_x(252.5f), _ymiddle(194.5f), _x(27.5f), _ymiddle(-67.5f)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 255));
@@ -769,7 +799,8 @@ void CMenuManager::ReadFrontendTextures()
 	static const char* const	frontend2TexNames[] = {
 									"background",
 									"modbase",
-									"map" };
+									"map",
+									"banner" };
 
 	static const char* const	frontendpcTexNames[] = {
 									"mouse",
@@ -884,7 +915,7 @@ const char* CMenuManager::ProcessDLCSlot(int nSlotID)
 	}
 
 	ms_pMenus[bCurrentScreen].entryList[nSlotID].action = ACTION_TOGGLE_DLC;
-	_snprintf(lastDLCName, 8, "FEE_N%02d", nDLC);
+	_snprintf(lastDLCName, sizeof(lastDLCName), "FEE_N%02d", nDLC);
 	return lastDLCName;
 }
 

@@ -1,53 +1,33 @@
 #include "StdAfx.h"
 
-#define STATTYPE_EMPTY			-1
-#define STATTYPE_INT			0
-#define STATTYPE_FLOAT			1
-#define STATTYPE_PERCENT		2
-#define STATTYPE_FPERCENT		3
-#define STATTYPE_FMONEY			4
-#define STATTYPE_TIME			5
-#define STATTYPE_OUTOF			6
+enum
+{
+	STATTYPE_EMPTY,
+	STATTYPE_INT,
+	STATTYPE_FLOAT,
+	STATTYPE_PERCENT,
+	STATTYPE_FPERCENT,
+	STATTYPE_FMONEY,
+	STATTYPE_TIME,
+	STATTYPE_OUTOF
+};
 
-bool UseMetricSystem()
+WRAPPER long double CStats::CalcPlayerStat(unsigned int statID) { WRAPARG(statID); EAXJMP(0x559AF0); }
+WRAPPER void CStats::IncrementStat(unsigned int statID, float fAmount) { WRAPARG(statID); WRAPARG(fAmount); EAXJMP(0x55C180); }
+
+inline bool UseMetricSystem()
 {
 	return true;
 }
 
-static inline long GetMinutesFromStat(long nTime)
+static inline int GetMinutesFromStat(int nTime)
 {
 	return nTime / 60;
 }
 
-static inline long GetSecondsFromStat(long nTime)
+static inline int GetSecondsFromStat(int nTime)
 {
 	return nTime % 60;
-}
-
-long double CStats::CalcPlayerStat(DWORD statID)
-{
-	DWORD dwFunc = FUNC_CStats__CalcPlayerStat;
-	float fReturn;
-	_asm
-	{
-		push	statID
-		call	dwFunc
-		add		esp, 4
-		fstp	fReturn
-	}
-	return fReturn;
-}
-
-void CStats::IncrementStat(int statID, float amount)
-{
-	DWORD dwFunc = FUNC_CStats__IncrementStat;
-	_asm
-	{
-		push	amount
-		push	statID
-		call	dwFunc
-		add		esp, 8
-	}
 }
 
 long CStats::ConstructStatLine(long nStat, long& nIndents)
@@ -59,13 +39,13 @@ long CStats::ConstructStatLine(long nStat, long& nIndents)
 	{
 		// Percentage completed
 		float	fProgress;
-		if ( PlayerStatsFloat[TOTAL_PROGRESS] == 0.0 )
-			fProgress = 0.0;
+		if ( PlayerStatsFloat[TOTAL_PROGRESS] == 0.0f )
+			fProgress = 0.0f;
 		else
 		{
 			fProgress = PlayerStatsFloat[PROGRESS_MADE] / PlayerStatsFloat[TOTAL_PROGRESS] * 100.0f;
-			if ( fProgress > 100.0 )
-				fProgress = 100.0;
+			if ( fProgress > 100.0f )
+				fProgress = 100.0f;
 		}
 		BuildStatLine("PER_COM", &fProgress, STATTYPE_FPERCENT, nullptr);
 		return 0;
@@ -809,7 +789,7 @@ long CStats::ConstructStatLine(long nStat, long& nIndents)
 			if ( nStat == nTempValue++ )
 			{
 				// Course name
-				sprintf(gUString, "ST_R_%02d", i + 1);
+				_snprintf(gUString, sizeof(gUString), "ST_R_%02d", i + 1);
 				strcpy(gString, gxt->GetText(gUString));
 				gUString[0] = '\0';
 				return 0;
@@ -863,7 +843,7 @@ long CStats::ConstructStatLine(long nStat, long& nIndents)
 				if ( nStat == nTempValue++ )
 				{
 					// Course X
-					sprintf(gUString, "ST_C_%02d", i + 1);
+					_snprintf(gUString, sizeof(gUString), "ST_C_%02d", i + 1);
 					strcpy(gString, gxt->GetText(gUString));
 					gUString[0] = '\0';
 					nIndents = 1;
@@ -919,7 +899,7 @@ long CStats::ConstructStatLine(long nStat, long& nIndents)
 				if ( nStat == nTempValue++ )
 				{
 					// Course X
-					sprintf(gUString, "ST_C_%02d", i + 1);
+					_snprintf(gUString, sizeof(gUString), "ST_C_%02d", i + 1);
 					strcpy(gString, gxt->GetText(gUString));
 					gUString[0] = '\0';
 					nIndents = 1;
@@ -975,7 +955,7 @@ long CStats::ConstructStatLine(long nStat, long& nIndents)
 				if ( nStat == nTempValue++ )
 				{
 					// Course X
-					sprintf(gUString, "ST_C_%02d", i + 1);
+					_snprintf(gUString, sizeof(gUString), "ST_C_%02d", i + 1);
 					strcpy(gString, gxt->GetText(gUString));
 					gUString[0] = '\0';
 					nIndents = 1;
@@ -1031,7 +1011,7 @@ long CStats::ConstructStatLine(long nStat, long& nIndents)
 				if ( nStat == nTempValue++ )
 				{
 					// Course X
-					sprintf(gUString, "ST_C_%02d", i + 1);
+					_snprintf(gUString, sizeof(gUString), "ST_C_%02d", i + 1);
 					strcpy(gString, gxt->GetText(gUString));
 					gUString[0] = '\0';
 					nIndents = 1;
@@ -1148,27 +1128,27 @@ void CStats::BuildStatLine(char* pEntryName, void* pVal1, int nType, void* pVal2
 				{
 				case STATTYPE_INT:
 					{
-						sprintf(gUString, "%d", *static_cast<int*>(pVal1));
+						_snprintf(gUString, sizeof(gUString), "%d", *static_cast<int*>(pVal1));
 						return;
 					}
 				case STATTYPE_FLOAT:
 					{
-						sprintf(gUString, "%.2f", *static_cast<float*>(pVal1));
+						_snprintf(gUString, sizeof(gUString), "%.2f", *static_cast<float*>(pVal1));
 						return;
 					}
 				case STATTYPE_PERCENT:
 					{
-						sprintf(gUString, "%d%%", *static_cast<int*>(pVal1));
+						_snprintf(gUString, sizeof(gUString), "%d%%", *static_cast<int*>(pVal1));
 						return;
 					}
 				case STATTYPE_FPERCENT:
 					{
-						sprintf(gUString, "%.1f%%", *static_cast<float*>(pVal1));
+						_snprintf(gUString, sizeof(gUString), "%.1f%%", *static_cast<float*>(pVal1));
 						return;
 					}
 				case STATTYPE_FMONEY:
 					{
-						sprintf(gUString, "$%.2f", *static_cast<float*>(pVal1));
+						_snprintf(gUString, sizeof(gUString), "$%.2f", *static_cast<float*>(pVal1));
 						return;
 					}
 				}
@@ -1179,12 +1159,12 @@ void CStats::BuildStatLine(char* pEntryName, void* pVal1, int nType, void* pVal2
 				{
 				case STATTYPE_TIME:
 					{
-						sprintf(gUString, "%d:%02d", *static_cast<int*>(pVal1), *static_cast<int*>(pVal2));
+						_snprintf(gUString, sizeof(gUString), "%d:%02d", *static_cast<int*>(pVal1), *static_cast<int*>(pVal2));
 						return;
 					}
 				case STATTYPE_OUTOF:
 					{
-						sprintf(gUString, "%d %s %d", *static_cast<int*>(pVal1), gxt->GetText("FEST_OO"), *static_cast<int*>(pVal2));
+						_snprintf(gUString, sizeof(gUString), "%d %s %d", *static_cast<int*>(pVal1), gxt->GetText("FEST_OO"), *static_cast<int*>(pVal2));
 						return;
 					}
 				}

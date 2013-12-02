@@ -6,7 +6,6 @@
 #define FUNC_CPed__GiveWeapon								0x5E6080
 #define FUNC_CPed_func_5E6580								0x5E6580
 #define FUNC_CPed__GetBonePosition							0x5E4280
-#define FUNC_CPedIntelligence__GetSwimTask					0x601070 
 
 class CPedFlags
 {

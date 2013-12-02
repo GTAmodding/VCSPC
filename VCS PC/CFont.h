@@ -48,9 +48,8 @@ enum eFontFileIDs
 class CFont
 {
 public:
-	class Details
+	struct Details
 	{
-	public:
 		CRGBA					textDrawBoxColor;
 		float					textLetterSizeX;
 		float					textLetterSizeY;
@@ -72,6 +71,7 @@ public:
 
 public:
 	static CSprite2d		Sprite[NUM_FONT_SHEETS];
+
 #pragma pack(push, 1)
 	static struct sFontSizes
 	{

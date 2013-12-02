@@ -1,8 +1,6 @@
 #ifndef __CTEXT
 #define __CTEXT
 
-#define WIN32_LEAN_AND_MEAN
-
 #define	FUNC_CText__GetText							0x6A0050
 #define	FUNC_CText__TextNumberFormat				0x69DE90
 #define FUNC_CText__Clear							0x69FF20
@@ -12,7 +10,7 @@
 enum eLanguages
 {
 	LANG_English,
-//	LANG_Spanish,
+	//LANG_Spanish,
 	LANG_Polish,
 	NUM_LANGUAGES
 };

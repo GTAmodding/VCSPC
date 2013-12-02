@@ -1,23 +1,14 @@
 #include "StdAfx.h"
 
+// Wrappers
+WRAPPER void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4)
+{ WRAPARG(rect); WRAPARG(rgb1); WRAPARG(rgb2); WRAPARG(rgb3); WRAPARG(rgb4); EAXJMP(0x727420); }
+
+
 static inline const char* GetTitlePCByLanguage()
 {
 	static const char* const	cTitlePCNames[] = { "title_pc_EN", /*"title_pc_ES",*/ "title_pc_PL" };
 	return cTitlePCNames[menu->GetLanguage()];
-}
-
-void CSprite2d::DrawTexturedRect(CRect* pos, CRGBA* color)
-{
-	DWORD dwFunc = (DWORD)FUNC_CSprite2d__DrawTexturedRect;
-	_asm
-	{
-		mov		eax, color
-		push	eax
-		mov		eax, pos
-		push	eax
-		mov		ecx, this
-		call	dwFunc
-	}
 }
 
 void CSprite2d::SetTexture(const char* name, const char* maskName)
@@ -43,7 +34,7 @@ void CSprite2d::SetTextureNoMask(const char* name)
 		if ( m_pTexture )
 			RwTextureDestroy(m_pTexture);
 
-		m_pTexture = RwTextureRead(name, NULL);
+		m_pTexture = RwTextureRead(name, nullptr);
 	}
 }
 
@@ -60,34 +51,38 @@ bool CSprite2d::SetTextureFromSPTA(CPNGArchive& pArchive, const char* pName)
 	return false;
 }
 
-void CSprite2d::Clean()
+void CSprite2d::Delete()
 {
-	DWORD dwFunc = (DWORD)FUNC_CSprite2d__Clean;
-	_asm
+	if ( m_pTexture )
 	{
-		mov		ecx, this
-		call	dwFunc
+		RwTextureDestroy(m_pTexture);
+		m_pTexture = nullptr;
 	}
 }
 
-void CSprite2d::DrawRadioIcon(float posX, float posY, float width, float height, CRGBA* colour)
+void CSprite2d::Draw(const CRect& rect, const CRGBA& colour)
 {
-	DWORD dwFunc = (DWORD)FUNC_CSprite2d__DrawRadioIcon;
-	_asm
-	{
-		mov		eax, colour
-		push	eax
-		mov		eax, height
-		push	eax
-		mov		eax, width
-		push	eax
-		mov		eax, posY
-		push	eax
-		mov		eax, posX
-		push	eax
-		mov		ecx, this
-		call	dwFunc
-	}
+	SetVertices(rect, colour, colour, colour, colour);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, m_pTexture ? m_pTexture->raster : nullptr);
+	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
+}
+
+void CSprite2d::Draw(float fPosX, float fPosY, float fWidth, float fHeight, const CRGBA& colour)
+{
+	SetVertices(CRect(fPosX, fPosY + fHeight, fPosX + fWidth, fPosY), colour, colour, colour, colour);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, m_pTexture ? m_pTexture->raster : nullptr);
+	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
+}
+
+void CSprite2d::DrawRect(const CRect& rect, const CRGBA& colour)
+{
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
+	SetVertices(rect, colour, colour, colour, colour);
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, reinterpret_cast<void*>(colour.a != 255));
+	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, FALSE);
 }
 
 void CSprite2d::ReadLoadingTextures(bool bIntroSplash, unsigned char nIntroSplashID)
@@ -125,64 +120,18 @@ void CSprite2d::ReadLoadingTextures(bool bIntroSplash, unsigned char nIntroSplas
 		if ( bIntroSplash )
 		{
 			if ( nIntroSplashID == 1 )
-				strncpy(SplashName, "intro", 20);
+				strncpy(SplashName, "intro", sizeof(SplashName));
 			else
-				strncpy(SplashName, "outro", 20);
+				strncpy(SplashName, "outro", sizeof(SplashName));
 		}
 		else
 		{
 			if ( i )
-				_snprintf(SplashName, 20, "loadsc%d", bFinalIndexes[i]);
+				_snprintf(SplashName, sizeof(SplashName), "loadsc%d", bFinalIndexes[i]);
 			else
-				strncpy(SplashName, GetTitlePCByLanguage(), 20);
+				strncpy(SplashName, GetTitlePCByLanguage(), sizeof(SplashName));
 		}
 		loadingTextures[i].SetTextureFromSPTA(LoadscsArchive, SplashName);
 	}
 	LoadscsArchive.CloseArchive();
 }
-
-void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4)
-{
-	DWORD dwFunc = (DWORD)FUNC_CSprite2d__SetVertices;
-	_asm
-	{
-		push	rgb4
-		push	rgb3
-		push	rgb2
-		push	rgb1
-		push	rect
-		call	dwFunc
-		add		esp, 14h
-	}
-}
-
-void CSprite2d::DrawRect(const CRect& rect, const CRGBA& colour)
-{
-	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
-	SetVertices(rect, colour, colour, colour, colour);
-	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, reinterpret_cast<void*>(colour.a != 255));
-	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
-	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, FALSE);
-}
-
-/*void CSprite2d::Reload(const char* name)
-{
-	if ( m_pTexture )
-	{
-		RwTextureDestroy(m_pTexture);
-		m_pTexture = NULL;
-	}
-	if ( name )
-		m_pTexture = RwTextureRead(name, NULL);
-}
-
-void CSprite2d::Reload(const char* name, const char* maskName)
-{
-	if ( m_pTexture )
-	{
-		RwTextureDestroy(m_pTexture);
-		m_pTexture = NULL;
-	}
-	if ( name && maskName )
-		m_pTexture = RwTextureRead(name, maskName);
-}*/

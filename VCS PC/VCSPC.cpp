@@ -258,7 +258,6 @@ void*						VideoPlayerRelease_JumpBack;
 void*						MaxosFrameLimitHack_JumpBack;
 void*						FrameLimit_SwitchInject_JumpBack;
 void*						FrameLimit_StringInject_JumpBack;
-void*						OpaqueRadarHack_JumpBack;
 void*						LoadFontsHack_JumpBack;
 void*						ReleaseFontsHack_JumpBack;
 void*						SetCutsceneModelHack_JumpBack;
@@ -365,6 +364,16 @@ const float					fRadarTileDimensions2 = 7.0;;
 const float					fSubtitlesWidth = 0.45;
 const float					fSubtitlesHeight = 0.9;
 const float* const			pRefFal = &fRefZVal;
+
+const float fWeaponIconWidth = 75.0f;
+const float fWeaponIconHeight = 72.0f;
+const float	fWLStarPosX	= 32.5f;
+const float fWLStarPosY = 100.0f;
+const float fWLStarHeight = 1.5f;
+const float fWLStarWidth = 0.95f;
+const float fWLStarDistance = 20.0f;
+const float	fWLStarAlpha = HUD_TRANSPARENCY;
+
 /*const char					aFlinst[] = "FLINST";
 const char					aDbfins[] = "DBFINS";
 const char					aFltrst[] = "FLTRST";
@@ -814,7 +823,6 @@ __forceinline void DefineVariables()
 	MaxosFrameLimitHack_JumpBack = (void*)0x748DA3;
 	FrameLimit_SwitchInject_JumpBack = (void*)0x57CECF;
 	FrameLimit_StringInject_JumpBack = (void*)0x57A168;
-	OpaqueRadarHack_JumpBack = (void*)0x5864EA;
 	LoadFontsHack_JumpBack = (void*)0x5BA6E5;
 	ReleaseFontsHack_JumpBack = (void*)0x7189C6;
 	SetCutsceneModelHack_JumpBack = (void*)0x5B10DE;
@@ -2096,6 +2104,8 @@ __forceinline void Main_Patches()
 		Patch<const void*>(0x58D94D, &fWeaponIconHeight);
 		Patch<const void*>(0x58D8CB, &fWeaponIconWidth);
 		Patch<const void*>(0x58D935, &fWeaponIconWidth);
+		//Patch<DWORD>(0x58D89B, HUD_TRANSPARENCY);
+
 		Patch<WORD>(0x58DF18, 0xE990);
 		Patch<BYTE>(0x58DE23, 0xEB);
 		InjectHook(0x588B60, CHud::GetScreenCoordsForPlayerItem, PATCH_JUMP);
@@ -2116,6 +2126,7 @@ __forceinline void Main_Patches()
 		Patch<const void*>(0x58DCC0, &fWLStarWidth);
 		Patch<const void*>(0x58DD86, &fWLStarWidth);
 		Patch<const void*>(0x58DFED, &fWLStarDistance);
+		Patch<const void*>(0x58D9BA, &fWLStarAlpha);
 		/*Patch<const void*>(0x5834C2, &fRadarWidth);
 		Patch<const void*>(0x58781B, &fRadarWidth);
 		Patch<const void*>(0x58A449, &fRadarWidth);
@@ -2952,7 +2963,7 @@ __forceinline void Main_Patches()
 	static char		aNoDesktopMode[64];
 	RECT			desktop;
 	GetWindowRect(GetDesktopWindow(), &desktop);
-	sprintf(aNoDesktopMode, "Cannot find %dx%dx32 video mode", desktop.right, desktop.bottom);
+	_snprintf(aNoDesktopMode, sizeof(aNoDesktopMode), "Cannot find %dx%dx32 video mode", desktop.right, desktop.bottom);
 
 	patch(0x746363, desktop.right, 4);
 	patch(0x746368, desktop.bottom, 4);
@@ -3004,6 +3015,8 @@ __forceinline void Main_Patches()
 	call(0x404910, &PedPoolGetAt, PATCH_JUMP);
 
 	// Empire Buildings
+	/*Patch<void*>(0x495F4C, func_069C);
+	Patch<void*>(0x495F50, func_069C);
 	Patch<void*>(0x495F68, func_069C);
 	Patch<void*>(0x495F6C, func_069C);
 	Patch<void*>(0x495F70, func_069C);
@@ -3011,7 +3024,7 @@ __forceinline void Main_Patches()
 	Patch<void*>(0x495F78, func_069C);
 	Patch<void*>(0x495F7C, func_069C);
 	Patch<const char*>(0x4111AE, "empire_perma");
-	InjectHook(0x53C215, CEmpireManager::Process);
+	InjectHook(0x53C215, CEmpireManager::Process);*/
 
 	// Menu background
 	_asm
@@ -3208,11 +3221,17 @@ __forceinline void Main_Patches()
 	patch(0x584B7D, 0x09, 1);
 	patch(0x584D9A, -4, 1);
 	patch(0x584DA2, 3, 4);
-	patch(0x586433, 0x8D, 4);
+	patch(0x586433, 0x8D * HUD_TRANSPARENCY / 0xFF, 4);
 	patch(0x586438, 0xE0, 4);
 	patch(0x58643D, 0xAE, 4);
 	patch(0x586442, 0x7F, 1);
-	call(0x58645D, &OpaqueRadarHack, PATCH_NOTHING);
+	Patch<DWORD>(0x58647C, HUD_TRANSPARENCY);
+	Patch<DWORD>(0x5864BD, HUD_TRANSPARENCY);
+	Patch<DWORD>(0x58A789, HUD_TRANSPARENCY);
+	Patch<DWORD>(0x58A88F, HUD_TRANSPARENCY);
+	Patch<DWORD>(0x58A8D9, HUD_TRANSPARENCY);
+	Patch<DWORD>(0x58A98F, HUD_TRANSPARENCY);
+	call(0x58641A/*0x58645D*/, &OpaqueRadarHack, PATCH_JUMP);
 	call(0x586500, &OpaqueRadarHack2, PATCH_NOTHING);
 
 	// Temp? Map screen
@@ -3364,7 +3383,6 @@ __forceinline void Main_Patches()
 	call(0x5DDBCE, &PedDataConstructorInject_Civilian, PATCH_JUMP);
 	call(0x5DE39E, &PedDataConstructorInject_Civilian, PATCH_JUMP);
 	call(0x5DDD7F, &PedDataConstructorInject_Cop, PATCH_JUMP);
-	call(0x5B9278, &CPedModelInfoVCS::LoadPedColours, PATCH_NOTHING);
 
 	// Streaming tweaks
 	/*static DWORD	dwFakeIntID;
@@ -4343,9 +4361,9 @@ void InitRegionalLanguageSets()
 
 	switch ( (int)GetKeyboardLayout(0) & 0x3FF )
 	{
-	/*case LANG_SPANISH:
-		menu->SetTextLanguage(LANG_Spanish);
-		break;*/
+	//case LANG_SPANISH:
+	//	menu->SetTextLanguage(LANG_Spanish);
+	//	break;
 	case LANG_POLISH:
 		menu->SetTextLanguage(LANG_Polish);
 		break;
@@ -4356,9 +4374,9 @@ void InitRegionalLanguageSets()
 
 	switch ( GetUserDefaultLCID() & 0x3FF )
 	{
-	/*case LANG_SPANISH:
-		menu->SetLanguage(LANG_Spanish);
-		break;*/
+	//case LANG_SPANISH:
+	//	menu->SetLanguage(LANG_Spanish);
+	//	break;
 	case LANG_POLISH:
 		menu->SetLanguage(LANG_Polish);
 		break;
@@ -6007,9 +6025,10 @@ void __declspec(naked) Widescreen_StringInject()
 		movzx	eax, al
 		push	eax
 		push	offset aFem_Asd
+		push	LENGTH gString
 		push	offset gString
-		call	sprintf
-		add		esp, 0Ch
+		call	_snprintf
+		add		esp, 10h
 		mov		ecx, [gxt]
 		push	offset gString
 		jmp		Clock_StringInject_JumpBack
@@ -6400,7 +6419,14 @@ void __declspec(naked) CameraInitHack()
 void __declspec(naked) OpaqueRadarHack()
 {
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
-	_asm jmp OpaqueRadarHack_JumpBack
+	_asm
+	{
+		mov		ecx, 586420h
+		mov		al, [esp+140h-12Dh]
+		test	al, al
+		jmp		ecx
+	}
+	
 }
 
 void __declspec(naked) LoadFontsHack()
@@ -6414,10 +6440,10 @@ void __declspec(naked) LoadFontsHack()
 
 void __declspec(naked) ReleaseFontsHack()
 {
-	CFont::Sprite[0].Clean();
-	CFont::Sprite[1].Clean();
-	CFont::Sprite[2].Clean();
-	CFont::Sprite[3].Clean();
+	CFont::Sprite[0].Delete();
+	CFont::Sprite[1].Delete();
+	CFont::Sprite[2].Delete();
+	CFont::Sprite[3].Delete();
 	_asm jmp ReleaseFontsHack_JumpBack
 }
 
@@ -6811,7 +6837,7 @@ void LogToFile(const char* str, ...)
 		char		TempString[MAX_PATH];
 
 		va_start(arguments, str);
-		vsprintf(TempString, str, arguments);
+		vsnprintf(TempString, sizeof(TempString), str, arguments);
 		GetLocalTime(&systemTime);
 		fprintf(LogFile, "[%02d/%02d/%d %02d:%02d:%02d] ", systemTime.wDay, systemTime.wMonth, systemTime.wYear, systemTime.wHour, systemTime.wMinute, systemTime.wSecond);
 		fputs(TempString, LogFile);

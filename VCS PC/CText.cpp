@@ -9,7 +9,7 @@ const char* CText::GetText(const char* entry)
 		outputText = CLEOGetTextFunc(this, entry);
 		if ( !*outputText )
 		{
-			_snprintf(missingText, 24, "%s missing", entry);
+			_snprintf(missingText, sizeof(missingText), "%s missing", entry);
 			return	missingText;
 		}
 		return outputText;
@@ -29,7 +29,7 @@ const char* CText::GetText(const char* entry)
 				outputText = tkeyMission.Locate(entry, &found);
 				if ( !found )
 				{
-					_snprintf(missingText, 24, "%s missing", entry);
+					_snprintf(missingText, sizeof(missingText), "%s missing", entry);
 					return	missingText;
 				}
 			}

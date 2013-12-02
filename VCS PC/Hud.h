@@ -21,6 +21,7 @@ enum eHudTextures
 
 
 #define	BAR_ENERGY_LOSS_FLASH_DURATION	2000
+#define HUD_TRANSPARENCY				217
 
 class CHud
 {

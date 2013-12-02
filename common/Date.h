@@ -18,7 +18,7 @@ public:
 		: m_time(Time)
 	{}
 
-	CDate(unsigned int nDay, unsigned int nMonth, int nExtraYears = 0)
+	CDate(unsigned int nDay, unsigned int nMonth, int nYear = 0, bool bAbsYr = false)
 	{
 		tm*		dateTime;
 		time_t	rawTime;
@@ -31,11 +31,17 @@ public:
 		dateTime->tm_hour = 0;
 		dateTime->tm_mday = nDay;
 		dateTime->tm_mon = nMonth - 1;
-		dateTime->tm_year += nExtraYears;
+		if ( bAbsYr )
+			dateTime->tm_year = nYear - 1900;
+		else
+			dateTime->tm_year += nYear;
 		//dateTime->tm_isdst = FALSE;
 
 		m_time = mktime(dateTime);
 	}
+
+	inline double	GetSecondsLeft(const CDate& toDate)
+		{ return difftime(toDate.m_time, m_time); }
 
 	operator time_t() { return m_time; }
 

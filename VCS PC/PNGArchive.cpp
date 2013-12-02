@@ -9,7 +9,7 @@ static RwBool SPTAClose(void* data)
 
 static RwUInt32 SPTARead(void* data, void* buffer, RwUInt32 length)
 {
-	return fread(buffer, length, 1, (FILE*)data);
+	return fread(buffer, length, 1, static_cast<FILE*>(data));
 }
 
 static RwBool SPTAWrite(void* data, const void* buffer, RwUInt32 length)
@@ -23,7 +23,7 @@ static RwBool SPTAWrite(void* data, const void* buffer, RwUInt32 length)
 
 static RwBool SPTASkip(void* data, RwUInt32 offset)
 {
-	return fseek((FILE*)data, offset, SEEK_CUR);
+	return fseek(static_cast<FILE*>(data), offset, SEEK_CUR);
 }
 
 void CPNGArchive::SetDirectory(const char* pDirName)
@@ -88,23 +88,24 @@ RwTexture* CPNGArchive::ReadTexture(const char* pTextureName)
 			*pExtensionPos = '\0';
 
 		WORD		wTexturesInDir;
-		struct
-		{
-			DWORD	dwOffsetToTexture;
-			char	TextureName[16];
-		}			ArchiveEntry;
 
 		fread(&wTexturesInDir, 2, 1, hArchiveHandle);
 
 		for ( WORD i = 0; i < wTexturesInDir; ++ i )
 		{
+			struct
+			{
+				DWORD	dwOffsetToTexture;
+				char	TextureName[16];
+			}	ArchiveEntry;
+
 			fread(&ArchiveEntry, 20, 1, hArchiveHandle);
 			if ( !_strnicmp(ArchiveEntry.TextureName, pTexName, 16) )
 			{
 				fseek(hArchiveHandle, ArchiveEntry.dwOffsetToTexture, SEEK_SET);
 
 				// Patch RtPNGImageRead
-				*(BYTE*)0x7CF9CA = rwSTREAMCUSTOM;
+				Memory::Patch<BYTE>(0x7CF9CA, rwSTREAMCUSTOM);
 
 				RwStreamCustom		StreamStruct;
 
@@ -116,7 +117,7 @@ RwTexture* CPNGArchive::ReadTexture(const char* pTextureName)
 
 				// Load it
 				RwInt32		dwWidth, dwHeight, dwDepth, dwFlags;
-				RwImage*	pImage = RtPNGImageRead((const RwChar*)&StreamStruct);
+				RwImage*	pImage = RtPNGImageRead(reinterpret_cast<RwChar*>(&StreamStruct));
 				RwRaster*	pRaster;		
 
 				RwImageFindRasterFormat(pImage, rwRASTERTYPETEXTURE, &dwWidth, &dwHeight, &dwDepth, &dwFlags);
@@ -128,7 +129,7 @@ RwTexture* CPNGArchive::ReadTexture(const char* pTextureName)
 				RwImageDestroy(pImage);
 
 				// Revert RtPNGImageRead
-				*(BYTE*)0x7CF9CA = rwSTREAMFILENAME;
+				Memory::Patch<BYTE>(0x7CF9CA, rwSTREAMFILENAME);
 				break;
 			}
 		}

@@ -157,19 +157,19 @@ void CFont::SetTextLetterSize(float scaleX, float scaleY)
 
 void CFont::SetTextLetterSizeWithLanguageScaling(float scaleX, float scaleY)
 {
+	fontDetails->textLetterSizeY = scaleY;
 	switch ( menu->GetLanguage() )
 	{
-	/*case LANG_Spanish:
-		fontDetails->textLetterSizeX = scaleX * 0.8f;
-		break;*/
+	//case LANG_Spanish:
+	//	fontDetails->textLetterSizeX = scaleX * 0.85f;
+	//	break;
 	case LANG_Polish:
-		fontDetails->textLetterSizeX = scaleX * 0.9f;
+		fontDetails->textLetterSizeX = scaleX * 0.95f;
 		break;
 	default:	// LANG_English
 		fontDetails->textLetterSizeX = scaleX;
 		break;
 	}
-	fontDetails->textLetterSizeY = scaleY;
 }
 
 void CFont::SetFontStyle(unsigned char bFont)
@@ -184,14 +184,6 @@ void CFont::SetFontStyle(unsigned char bFont)
 		fontDetails->bSpriteToUse = bFont;
 		fontDetails->bFontStyle = 0;
 	}
-	/*DWORD dwFunc = (DWORD)FUNC_CFont__SetFontStyle;
-	_asm
-	{
-		movzx	eax, bFont
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}*/
 }
 
 void CFont::SetTextColour(CRGBA colour)

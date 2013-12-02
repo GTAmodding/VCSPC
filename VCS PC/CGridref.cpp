@@ -17,7 +17,7 @@ void CGridref::Draw()
 		CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
 		CFont::SetTextLetterSize(_width(0.35), _height(0.65));
 		CFont::SetTextColour(CRGBA(BaseColors[2]));
-		sprintf(ZoneID, "%c%d", zoneX + 100, zoneY);
+		_snprintf(ZoneID, sizeof(ZoneID), "%c%d", zoneX + 100, zoneY);
 		CFont::PrintString(_x(150.0), _y(7.5), ZoneID);
 		CFont::PrintString(_x(115.0), _y(7.5), GetNameByID(zoneX, zoneY));
 		CFont::SetTextOutline(0);

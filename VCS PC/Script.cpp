@@ -550,6 +550,29 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			weaponsToReturn.ReturnConfiscatedWeapons(players[0]);
 			return;
 		}
+	case 0x695:
+		{
+			// get_empire_coords %1d% %2d% %3d% %4d%
+			CollectParameters(1);
+
+			CVector*	pEmpirePos = &CEmpireManager::GetEmpire(scriptParams[0].iParam)->GetTransform()->m_translate;
+			scriptParams[0].fParam = pEmpirePos->x;
+			scriptParams[1].fParam = pEmpirePos->y;
+			scriptParams[2].fParam = pEmpirePos->z;
+
+			StoreParameters(3);
+			return;
+		}
+	case 0x696:
+		{
+			// get_empire_heading %1d% %2d%
+			CollectParameters(1);
+
+			scriptParams[0].fParam = CEmpireManager::GetEmpire(scriptParams[0].iParam)->GetTransform()->m_heading;
+
+			StoreParameters(1);
+			return;
+		}
 	case 0x069C:
 		{
 			// set_empire_ownership %1d% %2d%

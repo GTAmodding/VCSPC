@@ -123,23 +123,20 @@ class CRGBA
 public:
 	BYTE r, g, b, a; 
 
-	CRGBA() { };
+	inline CRGBA() {}
 
-	CRGBA(const CRGBA& in)
+	inline CRGBA(const CRGBA& in)
 		: r(in.r), g(in.g), b(in.b), a(in.a)
-	{
-	}
+	{}
 
-	CRGBA(const CRGBA& in, BYTE alpha)
+	inline CRGBA(const CRGBA& in, BYTE alpha)
 		: r(in.r), g(in.g), b(in.b), a(alpha)
-	{
-	}
+	{}
 
 
-	CRGBA(BYTE red, BYTE green, BYTE blue, BYTE alpha = 255)
+	inline CRGBA(BYTE red, BYTE green, BYTE blue, BYTE alpha = 255)
 		: r(red), g(green), b(blue), a(alpha)
-	{
-	}
+	{}
 
 	void	BaseColors__Constructor();
 };
@@ -150,11 +147,10 @@ public:
 	float x1, y1;
 	float x2, y2; 
 
-	CRect() { }
-	CRect(float a, float b, float c, float d)
+	inline CRect() {}
+	inline CRect(float a, float b, float c, float d)
 		: x1(a), y1(b), x2(c), y2(d)
-	{
-	}
+	{}
 };
 
 
@@ -169,7 +165,7 @@ public:
 	virtual ~CPlaceable()
 		{ }
 
-	CPlaceable(int dummy)
+	inline CPlaceable(int dummy)
 	{
 		// Dummy ctor
 		UNREFERENCED_PARAMETER(dummy);
@@ -270,7 +266,7 @@ public:
     //********* END CEntityInfo ************//
 
 public:
-	CEntity(int dummy)
+	inline CEntity(int dummy)
 		: CPlaceable(dummy)
 	{
 		// Dummy ctor
