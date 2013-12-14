@@ -23,32 +23,73 @@ namespace Memory
 {
 	template<typename T, typename AT>
 	inline void		Patch(AT address, T value)
-	{ *reinterpret_cast<T*>(address) = value; }
+	{ *(T*)address = value; }
 
 	template<typename AT>
 	inline void		Nop(AT address, unsigned int nCount)
 	// TODO: Finish multibyte nops
-	{ memset(reinterpret_cast<void*>(address), 0x90, nCount); }
+	{ memset((void*)address, 0x90, nCount); }
 
-	template<typename AT>
-	inline void		InjectHook(AT address, void* hook, unsigned int nType=PATCH_NOTHING)
+	template<typename AT, typename HT>
+	inline void		InjectHook(AT address, HT hook, unsigned int nType=PATCH_NOTHING)
 	{
 		switch ( nType )
 		{
 		case PATCH_JUMP:
-			*reinterpret_cast<BYTE*>(address) = 0xE9;
+			*(BYTE*)address = 0xE9;
 			break;
 		case PATCH_CALL:
-			*reinterpret_cast<BYTE*>(address) = 0xE8;
+			*(BYTE*)address = 0xE8;
 			break;
 		}
-		*reinterpret_cast<DWORD*>(static_cast<DWORD>(address) + 1) = reinterpret_cast<DWORD>(hook) - static_cast<DWORD>(address) - 5;
+		*(DWORD*)((DWORD)address + 1) = (DWORD)hook - (DWORD)address - 5;
+	}
+};
+
+namespace MemoryVP
+{
+	template<typename T, typename AT>
+	inline void		Patch(AT address, T value)
+	{
+		DWORD		dwProtect[2];
+		VirtualProtect((void*)address, sizeof(T), PAGE_EXECUTE_READWRITE, &dwProtect[0]);
+		*(T*)address = value;
+		VirtualProtect((void*)address, sizeof(T), dwProtect[0], &dwProtect[1]);
 	}
 
 	template<typename AT>
-	inline void		InjectHook(AT address, DWORD hook, unsigned int nType=PATCH_NOTHING)
+	inline void		Nop(AT address, unsigned int nCount)
+	// TODO: Finish multibyte nops
 	{
-		InjectHook(address, reinterpret_cast<void*>(hook), nType);
+		DWORD		dwProtect[2];
+		VirtualProtect((void*)address, nCount, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
+		memset((void*)address, 0x90, nCount);
+		VirtualProtect((void*)address, nCount, dwProtect[0], &dwProtect[1]);
+	}
+
+	template<typename AT, typename HT>
+	inline void		InjectHook(AT address, HT hook, unsigned int nType=PATCH_NOTHING)
+	{
+		DWORD		dwProtect[2];
+		switch ( nType )
+		{
+		case PATCH_JUMP:
+			VirtualProtect((void*)address, 5, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
+			*(BYTE*)address = 0xE9;
+			break;
+		case PATCH_CALL:
+			VirtualProtect((void*)address, 5, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
+			*(BYTE*)address = 0xE8;
+			break;
+		default:
+			VirtualProtect((void*)((DWORD)address + 1), 4, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
+			break;
+		}
+		*(DWORD*)((DWORD)address + 1) = (DWORD)hook - (DWORD)address - 5;
+		if ( nType == PATCH_NOTHING )
+			VirtualProtect((void*)((DWORD)address + 1), 4, dwProtect[0], &dwProtect[1]);
+		else
+			VirtualProtect((void*)address, 5, dwProtect[0], &dwProtect[1]);
 	}
 };
 

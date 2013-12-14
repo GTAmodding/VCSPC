@@ -63,9 +63,6 @@
     <ClCompile Include="CText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CTxdStore.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CWanted.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -94,9 +91,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sprite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RWwrap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VideoPlayer.cpp">
@@ -183,6 +177,12 @@
     <ClCompile Include="PlayerInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TxdStore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RW.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCam.h">
@@ -227,9 +227,6 @@
     <ClInclude Include="CText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CTxdStore.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CVehicle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -264,9 +261,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Sprite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RWwrap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VideoPlayer.h">
@@ -378,6 +372,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlayerInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TxdStore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

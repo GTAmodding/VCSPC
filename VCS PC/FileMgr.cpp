@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 
-//tFileLoaderList*		CFileLoader::m_pFilesList;
 tFileLoaderList*		CFileLoader::m_pImagesList;
 tFileLoaderList*		CFileLoader::m_pObjectsList;
 tFileLoaderList*		CFileLoader::m_pScenesList;
@@ -82,7 +81,9 @@ void CFileLoader::LoadLevels()
 	InitModelIndices();
 
 	// Wraps some calls
-	//CEmpireManager::Initialise();
+#ifdef _INCLUDE_BETA_CODE
+	CEmpireManager::Initialise();
+#endif
 	InitPostIDEStuff();
 	CPedModelInfoVCS::LoadPedColours();
 

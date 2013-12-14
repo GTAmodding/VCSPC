@@ -1,10 +1,6 @@
 #ifndef __RADAR
 #define __RADAR
 
-#define WIN32_LEAN_AND_MEAN
-
-#define FUNC_CRadar__ChangeBlipBrightness					0x583C70
-
 class CRadar
 {
 public:

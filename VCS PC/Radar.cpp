@@ -1,16 +1,6 @@
 #include "StdAfx.h"
 
-void CRadar::ChangeBlipBrightness(int nBlipID, int nBrightness)
-{
-	DWORD dwFunc = (DWORD)FUNC_CRadar__ChangeBlipBrightness;
-	_asm
-	{
-		push	nBrightness
-		push	nBlipID
-		call	dwFunc
-		add		esp, 8
-	}
-}
+WRAPPER void CRadar::ChangeBlipBrightness(int nBlipID, int nBrightness) { WRAPARG(nBlipID); WRAPARG(nBrightness); EAXJMP(0x583C70); }
 
 DWORD CRadar::GetRadarTraceColour(int colour, bool bDark, bool bFriend)
 {

@@ -392,7 +392,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			ToLower(cString, 8);
 			CStreaming::RequestSpecialModel(0, cString, 26);
 			CStreaming::LoadRequestedModels(1);
-			CPed* pPed = players[scriptParams[0].bParam].GetPed();
+			CPed* pPed = CWorld::Players[scriptParams[0].bParam].GetPed();
 			DWORD iAnimGroupBackup = pPed->GetMoveAnimGroup();
 			pPed->DeleteRwObject();
 			pPed->ModelIndex() = -1;
@@ -547,7 +547,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 		{
 			// return_player_weapons
 			LogToFile("Opcode 052F called");
-			weaponsToReturn.ReturnConfiscatedWeapons(players[0]);
+			weaponsToReturn.ReturnConfiscatedWeapons(CWorld::Players[0]);
 			return;
 		}
 	case 0x695:

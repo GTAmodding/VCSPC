@@ -260,6 +260,7 @@ popd</Command>
     <ClCompile Include="PNGArchive.cpp" />
     <ClCompile Include="Pools.cpp" />
     <ClCompile Include="Replay.cpp" />
+    <ClCompile Include="RW.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="CShadows.cpp" />
     <ClCompile Include="Stats.cpp" />
@@ -268,11 +269,9 @@ popd</Command>
     <ClCompile Include="Messages.cpp" />
     <ClCompile Include="Radar.cpp" />
     <ClCompile Include="Sprite.cpp" />
-    <ClCompile Include="CTxdStore.cpp" />
     <ClCompile Include="CWanted.cpp" />
     <ClCompile Include="CWeaponInfo.cpp" />
     <ClCompile Include="PcSave.cpp" />
-    <ClCompile Include="RWwrap.cpp" />
     <ClCompile Include="Rs.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -280,6 +279,7 @@ popd</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="TxdStore.cpp" />
     <ClCompile Include="UpdateManager.cpp" />
     <ClCompile Include="UserDisplay.cpp" />
     <ClCompile Include="VCSPC.cpp">
@@ -337,17 +337,16 @@ popd</Command>
     <ClInclude Include="CText.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="TxdStore.h" />
     <ClInclude Include="UpdateManager.h" />
     <ClInclude Include="UserDisplay.h" />
     <ClInclude Include="Radar.h" />
     <ClInclude Include="Sprite.h" />
-    <ClInclude Include="CTxdStore.h" />
     <ClInclude Include="CVehicle.h" />
     <ClInclude Include="CWanted.h" />
     <ClInclude Include="CWeaponInfo.h" />
     <ClInclude Include="CWeaponSlot.h" />
     <ClInclude Include="PcSave.h" />
-    <ClInclude Include="RWwrap.h" />
     <ClInclude Include="Rs.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="handlingIDs.h" />

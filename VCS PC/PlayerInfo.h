@@ -73,27 +73,27 @@ private:
 	DWORD			m_nRequireParachuteTimer;						// 0x18C
 
 public:
-	CPed*			GetPed() const
+	inline CPed*		GetPed() const
 						{ return pPed; };
-	CPlayerData&	GetPlayerData()
+	inline CPlayerData&	GetPlayerData()
 						{ return data; };
-	BYTE			GetMaxHealth() const
+	inline BYTE			GetMaxHealth() const
 						{ return MaxHealth; };
-	BYTE			GetMaxArmour() const
+	inline BYTE			GetMaxArmour() const
 						{ return MaxArmour; };
-	int				GetDisplayedScore() const
+	inline int			GetDisplayedScore() const
 						{ return DisplayedScore; };
-	DWORD			GetLastTimeEnergyLost() const
+	inline DWORD		GetLastTimeEnergyLost() const
 						{ return LastTimeEnergyLost; };
-	DWORD			GetLastTimeArmourLost() const
+	inline DWORD		GetLastTimeArmourLost() const
 						{ return LastTimeArmourLost; };
 
 	void			KillPlayer();
 	void			ArrestPlayer();
 };
 
-static_assert(sizeof(CPlayerInfo) == CPlayer_ARRAYSIZE, "CPlayerInfo class has wrong size!");
+CWanted* FindPlayerWanted(int nPlayerID);
 
-extern CPlayerInfo*			players;
+static_assert(sizeof(CPlayerInfo) == CPlayer_ARRAYSIZE, "CPlayerInfo class has wrong size!");
 
 #endif

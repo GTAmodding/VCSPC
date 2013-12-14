@@ -1,11 +1,5 @@
 #ifndef __CPCSAVE
-#define __CPCSAVE
-
-#define WIN32_LEAN_AND_MEAN
-
-#define	FUNC_C_PcSave__PcClassSaveRoutine					0x5D1270
-#define	FUNC_C_PcSave__PcClassLoadRoutine					0x5D1300
-#define FUNC_C_PcSave__LoadFirstBlock						0x5D1EA0
+#define __CPCSAV
 
 // Special Block 0 handling
 #define SAVE_FALLBACK_BLOCK0_VERSION						1

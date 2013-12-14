@@ -15,18 +15,15 @@ public:
 	float	x, y, z;
 
 	CVector()
-	{
-	}
+	{}
 
 	CVector(float fX, float fY, float fZ=0.0f)
 		: x(fX), y(fY), z(fZ)
-	{
-	}
+	{}
 
 	CVector(const RwV3d& rwVec)
 		: x(rwVec.x), y(rwVec.y), z(rwVec.z)
-	{
-	}
+	{}
 
 	CVector&		operator+=(const CVector& vec)
 			{ x += vec.x; y += vec.y; z += vec.z;
@@ -50,13 +47,11 @@ public:
 	float	x, y;
 
 	CVector2D() 
-	{
-	}
+	{}
 
 	CVector2D(float fX, float fY)
 		: x(fX), y(fY)
-	{
-	}
+	{}
 };
 
 class CMatrix
@@ -69,8 +64,7 @@ public:
 public:
 	CMatrix()
 		: pMatrix(nullptr), haveRwMatrix(FALSE)
-	{
-	}
+	{}
 
 	CMatrix(RwMatrix* rwMatrix, bool bAttach)
 		: pMatrix(rwMatrix), haveRwMatrix(bAttach)
@@ -162,10 +156,9 @@ private:
 
 public:
 	// Line up the VMTs
-	virtual ~CPlaceable()
-		{ }
+	virtual ~CPlaceable() {}
 
-	inline CPlaceable(int dummy)
+	explicit inline CPlaceable(int dummy)
 	{
 		// Dummy ctor
 		UNREFERENCED_PARAMETER(dummy);
@@ -266,7 +259,7 @@ public:
     //********* END CEntityInfo ************//
 
 public:
-	inline CEntity(int dummy)
+	explicit inline CEntity(int dummy)
 		: CPlaceable(dummy)
 	{
 		// Dummy ctor
@@ -354,16 +347,16 @@ private:
     float			fLighting;							// 0x12C col lighting? CPhysical::GetLightingFromCol
     float			fLighting_2;							// 0x130 added to col lighting in CPhysical::GetTotalLighting
     BYTE			pad3a[4];								// 0x134
+
+public:
+	// Temp
+	CPhysical()
+	: CEntity(0) {}
 };
 
 
 bool CalcScreenCoors(const CVector& vecIn, CVector* vecOut);
 void LoadingScreenLoadingFile(const char* pText);
-
-// Generic colours RGB
-#define GENERIC_LIGHT_RED_R
-#define GENERIC_LIGHT_RED_G
-#define GENERIC_LIGHT_RED_B
 
 static_assert(sizeof(CEntity) == CEntity_ARRAYSIZE, "CEntity class has wrong size!");
 static_assert(sizeof(CPhysical) == CPhysical_ARRAYSIZE, "CPhysical class has wrong size!");

@@ -143,7 +143,6 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include <rwsdk\rwcore.h>
 #include <rwsdk\rpworld.h>
 #include <rwsdk\rtpng.h>
-#include "RWwrap.h"
 
 #include <binkW32\bink.h>
 #include <blowfish\Blowfish.h>
@@ -161,7 +160,6 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "PcSave.h"
 #include "Sprite.h"
 #include "EmpireMgr.h"
-#include "World.h"
 #include "CCam.h"
 #include "CCamera.h"
 #include "Building.h"
@@ -175,6 +173,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "Darkel.h"
 #include "CVehicle.h"
 #include "PlayerInfo.h"
+#include "World.h"
 #include "CConfiscatedWeapons.h"
 #include "Pools.h"
 #include "Script.h"
@@ -190,7 +189,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "CutsceneManager.h"
 #include "CGarages.h"
 //#include "CGridref.h"
-#include "CTxdStore.h"
+#include "TxdStore.h"
 #include "CPad.h"
 #include "AnimMgr.h"
 #include "CGangWeapons.h"
@@ -232,7 +231,6 @@ extern float*				ScreenAspectRatio;
 extern float*				fFOV;
 extern BYTE*				bWants_To_Draw_Hud;
 extern BYTE*				radarGrey;
-extern BYTE*				bCurrentPlayer;
 extern BYTE*				mpackNumber;
 extern bool*				bHideStyledTextWhileFading;
 extern float*				currentFPS;

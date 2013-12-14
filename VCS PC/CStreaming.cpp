@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 
 CdImage	CStreaming::ms_cdImages[NUM_IMG_FILES];
+bool	CStreaming::ms_bCopBikeAllowed;
 
 WRAPPER int CdStreamAddImage(const char* pName, bool bStandardIMG) { WRAPARG(pName); WRAPARG(bStandardIMG); EAXJMP(0x407610); }
 WRAPPER void InitModelIndices() { EAXJMP(0x5B57C0); }
@@ -20,7 +21,7 @@ void CStreaming::RequestModel(DWORD index, int a2)
 	}
 }
 
-void CStreaming::ReleaseModel(DWORD index)
+void CStreaming::SetModelIsDeletable(DWORD index)
 {
 	DWORD dwFunc = (DWORD)FUNC_CStreaming__ReleaseModel;
 	_asm
@@ -126,8 +127,46 @@ void CStreaming::LoadCdDirectory(const char* pArchiveName, long nArchiveIndex, C
 	}
 }
 
+void CStreaming::StreamCopModels(int nTownID)
+{
+	UNREFERENCED_PARAMETER(nTownID);
+
+	if ( *activeInterior )
+		return;
+
+	// TODO: Concern SCM flag to ignore bikes
+	CWanted*		pWanted = FindPlayerWanted(-1);
+	ms_bCopBikeAllowed = pWanted ? pWanted->GetWantedLevel() < 3 : false;
+
+	if ( _loadedObjectInfo[281].bLoaded != true || _loadedObjectInfo[VT_POLICEM].bLoaded != true )
+	{
+		CStreaming::RequestModel(281, 2);
+		CStreaming::RequestModel(VT_POLICEM, 2);
+	}
+
+	if ( ms_bCopBikeAllowed && (_loadedObjectInfo[284].bLoaded != true || _loadedObjectInfo[VT_ELECTRAP].bLoaded != true)  )
+	{
+		CStreaming::RequestModel(284, 2);
+		CStreaming::RequestModel(VT_ELECTRAP, 2);
+	}
+}
+
+int CStreaming::ChooseCopModel()
+{
+	return _loadedObjectInfo[281].bLoaded == true ? 281 : -1;
+}
+
+int CStreaming::ChooseCopCarModel(BOOL bIgnoreBikes)
+{
+	if ( bIgnoreBikes || (rand() % 100) > 50 || _loadedObjectInfo[284].bLoaded != true || _loadedObjectInfo[VT_ELECTRAP].bLoaded != true || !ms_bCopBikeAllowed )
+		return  _loadedObjectInfo[281].bLoaded == true &&  _loadedObjectInfo[VT_POLICEM].bLoaded == true ? VT_POLICEM : -1;
+
+	return VT_ELECTRAP;
+}
+
 void CStreaming::RequestSpecialDriverModel(WORD carModel)
 {
+	// TODO: Enum
   switch ( carModel )
   {
     case 481:
@@ -165,36 +204,36 @@ void CStreaming::ReleaseSpecialDriverModel(WORD carModel)
 	switch ( carModel )
 	{
 	case 481:
-		ReleaseModel(23);
+		SetModelIsDeletable(23);
 		ReleaseTexture(23);
 		return;
 	case 448:
-		ReleaseModel(155);
+		SetModelIsDeletable(155);
 		ReleaseTexture(155);
 		return;
 	case 420:
 	case 438:
 	case 604:
 		taxiDriverModel = RandomizeTaxiDriverIDByTown();
-		ReleaseModel(taxiDriverModel);
+		SetModelIsDeletable(taxiDriverModel);
 		ReleaseTexture(taxiDriverModel);
 		return;
 	case 463:
-		ReleaseModel(247);
+		SetModelIsDeletable(247);
 		ReleaseTexture(247);
-		ReleaseModel(248);
+		SetModelIsDeletable(248);
 		ReleaseTexture(248);
 		return;
 	case 409:
-		ReleaseModel(255);
+		SetModelIsDeletable(255);
 		ReleaseTexture(255);
 		return;
 	case 423:
-		ReleaseModel(264);
+		SetModelIsDeletable(264);
 		ReleaseTexture(264);
 		return;
 	case 428:
-		ReleaseModel(71);
+		SetModelIsDeletable(71);
 		ReleaseTexture(71);
 		return;
 	default:

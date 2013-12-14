@@ -81,29 +81,9 @@ void CPedModelInfoVCS::LoadPedColours()
 			SECTION_READPEDCOLS
 		} curFileSection = SECTION_NOTHING;
 		CRGBA*		pPedCols = ms_pedColourTable;
-		//char		lineBuffer[512];
 
 		while ( const char* pLine = CFileLoader::LoadLine(hFile) )
 		{
-			/*BYTE	bFirstChar = 0, bLastChar;
-
-			while ( lineBuffer[bFirstChar] <= ' ' )
-			{
-				if ( !lineBuffer[bFirstChar] || lineBuffer[bFirstChar] == '\n' )
-					break;
-				++bFirstChar;
-			}
-
-			bLastChar = bFirstChar;
-
-			while ( lineBuffer[bLastChar] && lineBuffer[bLastChar] != '\n' )
-			{
-				if ( lineBuffer[bLastChar] == ',' || lineBuffer[bLastChar] == '\r' )
-					lineBuffer[bLastChar] = ' ';
-				++bLastChar;
-			}
-
-			lineBuffer[bLastChar] = '\0';*/
 			if ( pLine[0] && pLine[0] != '#' )
 			{
 				switch ( curFileSection )

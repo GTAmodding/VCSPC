@@ -1,5 +1,5 @@
-#ifndef __RSGLOBALTYPE
-#define __RSGLOBALTYPE
+#ifndef __RS
+#define __RS
 
 struct PsGlobalType
 {
@@ -27,12 +27,6 @@ struct RsGlobalType
 	void*			mouse;
 	void*			pad;
 };
-
-#define FUNC_RsEventHandler						0x619B60
-#define FUNC_RsCameraBeginUpdate				0x745210
-#define FUNC_PsInitialize						0x747420
-#define FUNC_RsPathnameCreate					0x745470
-#define FUNC_RsPathnameDestroy					0x7454E0
 
 enum RsEvent
 {
@@ -63,13 +57,13 @@ enum RsEventStatus
     rsEVENTPROCESSED,
     rsEVENTNOTPROCESSED
 };
-typedef enum RsEventStatus RsEventStatus;
 
 RsEventStatus	RsEventHandler(RsEvent eventID, void* param);
-bool			RsCameraBeginUpdate();
 RwChar*			RsPathnameCreate(const RwChar* srcBuffer);
 void			RsPathnameDestroy(RwChar* buffer);
-BOOL			PsInitialize();
+BOOL			RsCameraBeginUpdate(RwCamera* pCamera);
+
+void			DoRWStuffEndOfFrame();
 
 const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 

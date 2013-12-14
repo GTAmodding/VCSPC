@@ -8,50 +8,13 @@ int		SlotValidation[NUM_SAVE_SLOTS+1];
 char	SlotSaveDate[NUM_SAVE_SLOTS][70];
 char	SlotFileName[NUM_SAVE_SLOTS][MAX_PATH];
 
-bool C_PcSave::PcClassSaveRoutine(const void* pSource, unsigned int dwSize)
-{
-	DWORD	dwFunc = (DWORD)FUNC_C_PcSave__PcClassSaveRoutine;
-	bool	bResult;
-	_asm
-	{
-		mov		eax, dwSize
-		push	eax
-		mov		eax, pSource
-		push	eax
-		call	dwFunc
-		add		esp, 8
-		mov		bResult, al
-	}
-	return bResult;
-}
+#define	FUNC_C_PcSave__PcClassSaveRoutine					
+#define	FUNC_C_PcSave__PcClassLoadRoutine					
+#define FUNC_C_PcSave__LoadFirstBlock						
 
-bool C_PcSave::PcClassLoadRoutine(void* pDest, unsigned int dwSize)
-{
-	DWORD	dwFunc = (DWORD)FUNC_C_PcSave__PcClassLoadRoutine;
-	bool	bResult;
-	_asm
-	{
-		mov		eax, dwSize
-		push	eax
-		mov		eax, pDest
-		push	eax
-		call	dwFunc
-		add		esp, 8
-		mov		bResult, al
-	}
-	return bResult;
-}
-
-void C_PcSave::LoadFirstBlock(DWORD* pTimestamp)
-{
-	DWORD	dwFunc = (DWORD)FUNC_C_PcSave__LoadFirstBlock;
-	_asm
-	{
-		push	pTimestamp
-		mov		ecx, this
-		call	dwFunc
-	}
-}
+WRAPPER bool C_PcSave::PcClassSaveRoutine(const void* pSource, unsigned int dwSize) { WRAPARG(pSource); WRAPARG(dwSize); EAXJMP(0x5D1270); }
+WRAPPER bool C_PcSave::PcClassLoadRoutine(void* pDest, unsigned int dwSize) { WRAPARG(pDest); WRAPARG(dwSize); EAXJMP(0x5D1300); }
+WRAPPER void C_PcSave::LoadFirstBlock(DWORD* pTimestamp) { WRAPARG(pTimestamp); EAXJMP(0x5D1EA0); }
 
 unsigned long C_PcSave::MakeTimestamp()
 {

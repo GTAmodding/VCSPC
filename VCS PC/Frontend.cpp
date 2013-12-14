@@ -400,7 +400,7 @@ void CMenuManager::DrawBackEnd()
 #ifdef INCLUDE_PROMO_BANNER
 	if ( bCurrentScreen == 33 || bCurrentScreen == 34 || bCurrentScreen == 41 )
 	{
-		int			nDaysTillDeadline = static_cast<int>(GetCurrentDate().GetSecondsLeft(CDate(11, 12, 2013, true))) / (60*60*24);
+		int			nDaysTillDeadline = static_cast<int>(GetCurrentDate().GetSecondsLeft(CDate(21, 12, 2013, true))) / (60*60*24);
 		if ( nDaysTillDeadline >= 0 )
 		{
 			textures[16].Draw(CRect(_x(135.0f), _y(122.5f), _x(15.0f), _y(2.5f)), CRGBA(255, 255, 255, 255));

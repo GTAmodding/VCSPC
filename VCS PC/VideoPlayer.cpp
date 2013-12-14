@@ -119,7 +119,7 @@ bool CVideoPlayer::PlayNextFullscreenFrame()
 		{
 			if ( BinkDoFrameAsyncWait(m_hBinkPlayer, 1000) )
 			{
-				if ( RsCameraBeginUpdate() )
+				if ( RsCameraBeginUpdate(Scene) )
 				{
 					if ( RwRasterLock(m_pVideoRaster, 0, rwRASTERLOCKREADWRITE) )
 					{

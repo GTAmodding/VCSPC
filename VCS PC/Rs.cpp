@@ -1,65 +1,32 @@
 #include "stdafx.h"
 
-RsEventStatus RsEventHandler(RsEvent eventID, void* param)
-{
-	DWORD	dwFunc = FUNC_RsEventHandler;
-	RsEventStatus	bResult;
-	_asm
-	{
-		push	param
-		push	eventID
-		call	dwFunc
-		add		esp, 8
-		mov		bResult, eax
-	}
-	return bResult;
-}
-
-bool RsCameraBeginUpdate()
-{
-	DWORD	dwFunc = (DWORD)FUNC_RsCameraBeginUpdate;
-	bool	bResult;
-	_asm
-	{
-		call	dwFunc
-		mov		bResult, al
-	}
-	return bResult;
-}
-
-BOOL PsInitialize()
-{
-	DWORD	dwFunc = (DWORD)FUNC_PsInitialize;
-	BOOL	bResult;
-	_asm
-	{
-		call	dwFunc
-		mov		bResult, eax
-	}
-	return bResult;
-}
+WRAPPER RsEventStatus RsEventHandler(RsEvent eventID, void* param) { WRAPARG(eventID); WRAPARG(param); EAXJMP(0x619B60); }
 
 RwChar* RsPathnameCreate(const RwChar* srcBuffer)
 {
-	DWORD		dwFunc = FUNC_RsPathnameCreate;
-	RwChar*		pResult;
-	_asm
+	size_t		len = strlen(srcBuffer) + 1;
+	RwChar*		pMem = static_cast<RwChar*>(malloc(len));
+
+	if ( pMem )
 	{
-		push	srcBuffer
-		call	dwFunc
-		mov		pResult, eax
-		add		esp, 4
+		strncpy(pMem, srcBuffer, len);
+		while ( RwChar* pChar = strchr(pMem, '/') )
+			*pChar = '\\';
 	}
-	return pResult;
+	return pMem;
 }
 
 void RsPathnameDestroy(RwChar* buffer)
 {
-	DWORD		dwFunc = FUNC_RsPathnameDestroy;
-	_asm
-	{
-		push	buffer
-		call	dwFunc
-		add		esp, 4
-	}
+	if ( buffer )
+		free(buffer);
+}
+
+BOOL RsCameraBeginUpdate(RwCamera* pCamera)
+{
+	if ( RwCameraBeginUpdate(pCamera) )
+		return TRUE;
+
+	RsEventHandler(rsACTIVATE, nullptr);
+	return FALSE;
 }

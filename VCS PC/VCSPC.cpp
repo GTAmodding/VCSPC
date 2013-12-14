@@ -278,7 +278,6 @@ DWORD*						memoryUsed;
 eFlash*						wFlashingComponentID;
 BYTE*						bWants_To_Draw_Hud;
 BYTE*						radarGrey;
-BYTE*						bCurrentPlayer;
 BYTE*						mpackNumber;
 long*						CTRubberMaxPos;
 long*						CTRubberMinPos;
@@ -301,7 +300,6 @@ float*						currentFPS;
 RsGlobalType&				RsGlobal = *(RsGlobalType*)0xC17040;
 CCamera*					camera;
 CFont::Details*				fontDetails;
-CPlayerInfo*					players;
 CText*						gxt;
 void**						rwengine;
 LoadedObjectInfo*			_loadedObjectInfo;
@@ -519,6 +517,8 @@ BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
 		{ 'I'^0x7A, 'D'^0x7A, 'A'^0x7A, '\0'^0x7A, '\0'^0x12, '\0'^0x55, '\0'^0xAD, '\0'^0x99, '\0'^0x76, '\0'^0x43, '\0'^0xDB, '\0'^0xA0, '\0'^0x87, '\0'^0x1F } };
     static bool		bDecrypted = false;
 
+	UNREFERENCED_PARAMETER(lParam);
+
 	if ( !bDecrypted )
 	{
 		for ( BYTE i = 0; i < 3; ++i )
@@ -533,10 +533,7 @@ BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
 
     GetWindowText(hwnd, cBuffer, 16);
     if(strstr(cBuffer, cDebuggerNames[0]/*"Cheat Engine"*/) || strstr(cBuffer, cDebuggerNames[1]/*"OllyDbg"*/) || strstr(cBuffer, cDebuggerNames[2]/*"IDA"*/) )
-	{
 		ExitProcess(0);
-        return FALSE;
-	}
 
     return TRUE;
 }
@@ -546,6 +543,8 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 #if DEBUG
 	bool	bKeyState = false, bFPSState = true;
 #endif
+
+	UNREFERENCED_PARAMETER(lpParam);
 
 	LogToFile("Emergency key thread created");
 
@@ -584,6 +583,9 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 {
+	UNREFERENCED_PARAMETER(hModule);
+	UNREFERENCED_PARAMETER(lpReserved);
+
 	switch ( reason )
 	{
 	case DLL_PROCESS_ATTACH:
@@ -843,7 +845,6 @@ __forceinline void DefineVariables()
 	wFlashingComponentID = (eFlash*)0xBAB1DC;
 	bWants_To_Draw_Hud = (BYTE*)0xA444A0;
 	radarGrey = (BYTE*)0xA444A4;
-	bCurrentPlayer = (BYTE*)0xB7CD74;
 	mpackNumber = (BYTE*)0xB72910;
 	CTRubberMaxPos = (long*)0x57BCAB;
 	CTRubberMinPos = (long*)0x57BCBD;
@@ -865,7 +866,6 @@ __forceinline void DefineVariables()
 	PriorityText = (char*)0xBAB040;
 	Garage_MessageIDString = (char*)0x96C014;
 	currentFPS = (float*)0xB7CB50;
-	players = (CPlayerInfo*)0xB7CD98;
 	gxt = (CText*)0xC1B340;
 	rwengine = (void**)0xC97B24;
 	_loadedObjectInfo = (LoadedObjectInfo*)0x8E4CC0;
@@ -2299,22 +2299,22 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x7191AC, 0x719085);
 
 	// Racing checkpoints colours
-	patch(0x49362D, &ScriptCheckpointsColours_IndirectTable, 4);
-	patch(0x493634, &ScriptCheckpointsColours_Jumptable, 4);
+	Patch<const void*>(0x49362D, &ScriptCheckpointsColours_IndirectTable);
+	Patch<const void*>(0x493634, &ScriptCheckpointsColours_Jumptable);
 
 	// Spheres colours
-	dwFunc = 0x4810E0 + 0x2B;
+	//dwFunc = 0x4810E0 + 0x2B;
 //	patch(dwFunc, MARKER_SET_COLOR_A, 4);
 //	dwFunc += 0x6;
-	patch(dwFunc, MARKER_SET_COLOR_B, 1);
-	dwFunc += 0x2;
-	patch(dwFunc, MARKER_SET_COLOR_G, 1);
-	dwFunc += 0x2;
-	patch(dwFunc, MARKER_SET_COLOR_R, 1);
+	Patch<BYTE>(0x4810E0 + 0x2B, MARKER_SET_COLOR_B);
+	//dwFunc += 0x2;
+	Patch<BYTE>(0x4810E0 + 0x2B + 0x2, MARKER_SET_COLOR_G);
+	//dwFunc += 0x2;
+	Patch<BYTE>(0x4810E0 + 0x2B + 0x4, MARKER_SET_COLOR_R);
 
- 	patch(0x585CCB, MARKER_SET_COLOR_B, 1);
-	patch(0x585CCD, MARKER_SET_COLOR_G, 1);
-	patch(0x585CCF, MARKER_SET_COLOR_R, 1);
+ 	Patch<BYTE>(0x585CCB, MARKER_SET_COLOR_B);
+	Patch<BYTE>(0x585CCD, MARKER_SET_COLOR_G);
+	Patch<BYTE>(0x585CCF, MARKER_SET_COLOR_R);
 	/*patch(0x70CD0B, 0xB4, 1);
 	patch(0x70CD0D, 0x82, 1);
 	patch(0x70CD0F, 0xED, 1);
@@ -2326,19 +2326,19 @@ __forceinline void Main_Patches()
 	patch(0x70CDAF, 0xED, 1);*/
 
 	// Growing/shrinking 3DMarkers
-	patch(0x440F26, 0, 4);
-	call(0x72576B, &C3DMarkerSizeHack, PATCH_CALL);
-	nop(0x725770, 1);
+	Patch<float>(0x440F26, 0.0);
+	InjectHook(0x72576B, C3DMarkerSizeHack, PATCH_CALL);
+	Nop(0x725770, 1);
 
 	// New style of markers
-	call(0x725BA0, &C3DMarkers::PlaceMarkerSet, PATCH_JUMP);
-	call(0x70CCB0, &CShadows::RenderIndicatorShadow, PATCH_JUMP);
+	InjectHook(0x725BA0, C3DMarkers::PlaceMarkerSet, PATCH_JUMP);
+	InjectHook(0x70CCB0, CShadows::RenderIndicatorShadow, PATCH_JUMP);
 
 	// Enex markers RGB
-	call(0x440F38, &EnexMarkersColorBreak, PATCH_JUMP);
+	InjectHook(0x440F38, EnexMarkersColorBreak, PATCH_JUMP);
 
 	// Font scale fix
-	call(0x7193A0, &CFont::SetTextLetterSizeWithLanguageScaling, PATCH_JUMP);
+	InjectHook(0x7193A0, CFont::SetTextLetterSizeWithLanguageScaling, PATCH_JUMP);
 
 	// Own textures loading
 /*#if DEBUG
@@ -2347,37 +2347,37 @@ __forceinline void Main_Patches()
 #endif*/
 
 	// Zebra Cab stuff
-	call(0x4912D6, &func_0602, PATCH_JUMP);
-	patch(0x6AB35C, 0xC5, 4);
-	patch(0x6AB369, &CAutomobile__PreRenderCoronasTable, 4);
-	call(0x6B19AC, &ZebraCabNitro, PATCH_JUMP);
-	call(0x56F938, &ZebraCabCPlayerStuff, PATCH_JUMP);
-	call(0x610384, &func_610310, PATCH_JUMP);
-	call(0x6B4AE9, &func_6B4800, PATCH_JUMP);
-	call(0x6D1AC6, &func_6D1AA0, PATCH_JUMP);
-	call(0x40B646, &CStreaming::RequestSpecialDriverModel, PATCH_NOTHING);
-	call(0x613A43, &CStreaming::GetSpecialDriverModelID, PATCH_NOTHING);
-	call(0x6119D0, &CStreaming::ReleaseSpecialDriverModel, PATCH_JUMP);	// Fuck you, Hoodlum
+	InjectHook(0x4912D6, func_0602, PATCH_JUMP);
+	Patch<DWORD>(0x6AB35C, 0xC5);
+	Patch<const void*>(0x6AB369, CAutomobile__PreRenderCoronasTable);
+	InjectHook(0x6B19AC, ZebraCabNitro, PATCH_JUMP);
+	InjectHook(0x56F938, ZebraCabCPlayerStuff, PATCH_JUMP);
+	InjectHook(0x610384, func_610310, PATCH_JUMP);
+	InjectHook(0x6B4AE9, func_6B4800, PATCH_JUMP);
+	InjectHook(0x6D1AC6, func_6D1AA0, PATCH_JUMP);
+	InjectHook(0x40B646, CStreaming::RequestSpecialDriverModel);
+	InjectHook(0x613A43, CStreaming::GetSpecialDriverModelID);
+	InjectHook(0x40813E, CStreaming::ReleaseSpecialDriverModel);
 
 	// Quad dual lights
-	nop(0x6ABCAB, 2);
+	Nop(0x6ABCAB, 2);
 
 	// In car killed peds counter
-	call(0x4B93D4, &InCarKilledCounterBreak, PATCH_JUMP);
+	InjectHook(0x4B93D4, InCarKilledCounterBreak, PATCH_JUMP);
 
 	// Gang weapons
-	call(0x5DE680, &CGangWeapons::Init, PATCH_JUMP);
+	InjectHook(0x5DE680, CGangWeapons::Init, PATCH_JUMP);
 
 	// No gang gestures
-	patch(0x6601D7, 0xEB, 1);
-	patch(0x660967, 0xE990, 2);
-	patch(0x66298F, 0xEB, 1);
-	patch(0x6633C0, 0xE990, 2);
-	patch(0x663E4D, 0xEB, 1);
+	Patch<BYTE>(0x6601D7, 0xEB);
+	Patch<WORD>(0x660967, 0xE990);
+	Patch<BYTE>(0x66298F, 0xEB);
+	Patch<WORD>(0x6633C0, 0xE990);
+	Patch<BYTE>(0x663E4D, 0xEB);
 
 	// Ventoso sound
-	patch(0x4F781E, 0x8D, 4);
-	patch(0x4F7827, &audioGearboxSoundTable, 4);
+	Patch<DWORD>(0x4F781E, 0x8D);
+	Patch<const void*>(0x4F7827, &audioGearboxSoundTable);
 
 	// radio IDs
 	patch(0x489B8D, 9, 1);
@@ -3011,11 +3011,11 @@ __forceinline void Main_Patches()
 	nop(0x5BBAEA, 5);
 
 	// Pools fixes
-	call(0x4048E0, &VehiclePoolGetAt, PATCH_JUMP);
-	call(0x404910, &PedPoolGetAt, PATCH_JUMP);
+	InjectHook(0x4048E0, VehiclePoolGetAt, PATCH_JUMP);
+	InjectHook(0x404910, PedPoolGetAt, PATCH_JUMP);
 
 	// Empire Buildings
-	/*Patch<void*>(0x495F4C, func_069C);
+	Patch<void*>(0x495F4C, func_069C);
 	Patch<void*>(0x495F50, func_069C);
 	Patch<void*>(0x495F68, func_069C);
 	Patch<void*>(0x495F6C, func_069C);
@@ -3023,8 +3023,10 @@ __forceinline void Main_Patches()
 	Patch<void*>(0x495F74, func_069C);
 	Patch<void*>(0x495F78, func_069C);
 	Patch<void*>(0x495F7C, func_069C);
+#ifdef _INCLUDE_BETA_CODE
 	Patch<const char*>(0x4111AE, "empire_perma");
-	InjectHook(0x53C215, CEmpireManager::Process);*/
+	InjectHook(0x53C215, CEmpireManager::Process);
+#endif
 
 	// Menu background
 	_asm
@@ -3383,6 +3385,12 @@ __forceinline void Main_Patches()
 	call(0x5DDBCE, &PedDataConstructorInject_Civilian, PATCH_JUMP);
 	call(0x5DE39E, &PedDataConstructorInject_Civilian, PATCH_JUMP);
 	call(0x5DDD7F, &PedDataConstructorInject_Cop, PATCH_JUMP);
+
+	// Proper cop models
+	Patch<const void*>(0x40E5CE, &CStreaming::ms_bCopBikeAllowed);
+	InjectHook(0x407C00, CStreaming::ChooseCopModel, PATCH_JUMP);
+	InjectHook(0x407C50, CStreaming::ChooseCopCarModel, PATCH_JUMP);
+	InjectHook(0x40A150, CStreaming::StreamCopModels, PATCH_JUMP);
 
 	// Streaming tweaks
 	/*static DWORD	dwFakeIntID;
@@ -4274,7 +4282,7 @@ void ViceSquadCheckInjectA(int townID)
 		call	dwFunc
 		add		esp, 4
 	}
-	pWanted = CWanted::GetPlayerCWanted(-1);
+	pWanted = FindPlayerWanted(-1);
 	if ( pWanted->ShouldSendViceSquad() )
 	{
 		CStreaming::RequestModel(506, 2);
@@ -4282,18 +4290,18 @@ void ViceSquadCheckInjectA(int townID)
 	}
 	else
 	{
-		CStreaming::ReleaseModel(506);
-		if ( _loadedObjectInfo[215].bLoaded != 1 )
-			CStreaming::ReleaseModel(215);
+		CStreaming::SetModelIsDeletable(506);
+		if ( _loadedObjectInfo[215].bLoaded != true )
+			CStreaming::SetModelIsDeletable(215);
 	}
 }
 
 int ViceSquadCheckInjectB()
 {
-	CWanted* pWanted = CWanted::GetPlayerCWanted(-1);
+	CWanted* pWanted = FindPlayerWanted(-1);
 	if ( pWanted->ShouldSendViceSquad()
-		&& _loadedObjectInfo[215].bLoaded == 1
-		&& _loadedObjectInfo[506].bLoaded == 1 )
+		&& _loadedObjectInfo[215].bLoaded == true
+		&& _loadedObjectInfo[506].bLoaded == true )
 	{
 		if ( random(0, 3) == 2 )
 			LogToFile("Vice Squad sent");
@@ -4323,7 +4331,7 @@ void InjectArrowMarker()
 
 float __stdcall HelperPosXHack(int)
 {
-	return _x(30.0);
+	return _x(30.0f);
 }
 
 #ifdef INCLUDE_MULTIFONTFILES
@@ -4620,8 +4628,8 @@ void __declspec(naked) ViceSquadCheckInjectC()
 		pop		ebx
 		retn
 ViceSquadCheckInjectC__NOMODEL:
-		push	0FFFFFFFFh
-		call	CWanted::GetPlayerCWanted
+		push	-1
+		call	FindPlayerWanted
 	//	add		esp, 4
 		jmp		ViceSquadCheckInjectC_JumpBack
 	}
@@ -6081,7 +6089,7 @@ void __declspec(naked) DriveByKillFix()
 	{
 		cmp		edx, 1Ch
 		jnz		DriveByKillFix_FalseNoPop
-		mov		eax, [players]
+		mov		eax, [CWorld::Players]
 		mov		eax, [eax]
 		push	ecx
 		mov		ecx, [eax+46Ch]
@@ -6129,7 +6137,7 @@ void __declspec(naked) RightShockKeyHack()
 	_asm
 	{
 		push	ebx
-		mov		ebx, [players]
+		mov		ebx, [CWorld::Players]
 		mov		ebx, [ebx]
 		test	ebx, ebx
 		jz		RightShockKeyHack_InMenuOrWTF

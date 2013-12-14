@@ -16,8 +16,6 @@
 #define NUM_STREAMS			(NUM_IMG_FILES+24)
 #define MAX_DRAW_DISTANCE	450.0
 
-#pragma message ("TODO: _reloadCopModels is temporary, needs to be reworked.")
-
 struct LoadedObjectInfo
 {
 	WORD	nextIndex;
@@ -27,7 +25,7 @@ struct LoadedObjectInfo
 	BYTE	field_7;
 	DWORD	field_8;
 	DWORD	field_C;
-	BYTE	bLoaded;
+	bool	bLoaded;
 	BYTE	field_11[3];
 };
 
@@ -46,10 +44,11 @@ class CStreaming
 {
 public:
 	static CdImage	ms_cdImages[NUM_IMG_FILES];
+	static bool		ms_bCopBikeAllowed;
 
 public:
 	static void		RequestModel(DWORD index, int a2);
-	static void		ReleaseModel(DWORD index);
+	static void		SetModelIsDeletable(DWORD index);
 	static void		ReleaseTexture(DWORD index);
 	static void		RequestSpecialModel(int index, const char* pName, int unk);
 	static void		LoadRequestedModels(int unk);
@@ -58,7 +57,9 @@ public:
 	static bool		RemoveLeastUsedModel(BYTE unkFlag);
 	static void		DeleteRwObjectsBehindCamera(int memoryUsed);
 
-
+	static void		StreamCopModels(int nTownID);
+	static int		ChooseCopModel();
+	static int		ChooseCopCarModel(BOOL bIgnoreBikes);
 	static void		RequestSpecialDriverModel(WORD carModel);
 	static void		ReleaseSpecialDriverModel(WORD carModel);
 	static int		GetSpecialDriverModelID(WORD carModel);

@@ -259,7 +259,7 @@ void CFont::SetTextSlanted(float fAngle)
 	}
 }
 
-void CFont::func_7194E0(float fUnk)
+void CFont::SetCentreSize(float fUnk)
 {
 	DWORD dwFunc = (DWORD)0x7194E0;
 	_asm

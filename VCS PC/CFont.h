@@ -94,7 +94,7 @@ public:
 	static void				SetTextOutline(unsigned char bOutline);
 	static void				ResetSlantedTextPos(float fOne, float fTwo);
 	static void				SetTextSlanted(float fAngle);
-	static void				func_7194E0(float fUnk);
+	static void				SetCentreSize(float fUnk);
 	static void				SetTextWrapX(float fWrap);
 	static void				SetTextJustify(bool bJustify);
 	static void				func_71A210();

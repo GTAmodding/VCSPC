@@ -114,7 +114,7 @@ void CEmpire::Place()
 	pEmpireBuilding->SetCoords(m_placement.m_translate);
 	pEmpireBuilding->SetHeading(m_placement.m_heading);
 
-	CColModel*		pColModel = CModelInfo::ms_modelInfoPtrs[nModelIndex]->pColModel;
+	CColModel*		pColModel = CModelInfo::ms_modelInfoPtrs[nModelIndex]->GetColModel();
 	if ( pColModel )
 	{
 		unsigned char	bIndex = pColModel->level;
