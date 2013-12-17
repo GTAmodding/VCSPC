@@ -1,10 +1,13 @@
 ﻿#include "StdAfx.h"
 
-long			CMenuManager::ms_nRubberSlider;
-float			CMenuManager::m_fStatsScrollPos;
-int				CMenuManager::m_nFocusedDLC = -1;
-int				CMenuManager::m_nLastFocusedDLC = -1;
-bool			CMenuManager::m_bLastDLCState[NUM_DLC_PACKS];
+CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
+int&				CurrentLoadingSprite = *(int*)0x8D093C;
+
+long				CMenuManager::ms_nRubberSlider;
+float				CMenuManager::m_fStatsScrollPos;
+int					CMenuManager::m_nFocusedDLC = -1;
+int					CMenuManager::m_nLastFocusedDLC = -1;
+bool				CMenuManager::m_bLastDLCState[NUM_DLC_PACKS];
 //short			CMenuManager::nColourMenuEntries;
 MenuItem		CMenuManager::ms_pMenus[] = {
 	// Stats
@@ -351,17 +354,32 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		5, "FEM_OK", ACTION_STANDARD, 33, 0, 16, 3, 0, 0 },
 };
 
+static inline const char* GetTitlePCByLanguage()
+{
+	static const char* const	cTitlePCNames[] = { "title_pc_EN", /*"title_pc_ES",*/ "title_pc_PL" };
+	return cTitlePCNames[menu->GetLanguage()];
+}
+
 WRAPPER void CMenuManager::ShowFullscreenMessage(const char* pMessage, bool bUnk1, bool bUnk2)
 	{ WRAPARG(pMessage); WRAPARG(bUnk1); WRAPARG(bUnk2); EAXJMP(0x579330); }
 
 void CMenuManager::DrawBackEnd()
 {
-	/*CRect	coords(0.0, RsGlobal.MaximumHeight, RsGlobal.MaximumWidth, 0.0);
-	RwRGBA		rgba(255, 255, 255, 255);
-	RwRGBA		BorderColour(0, 0, 0, 255);*/
+	// Calculate proper dimensions
+	CVector2D				vecSplashScale;
+	if ( RsGlobal.MaximumHeight * 16.0f/9.0f > RsGlobal.MaximumWidth )
+	{
+		vecSplashScale.x = RsGlobal.MaximumHeight * (16.0f/9.0f);
+		vecSplashScale.y = static_cast<float>(RsGlobal.MaximumHeight);
+	}
+	else
+	{
+		vecSplashScale.x = static_cast<float>(RsGlobal.MaximumWidth);
+		vecSplashScale.y = RsGlobal.MaximumWidth * (9.0f/16.0f);
+	}
 
-	//textures[13]->DrawTexturedRect(&coords, &rgba);
-	textures[13].Draw(CRect(-1.0f, RsGlobal.MaximumHeight, RsGlobal.MaximumWidth, -1.0f), CRGBA(255, 255, 255, 255));
+	CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, RsGlobal.MaximumHeight * 0.95f - 5.0f), CRGBA(7, 7, 7, 255));
+	textures[13].Draw(CRect(-2.5f - (vecSplashScale.x-RsGlobal.MaximumWidth), RsGlobal.MaximumHeight * 0.95f, RsGlobal.MaximumWidth + 2.5f, -2.5f - (vecSplashScale.y-RsGlobal.MaximumHeight)), CRGBA(255, 255, 255, 255));
 
 	if ( bCurrentScreen == 44 )
 	{
@@ -376,21 +394,21 @@ void CMenuManager::DrawBackEnd()
 	CFont::SetTextWrapX(0.0);
 	CFont::SetTextOutline(1);
 	CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
-	CFont::SetTextLetterSize(_width(0.25), _height(0.4));
-	CFont::SetTextColour(CRGBA(BaseColors[11]));
-	CFont::PrintString(_x(2.5), _ydown(13.0), MOD_VERSION" BUILD "BUILDNUMBER_STR);
+	CFont::SetTextLetterSize(_width(0.25f), _height(0.4f));
+	CFont::SetTextColour(BaseColors[11]);
+	CFont::PrintString(_x(2.5f), _ydown(13.0f), MOD_VERSION" BUILD "BUILDNUMBER_STR);
 
 #ifdef DEBUG
 	#ifdef MAKE_ZZCOOL_MOVIE_DEMO
-		CFont::PrintString(_x(2.5), _ydown(20.5), "DEMONSTRATION BUILD");
+		CFont::PrintString(_x(2.5f), _ydown(20.5f), "DEMONSTRATION BUILD");
 	#else
-		CFont::PrintString(_x(2.5), _ydown(20.5), "DEV BUILD");
+		CFont::PrintString(_x(2.5f), _ydown(20.5f), "DEV BUILD");
 	#endif
 #else
 	#ifdef COMPILE_RC
-		CFont::PrintString(_x(2.5), _ydown(20.5), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
+		CFont::PrintString(_x(2.5f), _ydown(20.5f), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
 	#else
-		CFont::PrintString(_x(2.5), _ydown(20.5), VERSION_NAME_UPPERCASE);
+		CFont::PrintString(_x(2.5f), _ydown(20.5f), VERSION_NAME_UPPERCASE);
 	#endif
 #endif
 
@@ -435,16 +453,16 @@ void CMenuManager::DrawRadioStationIcons()
 {
 	BYTE	bLoopCounter = 1;
 
-	float	fPosition = (0.5*WidescreenSupport::GetScreenWidthMultiplier()) + 300.0;
+	float	fPosition = (0.5f*WidescreenSupport::GetScreenWidthMultiplier()) + 300.0f;
 	static	DWORD LastTimeIconsWereUpdated = 0;
 
 #if defined COMPILE_BOUNCING_ICONS || defined COMPILE_SMOOTHBEATING_ICONS || defined COMPILE_BEATING_ICONS
-	static BYTE			bLastRadioStation = -1;
+	static signed char	bLastRadioStation = -1;
 	static double		fRadioStationBouncingAngle = 0.0;
 
 	//if ( (CTimer::m_snTimeInMillisecondsPauseMode - LastTimeIconsWereUpdated) > 32 )
 	//{
-		// TODO: Scratch the multiplir when CTimer is rewritten and fTimeStepPauseMode exists
+		// TODO: Scratch the multiplier when CTimer is rewritten and fTimeStepPauseMode exists
 #ifdef COMPILE_BEATING_ICONS
 		fRadioStationBouncingAngle += (( fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ) ? 0.3 : 0.075) * (CTimer::m_snTimeInMillisecondsPauseMode - LastTimeIconsWereUpdated) * (1.0/32.0);
 #else
@@ -465,16 +483,16 @@ void CMenuManager::DrawRadioStationIcons()
 	do
 	{
 #if defined COMPILE_BOUNCING_ICONS
-		textures[bLoopCounter].Draw(_x(fPosition), _y(290.0 - (20.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _width(60.0), _height(60.0), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
+		textures[bLoopCounter].Draw(_x(fPosition), _y(290.0f - (20.0f * abs(static_cast<float>(sin(fRadioStationBouncingAngle))) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _width(60.0), _height(60.0), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
 #elif defined COMPILE_SMOOTHBEATING_ICONS
-		textures[bLoopCounter].Draw(_x(fPosition - (10.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _y(290.0 - (10.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _width(60.0 + (20.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _height(60.0 + (20.0 * abs(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
+		textures[bLoopCounter].Draw(_x(fPosition - (10.0f * abs(static_cast<float>(sin(fRadioStationBouncingAngle))) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _y(290.0 - (10.0 * abs(static_cast<float>(sin(fRadioStationBouncingAngle))) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _width(60.0 + (20.0 * abs(static_cast<float>(sin(fRadioStationBouncingAngle))) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), _height(60.0 + (20.0 * abs(static_cast<float>(sin(fRadioStationBouncingAngle))) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 ))), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
 #elif defined COMPILE_BEATING_ICONS
-		textures[bLoopCounter].Draw(_x(fPosition + (10.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _ymiddle(66.0 - (10.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _width(60.0 + (20.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _height(60.0 + (20.0 * sin(fRadioStationBouncingAngle) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
+		textures[bLoopCounter].Draw(_x(fPosition + (10.0f * static_cast<float>(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _ymiddle(66.0f - (10.0f * static_cast<float>(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _width(60.0f + (20.0f * static_cast<float>(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), _height(60.0f + (20.0f * static_cast<float>(sin(fRadioStationBouncingAngle)) * ( radioStation == bLoopCounter && fRadioStationBouncingAngle >= 0.0 && fRadioStationBouncingAngle < M_PI ))), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
 #else
-		textures[bLoopCounter].Draw(_x(fPosition), _y(290.0), _width(60.0), _height(60.0), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
+		textures[bLoopCounter].Draw(_x(fPosition), _y(290.0f), _width(60.0f), _height(60.0f), CRGBA(255, 255, 255, radioStation == bLoopCounter ? 255 : 30));
 #endif
 		++bLoopCounter;
-		fPosition -= 60.0;
+		fPosition -= 60.0f;
 	}
 	while ( bLoopCounter < 11 );
 }
@@ -486,7 +504,7 @@ int CMenuManager::DrawSliders(float posX, float posY, float, float height, float
 	BYTE			secondPositionCounter = 0;
 	bool			bDrawHalfSlider = false;
 	float			fullWidth = 0.0;
-	float			width = iWidth;
+	float			width = static_cast<float>(iWidth);
 
 	do
 	{
@@ -501,19 +519,19 @@ int CMenuManager::DrawSliders(float posX, float posY, float, float height, float
 			if ( static_cast<float>(secondPositionCounter) / (NUM_SLIDERS * 2) + ( 1 / (NUM_SLIDERS * 4)) >= filledAmount )
 				bDrawHalfSlider = true;
 			else
-				colour = CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B, 0xFF);
+				colour = CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B, 255);
 			fullWidth = mousePosX;
 		}
 
 		if ( loopCounter % 2 )
 		{
-			CSprite2d::DrawRect(CRect(itemPosX - _width(1.25), height + posY + _height(1.25), itemPosX + width + _width(1.25), posY - _height(1.25)), CRGBA(0, 0, 0, 0xFF));
+			CSprite2d::DrawRect(CRect(itemPosX - _width(1.25f), height + posY + _height(1.25f), itemPosX + width + _width(1.25f), posY - _height(1.25f)), CRGBA(0, 0, 0, 255));
 			if ( !bDrawHalfSlider )
 				CSprite2d::DrawRect(CRect(itemPosX, height + posY, width + itemPosX, posY), colour);
 			else
 			{
-				CSprite2d::DrawRect(CRect(itemPosX, height + posY, width + itemPosX, posY), CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 0xFF));
-				CSprite2d::DrawRect(CRect(itemPosX + width * 0.25, height + posY - height * 0.25, width + itemPosX - width * 0.25, posY + height * 0.25), CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B, 0xFF));
+				CSprite2d::DrawRect(CRect(itemPosX, height + posY, width + itemPosX, posY), CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
+				CSprite2d::DrawRect(CRect(itemPosX + width * 0.25f, height + posY - height * 0.25f, width + itemPosX - width * 0.25f, posY + height * 0.25f), CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B, 255));
 				bDrawHalfSlider = false;
 			}
 			++positionCounter;
@@ -523,7 +541,7 @@ int CMenuManager::DrawSliders(float posX, float posY, float, float height, float
 	}
 	while ( loopCounter );
 
-	return fullWidth;
+	return static_cast<int>(fullWidth);
 }
 
 void CMenuManager::DrawLeftColumn(MenuItem::MenuEntry& pPosition, const char* pText, const char* pRightText)
@@ -578,7 +596,7 @@ float CMenuManager::GetRightColumnPos(MenuVar& sPosY)
 	/*float	fTemp = RsGlobal.MaximumWidth * ( bCurrentScreen == 9 || bCurrentScreen == 10 || bCurrentScreen == 16 ? 40.0 : MENU_TEXT_POSITION_RCOLUMN) / 853.0;
 	return fTemp;*/
 	sPosY.fOut = _ymiddle(sPosY.nIn);
-	return RsGlobal.MaximumWidth * ( bCurrentScreen == 9 || bCurrentScreen == 10 || bCurrentScreen == 16 ? 40.0 : 0.5 * WidescreenSupport::GetScreenWidthMultiplier() - MENU_TEXT_POSITION_RCOLUMN) * WidescreenSupport::GetScreenWidthDivider();
+	return RsGlobal.MaximumWidth * ( bCurrentScreen == 9 || bCurrentScreen == 10 || bCurrentScreen == 16 ? 40.0f : 0.5f * WidescreenSupport::GetScreenWidthMultiplier() - MENU_TEXT_POSITION_RCOLUMN) * WidescreenSupport::GetScreenWidthDivider();
 }
 
 void CMenuManager::DrawOutroSplash()
@@ -587,15 +605,34 @@ void CMenuManager::DrawOutroSplash()
 	static int		outroTimer = 0;
 	static WORD		outroPageAlpha = 0;
 	static bool		bOutroSplashLoaded = false;
+	static CRect	rectSpriteDimensions;
 
 	if ( !bOutroSplashLoaded )
 	{
-		CSprite2d::ReadLoadingTextures(true, 0);
+		LoadSplashes(true, 0);
+
+		CVector2D				vecSplashScale;
+		if ( RsGlobal.MaximumHeight * 512.0f/400.0f > RsGlobal.MaximumWidth )
+		{
+			vecSplashScale.x = static_cast<float>(RsGlobal.MaximumWidth);
+			vecSplashScale.y = static_cast<float>(RsGlobal.MaximumWidth * (1.0f/(512.0f/400.0f)));
+		}
+		else
+		{
+			vecSplashScale.x = static_cast<float>(RsGlobal.MaximumHeight * (512.0f/400.0f));
+			vecSplashScale.y = static_cast<float>(RsGlobal.MaximumHeight);
+		}
+
+		rectSpriteDimensions.x1 = 0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x);
+		rectSpriteDimensions.y1 = 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y);
+		rectSpriteDimensions.x2 = 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x);
+		rectSpriteDimensions.y2 = 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y);
+
 		bOutroSplashLoaded = true;
 	}
 
 	// TODO: Smooth when CTimer is rewritten
-	if ( CTimer::m_snTimeInMillisecondsPauseMode - outroTimer > 10 )
+	if ( CTimer::m_snTimeInMillisecondsPauseMode - outroTimer > 15 )
 	{
 		if ( outroPageAlpha != 255 )
 		{
@@ -607,9 +644,11 @@ void CMenuManager::DrawOutroSplash()
 			++outroPageFrameCounter;
 		outroTimer = CTimer::m_snTimeInMillisecondsPauseMode;
 	}
-	loadingTextures[0].Draw(CRect(0.0, RsGlobal.MaximumHeight, RsGlobal.MaximumWidth, 0.0), CRGBA(255, 255, 255, outroPageAlpha));
+
+	CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, static_cast<BYTE>(outroPageAlpha)));
+	LoadingSprites[0].Draw(rectSpriteDimensions, CRGBA(255, 255, 255, static_cast<BYTE>(outroPageAlpha)));
 	if ( outroPageAlpha == 255 && outroPageFrameCounter == 90 )
-		RsEventHandler(rsQUITAPP, NULL);
+		RsEventHandler(rsQUITAPP, nullptr);
 
 }
 
@@ -628,36 +667,49 @@ void CMenuManager::PrintStats()
 		if ( fStatsScrollSpeed > 0.0 )
 		{
 			if ( bUnkScroll )
-				m_fStatsScrollPos += (_height(100.0) / fStatsScrollSpeed);
+				m_fStatsScrollPos += (_height(100.0f) / fStatsScrollSpeed);
 			else
-				m_fStatsScrollPos -= (_height(100.0) / fStatsScrollSpeed);
+				m_fStatsScrollPos -= (_height(100.0f) / fStatsScrollSpeed);
 		}
 		nStatsTimer = CTimer::m_snTimeInMillisecondsPauseMode;
 	}
 
-	long	nIndents;
+	int		nIndents;
 	DWORD	dwLoopCounter = 0;
 	DWORD	dwStatsToShow = CStats::ConstructStatLine(99999, nIndents);
 
-	CFont::SetTextLetterSize(_width(0.3), _height(0.7));
 	CFont::SetFontStyle(FONT_Eurostile);
+	CFont::SetTextOutline(1);
+
+	// Criminal Rating
+	CFont::SetTextLetterSize(_width(0.425f), _height(0.85f));
+	CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
+	CFont::SetTextAlignment(ALIGN_Left);
+	CFont::SetTextColour(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
+	CFont::PrintString(_xleft(50.0f), _y(85.0f), gxt->GetText("CRIMRA"));
+	CFont::SetTextAlignment(ALIGN_Right);
+	CFont::PrintString(_x(50.0f), _y(85.0f), CStats::FindCriminalRatingNumber());
+
+	CFont::SetTextLetterSize(_width(0.3f), _height(0.7f));
 
 	while ( dwLoopCounter < dwStatsToShow )
 	{
-		float		fStartingPos = _height(39.0) * dwLoopCounter + _height(75.0) - m_fStatsScrollPos;
+		float		fStartingPos = _height(39.0f) * dwLoopCounter + _height(110.0f) - m_fStatsScrollPos;
 
-		while ( fStartingPos < _height(50.0) )
-			fStartingPos += _height((dwStatsToShow + 7) * 39.0);
+		while ( fStartingPos < _height(85.0f) )
+			fStartingPos += _height((dwStatsToShow + 7) * 39.0f);
 
-		if ( fStartingPos > _height(75.0) && fStartingPos < _ydown(100.0) )
+		if ( fStartingPos > _height(110.0f) && fStartingPos < _ydown(100.0f) )
 		{
-			float	fTextAlpha = 255.0;
-			if ( fStartingPos < _height(100.0) )
-				fTextAlpha = 10.2 * (fStartingPos - _height(75.0));
+			float	fTextAlpha;
+			if ( fStartingPos < _height(135.0f) )
+				fTextAlpha = 10.2f * (fStartingPos - _height(110.0f));
 			else
 			{
-				if ( fStartingPos > _ydown(125.0) )
-					fTextAlpha = 10.2 * (_ydown(100.0) - fStartingPos);
+				if ( fStartingPos > _ydown(125.0f) )
+					fTextAlpha = 10.2f * (_ydown(100.0f) - fStartingPos);
+				else
+					fTextAlpha = 255.0f;
 			}
 
 			if ( fTextAlpha > 255.0f )
@@ -665,17 +717,15 @@ void CMenuManager::PrintStats()
 
 			CStats::ConstructStatLine(dwLoopCounter, nIndents);
 
-			CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, fTextAlpha));
-			CFont::SetTextOutline(1);
+			CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, static_cast<BYTE>(fTextAlpha)));
 			CFont::SetTextAlignment(ALIGN_Left);
-			CFont::SetTextColour(CRGBA(255, 255, 255, fTextAlpha));
+			CFont::SetTextColour(CRGBA(255, 255, 255, static_cast<BYTE>(fTextAlpha)));
 			CFont::PrintString(_xleft(50.0f + (nIndents * 3.0f)), fStartingPos, gString);
 			CFont::SetTextAlignment(ALIGN_Right);
 			CFont::PrintString(_x(50.0f), fStartingPos, gUString);
 		}
 		++dwLoopCounter;
 	}
-	// TODO: Criminal Rating
 }
 
 void CMenuManager::PrintUpdaterScreen()
@@ -687,14 +737,14 @@ void CMenuManager::PrintUpdaterScreen()
 	CFont::SetTextAlignment(ALIGN_Center);
 
 	CFont::SetTextColour(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
-	CFont::PrintString(_x(137.5), _y(15.0), gxt->GetText("FEU_POW"));
+	CFont::PrintString(_x(137.5f), _y(15.0f), gxt->GetText("FEU_POW"));
 
 	CFont::SetFontStyle(FONT_Eurostile);
-	CFont::SetTextLetterSize(_width(0.3), _height(0.7));
+	CFont::SetTextLetterSize(_width(0.3f), _height(0.7f));
 	CFont::SetTextColour(CRGBA(255, 255, 255, 255));
 	CFont::SetTextAlignment(ALIGN_Left);
 
-	float		fStartingPos = _height(100.0);
+	float		fStartingPos = _height(100.0f);
 
 	for ( int i = 0; i < NUM_MESSAGES_PER_UPT_SCREEN; ++i )
 	{
@@ -702,8 +752,8 @@ void CMenuManager::PrintUpdaterScreen()
 		{
 			if ( pLine[0] )
 			{
-				CFont::PrintString(_xleft(50.0), fStartingPos, pLine);
-				fStartingPos += _height(39.0);
+				CFont::PrintString(_xleft(50.0f), fStartingPos, pLine);
+				fStartingPos += _height(39.0f);
 			}
 			else
 				break;
@@ -714,21 +764,21 @@ void CMenuManager::PrintUpdaterScreen()
 
 	float		dDownloadPercentage = CUpdateManager::GetDownloadProgress();
 
-	CSprite2d::DrawRect(CRect(_xmiddle(-269.0), _ydown(89.0), _xmiddle(271.0), _ydown(109.0)), CRGBA(0, 0, 0, 0xFF));
+	CSprite2d::DrawRect(CRect(_xmiddle(-269.0f), _ydown(89.0f), _xmiddle(271.0f), _ydown(109.0f)), CRGBA(0, 0, 0, 255));
 
-	if ( dDownloadPercentage != 0.0 )
-		CSprite2d::DrawRect(CRect(_xmiddle(-270.0), _ydown(90.0), _xmiddle(-270.0 + (5.4 * dDownloadPercentage)), _ydown(110.0)), CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, 0xFF));
+	if ( dDownloadPercentage != 0.0f )
+		CSprite2d::DrawRect(CRect(_xmiddle(-270.0f), _ydown(90.0f), _xmiddle(-270.0f + (5.4f * dDownloadPercentage)), _ydown(110.0f)), CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, 255));
 
-	if ( dDownloadPercentage != 100.0 )
-		CSprite2d::DrawRect(CRect(_xmiddle(-270.0 + (5.4 * dDownloadPercentage)), _ydown(90.0), _xmiddle(270.0), _ydown(110.0)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 0xFF));
+	if ( dDownloadPercentage != 100.0f )
+		CSprite2d::DrawRect(CRect(_xmiddle(-270.0f + (5.4f * dDownloadPercentage)), _ydown(90.0f), _xmiddle(270.0f), _ydown(110.0f)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 255));
 
-	CFont::SetTextLetterSize(_width(0.35), _height(0.7));
+	CFont::SetTextLetterSize(_width(0.35f), _height(0.7f));
 	CFont::SetFontStyle(FONT_PagerFont);
 	CFont::SetTextAlignment(ALIGN_Center);
 	if ( CUpdateManager::IsDownloading() )
 	{
-		CMessages::InsertNumberInString(gxt->GetText("FEU_PRC"), static_cast<signed long>(dDownloadPercentage), -1, -1, -1, -1, -1, gString);
-		CFont::PrintString(RsGlobal.MaximumWidth / 2, _ydown(105.0), gString);
+		CMessages::InsertNumberInString(gxt->GetText("FEU_PRC"), static_cast<int>(dDownloadPercentage), -1, -1, -1, -1, -1, gString);
+		CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _ydown(105.0f), gString);
 	}
 
 }
@@ -1049,3 +1099,108 @@ float CMenuManager::GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition)
 
 	}
 }*/
+
+static unsigned char		bDrawingStyle;
+
+void LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID)
+{
+	unsigned char		bTempIndexes[NUM_LOADING_SPLASHES], bFinalIndexes[NUM_LOADING_SPLASHES];
+	LARGE_INTEGER		lPerformanceCount;
+
+//	memset(bTempIndexes, 0, sizeof(bTempIndexes));
+	for ( unsigned char i = 0; i < NUM_LOADING_SPLASHES; ++i )
+		bTempIndexes[i] = i;
+
+	CPNGArchive		LoadscsArchive("models\\txd\\loadscs.spta");
+	LoadscsArchive.SetDirectory(nullptr);
+
+	QueryPerformanceCounter(&lPerformanceCount);
+	srand(lPerformanceCount.LowPart);
+
+	for ( int i = 0, j = NUM_LOADING_SPLASHES-2; i < NUM_LOADING_SPLASHES; ++i, --j )
+	{
+		int		nRandomNumber;
+
+		if ( i )
+			nRandomNumber = static_cast<int>(rand() * (1.0f/(RAND_MAX+1.0f)) * (j+1));
+		else
+			nRandomNumber = 0;
+
+		bFinalIndexes[i] = bTempIndexes[nRandomNumber];
+		if ( nRandomNumber < j )
+			memcpy(&bTempIndexes[nRandomNumber], &bTempIndexes[nRandomNumber+1], j - nRandomNumber);
+	}
+
+	for ( int i = 0; i < 7; ++i )
+	{
+		char		SplashName[20];
+		bDrawingStyle = bIntroSplash != 0;
+		if ( bIntroSplash )
+		{
+			if ( nIntroSplashID == 1 )
+				strncpy(SplashName, "intro", sizeof(SplashName));
+			else
+				strncpy(SplashName, "outro", sizeof(SplashName));
+		}
+		else
+		{
+			if ( i )
+				_snprintf(SplashName, sizeof(SplashName), "loadsc%d", bFinalIndexes[i]);
+			else
+				strncpy(SplashName, GetTitlePCByLanguage(), sizeof(SplashName));
+		}
+		LoadingSprites[i].SetTextureFromSPTA(LoadscsArchive, SplashName);
+	}
+	LoadscsArchive.CloseArchive();
+}
+
+void LoadingScreen()
+{
+	CSprite2d::InitPerFrame();
+	RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS, reinterpret_cast<void*>(rwTEXTUREADDRESSCLAMP));
+
+	// TODO: Name these variables
+	if ( *(bool*)0xBAB31C )
+	{
+		if ( bDrawingStyle == 1 )
+		{
+			// Logo (small)
+			LoadingSprites[CurrentLoadingSprite].Draw(CRect(_xmiddle(-175.0f), _ymiddle(175.0f), _xmiddle(175.0f), _ymiddle(-175.0f)), CRGBA(255, 255, 255, 255));
+		}
+		else
+		{
+			if ( !CurrentLoadingSprite )
+			{
+				// title_pc
+				CVector2D				vecSplashScale;
+				if ( RsGlobal.MaximumHeight * 640.0f/448.0f > RsGlobal.MaximumWidth )
+				{
+					vecSplashScale.x = static_cast<float>(RsGlobal.MaximumWidth);
+					vecSplashScale.y = static_cast<float>(RsGlobal.MaximumWidth * (1.0f/(640.0f/448.0f)));
+				}
+				else
+				{
+					vecSplashScale.x = static_cast<float>(RsGlobal.MaximumHeight * (640.0f/448.0f));
+					vecSplashScale.y = static_cast<float>(RsGlobal.MaximumHeight);
+				}
+
+				LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
+			}
+			else
+			{
+				// Regular
+				LoadingSprites[CurrentLoadingSprite].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255));
+			}
+		}
+	
+		if ( *(bool*)0xBAB31E || *(bool*)0xBAB31F )
+			CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, *(bool*)0xBAB31E ? 255 - *(unsigned char*)0xBAB320 : *(unsigned char*)0xBAB320));
+		else
+			LoadingSprites[CurrentLoadingSprite-1].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255 - *(unsigned char*)0xBAB320));
+	}
+	else
+	{
+		if ( !*(bool*)0xBAB33D )
+			LoadingSprites[CurrentLoadingSprite].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255));
+	}
+}

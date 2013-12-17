@@ -26,10 +26,9 @@ public:
 	void				Draw(const CRect& rect, const CRGBA& colour);
 	void				Draw(float fPosX, float fPosY, float fWidth, float fHeight, const CRGBA& colour);
 
+	static void			InitPerFrame();
 	static void			SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4);
 	static void			DrawRect(const CRect& rect, const CRGBA& colour);
-
-	static void			ReadLoadingTextures(bool introSplashFlag, unsigned char introSplashID);
 };
 
 

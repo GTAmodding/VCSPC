@@ -177,7 +177,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "CConfiscatedWeapons.h"
 #include "Pools.h"
 #include "Script.h"
-#include "CStreaming.h"
+#include "Streaming.h"
 #include "CText.h"
 #include "RwEngineInstance.h"
 #include "CFont.h"
@@ -187,10 +187,10 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "DLCManager.h"
 #include "Frontend.h"
 #include "CutsceneManager.h"
-#include "CGarages.h"
+#include "Garages.h"
 //#include "CGridref.h"
 #include "TxdStore.h"
-#include "CPad.h"
+#include "Pad.h"
 #include "AnimMgr.h"
 #include "CGangWeapons.h"
 #include "C3DMarker.h"
@@ -241,10 +241,9 @@ extern CMenuManager*		menu;
 extern CMusicManager*		MusicManager;
 extern std::pair<void*,int>* const materialRestoreData;
 extern CSprite2d*			hudTextures;
-extern CSprite2d*			loadingTextures;
 //extern CGridref*			gridref;
 extern CText*				gxt;
-//extern RwEngineInstance**	_RwEngineInstance;
+extern void**				rwengine;
 extern CCamera*				camera;
 extern CGarages*			garages;
 extern CKeyState*			activeKeyState;
@@ -256,7 +255,6 @@ extern CRunningScript**		pActiveScripts;
 extern CRunningScript*		ScriptsArray;
 extern RwIm2DVertex* const	aSpriteVertices;
 extern RwCamera*&			Scene;
-extern LoadedObjectInfo*	_loadedObjectInfo;
 extern void					(*BigMessageRestOfFunc)();
 extern void					(*TheScriptsInitFunc)();
 extern char*				(__thiscall *CLEOGetTextFunc)(CText* object, const char* key);

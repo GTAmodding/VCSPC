@@ -132,30 +132,3 @@ void CRGBA::BaseColors__Constructor()
 	this[14].b = 0x2C;
 	this[14].a = 0xFF;
 }
-
-/*RwRGBA RwRGBA::GetBaseColor(BYTE ID)
-{
-	/*DWORD dwFunc = FUNC_GetBaseColor;
-	RwRGBA	dwReturn;
-	_asm
-	{
-		movzx	eax, ID
-		push	eax
-		mov		ecx, dwReturn
-		push	ecx
-		mov		ecx, this
-		call	dwFunc
-		mov		dwReturn, eax
-	}
-	return dwReturn;
-	return ;
-}*/
-
-/*RwRGBA* RwRGBA::Set(BYTE r, BYTE g, BYTE b, BYTE a)
-{
-	this->r = r;
-	this->g = g;
-	this->b = b;
-	this->a = a;
-	return this;
-}*/

@@ -339,34 +339,5 @@ void CFont::SetTextAlignment(unsigned char bAlign)
 	}
 }
 
-void CFont::PrintString(float posX, float posY, const char* text)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__PrintString;
-	_asm
-	{
-		mov		eax, text
-		push	eax
-		mov		eax, posY
-		push	eax
-		mov		eax, posX
-		push	eax
-		call	dwFunc
-		add		esp, 0Ch
-	}
-}
-
-void CFont::UnkPrintString(float posX, float posY, const char* text)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__UnkPrintString;
-	_asm
-	{
-		mov		eax, text
-		push	eax
-		mov		eax, posY
-		push	eax
-		mov		eax, posX
-		push	eax
-		call	dwFunc
-		add		esp, 0Ch
-	}
-}
+WRAPPER void CFont::PrintString(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A700); }
+WRAPPER void CFont::PrintStringFromBottom(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A820); }

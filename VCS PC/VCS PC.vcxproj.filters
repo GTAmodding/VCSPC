@@ -42,22 +42,13 @@
     <ClCompile Include="CFont.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CGarages.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CGridref.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CPad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPedIntelligence.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CStreaming.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CText.cpp">
@@ -183,6 +174,15 @@
     <ClCompile Include="RW.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Streaming.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Garages.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCam.h">
@@ -203,13 +203,7 @@
     <ClInclude Include="CFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CGarages.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CGridref.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPed.h">
@@ -219,9 +213,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPhysical.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CStreaming.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CText.h">
@@ -375,6 +366,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TxdStore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Streaming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Garages.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

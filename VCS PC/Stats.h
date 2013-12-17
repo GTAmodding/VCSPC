@@ -446,7 +446,9 @@ class CStats
 public:
 	static long double	CalcPlayerStat(unsigned int statID);
 	static void			IncrementStat(unsigned int statID, float fAmount);
-	static long			ConstructStatLine(long nStat, long& nIndents);
+	static const char*	FindCriminalRatingNumber();
+
+	static long			ConstructStatLine(int nStat, int& nIndents);
 	static void			BuildStatLine(char* pEntryName, void* pVal1, int nType, void* pVal2);
 };
 

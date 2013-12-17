@@ -16,8 +16,6 @@
 #define FUNC_CFont__SetTextBackground						0x7195C0
 #define FUNC_CFont__SetTextJustify							0x719600
 #define FUNC_CFont__SetTextAlignment						0x719610
-#define FUNC_CFont__PrintString								0x71A700
-#define FUNC_CFont__UnkPrintString							0x71A820
 
 enum	// Align
 {
@@ -101,8 +99,8 @@ public:
 	static void				SetTextUseProportionalValues(bool bUseProportionalValues);
 	static void				SetTextBackground(unsigned char bUseBackground, unsigned char bBackgroundType);
 	static void				SetTextAlignment(unsigned char bAlign);
-	static void				PrintString(float posX, float posY, const char* text);
-	static void				UnkPrintString(float posX, float posY, const char* text);
+	static void				PrintString(float posX, float posY, const char* pText);
+	static void				PrintStringFromBottom(float posX, float posY, const char* pText);
 	static void				SetWrapx(float fWrap);
 };
 

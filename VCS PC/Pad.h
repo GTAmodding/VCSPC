@@ -1,14 +1,6 @@
 #ifndef __CPAD
 #define __CPAD
 
-#define WIN32_LEAN_AND_MEAN
-
-#define FUNC_CPad__TestFireButton							0x53FFE0
-#define FUNC_CPad__UpdatePads								0x541DD0
-
-class CPad;
-extern CPad*				pads;
-
 struct CKeyState
 {
 	WORD				FKeys[12];
@@ -57,38 +49,46 @@ struct CKeyState
 	WORD				lwin;
 	WORD				rwin;
 	WORD				apps;
-};				
+};	
+
+class CControllerState
+{
+public:
+	short LEFTSTICKX;
+	short LEFTSTICKY;
+	short RIGHTSTICKX;
+	short RIGHTSTICKY;
+
+	short LEFTSHOULDER1;
+	short LEFTSHOULDER2;
+	short RIGHTSHOULDER1;
+	short RIGHTSHOULDER2;
+
+	short DPADUP;
+	short DPADDOWN;
+	short DPADLEFT;
+	short DPADRIGHT;
+
+	short START;
+	short SELECT;
+
+	short SQUARE;
+	short TRIANGLE;
+	short CROSS;
+	short CIRCLE;
+
+	short LEFTSHOCK;
+	short RIGHTSHOCK;
+
+	short m_bChatIndicated;
+	short m_bPedWalk;
+	short m_bVehicleMouseLook;
+	short m_bRadioTrackSkip;
+};
 
 class CPad
 {
 private:
-	struct CControllerState
-	{
-		WORD	LR;
-		WORD	UD;
-		WORD	SLR;
-		WORD	SUD;
-		WORD	ACTION_SECFIRE;
-		WORD	SCRLUP_LOOKLEFT;
-		WORD	AIMWEAP_HANDBRK;
-		WORD	SCRLDWN_LOOKRIGHT;
-		WORD	GRPFWD_NEXTRADIO;
-		WORD	GRPBCK_PREVRADIO;
-		WORD	NO;
-		WORD	YES;
-		WORD	PADACTIVE;
-		WORD	CHANGECAM;
-		WORD	JUMP_REVERSE;
-		WORD	ENTER_EXIT;
-		WORD	SPRNT_ACCEL;
-		WORD	FIREWEAP;
-		WORD	CROUCH_HORN;
-		WORD	LOOKBACK_SUBMISSION;
-		WORD	NETWORK_TALK;
-		WORD	WALK;
-		WORD	MOUSELOOK;
-		WORD	UTRACKSKIP;
-	};
 	CControllerState	NewState;
 	CControllerState	OldState;
 	WORD				SteeringLeftRightBuffer[10];
@@ -103,15 +103,15 @@ private:
 	BYTE				ShakeFreq;
 	BYTE				bHornHistory[5];
 	BYTE				iCurrHornHistory;
-	BYTE				JustOutOfFrontEnd;
-	BYTE				bApplyBrakes;
-	BYTE				bDisablePlayerEnterCar;
-	BYTE				bDisablePlayerDuck;
-	BYTE				bDisablePlayerFireWeapon;
-	BYTE				bDisablePlayerFireWeaponWithL1;
-	BYTE				bDisablePlayerCycleWeapon;
-	BYTE				bDisablePlayerJump;
-	BYTE				bDisablePlayerDisplayVitalStats;
+	bool				JustOutOfFrontEnd;
+	bool				bApplyBrakes;
+	bool				bDisablePlayerEnterCar;
+	bool				bDisablePlayerDuck;
+	bool				bDisablePlayerFireWeapon;
+	bool				bDisablePlayerFireWeaponWithL1;
+	bool				bDisablePlayerCycleWeapon;
+	bool				bDisablePlayerJump;
+	bool				bDisablePlayerDisplayVitalStats;
 	DWORD				LastTimeTouched;
 	DWORD				AverageWeapon;
 	DWORD				AverageEntries;
@@ -119,13 +119,9 @@ private:
 	BYTE				NoShakeFreq;
 
 public:
-	bool				IsFireWeaponJustPressed() { return NewState.FIREWEAP && !OldState.FIREWEAP; };
-	bool				IsActionOrSecondaryFireJustDown() { return NewState.ACTION_SECFIRE && !OldState.ACTION_SECFIRE; };
-	static CPad*		GetPad(int padNum) { return &pads[padNum]; };
-	CControllerState&	GetNewState() { return NewState; };
-	CControllerState&	GetOldState() { return OldState; };
+	inline bool			CrossJustDown() { return NewState.CROSS && !OldState.CROSS; }
 
-	WORD				TestFireButton();
+	static CPad*		GetPad(int nPad);
 	static void			UpdatePads();
 };
 

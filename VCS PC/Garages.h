@@ -1,8 +1,6 @@
 #ifndef __CGARAGES
 #define __CGARAGES
 
-#define WIN32_LEAN_AND_MEAN
-
 class CGarages
 {
 private:

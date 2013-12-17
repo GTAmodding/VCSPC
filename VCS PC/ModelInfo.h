@@ -414,6 +414,7 @@ public:
 
 	inline CColModel*		GetColModel() { return pColModel; }
 	inline unsigned int		GetHash() { return ulHashKey; }
+	inline short			GetTextureDict() { return usTextureDictionary; }
 
 	void					AddRef();
 };

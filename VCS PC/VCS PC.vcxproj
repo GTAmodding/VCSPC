@@ -238,7 +238,6 @@ popd</Command>
     <ClCompile Include="CDraw.cpp" />
     <ClCompile Include="CFont.cpp" />
     <ClCompile Include="CGangWeapons.cpp" />
-    <ClCompile Include="CGarages.cpp" />
     <ClCompile Include="CGridref.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</ExcludedFromBuild>
@@ -249,13 +248,14 @@ popd</Command>
     <ClCompile Include="EmpireMgr.cpp" />
     <ClCompile Include="FileMgr.cpp" />
     <ClCompile Include="Frontend.cpp" />
-    <ClCompile Include="CPad.cpp" />
     <ClCompile Include="CPed.cpp" />
     <ClCompile Include="CPedIntelligence.cpp" />
     <ClCompile Include="CutsceneManager.cpp" />
+    <ClCompile Include="Garages.cpp" />
     <ClCompile Include="General.cpp" />
     <ClCompile Include="Hud.cpp" />
     <ClCompile Include="ModelInfo.cpp" />
+    <ClCompile Include="Pad.cpp" />
     <ClCompile Include="PlayerInfo.cpp" />
     <ClCompile Include="PNGArchive.cpp" />
     <ClCompile Include="Pools.cpp" />
@@ -264,7 +264,6 @@ popd</Command>
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="CShadows.cpp" />
     <ClCompile Include="Stats.cpp" />
-    <ClCompile Include="CStreaming.cpp" />
     <ClCompile Include="CText.cpp" />
     <ClCompile Include="Messages.cpp" />
     <ClCompile Include="Radar.cpp" />
@@ -278,6 +277,7 @@ popd</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Streaming.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TxdStore.cpp" />
     <ClCompile Include="UpdateManager.cpp" />
@@ -312,20 +312,20 @@ popd</Command>
     <ClInclude Include="CutsceneManager.h" />
     <ClInclude Include="CFont.h" />
     <ClInclude Include="CGangWeapons.h" />
-    <ClInclude Include="CGarages.h" />
     <ClInclude Include="CGridref.h" />
     <ClInclude Include="Darkel.h" />
     <ClInclude Include="DLCManager.h" />
     <ClInclude Include="EmpireMgr.h" />
     <ClInclude Include="FileMgr.h" />
     <ClInclude Include="Frontend.h" />
-    <ClInclude Include="CPad.h" />
     <ClInclude Include="CPed.h" />
     <ClInclude Include="CPedIntelligence.h" />
     <ClInclude Include="CPhysical.h" />
+    <ClInclude Include="Garages.h" />
     <ClInclude Include="Hud.h" />
     <ClInclude Include="MemoryMgr.h" />
     <ClInclude Include="ModelInfo.h" />
+    <ClInclude Include="Pad.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="PNGArchive.h" />
     <ClInclude Include="Pools.h" />
@@ -333,9 +333,9 @@ popd</Command>
     <ClInclude Include="Script.h" />
     <ClInclude Include="CShadows.h" />
     <ClInclude Include="Stats.h" />
-    <ClInclude Include="CStreaming.h" />
     <ClInclude Include="CText.h" />
     <ClInclude Include="Messages.h" />
+    <ClInclude Include="Streaming.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TxdStore.h" />
     <ClInclude Include="UpdateManager.h" />

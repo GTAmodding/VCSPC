@@ -18,9 +18,9 @@ struct PsGlobalType
 struct RsGlobalType
 {
 	const char*		AppName;
-	DWORD			MaximumWidth;
-	DWORD			MaximumHeight;
-	DWORD			frameLimit;
+	unsigned int	MaximumWidth;
+	unsigned int	MaximumHeight;
+	unsigned int	frameLimit;
 	BOOL			quit;
 	PsGlobalType*	ps;
 	void*			keyboard;

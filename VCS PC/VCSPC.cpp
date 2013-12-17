@@ -301,20 +301,16 @@ RsGlobalType&				RsGlobal = *(RsGlobalType*)0xC17040;
 CCamera*					camera;
 CFont::Details*				fontDetails;
 CText*						gxt;
-void**						rwengine;
-LoadedObjectInfo*			_loadedObjectInfo;
 CClock*						clock_struct;
 CRGBA*						BaseColors;
 CMenuManager*				menu;
 CMusicManager*				MusicManager;
 CSprite2d*					hudTextures;
-CSprite2d*					loadingTextures;
 RpClump**					arrowClump;
 std::pair<void*,int>* const	materialRestoreData = (std::pair<void*,int>*)0xB4DBE8;
 CBlurStage*					blurStages;
 //CGridref*					gridref;
 CGarages*					garages;
-CPad*						pads;
 CAnimationStyleDescriptor*	animationStyles;
 CKeyState*					activeKeyState;
 CKeyState*					currKeyState;
@@ -326,6 +322,7 @@ CRunningScript*				ScriptsArray;
 RwIm2DVertex* const			aSpriteVertices = (RwIm2DVertex*)0xC80468;
 RwCamera*&					Scene = *(RwCamera**)0xC1703C;
 DWORD*						gameState;
+void**						rwengine = (void**)0xC97B24;
 
 void						(*replacedTXDLoadFunc)();
 void						(*replacedTXDReleaseFunc)();
@@ -867,19 +864,15 @@ __forceinline void DefineVariables()
 	Garage_MessageIDString = (char*)0x96C014;
 	currentFPS = (float*)0xB7CB50;
 	gxt = (CText*)0xC1B340;
-	rwengine = (void**)0xC97B24;
-	_loadedObjectInfo = (LoadedObjectInfo*)0x8E4CC0;
 	clock_struct = (CClock*)0xB70144;
 	BaseColors = (CRGBA*)0xBAB22C;
 	menu = (CMenuManager*)0xBA6748;
 	MusicManager = (CMusicManager*)0xB6BC90;
 	hudTextures = (CSprite2d*)0xBAB1FC;
-	loadingTextures = (CSprite2d*)0xBAB35C;
 	arrowClump = (RpClump**)0xC7C6F0;
 	blurStages = (CBlurStage*)0x8D5190;
 	//gridref = (CGridref*)0xC72FB0;
 	garages = (CGarages*)0x96C00C;
-	pads = (CPad*)0xB73458;
 	animationStyles = (CAnimationStyleDescriptor*)0x8AA5A8;
 	activeKeyState = (CKeyState*)0xB72CB0;
 	currKeyState = (CKeyState*)0xB73190;
@@ -2621,7 +2614,8 @@ __forceinline void Main_Patches()
 		mov		dwFunc, eax
 	}
 	call(0x7272B0, dwFunc, PATCH_JUMP);*/
-	call(0x5900B0, &CSprite2d::ReadLoadingTextures, PATCH_JUMP);
+	InjectHook(0x5900B0, LoadSplashes, PATCH_JUMP);
+	InjectHook(0x58FF60, LoadingScreen, PATCH_JUMP);
 
 	nop(0x574673, 5);
 	nop(0x5746A0, 5);
@@ -4273,16 +4267,8 @@ void HighspeedCamShake(float shake)
 
 void ViceSquadCheckInjectA(int townID)
 {
-	CWanted* pWanted;
-	DWORD dwFunc = FUNC_ReloadCopModels;
-	_asm
-	{
-		mov		eax, townID
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-	pWanted = FindPlayerWanted(-1);
+	CStreaming::StreamCopModels(townID);
+	CWanted* pWanted = FindPlayerWanted(-1);
 	if ( pWanted->ShouldSendViceSquad() )
 	{
 		CStreaming::RequestModel(506, 2);
@@ -4291,7 +4277,7 @@ void ViceSquadCheckInjectA(int townID)
 	else
 	{
 		CStreaming::SetModelIsDeletable(506);
-		if ( _loadedObjectInfo[215].bLoaded != true )
+		if ( CStreaming::ms_aInfoForModel[215].uLoadStatus != StreamingModelLoaded )
 			CStreaming::SetModelIsDeletable(215);
 	}
 }
@@ -4300,8 +4286,8 @@ int ViceSquadCheckInjectB()
 {
 	CWanted* pWanted = FindPlayerWanted(-1);
 	if ( pWanted->ShouldSendViceSquad()
-		&& _loadedObjectInfo[215].bLoaded == true
-		&& _loadedObjectInfo[506].bLoaded == true )
+		&& CStreaming::ms_aInfoForModel[215].uLoadStatus == StreamingModelLoaded
+		&& CStreaming::ms_aInfoForModel[506].uLoadStatus == StreamingModelLoaded )
 	{
 		if ( random(0, 3) == 2 )
 			LogToFile("Vice Squad sent");
@@ -4315,7 +4301,7 @@ void InjectArrowMarker()
 	int				modelID;
 	CBaseModelInfo*	modelInfo = CModelInfo::GetModelInfo("arrow", &modelID);
 	CStreaming::RequestModel(modelID, 2);
-	CStreaming::LoadRequestedModels(0);
+	CStreaming::LoadAllRequestedModels(false);
 
 	RpAtomic*	atomic = modelInfo->CreateInstance();
 	modelInfo->AddRef();
@@ -4422,9 +4408,8 @@ void LoadGameFailedMessage(unsigned char bMessageIndex)
 		CPad::UpdatePads();
 		menu->ShowFullscreenMessage(pMessage, true, false);
 
-		CPad*	plrPad = CPad::GetPad(0);
 		if ( ( currKeyState->enter && !prevKeyState->enter ) || ( currKeyState->extenter && !prevKeyState->extenter )
-			|| ( plrPad->GetNewState().SPRNT_ACCEL && !plrPad->GetOldState().SPRNT_ACCEL ) )
+			|| CPad::GetPad(0)->CrossJustDown() )
 			return;
 	}
 }
@@ -4477,14 +4462,14 @@ void ParseCommandlineArgument(const char* pArg)
 {
 	if ( pArg )
 	{
-		if ( !strncmp(pArg, "-novcsname", 10) )
+		if ( !strnicmp(pArg, "-novcsname", 10) )
 		{
 			SetWindowTextW(RsGlobal.ps->window, L"GTA: San Andreas");
 			RsGlobal.AppName = "GTA: San Andreas";
 			return;
 		}
 
-		if ( !strncmp(pArg, "-nointro", 8) )
+		if ( !strnicmp(pArg, "-nointro", 8) )
 		{
 			// TODO: Define this variable properly
 			*(DWORD*)0xC8D4C0 = 5;
@@ -4492,6 +4477,12 @@ void ParseCommandlineArgument(const char* pArg)
 		}
 
 #ifdef _DEBUG
+		if ( !strnicmp(pArg, "-noautocheck", 13) )
+		{
+			CUpdateManager::DisableAutoCheck();
+			return;
+		}
+
 		if ( !strncmp(pArg, "-zombiedlc", 10) )
 		{
 			CDLCManager::ToggleDebugOverride(DLC_HALLOWEEN);

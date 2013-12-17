@@ -9,6 +9,10 @@ long				CUpdateManager::nDrawingState;
 bool				CUpdateManager::bSeenUpdaterScreenYet;
 char*				CUpdateManager::pMessages[NUM_MESSAGES_PER_UPT_SCREEN];
 
+#ifdef _DEBUG
+bool				CUpdateManager::bDisableAutoCheck = false;
+#endif
+
 
 void CUpdateManager::Init()
 {
@@ -80,6 +84,12 @@ void CUpdateManager::Process()
 
 	static unsigned long	nTempCtr = 0;
 	static bool				bTemp = false;
+
+#ifdef _DEBUG
+	if ( bDisableAutoCheck )
+		bTemp = true;
+#endif
+
 	if ( !bTemp )
 	{
 		if ( nInterfaceStatus != UPTMODULESTATE_IDLE )

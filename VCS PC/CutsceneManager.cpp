@@ -2,7 +2,7 @@
 
 void CCutsceneMgr::SetProperCSPlrModel(char* pModel)
 {
-	if ( !_stricmp(pModel, "csplr") )
+	if ( !_strnicmp(pModel, "csplr", 8) )
 	{
 		static const unsigned int	dwModelHashes[] = {	0xB5AB388C, 0x2C6C35B3, 0x5B6B0525, 0xC50F9086,
 														0xB208A010, 0x2B01F1AA, 0x5C06C13C, 0xCCB9DCAD,

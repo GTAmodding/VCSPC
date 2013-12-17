@@ -18,6 +18,10 @@ private:
 	static bool					bSeenUpdaterScreenYet;
 	static char*				pMessages[NUM_MESSAGES_PER_UPT_SCREEN];
 
+#ifdef _DEBUG
+	static bool					bDisableAutoCheck;
+#endif
+
 public:
 	static inline bool			AnyTextDisplaysNow()
 		{ return nDrawingState != 0; }
@@ -31,11 +35,16 @@ public:
 	static inline void			ReportUpdaterScreenSeen()
 		{ bSeenUpdaterScreenYet = true; }
 
-	static inline bool					GetDLCStatus(const char* pName, bool bDefault)
+	static inline bool			GetDLCStatus(const char* pName, bool bDefault)
 		{ return pUptModuleInterface->GetDLCStatus(pName, bDefault); }
 
-	static inline void					SetDLCStatus(const char* pName, bool bStatus)
+	static inline void			SetDLCStatus(const char* pName, bool bStatus)
 		{ pUptModuleInterface->AddThisDLCToList(pName, bStatus); }
+
+#ifdef _DEBUG
+	static inline void			DisableAutoCheck()
+		{ bDisableAutoCheck = true; }
+#endif
 
 	static void					Init();
 	static void					Terminate();

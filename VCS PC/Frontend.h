@@ -1,13 +1,13 @@
 #ifndef __CMENUMANAGER
 #define __CMENUMANAGER
 
-#define						MENU_TEXT_POSITION_LCOLUMN 320.0	// Adjusted by the game
-#define						MENU_TEXT_POSITION_RCOLUMN 70.0
-//#define						MENU_TEXT_POSITION_RCOLUMN 250.0
-#define						MENU_SLIDER_HEIGHT 10.0
-#define						MENU_SLIDER_WIDTH 9.0
+#define						MENU_TEXT_POSITION_LCOLUMN 320.0f	// Adjusted by the game
+#define						MENU_TEXT_POSITION_RCOLUMN 70.0f
+//#define						MENU_TEXT_POSITION_RCOLUMN 250.0f
+#define						MENU_SLIDER_HEIGHT 10.0f
+#define						MENU_SLIDER_WIDTH 9.0f
 
-#define						MENU_SLIDER_POSY 135.0
+#define						MENU_SLIDER_POSY 135.0f
 
 #define						NUM_MENUS 46				// Relevant for debugging only
 #define						NUM_ENTRIES_PER_MENU 14
@@ -202,6 +202,9 @@ public:
 
 //	void		SaveStatsHTML();
 };
+
+void	LoadingScreen();
+void	LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID);
 
 static_assert(sizeof(CMenuManager) == CMenuManager_ARRAYSIZE, "CMenuManager has wrong size!");
 

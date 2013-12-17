@@ -391,7 +391,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 
 			ToLower(cString, 8);
 			CStreaming::RequestSpecialModel(0, cString, 26);
-			CStreaming::LoadRequestedModels(1);
+			CStreaming::LoadAllRequestedModels(true);
 			CPed* pPed = CWorld::Players[scriptParams[0].bParam].GetPed();
 			DWORD iAnimGroupBackup = pPed->GetMoveAnimGroup();
 			pPed->DeleteRwObject();

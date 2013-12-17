@@ -22,7 +22,7 @@ private:
 
 public:
 	CEmpire()
-		: m_bPlaced(false), m_bDefined(false), m_pBuilding(nullptr), m_nType(-1)
+		: m_bPlaced(false), m_bDefined(false), m_pBuilding(nullptr), m_nType(-1), m_nScale(0)
 	{
 	}
 

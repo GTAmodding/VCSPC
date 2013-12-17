@@ -1,8 +1,6 @@
 #ifndef __CUTSCENEMGR
 #define __CUTSCENEMGR
 
-#define WIN32_LEAN_AND_MEAN
-
 enum eCutscenes
 {
 	CUT_JERA1,
@@ -24,7 +22,7 @@ enum eCutscenes
 struct CutsceneData
 {
 	const char*		pName;
-	DWORD			index;
+	unsigned int	nIndex;
 };
 
 class CCutsceneMgr

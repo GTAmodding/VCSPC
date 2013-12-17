@@ -14,6 +14,7 @@ enum
 
 WRAPPER long double CStats::CalcPlayerStat(unsigned int statID) { WRAPARG(statID); EAXJMP(0x559AF0); }
 WRAPPER void CStats::IncrementStat(unsigned int statID, float fAmount) { WRAPARG(statID); WRAPARG(fAmount); EAXJMP(0x55C180); }
+WRAPPER const char* CStats::FindCriminalRatingNumber() { EAXJMP(0x55A210); }
 
 inline bool UseMetricSystem()
 {
@@ -30,9 +31,9 @@ static inline int GetSecondsFromStat(int nTime)
 	return nTime % 60;
 }
 
-long CStats::ConstructStatLine(long nStat, long& nIndents)
+long CStats::ConstructStatLine(int nStat, int& nIndents)
 {
-	long	nTempValue = 0;
+	int		nTempValue = 0;
 	nIndents = 0;
 
 	if ( nStat == nTempValue++ )

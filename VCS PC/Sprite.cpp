@@ -3,13 +3,7 @@
 // Wrappers
 WRAPPER void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4)
 { WRAPARG(rect); WRAPARG(rgb1); WRAPARG(rgb2); WRAPARG(rgb3); WRAPARG(rgb4); EAXJMP(0x727420); }
-
-
-static inline const char* GetTitlePCByLanguage()
-{
-	static const char* const	cTitlePCNames[] = { "title_pc_EN", /*"title_pc_ES",*/ "title_pc_PL" };
-	return cTitlePCNames[menu->GetLanguage()];
-}
+WRAPPER void CSprite2d::InitPerFrame() { EAXJMP(0x727350); }
 
 void CSprite2d::SetTexture(const char* name, const char* maskName)
 {
@@ -78,60 +72,9 @@ void CSprite2d::Draw(float fPosX, float fPosY, float fWidth, float fHeight, cons
 
 void CSprite2d::DrawRect(const CRect& rect, const CRGBA& colour)
 {
-	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
 	SetVertices(rect, colour, colour, colour, colour);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, reinterpret_cast<void*>(colour.a != 255));
 	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, FALSE);
-}
-
-void CSprite2d::ReadLoadingTextures(bool bIntroSplash, unsigned char nIntroSplashID)
-{
-	unsigned char		bTempIndexes[NUM_LOADING_SPLASHES], bFinalIndexes[NUM_LOADING_SPLASHES];
-	LARGE_INTEGER		lPerformanceCount;
-
-//	memset(bTempIndexes, 0, sizeof(bTempIndexes));
-	for ( unsigned char i = 0; i < NUM_LOADING_SPLASHES; ++i )
-		bTempIndexes[i] = i;
-
-	CPNGArchive		LoadscsArchive("models\\txd\\loadscs.spta");
-	LoadscsArchive.SetDirectory(nullptr);
-
-	QueryPerformanceCounter(&lPerformanceCount);
-	srand(lPerformanceCount.LowPart);
-
-	for ( int i = 0, j = NUM_LOADING_SPLASHES-2; i < NUM_LOADING_SPLASHES; ++i, --j )
-	{
-		int		nRandomNumber;
-
-		if ( i )
-			nRandomNumber = static_cast<int>(rand() * (1.0f/(RAND_MAX+1.0f)) * (j+1));
-		else
-			nRandomNumber = 0;
-
-		bFinalIndexes[i] = bTempIndexes[nRandomNumber];
-		if ( nRandomNumber < j )
-			memcpy(&bTempIndexes[nRandomNumber], &bTempIndexes[nRandomNumber+1], j - nRandomNumber);
-	}
-
-	for ( int i = 0; i < 7; ++i )
-	{
-		char		SplashName[20];
-		if ( bIntroSplash )
-		{
-			if ( nIntroSplashID == 1 )
-				strncpy(SplashName, "intro", sizeof(SplashName));
-			else
-				strncpy(SplashName, "outro", sizeof(SplashName));
-		}
-		else
-		{
-			if ( i )
-				_snprintf(SplashName, sizeof(SplashName), "loadsc%d", bFinalIndexes[i]);
-			else
-				strncpy(SplashName, GetTitlePCByLanguage(), sizeof(SplashName));
-		}
-		loadingTextures[i].SetTextureFromSPTA(LoadscsArchive, SplashName);
-	}
-	LoadscsArchive.CloseArchive();
 }
