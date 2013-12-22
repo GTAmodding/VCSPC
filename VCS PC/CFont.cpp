@@ -2,76 +2,12 @@
 
 CSprite2d			CFont::Sprite[NUM_FONT_SHEETS];
 CFont::sFontSizes	CFont::Size[NUM_FONT_SHEETS];
+CFont::tDetails&	CFont::Details = *(CFont::tDetails*)0xC71A60;
 
 WRAPPER void CFont::SetWrapx(float fWrap) { WRAPARG(fWrap); EAXJMP(0x7194D0); }
+WRAPPER void CFont::LoadFontValues() { EAXJMP(0x7187C0); }
 
-void CFont::ReadFontsDAT()
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__ReadFontsDAT;
-	_asm call dwFunc
-}
-
-/*signed char Upcase(signed char character, signed char unk)
-{
-	if ( unk == 1 )
-	{
-		if ( character == 26 )
-			return 154;
-
-		if ( character >= 8 && character <= 9 )
-		{
-			unsigned char result = character;
-			result += 86;
-			return result;
-		}
-
-		if ( character == 4 )
-			return 93;
-
-		if ( character == 7 )
-			return 206;
-
-		if ( character == 14 )
-			return 207;
-	}
-	if ( character != 1 || unk != 1 )
-	{
-		if ( character == 143 )
-			return 205;
-
-		if ( character == 31 )
-			return 91;
-
-		if ( character == 6 )
-			return 10;
-
-		if ( character == 62 )
-			return 32;
-
-		if ( character >= 16 && character <= 25 )
-			return (character + 128);
-
-		if ( character >= 33 && character <= 58 )
-			return (character + 122);
-
-		if ( character >= 65 && character <= 90 )
-			return (character + 90);
-
-		if ( character >= 96 && character <= 118 )
-			return (character + 85);
-
-		if ( character >= 119 && character <= 140 )
-			return (character + 62);
-
-		if ( character >= 141 && character <= 142 )
-			return 204;
-	}
-	else
-		return 208;
-	return character;
-}*/
-
-unsigned char CFont::AssignBottomFontIndex(unsigned char character, unsigned char bFontType)
+unsigned char CFont::FindSubFontCharacter(char character, unsigned char bFontType)
 {
 	UNREFERENCED_PARAMETER(bFontType);
 	if ( character == 4 )
@@ -149,26 +85,26 @@ unsigned char CFont::AssignBottomFontIndex(unsigned char character, unsigned cha
 	return character;
 }
 
-void CFont::SetTextLetterSize(float scaleX, float scaleY)
+void CFont::SetScale(float scaleX, float scaleY)
 {
-	fontDetails->textLetterSizeX = scaleX;
-	fontDetails->textLetterSizeY = scaleY;
+	Details.textLetterSizeX = scaleX;
+	Details.textLetterSizeY = scaleY;
 }
 
-void CFont::SetTextLetterSizeWithLanguageScaling(float scaleX, float scaleY)
+void CFont::SetScaleLang(float scaleX, float scaleY)
 {
-	fontDetails->textLetterSizeY = scaleY;
-	switch ( menu->GetLanguage() )
+	Details.textLetterSizeY = scaleY;
+	switch ( FrontEndMenuManager.GetLanguage() )
 	{
 	//case LANG_Spanish:
-	//	fontDetails->textLetterSizeX = scaleX * 0.85f;
-	//	break;
+	//	Details.textLetterSizeX = scaleX * 0.85f;
+	//	return;
 	case LANG_Polish:
-		fontDetails->textLetterSizeX = scaleX * 0.95f;
-		break;
+		Details.textLetterSizeX = scaleX * 0.95f;
+		return;
 	default:	// LANG_English
-		fontDetails->textLetterSizeX = scaleX;
-		break;
+		Details.textLetterSizeX = scaleX;
+		return;
 	}
 }
 
@@ -176,17 +112,17 @@ void CFont::SetFontStyle(unsigned char bFont)
 {
 	if ( bFont == FONT_Hud )
 	{
-		fontDetails->bSpriteToUse = 3;
-		fontDetails->bFontStyle = 1;
+		Details.bSpriteToUse = 3;
+		Details.bFontStyle = 1;
 	}
 	else
 	{
-		fontDetails->bSpriteToUse = bFont;
-		fontDetails->bFontStyle = 0;
+		Details.bSpriteToUse = bFont;
+		Details.bFontStyle = 0;
 	}
 }
 
-void CFont::SetTextColour(CRGBA colour)
+void CFont::SetColor(CRGBA colour)
 {
 	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextColour;
 	_asm
@@ -341,3 +277,27 @@ void CFont::SetTextAlignment(unsigned char bAlign)
 
 WRAPPER void CFont::PrintString(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A700); }
 WRAPPER void CFont::PrintStringFromBottom(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A820); }
+
+void CFont::Initialise()
+{
+	CPNGArchive		FontsSPTA("models\\fonts.spta");
+	FontsSPTA.SetDirectory(nullptr);
+
+	Sprite[0].SetTextureFromSPTA(FontsSPTA, "font1");
+	Sprite[1].SetTextureFromSPTA(FontsSPTA, "font2");
+	Sprite[2].SetTextureFromSPTA(FontsSPTA, "font3");
+	Sprite[3].SetTextureFromSPTA(FontsSPTA, "font4");
+
+	FontsSPTA.CloseArchive();
+
+	// TODO: Dummy CFont stuff may not be needed at all?
+	LoadFontValues();
+
+	// TODO: Buttons
+}
+
+void CFont::Shutdown()
+{
+	for ( int i = 0; i < NUM_FONT_SHEETS; ++i )
+		Sprite[i].Delete();
+}

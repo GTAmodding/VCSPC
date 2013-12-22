@@ -75,7 +75,7 @@ void CUpdateManager::Process()
 			break;
 
 		case UPTMODULESTATE_ALL_READY:
-			EchoMessage(gxt->GetText("UPT_INS"));
+			EchoMessage(TheText.GetText("UPT_INS"));
 			bSeenUpdaterScreenYet = false;
 			break;
 		}
@@ -96,7 +96,7 @@ void CUpdateManager::Process()
 			bTemp = true;
 		else
 		{
-			if ( !menu->IsActive() && !CTheScripts::IsPlayerOnAMission() )
+			if ( !FrontEndMenuManager.IsActive() && !CTheScripts::IsPlayerOnAMission() )
 			{
 				++nTempCtr;
 
@@ -192,7 +192,7 @@ void CUpdateManager::Display()
 	float fStep = 0.05f * (CTimer::m_snTimeInMillisecondsPauseMode - dwPerformanceStepCounter);
 
 	dwPerformanceStepCounter = CTimer::m_snTimeInMillisecondsPauseMode;
-	/*if ( menu->IsActive() )
+	/*if ( FrontEndMenuManager.IsActive() )
 		fStep = 1000.0 / (*currentFPS);
 	else
 		fStep = CTimer::ms_fTimeStep;*/
@@ -244,33 +244,33 @@ void CUpdateManager::Display()
 		CFont::SetFontStyle(FONT_Eurostile);
 		CFont::SetTextAlignment(ALIGN_Right);
 		CFont::SetTextOutline(1);
-		CFont::SetTextLetterSize(_width(0.35f), _height(0.65f));
+		CFont::SetScale(_width(0.35f), _height(0.65f));
 		CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, static_cast<unsigned char>(nTextAlpha)));
 		if ( nDrawingState == 2 || nDrawingState == 5 )
-			CFont::SetTextColour(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B, static_cast<unsigned char>(nTextAlpha)));
+			CFont::SetColor(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B, static_cast<unsigned char>(nTextAlpha)));
 		else
-			CFont::SetTextColour(CRGBA(255, 255, 255, static_cast<unsigned char>(nTextAlpha)));
+			CFont::SetColor(CRGBA(255, 255, 255, static_cast<unsigned char>(nTextAlpha)));
 
 		switch ( nInterfaceStatus )
 		{
 		case UPTMODULESTATE_IDLE:
-			CFont::PrintString(_x(15.0f), _y(7.5f), gxt->GetText(pUptModuleInterface->UpdateServiceOn() ? "FEU_NOU" : "FEU_USA"));
+			CFont::PrintString(_x(15.0f), _y(7.5f), TheText.GetText(pUptModuleInterface->UpdateServiceOn() ? "FEU_NOU" : "FEU_USA"));
 			break;
 
 		case UPTMODULESTATE_CHECKING:
-			CFont::PrintString(_x(15.0f), _y(7.5f), gxt->GetText("FEU_CHK"));
+			CFont::PrintString(_x(15.0f), _y(7.5f), TheText.GetText("FEU_CHK"));
 			break;
 		case UPTMODULESTATE_NEW_UPDATES:
-			CFont::PrintString(_x(15.0f), _y(7.5f), gxt->GetText("FEU_NEW"));
+			CFont::PrintString(_x(15.0f), _y(7.5f), TheText.GetText("FEU_NEW"));
 			break;
 
 		case UPTMODULESTATE_DOWNLOADING:
-			CMessages::InsertNumberInString(gxt->GetText("FEU_DLU"), static_cast<signed long>(pUptModuleInterface->GetProgress()), -1, -1, -1, -1, -1, gString);
+			CMessages::InsertNumberInString(TheText.GetText("FEU_DLU"), static_cast<signed long>(pUptModuleInterface->GetProgress()), -1, -1, -1, -1, -1, gString);
 			CFont::PrintString(_x(15.0f), _y(7.5f), gString);
 			break;
 
 		case UPTMODULESTATE_ALL_READY:
-			CFont::PrintString(_x(15.0f), _y(7.5f), gxt->GetText("FEU_RDY"));
+			CFont::PrintString(_x(15.0f), _y(7.5f), TheText.GetText("FEU_RDY"));
 			break;
 		}
 	}
@@ -315,15 +315,15 @@ const char* CUpdateManager::GetGXTEntryForButton()
 	switch ( nInterfaceStatus )
 	{
 	case UPTMODULESTATE_CHECKING:
-		CFont::SetTextColour(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
+		CFont::SetColor(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
 		return "FEU_UCK";
 	case UPTMODULESTATE_NEW_UPDATES:
 		return "FEU_UPN";
 	case UPTMODULESTATE_DOWNLOADING:
-		CFont::SetTextColour(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
+		CFont::SetColor(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
 		return "FEU_UDL";
 	case UPTMODULESTATE_ALL_READY:
-		CFont::SetTextColour(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
+		CFont::SetColor(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
 	default:
 		return "FEU_UPC";
 	}

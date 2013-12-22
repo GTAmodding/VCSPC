@@ -16,12 +16,14 @@ enum eHudTextures
 	HUD_Radardisc,
 	HUD_BarOutline,
 	HUD_Pager,
-	NUM_HUD_TEXTURES
+	NUM_HUD_SPRITES
 };
 
 
 #define	BAR_ENERGY_LOSS_FLASH_DURATION	2000
 #define HUD_TRANSPARENCY				217
+
+//#define COMPILE_SLANTED_TEXT
 
 class CHud
 {
@@ -54,6 +56,8 @@ private:
 
 	static char		m_PagerMessage[16];
 	//float			BigMessage3PosY;
+
+	static CSprite2d* const		Sprites;
 
 public:
 	/*CHud()
@@ -99,11 +103,11 @@ public:
 	
 	static void		GetRidOfAllCustomHUDMessages();
 	static void		Initialise();
+	static void		ReInitialise();
 	static void		SetVehicleName(char* carName);
 	static void		SetZoneName(char* zoneName, bool bIgnoreIntID);
 	static void		SetPagerMessage(char* pMsg);
 	static bool		HelpMessageShown();
-//	static char*	ConvertHUDNumbers(char* string);
 
 	static void		DrawHUD();
 	static void		DrawOnscreenTimer();

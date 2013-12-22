@@ -74,7 +74,7 @@ void WidescreenSupport::Recalculate(long nWidth, long nHeight, bool bAlways)
 		savedResWidth = nWidth;
 		savedResHeight = nHeight;
 
-		if ( !menu->m_bAspectRatioMode )
+		if ( !FrontEndMenuManager.m_bAspectRatioMode )
 		{
 			if ( nWidth == 720 && nHeight == 576 )
 			{
@@ -97,8 +97,8 @@ void WidescreenSupport::Recalculate(long nWidth, long nHeight, bool bAlways)
 		}
 		else
 		{
-			fNewResolutionWidthMultiplier = fPrecalculatedMultipliers[menu->m_bAspectRatioMode - 1];
-			fNewResolutionHeightMultiplier = fPrecalculatedHeightMults[menu->m_bAspectRatioMode - 1];
+			fNewResolutionWidthMultiplier = fPrecalculatedMultipliers[FrontEndMenuManager.m_bAspectRatioMode - 1];
+			fNewResolutionHeightMultiplier = fPrecalculatedHeightMults[FrontEndMenuManager.m_bAspectRatioMode - 1];
 		}
 
 		nCTRubberSlider = fNewResolutionWidthMultiplier/2.0;
@@ -157,7 +157,7 @@ void WidescreenSupport::Recalculate(long nWidth, long nHeight, bool bAlways)
 
 float WidescreenSupport::SetAspectRatio()
 {
-	switch ( menu->m_bAspectRatioMode )
+	switch ( FrontEndMenuManager.m_bAspectRatioMode )
 	{
 	case 1:
 		return *ScreenAspectRatio = 4.0/3.0;

@@ -357,7 +357,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 static inline const char* GetTitlePCByLanguage()
 {
 	static const char* const	cTitlePCNames[] = { "title_pc_EN", /*"title_pc_ES",*/ "title_pc_PL" };
-	return cTitlePCNames[menu->GetLanguage()];
+	return cTitlePCNames[FrontEndMenuManager.GetLanguage()];
 }
 
 WRAPPER void CMenuManager::ShowFullscreenMessage(const char* pMessage, bool bUnk1, bool bUnk2)
@@ -394,8 +394,8 @@ void CMenuManager::DrawBackEnd()
 	CFont::SetTextWrapX(0.0);
 	CFont::SetTextOutline(1);
 	CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
-	CFont::SetTextLetterSize(_width(0.25f), _height(0.4f));
-	CFont::SetTextColour(BaseColors[11]);
+	CFont::SetScale(_width(0.25f), _height(0.4f));
+	CFont::SetColor(BaseColors[11]);
 	CFont::PrintString(_x(2.5f), _ydown(13.0f), MOD_VERSION" BUILD "BUILDNUMBER_STR);
 
 #ifdef DEBUG
@@ -424,22 +424,22 @@ void CMenuManager::DrawBackEnd()
 			textures[16].Draw(CRect(_x(135.0f), _y(122.5f), _x(15.0f), _y(2.5f)), CRGBA(255, 255, 255, 255));
 
 			CFont::SetTextUseProportionalValues(true);
-			CFont::SetTextLetterSize(_width(0.8f), _height(1.2f));
+			CFont::SetScale(_width(0.8f), _height(1.2f));
 			CFont::SetFontStyle(FONT_RageItalic);
 			//CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
 			//CFont::SetTextOutline(1);
 			CFont::SetTextAlignment(ALIGN_Center);
 
-			CFont::SetTextColour(CRGBA(MODDB_RED_R, MODDB_RED_G, MODDB_RED_B, 255));
-			CFont::PrintString(_x(75.0f), _y(115.0f), gxt->GetText("FEP_MOD"));
+			CFont::SetColor(CRGBA(MODDB_RED_R, MODDB_RED_G, MODDB_RED_B, 255));
+			CFont::PrintString(_x(75.0f), _y(115.0f), TheText.GetText("FEP_MOD"));
 
 			CFont::SetTextUseProportionalValues(false);
 			CFont::SetFontStyle(FONT_PagerFont);
-			CFont::SetTextLetterSize(_width(0.375f), _height(0.725f));
+			CFont::SetScale(_width(0.375f), _height(0.725f));
 			if ( nDaysTillDeadline >= 3 )
-				CFont::SetTextColour(CRGBA(255, 255, 255, 255));
+				CFont::SetColor(CRGBA(255, 255, 255, 255));
 
-			CMessages::InsertNumberInString(gxt->GetText(nDaysTillDeadline == 1 ? "FEP_DY2" : "FEP_DYZ"), nDaysTillDeadline, -1, -1, -1, -1, -1, gString);
+			CMessages::InsertNumberInString(TheText.GetText(nDaysTillDeadline == 1 ? "FEP_DY2" : "FEP_DYZ"), nDaysTillDeadline, -1, -1, -1, -1, -1, gString);
 			CFont::PrintString(_x(75.0f), _y(140.0f), gString);
 		}
 	}
@@ -682,15 +682,15 @@ void CMenuManager::PrintStats()
 	CFont::SetTextOutline(1);
 
 	// Criminal Rating
-	CFont::SetTextLetterSize(_width(0.425f), _height(0.85f));
+	CFont::SetScale(_width(0.425f), _height(0.85f));
 	CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
 	CFont::SetTextAlignment(ALIGN_Left);
-	CFont::SetTextColour(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
-	CFont::PrintString(_xleft(50.0f), _y(85.0f), gxt->GetText("CRIMRA"));
+	CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
+	CFont::PrintString(_xleft(50.0f), _y(85.0f), TheText.GetText("CRIMRA"));
 	CFont::SetTextAlignment(ALIGN_Right);
 	CFont::PrintString(_x(50.0f), _y(85.0f), CStats::FindCriminalRatingNumber());
 
-	CFont::SetTextLetterSize(_width(0.3f), _height(0.7f));
+	CFont::SetScale(_width(0.3f), _height(0.7f));
 
 	while ( dwLoopCounter < dwStatsToShow )
 	{
@@ -719,7 +719,7 @@ void CMenuManager::PrintStats()
 
 			CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, static_cast<BYTE>(fTextAlpha)));
 			CFont::SetTextAlignment(ALIGN_Left);
-			CFont::SetTextColour(CRGBA(255, 255, 255, static_cast<BYTE>(fTextAlpha)));
+			CFont::SetColor(CRGBA(255, 255, 255, static_cast<BYTE>(fTextAlpha)));
 			CFont::PrintString(_xleft(50.0f + (nIndents * 3.0f)), fStartingPos, gString);
 			CFont::SetTextAlignment(ALIGN_Right);
 			CFont::PrintString(_x(50.0f), fStartingPos, gUString);
@@ -730,18 +730,18 @@ void CMenuManager::PrintStats()
 
 void CMenuManager::PrintUpdaterScreen()
 {
-	CFont::SetTextLetterSize(_width(0.8f), _height(1.2f));
+	CFont::SetScale(_width(0.8f), _height(1.2f));
 	CFont::SetFontStyle(FONT_RageItalic);
 	CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
 	CFont::SetTextOutline(1);
 	CFont::SetTextAlignment(ALIGN_Center);
 
-	CFont::SetTextColour(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
-	CFont::PrintString(_x(137.5f), _y(15.0f), gxt->GetText("FEU_POW"));
+	CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
+	CFont::PrintString(_x(137.5f), _y(15.0f), TheText.GetText("FEU_POW"));
 
 	CFont::SetFontStyle(FONT_Eurostile);
-	CFont::SetTextLetterSize(_width(0.3f), _height(0.7f));
-	CFont::SetTextColour(CRGBA(255, 255, 255, 255));
+	CFont::SetScale(_width(0.3f), _height(0.7f));
+	CFont::SetColor(CRGBA(255, 255, 255, 255));
 	CFont::SetTextAlignment(ALIGN_Left);
 
 	float		fStartingPos = _height(100.0f);
@@ -772,12 +772,12 @@ void CMenuManager::PrintUpdaterScreen()
 	if ( dDownloadPercentage != 100.0f )
 		CSprite2d::DrawRect(CRect(_xmiddle(-270.0f + (5.4f * dDownloadPercentage)), _ydown(90.0f), _xmiddle(270.0f), _ydown(110.0f)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 255));
 
-	CFont::SetTextLetterSize(_width(0.35f), _height(0.7f));
+	CFont::SetScale(_width(0.35f), _height(0.7f));
 	CFont::SetFontStyle(FONT_PagerFont);
 	CFont::SetTextAlignment(ALIGN_Center);
 	if ( CUpdateManager::IsDownloading() )
 	{
-		CMessages::InsertNumberInString(gxt->GetText("FEU_PRC"), static_cast<int>(dDownloadPercentage), -1, -1, -1, -1, -1, gString);
+		CMessages::InsertNumberInString(TheText.GetText("FEU_PRC"), static_cast<int>(dDownloadPercentage), -1, -1, -1, -1, -1, gString);
 		CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _ydown(105.0f), gString);
 	}
 
@@ -810,20 +810,20 @@ void CMenuManager::PrintDLCScreen()
 		CVideoPlayer::PlayNextFrame();
 
 		CFont::SetWrapx(_x(30.0f));
-		CFont::SetTextColour(CRGBA(255, 255, 255, 255));
+		CFont::SetColor(CRGBA(255, 255, 255, 255));
 		CFont::SetTextShadow(1);
 		CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
-		CFont::SetTextLetterSize(_width(0.35f), _height(0.7f));
+		CFont::SetScale(_width(0.35f), _height(0.7f));
 		CFont::SetFontStyle(FONT_PagerFont);
 		CFont::SetTextJustify(true);
-		CFont::PrintString(_x(249.0f), _ymiddle(142.5f), gxt->GetText(cGXTName));
+		CFont::PrintString(_x(249.0f), _ymiddle(142.5f), TheText.GetText(cGXTName));
 
 		if ( bThisDLCIsEnabled )
-			CFont::SetTextColour(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B, 255));
-		CFont::SetTextLetterSize(_width(0.6f), _height(1.1f));
+			CFont::SetColor(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B, 255));
+		CFont::SetScale(_width(0.6f), _height(1.1f));
 		CFont::SetTextJustify(false);
 		CFont::SetTextAlignment(ALIGN_Center);
-		CFont::PrintString(_x(140.0f), _ymiddle(-87.5f), gxt->GetText(bThisDLCIsEnabled ? "FEE_ON" : "FEE_OFF"));
+		CFont::PrintString(_x(140.0f), _ymiddle(-87.5f), TheText.GetText(bThisDLCIsEnabled ? "FEE_ON" : "FEE_OFF"));
 	}
 	else
 	{
@@ -834,7 +834,7 @@ void CMenuManager::PrintDLCScreen()
 
 void CMenuManager::ReadFrontendTextures()
 {
-	static const char* const	frontend1TexNames[] = {
+	const char* const		frontend1TexNames[] = {
 									"radio_flash",
 									"radio_vrock",
 									"radio_paradise",
@@ -846,13 +846,16 @@ void CMenuManager::ReadFrontendTextures()
 									"radio_emotion",
 									"radio_TPLAYER" };
 
-	static const char* const	frontend2TexNames[] = {
+	const char* const		frontend2TexNames[] = {
 									"background",
 									"modbase",
 									"map",
-									"banner" };
+#ifdef INCLUDE_PROMO_BANNER
+									"banner"
+#endif
+											};
 
-	static const char* const	frontendpcTexNames[] = {
+	const char* const		frontendpcTexNames[] = {
 									"mouse",
 									"crosshair" };
 
@@ -1087,12 +1090,12 @@ float CMenuManager::GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition)
 		fprintf(hFile, "<strong><font color=\"#FFFFFF\">GRAND THEFT AUTO VICE CITY STORIES ");
 		wcstombs(multiByteBuf, L"Śtątystykię!", 512);
 //		fputs(, hFile);
-		fprintf(hFile, "%s</font></strong><br /><font\n", multiByteBuf wcsupr(CStats::SACharsToASCII(gxt->GetText("FEH_STA"), 0)));
+		fprintf(hFile, "%s</font></strong><br /><font\n", multiByteBuf wcsupr(CStats::SACharsToASCII(TheText.GetText("FEH_STA"), 0)));
 /*		fprintf(hFile, "color=\"#FFFFFF\">-------------------------------------------------------------------</font></font></div></td> </tr>\n");
 		fprintf(hFile, "<tr align=\"center\" valign=\"top\" bgcolor=\"#000000\">     <td height=\"22\" colspan=\"2\">&nbsp;</td>  </tr>\n");
 		fprintf(hFile, "<tr align=\"center\" valign=\"top\" bgcolor=\"#000000\"> \n");
-//		fwprintf(hFile, L"<td height=\"40\" colspan=\"2\"> <p><font color=\"#F0000C\" size=\"2\" face=\"Arial, Helvetica, sans-serif\"><strong><font color=\"#F0000C\" size=\"1\">%s: \n", CStats::SACharsToASCII(gxt->GetText("FES_DAT"), 0));
-//		fwprintf(hFile, L"%s</font><br>        %s: </strong>", dateBuf, CStats::SACharsToASCII(gxt->GetText("FES_CMI"), 0));
+//		fwprintf(hFile, L"<td height=\"40\" colspan=\"2\"> <p><font color=\"#F0000C\" size=\"2\" face=\"Arial, Helvetica, sans-serif\"><strong><font color=\"#F0000C\" size=\"1\">%s: \n", CStats::SACharsToASCII(TheText.GetText("FES_DAT"), 0));
+//		fwprintf(hFile, L"%s</font><br>        %s: </strong>", dateBuf, CStats::SACharsToASCII(TheText.GetText("FES_CMI"), 0));
 
 
 		fclose(hFile);

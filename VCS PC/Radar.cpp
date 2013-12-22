@@ -1,6 +1,25 @@
 #include "StdAfx.h"
 
+CSprite2d* const	CRadar::RadarBlipSprites = (CSprite2d*)0xBAA250;
+
 WRAPPER void CRadar::ChangeBlipBrightness(int nBlipID, int nBrightness) { WRAPARG(nBlipID); WRAPARG(nBrightness); EAXJMP(0x583C70); }
+
+static const char* const RadarBlipSpriteFilenames[NUM_BLIP_SPRITES] = { "", "", "radar_centre", "arrow", 
+																		"radar_north", "", "radar_gun", "radar_bomb",
+																		"", "", "", "",
+																		"", "", "", "",
+																		"", "", "radar_gunshop", "",
+																		"", "", "", "",
+																		"", "", "", "", 
+																		"", "", "", "",
+																		"", "", "", "radar_save",
+																		"", "", "", "",
+																		"", "radar_waypoint", "", "radar_louise",
+																		"radar_marty", "radar_cshop", "radar_phil", "radar_jerry",
+																		"", "", "", "",
+																		"", "", "", "",
+																		"", "", "", "",
+																		"", "", "", "radar_spray" };
 
 DWORD CRadar::GetRadarTraceColour(int colour, bool bDark, bool bFriend)
 {
@@ -104,4 +123,15 @@ DWORD CRadar::GetRadarTraceColour(int colour, bool bDark, bool bFriend)
 	default:
 		return colour;
 	}
+}
+
+void CRadar::LoadTextures()
+{
+	CPNGArchive		HudSPTA("models\\hud.spta");
+	HudSPTA.SetDirectory("blips");
+
+	for ( int i = 0; i < NUM_BLIP_SPRITES; ++i )
+		RadarBlipSprites[i].SetTextureFromSPTA(HudSPTA, RadarBlipSpriteFilenames[i]);
+
+	HudSPTA.CloseArchive();
 }

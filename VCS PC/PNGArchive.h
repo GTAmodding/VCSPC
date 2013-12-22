@@ -16,13 +16,14 @@ Next section contains raw PNGs data, one after another (no padding) */
 class CPNGArchive
 {
 private:
-	FILE*				hArchiveHandle;
+	FILE*				m_hArchiveHandle;
+	bool				m_bSetDir;
 
 public:
 	inline CPNGArchive()
-		: hArchiveHandle(nullptr)
-	{
-	}
+		: m_hArchiveHandle(nullptr), m_bSetDir(false)
+	{}
+
 	inline CPNGArchive(const char* pFilePath)
 		{ OpenArchive(pFilePath); }
 
@@ -30,13 +31,14 @@ public:
 		{ CloseArchive(); }
 
 	inline void			OpenArchive(const char* pFilePath)
-			{  hArchiveHandle = pFilePath[0] ? fopen(pFilePath, "rb") : nullptr; }
+			{  m_hArchiveHandle = pFilePath[0] ? fopen(pFilePath, "rb") : nullptr; }
+
 	inline void			CloseArchive()
 	{ 
-		if ( hArchiveHandle )
+		if ( m_hArchiveHandle )
 		{
-			fclose(hArchiveHandle);
-			hArchiveHandle = nullptr;
+			fclose(m_hArchiveHandle);
+			m_hArchiveHandle = nullptr;
 		}
 	}
 

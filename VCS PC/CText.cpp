@@ -54,7 +54,7 @@ void CText::ReloadFontsFiles(bool bUnk)
 		CTxdStore::SetCurrentTxd(slot);
 		texFonts[0].Load("font2", "font2m");
 		texFonts[1].Load("font1", "font1m");
-		CFont::ReadFontsDAT();
+		CFont::LoadFontValues();
 		CTxdStore::PopCurrentTxd();
 	}
 #endif

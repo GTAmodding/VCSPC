@@ -342,7 +342,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			char	cString[8];
 			GetStringParam(cString, 8);
 			CollectParameters(2);
-			CUserDisplay::Pager.AddMessage(const_cast<char*>(gxt->GetText(cString)), static_cast<short>(scriptParams[0].iParam), static_cast<short>(scriptParams[1].iParam));
+			CUserDisplay::Pager.AddMessage(const_cast<char*>(TheText.GetText(cString)), static_cast<short>(scriptParams[0].iParam), static_cast<short>(scriptParams[1].iParam));
 			return;
 		}
 

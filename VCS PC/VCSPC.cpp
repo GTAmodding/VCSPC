@@ -20,7 +20,7 @@ void			InjectArrowMarker();
 void			OpaqueRadarHack2(RwPrimitiveType primType, RwIm2DVertex* vertices, RwInt32 numVertices);
 float			__stdcall HelperPosXHack(int);
 void			ReadLoadingSplashes(bool bIntroSplash, int nIntroSplashID);
-void			InitRegionalLanguageSets();
+void			InitialiseLanguage();
 void			LoadGameFailedMessage(unsigned char bMessageIndex);
 void			MessageLoop();
 void			CdStreamClearNames();
@@ -95,7 +95,7 @@ void			PedDataConstructorInject_Civilian();
 void			PedDataConstructorInject_Cop();
 void			NodeCrashFix();
 void			NodeCrashFix2();
-void			HUDInitialiseBreak();
+//void			HUDInitialiseBreak();
 void			TimestampSignatureHack();
 void			LoadGameFailedMessage_Inject();
 void			SaveFallback_InjectOnLoad();
@@ -145,8 +145,8 @@ void			FrameLimit_SetFPS();
 void			FrameLimit_SetFPS2();
 void			CameraInitHack();
 void			OpaqueRadarHack();
-void			LoadFontsHack();
-void			ReleaseFontsHack();
+/*void			LoadFontsHack();
+void			ReleaseFontsHack();*/
 void			SetCutsceneModelHack();
 void			ErrorSoundCentre();
 void			BuySoundCentre();
@@ -258,8 +258,8 @@ void*						VideoPlayerRelease_JumpBack;
 void*						MaxosFrameLimitHack_JumpBack;
 void*						FrameLimit_SwitchInject_JumpBack;
 void*						FrameLimit_StringInject_JumpBack;
-void*						LoadFontsHack_JumpBack;
-void*						ReleaseFontsHack_JumpBack;
+/*void*						LoadFontsHack_JumpBack;
+void*						ReleaseFontsHack_JumpBack;*/
 void*						SetCutsceneModelHack_JumpBack;
 #ifdef INCLUDE_MULTIFONTFILES
 void*						MultipleFontsDAT_JumpBack;
@@ -299,13 +299,11 @@ char*						Garage_MessageIDString;
 float*						currentFPS;
 RsGlobalType&				RsGlobal = *(RsGlobalType*)0xC17040;
 CCamera*					camera;
-CFont::Details*				fontDetails;
-CText*						gxt;
+CText&						TheText = *(CText*)0xC1B340;
 CClock*						clock_struct;
 CRGBA*						BaseColors;
-CMenuManager*				menu;
+CMenuManager&				FrontEndMenuManager = *(CMenuManager*)0xBA6748;
 CMusicManager*				MusicManager;
-CSprite2d*					hudTextures;
 RpClump**					arrowClump;
 std::pair<void*,int>* const	materialRestoreData = (std::pair<void*,int>*)0xB4DBE8;
 CBlurStage*					blurStages;
@@ -822,8 +820,8 @@ __forceinline void DefineVariables()
 	MaxosFrameLimitHack_JumpBack = (void*)0x748DA3;
 	FrameLimit_SwitchInject_JumpBack = (void*)0x57CECF;
 	FrameLimit_StringInject_JumpBack = (void*)0x57A168;
-	LoadFontsHack_JumpBack = (void*)0x5BA6E5;
-	ReleaseFontsHack_JumpBack = (void*)0x7189C6;
+	/*LoadFontsHack_JumpBack = (void*)0x5BA6E5;
+	ReleaseFontsHack_JumpBack = (void*)0x7189C6;*/
 	SetCutsceneModelHack_JumpBack = (void*)0x5B10DE;
 #ifdef INCLUDE_MULTIFONTFILES
 	MultipleFontsDAT_JumpBack = (void*)0x7187DB;
@@ -851,7 +849,6 @@ __forceinline void DefineVariables()
 	fFOV = (float*)0x8D5038;
 	bHideStyledTextWhileFading = (bool*)0xA44489;
 	camera = (CCamera*)0xB6F028;
-	fontDetails = (CFont::Details*)0xC71A60;
 	latestMissionName = (char*)0xB78A00;
 	StyledText_1 = (char*)0xBAACC0;
 	StyledText_2 = (char*)0xBAAD40;
@@ -863,12 +860,9 @@ __forceinline void DefineVariables()
 	PriorityText = (char*)0xBAB040;
 	Garage_MessageIDString = (char*)0x96C014;
 	currentFPS = (float*)0xB7CB50;
-	gxt = (CText*)0xC1B340;
 	clock_struct = (CClock*)0xB70144;
 	BaseColors = (CRGBA*)0xBAB22C;
-	menu = (CMenuManager*)0xBA6748;
 	MusicManager = (CMusicManager*)0xB6BC90;
-	hudTextures = (CSprite2d*)0xBAB1FC;
 	arrowClump = (RpClump**)0xC7C6F0;
 	blurStages = (CBlurStage*)0x8D5190;
 	//gridref = (CGridref*)0xC72FB0;
@@ -2147,9 +2141,12 @@ __forceinline void Main_Patches()
 		Patch<const void*>(0x58A913, &fRadarPosY);
 		Patch<const void*>(0x58A9C7, &fRadarPosY);
 	}
+	InjectHook(0x5BD76F, CHud::Initialise);
+	InjectHook(0x53BD51, CHud::ReInitialise);
+	InjectHook(0x53CA84, CHud::ReInitialise);
 	InjectHook(0x4E9EF8, RadioNameInject, PATCH_JUMP);
 	InjectHook(0x588B44, CHud::GetRidOfAllCustomHUDMessages, PATCH_JUMP);
-	InjectHook(0x588A4B, HUDInitialiseBreak, PATCH_JUMP);
+	//InjectHook(0x588A4B, HUDInitialiseBreak, PATCH_JUMP);
 	InjectHook(0x588F50, CHud::SetVehicleName, PATCH_JUMP);
 	InjectHook(0x588BB0, CHud::SetZoneName, PATCH_JUMP);
 	InjectHook(0x58D542, CHud::DrawAreaText);
@@ -2331,7 +2328,7 @@ __forceinline void Main_Patches()
 	InjectHook(0x440F38, EnexMarkersColorBreak, PATCH_JUMP);
 
 	// Font scale fix
-	InjectHook(0x7193A0, CFont::SetTextLetterSizeWithLanguageScaling, PATCH_JUMP);
+	InjectHook(0x7193A0, CFont::SetScaleLang, PATCH_JUMP);
 
 	// Own textures loading
 /*#if DEBUG
@@ -2580,32 +2577,34 @@ __forceinline void Main_Patches()
 	call(0x5732A3, dwFunc, PATCH_NOTHING);
 #endif
 	// Fonts related things
-	patch(0x718B6C, 4, 2);
-	patch(0x718B6F, 0x85, 1);
-	patch(0x71985E, CFont::Sprite, 4);
-	patch(0x719B08, CFont::Sprite, 4);
-	patch(0x718797, CFont::Size->bPropValue, 4);
-	patch(0x7188E7, CFont::Size->bPropValue, 4);
-	patch(0x719704, CFont::Size->bPropValue, 4);
-	patch(0x7197A6, CFont::Size->bPropValue, 4);
-	patch(0x719A91, CFont::Size->bPropValue, 4);
-	patch(0x7188BF, &CFont::Size->bSpaceChar, 4);
-	patch(0x7187AD, &CFont::Size->bUnpropValue, 4);
-	patch(0x718985, &CFont::Size->bUnpropValue, 4);
-	patch(0x71972E, &CFont::Size->bUnpropValue, 4);
-	patch(0x7197DF, &CFont::Size->bUnpropValue, 4);
-	patch(0x719AAF, &CFont::Size->bUnpropValue, 4);
-	call(0x7192C0, &CFont::AssignBottomFontIndex, PATCH_JUMP);
-	call(0x5BA6BD, &LoadFontsHack, PATCH_JUMP);
-	call(0x7189B2, &ReleaseFontsHack, PATCH_JUMP);
-	call(0x719490, &CFont::SetFontStyle, PATCH_JUMP);
-	nop(0x718B64, 6);
-	//call(0x7196DB, &CFont::AssignBottomFontIndex, PATCH_NOTHING);
-	//call(0x719770, &CFont::AssignBottomFontIndex, PATCH_NOTHING);
-	//call(0x7199C3, &CFont::AssignBottomFontIndex, PATCH_NOTHING);
+	Patch<WORD>(0x718B6C, 4);
+	Patch<BYTE>(0x718B6F, 0x85);
+	Patch<void*>(0x71985E, CFont::Sprite);
+	Patch<void*>(0x719B08, CFont::Sprite);
+	Patch<void*>(0x718797, CFont::Size->bPropValue);
+	Patch<void*>(0x7188E7, CFont::Size->bPropValue);
+	Patch<void*>(0x719704, CFont::Size->bPropValue);
+	Patch<void*>(0x7197A6, CFont::Size->bPropValue);
+	Patch<void*>(0x719A91, CFont::Size->bPropValue);
+	Patch<void*>(0x7188BF, &CFont::Size->bSpaceChar);
+	Patch<void*>(0x7187AD, &CFont::Size->bUnpropValue);
+	Patch<void*>(0x718985, &CFont::Size->bUnpropValue);
+	Patch<void*>(0x71972E, &CFont::Size->bUnpropValue);
+	Patch<void*>(0x7197DF, &CFont::Size->bUnpropValue);
+	Patch<void*>(0x719AAF, &CFont::Size->bUnpropValue);
+	InjectHook(0x7192C0, CFont::FindSubFontCharacter, PATCH_JUMP);
+	//call(0x5BA6BD, &LoadFontsHack, PATCH_JUMP);
+	//call(0x7189B2, &ReleaseFontsHack, PATCH_JUMP);
+	InjectHook(0x719490, CFont::SetFontStyle, PATCH_JUMP);
+	InjectHook(0x5BD76A, CFont::Initialise);
+	InjectHook(0x53BBA7, CFont::Shutdown);
+	Nop(0x718B64, 6);
+	//call(0x7196DB, &CFont::FindSubFontCharacter, PATCH_NOTHING);
+	//call(0x719770, &CFont::FindSubFontCharacter, PATCH_NOTHING);
+	//call(0x7199C3, &CFont::FindSubFontCharacter, PATCH_NOTHING);
 
 	// Language regional settings
-	call(0x74747E, &InitRegionalLanguageSets, PATCH_NOTHING);
+	InjectHook(0x74747E, InitialiseLanguage);
 
 	// SPTA support
 	/*_asm
@@ -3688,6 +3687,9 @@ __forceinline void Main_Patches()
 	// No csplay loading
 //	patch(0x4D5E93, 0, 1);
 
+	// Radar blip names
+	InjectHook(0x5BA2CA, CRadar::LoadTextures);
+
 	// Global zone name
 	strncpy((char*)0x86506C, "VICE_C", 7);
 
@@ -3701,13 +3703,13 @@ __forceinline void Main_Patches()
 
 	// Blip textures patches
 	//VirtualProtect((char*)0x8665C0, 0x39C, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
-	charptr(0x8D0898, "radar_JERRY");
+	/*charptr(0x8D0898, "radar_JERRY");
 	charptr(0x8D0890, "radar_PHIL");
 	charptr(0x8D0880, "radar_MARTY");
 	charptr(0x8D0878, "radar_LOUISE");
 	charptr(0x8D0888, "radar_cshop");
 	charptr(0x8D0838, "radar_save");
-	charptr(0x8D0758, "radar_bomb");
+	charptr(0x8D0758, "radar_bomb");*/
 //	strncpy((char*)0x866694, "radar_JERRY", 12);
 //	strncpy((char*)0x8666A0, "radar_PHIL", 16);
 //	strncpy((char*)0x8666B0, "radar_cshop", 16);
@@ -3725,10 +3727,10 @@ __forceinline void Main_Patches()
 
 	// Pager
 	//VirtualProtect((char*)0x86A470, 0x18, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
-	strncpy((char*)0x86A470, "pagerA", 12);
+	/*strncpy((char*)0x86A470, "pagerA", 12);
 	strncpy((char*)0x86A47C, "pager", 12);
 	strncpy((char*)0x86A488, "barOutlineA", 16);
-	strncpy((char*)0x86A498, "barOutline", 16);
+	strncpy((char*)0x86A498, "barOutline", 16);*/
 	//VirtualProtect((char*)0x86A470, 0x18, dwProtect[0], &dwProtect[1]);
 
 	// Handling data patches
@@ -4338,7 +4340,7 @@ const char* GetFontsTXDByLanguage()
 
 eFontFileIDs GetFontsIDByLanguage()
 {
-	switch ( menu->GetLanguage() )
+	switch ( FrontEndMenuManager.GetLanguage() )
 	{
 	case LANG_Polish:
 		return FONTF_Polish;
@@ -4349,37 +4351,37 @@ eFontFileIDs GetFontsIDByLanguage()
 
 #endif
 
-void InitRegionalLanguageSets()
+void InitialiseLanguage()
 {
-	menu->SetTitleLanguage(0);
+	FrontEndMenuManager.SetTitleLanguage(0);
 
 	switch ( (int)GetKeyboardLayout(0) & 0x3FF )
 	{
 	//case LANG_SPANISH:
-	//	menu->SetTextLanguage(LANG_Spanish);
+	//	FrontEndMenuManager.SetTextLanguage(LANG_Spanish);
 	//	break;
 	case LANG_POLISH:
-		menu->SetTextLanguage(LANG_Polish);
+		FrontEndMenuManager.SetTextLanguage(LANG_Polish);
 		break;
 	default:
-		menu->SetTextLanguage(LANG_English);
+		FrontEndMenuManager.SetTextLanguage(LANG_English);
 		break;
 	}
 
 	switch ( GetUserDefaultLCID() & 0x3FF )
 	{
 	//case LANG_SPANISH:
-	//	menu->SetLanguage(LANG_Spanish);
+	//	FrontEndMenuManager.SetLanguage(LANG_Spanish);
 	//	break;
 	case LANG_POLISH:
-		menu->SetLanguage(LANG_Polish);
+		FrontEndMenuManager.SetLanguage(LANG_Polish);
 		break;
 	default:
-		menu->SetLanguage(LANG_English);
+		FrontEndMenuManager.SetLanguage(LANG_English);
 		break;
 	}
-	gxt->Clear(0);
-	gxt->Load(0);
+	TheText.Clear(0);
+	TheText.Load(0);
 }
 
 void LoadGameFailedMessage(unsigned char bMessageIndex)
@@ -4406,7 +4408,7 @@ void LoadGameFailedMessage(unsigned char bMessageIndex)
 	{
 		MessageLoop();
 		CPad::UpdatePads();
-		menu->ShowFullscreenMessage(pMessage, true, false);
+		FrontEndMenuManager.ShowFullscreenMessage(pMessage, true, false);
 
 		if ( ( currKeyState->enter && !prevKeyState->enter ) || ( currKeyState->extenter && !prevKeyState->extenter )
 			|| CPad::GetPad(0)->CrossJustDown() )
@@ -5162,7 +5164,7 @@ void __declspec(naked) Clock_StringInject()
 {
 	_asm
 	{
-		mov		ecx, [gxt]
+		mov		ecx, [TheText]
 		cmp		al, 1
 		jnz		Clock_StringInject_Compare12H
 		push	offset aFem_24H
@@ -5500,14 +5502,14 @@ NodeCrashFix2_ReturnToCode:
 	}
 }
 
-void __declspec(naked) HUDInitialiseBreak()
+/*void __declspec(naked) HUDInitialiseBreak()
 {
 	_asm
 	{
 		pop		edi
 		jmp		CHud::Initialise
 	}
-}
+}*/
 
 /*void __declspec(naked) TimestampSignatureHack()
 {
@@ -5857,7 +5859,7 @@ void __declspec(naked) WidescreenSupportRecalculateHack()
 	{
 		mov		eax, [RsGlobal]
 		mov		[eax].MaximumHeight, edx
-		mov		eax, [menu]
+		mov		eax, [FrontEndMenuManager]
 		mov		al, [eax].m_bAspectRatioMode
 		test	al, al
 		jnz		WidescreenSupportRecalculateHack_SkipRecalculation
@@ -6028,7 +6030,7 @@ void __declspec(naked) Widescreen_StringInject()
 		push	offset gString
 		call	_snprintf
 		add		esp, 10h
-		mov		ecx, [gxt]
+		mov		ecx, [TheText]
 		push	offset gString
 		jmp		Clock_StringInject_JumpBack
 	}
@@ -6339,7 +6341,7 @@ void __declspec(naked) FrameLimit_StringInject()
 {
 	_asm
 	{
-		mov		ecx, [gxt]
+		mov		ecx, [TheText]
 		test	al, al
 		jz		FrameLimit_StringInject_Off
 		movzx	eax, al
@@ -6428,7 +6430,7 @@ void __declspec(naked) OpaqueRadarHack()
 	
 }
 
-void __declspec(naked) LoadFontsHack()
+/*void __declspec(naked) LoadFontsHack()
 {
 	CFont::Sprite[0].SetTexture("font1", "font1m");
 	CFont::Sprite[1].SetTexture("font2", "font2m");
@@ -6444,7 +6446,7 @@ void __declspec(naked) ReleaseFontsHack()
 	CFont::Sprite[2].Delete();
 	CFont::Sprite[3].Delete();
 	_asm jmp ReleaseFontsHack_JumpBack
-}
+}*/
 
 void __declspec(naked) SetCutsceneModelHack()
 {
@@ -6593,7 +6595,7 @@ void __declspec(naked) UpdaterTextSwap()
 		call	CUpdateManager::GetGXTEntryForButton
 
 UpdaterTextSwap_GetText:
-		mov		ecx, [gxt]
+		mov		ecx, [TheText]
 		push	eax
 		push	579D73h
 		retn
@@ -6613,7 +6615,7 @@ UpdaterTextSwap_NotUpdaterText:
 
 UpdaterTextSwap_NotDLCText:
 		cmp		cl, ACTION_JOYMOUSE
-		mov		ecx, [gxt]
+		mov		ecx, [TheText]
 		push	579D58h
 		retn
 	}
@@ -6796,7 +6798,7 @@ void __declspec(naked) InjectWindowedMode()
 		//mov		ebx, eax
 		//mov		eax, [esp+30h]
 		//push	offset aWindowed
-		//mov		ecx, gxt
+		//mov		ecx, TheText
 		//call	CText::GetText
 		//mov		stackPtr, eax
 		//pushad

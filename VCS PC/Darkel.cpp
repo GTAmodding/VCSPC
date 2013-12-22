@@ -62,13 +62,13 @@ void CDarkel::DrawMessages()
 				}
 			}
 			CFont::SetTextBackground(0, 0);
-			CFont::SetTextLetterSize(_width(0.5f), _height(1.1f));
+			CFont::SetScale(_width(0.5f), _height(1.1f));
 			CFont::SetTextAlignment(ALIGN_Right);
 			CFont::SetTextWrapX(0.0f);	// ?
 			CFont::SetFontStyle(FONT_Eurostile);
 			CFont::SetTextOutline(1);
 			CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
-			CFont::SetTextColour(BaseColors[4]);
+			CFont::SetColor(BaseColors[4]);
 
 			if ( TimeLimit >= 0 )
 			{
@@ -85,10 +85,10 @@ void CDarkel::DrawMessages()
 
 				// TODO: Flashing
 				CFont::SetTextUseProportionalValues(true);
-				CFont::PrintString(_x(88.0f + fPosXOffset), _y(148.0f), gxt->GetText("TIME"));
+				CFont::PrintString(_x(88.0f + fPosXOffset), _y(148.0f), TheText.GetText("TIME"));
 
 				CFont::SetTextUseProportionalValues(false);
-				CFont::SetTextColour(BaseColors[11]);
+				CFont::SetColor(BaseColors[11]);
 				CFont::PrintString(_x(32.0f), _y(148.0f), gString);
 			}
 
@@ -103,8 +103,8 @@ void CDarkel::DrawMessages()
 				fPosXOffset = 0.0f;
 
 			CFont::SetTextUseProportionalValues(true);
-			CFont::SetTextColour(BaseColors[8]);
-			CFont::PrintString(_x(88.0f + fPosXOffset), _y(175.0f), gxt->GetText("RAMP_KL"));
+			CFont::SetColor(BaseColors[8]);
+			CFont::PrintString(_x(88.0f + fPosXOffset), _y(175.0f), TheText.GetText("RAMP_KL"));
 
 			CFont::SetTextUseProportionalValues(false);
 			CFont::PrintString(_x(32.0f), _y(175.0f), gString);
@@ -115,7 +115,7 @@ void CDarkel::DrawMessages()
 			if ( bStandardSoundAndMessages )
 			{
 				if ( CTimer::m_snTimeInMilliseconds - TimeOfFrenzyStart < 5000 )
-					CMessages::AddBigMessage(gxt->GetText("KILLPA"), 3000, 0);
+					CMessages::AddBigMessage(TheText.GetText("KILLPA"), 3000, 0);
 			}
 			return;
 		}

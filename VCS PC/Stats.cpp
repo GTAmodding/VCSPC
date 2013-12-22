@@ -227,47 +227,47 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 	{
 		if ( nStat == nTempValue++ )
 		{
-			strcpy(gString, gxt->GetText("ST_GANG"));
+			strcpy(gString, TheText.GetText("ST_GANG"));
 			switch ( nTheMostHatedGang )
 			{
 			case 7:
 				{
-					strcpy(gUString, gxt->GetText("ST_GNG1"));
+					strcpy(gUString, TheText.GetText("ST_GNG1"));
 					return 0;
 				}
 			case 8:
 				{
-					strcpy(gUString, gxt->GetText("ST_GNG2"));
+					strcpy(gUString, TheText.GetText("ST_GNG2"));
 					return 0;
 				}
 			case 9:
 				{
-					strcpy(gUString, gxt->GetText("ST_GNG3"));
+					strcpy(gUString, TheText.GetText("ST_GNG3"));
 					return 0;
 				}
 			case 10:
 				{
-					strcpy(gUString, gxt->GetText("ST_GNG4"));
+					strcpy(gUString, TheText.GetText("ST_GNG4"));
 					return 0;
 				}
 			case 11:
 				{
-					strcpy(gUString, gxt->GetText("ST_GNG5"));
+					strcpy(gUString, TheText.GetText("ST_GNG5"));
 					return 0;
 				}
 			case 12:
 				{
-					strcpy(gUString, gxt->GetText("ST_GNG6"));
+					strcpy(gUString, TheText.GetText("ST_GNG6"));
 					return 0;
 				}
 			case 13:
 				{
-					strcpy(gUString, gxt->GetText("ST_GNG7"));
+					strcpy(gUString, TheText.GetText("ST_GNG7"));
 					return 0;
 				}
 			case 14:
 				{
-					strcpy(gUString, gxt->GetText("ST_GNG8"));
+					strcpy(gUString, TheText.GetText("ST_GNG8"));
 					return 0;
 				}
 			}
@@ -471,7 +471,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 	{
 		// Greatest insane stunt
 		gUString[0] = '\0';
-		strcpy(gString, gxt->GetText("BSTSTU"));
+		strcpy(gString, TheText.GetText("BSTSTU"));
 		return 0;
 	}
 
@@ -482,67 +482,67 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 		{
 		case 1:
 			{
-				strcpy(gUString, gxt->GetText("INSTUN"));
+				strcpy(gUString, TheText.GetText("INSTUN"));
 				return 0;
 			}
 		case 2:
 			{
-				strcpy(gUString, gxt->GetText("FLINST"));
+				strcpy(gUString, TheText.GetText("FLINST"));
 				return 0;
 			}
 		case 3:
 			{
-				strcpy(gUString, gxt->GetText("PRINST"));
+				strcpy(gUString, TheText.GetText("PRINST"));
 				return 0;
 			}
 		case 4:
 			{
-				strcpy(gUString, gxt->GetText("DBINST"));
+				strcpy(gUString, TheText.GetText("DBINST"));
 				return 0;
 			}
 		case 5:
 			{
-				strcpy(gUString, gxt->GetText("DBFINS"));
+				strcpy(gUString, TheText.GetText("DBFINS"));
 				return 0;
 			}
 		case 6:
 			{
-				strcpy(gUString, gxt->GetText("DBPINS"));
+				strcpy(gUString, TheText.GetText("DBPINS"));
 				return 0;
 			}
 		case 7:
 			{
-				strcpy(gUString, gxt->GetText("TRINST"));
+				strcpy(gUString, TheText.GetText("TRINST"));
 				return 0;
 			}
 		case 8:
 			{
-				strcpy(gUString, gxt->GetText("FLTRST"));
+				strcpy(gUString, TheText.GetText("FLTRST"));
 				return 0;
 			}
 		case 9:
 			{
-				strcpy(gUString, gxt->GetText("PRTRST"));
+				strcpy(gUString, TheText.GetText("PRTRST"));
 				return 0;
 			}
 		case 10:
 			{
-				strcpy(gUString, gxt->GetText("QUINST"));
+				strcpy(gUString, TheText.GetText("QUINST"));
 				return 0;
 			}
 		case 11:
 			{
-				strcpy(gUString, gxt->GetText("FQUINS"));
+				strcpy(gUString, TheText.GetText("FQUINS"));
 				return 0;
 			}
 		case 12:
 			{
-				strcpy(gUString, gxt->GetText("PQUINS"));
+				strcpy(gUString, TheText.GetText("PQUINS"));
 				return 0;
 			}
 		default:
 			{
-				strcpy(gUString, gxt->GetText("NOSTUC"));
+				strcpy(gUString, TheText.GetText("NOSTUC"));
 				return 0;
 			}
 		}
@@ -791,7 +791,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 			{
 				// Course name
 				_snprintf(gUString, sizeof(gUString), "ST_R_%02d", i + 1);
-				strcpy(gString, gxt->GetText(gUString));
+				strcpy(gString, TheText.GetText(gUString));
 				gUString[0] = '\0';
 				return 0;
 			}
@@ -833,7 +833,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 		{
 			// Sanchez Time Trial
 			gUString[0] = '\0';
-			strcpy(gString, gxt->GetText("ST_SATT"));
+			strcpy(gString, TheText.GetText("ST_SATT"));
 			return 0;
 		}
 
@@ -845,7 +845,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 				{
 					// Course X
 					_snprintf(gUString, sizeof(gUString), "ST_C_%02d", i + 1);
-					strcpy(gString, gxt->GetText(gUString));
+					strcpy(gString, TheText.GetText(gUString));
 					gUString[0] = '\0';
 					nIndents = 1;
 					return 0;
@@ -889,7 +889,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 		{
 			// BMX Time Trial
 			gUString[0] = '\0';
-			strcpy(gString, gxt->GetText("ST_BMXT"));
+			strcpy(gString, TheText.GetText("ST_BMXT"));
 			return 0;
 		}
 
@@ -901,7 +901,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 				{
 					// Course X
 					_snprintf(gUString, sizeof(gUString), "ST_C_%02d", i + 1);
-					strcpy(gString, gxt->GetText(gUString));
+					strcpy(gString, TheText.GetText(gUString));
 					gUString[0] = '\0';
 					nIndents = 1;
 					return 0;
@@ -945,7 +945,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 		{
 			// Quad Bike Time Trial
 			gUString[0] = '\0';
-			strcpy(gString, gxt->GetText("ST_QBTT"));
+			strcpy(gString, TheText.GetText("ST_QBTT"));
 			return 0;
 		}
 
@@ -957,7 +957,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 				{
 					// Course X
 					_snprintf(gUString, sizeof(gUString), "ST_C_%02d", i + 1);
-					strcpy(gString, gxt->GetText(gUString));
+					strcpy(gString, TheText.GetText(gUString));
 					gUString[0] = '\0';
 					nIndents = 1;
 					return 0;
@@ -1001,7 +1001,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 		{
 			// Monster Truck Time Trial
 			gUString[0] = '\0';
-			strcpy(gString, gxt->GetText("ST_MOTT"));
+			strcpy(gString, TheText.GetText("ST_MOTT"));
 			return 0;
 		}
 
@@ -1013,7 +1013,7 @@ long CStats::ConstructStatLine(int nStat, int& nIndents)
 				{
 					// Course X
 					_snprintf(gUString, sizeof(gUString), "ST_C_%02d", i + 1);
-					strcpy(gString, gxt->GetText(gUString));
+					strcpy(gString, TheText.GetText(gUString));
 					gUString[0] = '\0';
 					nIndents = 1;
 					return 0;
@@ -1117,7 +1117,7 @@ void CStats::BuildStatLine(char* pEntryName, void* pVal1, int nType, void* pVal2
 {
 	if ( pEntryName )
 	{
-		const char*		pText = gxt->GetText(pEntryName);
+		const char*		pText = TheText.GetText(pEntryName);
 
 		gUString[0] = '\0';
 		strncpy(gString, pText, sizeof(gString));
@@ -1165,7 +1165,7 @@ void CStats::BuildStatLine(char* pEntryName, void* pVal1, int nType, void* pVal2
 					}
 				case STATTYPE_OUTOF:
 					{
-						_snprintf(gUString, sizeof(gUString), "%d %s %d", *static_cast<int*>(pVal1), gxt->GetText("FEST_OO"), *static_cast<int*>(pVal2));
+						_snprintf(gUString, sizeof(gUString), "%d %s %d", *static_cast<int*>(pVal1), TheText.GetText("FEST_OO"), *static_cast<int*>(pVal2));
 						return;
 					}
 				}

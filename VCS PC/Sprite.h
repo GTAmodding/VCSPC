@@ -14,7 +14,7 @@ public:
 	{}
 
 	inline ~CSprite2d()
-		{ Delete(); }
+		{ /*Delete();*/ }
 
 	inline void			SetAddressing(int nAddressing)
 		{ if ( m_pTexture ) RwTextureSetAddressing(m_pTexture, nAddressing); }

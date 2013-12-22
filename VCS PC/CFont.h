@@ -1,9 +1,6 @@
 #ifndef __CFONT
 #define __CFONT
 
-#define WIN32_LEAN_AND_MEAN
-
-#define FUNC_CFont__ReadFontsDAT							0x7187C0
 #define FUNC_CFont__ResetSlantedTextPos						0x719400
 #define FUNC_CFont__SetTextSlanted							0x719420			
 #define FUNC_CFont__SetTextColour							0x719430
@@ -46,7 +43,7 @@ enum eFontFileIDs
 class CFont
 {
 public:
-	struct Details
+	struct tDetails
 	{
 		CRGBA					textDrawBoxColor;
 		float					textLetterSizeX;
@@ -67,26 +64,31 @@ public:
 		signed char				bFontOutline, bFontOutline2;
 	};
 
-public:
-	static CSprite2d		Sprite[NUM_FONT_SHEETS];
-
 #pragma pack(push, 1)
-	static struct sFontSizes
+	struct sFontSizes
 	{
 		unsigned char			bPropValue[208];
 		unsigned char			bSpaceChar;
 		unsigned char			bUnpropValue;
 
-	}						Size[NUM_FONT_SHEETS];
+	};
 #pragma pack(pop)
 
 public:
-	static void				ReadFontsDAT();
-	static unsigned char	AssignBottomFontIndex(unsigned char character, unsigned char bFontType);
-	static void				SetTextLetterSize(float scaleX, float scaleY);
-	static void				SetTextLetterSizeWithLanguageScaling(float scaleX, float scaleY);
+	// TODO: Make private?
+	static CSprite2d		Sprite[NUM_FONT_SHEETS];
+	static sFontSizes		Size[NUM_FONT_SHEETS];
+	static tDetails&		Details;
+
+private:
+	static void				LoadFontValues();
+
+public:
+	static unsigned char	FindSubFontCharacter(char character, unsigned char bFontType);
+	static void				SetScale(float scaleX, float scaleY);
+	static void				SetScaleLang(float scaleX, float scaleY);
 	static void				SetFontStyle(unsigned char bFont);
-	static void				SetTextColour(CRGBA colour);
+	static void				SetColor(CRGBA colour);
 	static void				SetTextBorderRGBA(CRGBA colour);
 	static void				SetTextShadow(unsigned char bShadow);
 	static void				SetTextOutline(unsigned char bOutline);
@@ -102,6 +104,9 @@ public:
 	static void				PrintString(float posX, float posY, const char* pText);
 	static void				PrintStringFromBottom(float posX, float posY, const char* pText);
 	static void				SetWrapx(float fWrap);
+
+	static void				Initialise();
+	static void				Shutdown();
 };
 
 const char*		GetFontsDATByLanguage();
