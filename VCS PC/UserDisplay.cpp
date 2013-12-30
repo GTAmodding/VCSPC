@@ -159,7 +159,7 @@ void CPager::Process()
 
 	if ( Messages[0].pMessage )
 	{
-		if ( camera->m_WideScreenOn || !*bWants_To_Draw_Hud || StyledText_1[0] )
+		if ( TheCamera.m_WideScreenOn || !*bWants_To_Draw_Hud || StyledText_1[0] )
 		{
 			Messages[0].wFirstShownLetter = -(bLetterSlots+10);
 			Messages[0].nLastLetterChangeTime = CTimer::m_snTimeInMilliseconds + Messages[0].wSpeed;
@@ -249,7 +249,7 @@ void COnscreenTimer::Process()
 				*m_timer.m_pVariable -= nStep;
 				if ( nPrevTime >= 0 )
 				{
-					if ( nPrevTime / 1000 < m_timer.m_nSoundOnTime && !camera->m_WideScreenOn )
+					if ( nPrevTime / 1000 < m_timer.m_nSoundOnTime && !TheCamera.m_WideScreenOn )
 					{
 						MusicManager->ReportFrontendAudioEvent(33, 0.0f, 1.0f);
 						m_timer.m_bFlashing = true;

@@ -19,4 +19,12 @@ public:
 	void* operator new(size_t size);
 };
 
+
+// TODO: Move maybe?
+class NOVMT CDummy : public CEntity
+{
+public:
+
+};
+
 #endif

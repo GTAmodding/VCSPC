@@ -23,7 +23,11 @@ enum eHudTextures
 #define	BAR_ENERGY_LOSS_FLASH_DURATION	2000
 #define HUD_TRANSPARENCY				217
 
+#define HUD_POS_X						148.5f
+#define HUD_POS_Y						38.0f
+
 //#define COMPILE_SLANTED_TEXT
+//#define DRAW_OVERSCAN_720P
 
 class CHud
 {
@@ -118,7 +122,7 @@ public:
 	static void		DrawWeaponAmmo(CPed* ped, float fX, float fY);
 	static void		DrawRadioName(void* object, const char* radioName);
 	static void		DrawVehicleName();
-	static void		DrawAreaText();
+	static void		DrawAreaName();
 	static void		DrawDevLogos();
 	static void		DrawBigMessage(bool bHideOnFade);
 	static void		DrawBigMessage1();

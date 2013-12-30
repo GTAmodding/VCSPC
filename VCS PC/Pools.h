@@ -18,15 +18,18 @@ private:
 	int				m_nNumSlots;
 	int				m_nFirstFree;
 	bool			m_bInitialised;
-	unsigned short	m_wSlotSize;
 
 public:
-	inline int		GetSize()
-						{ return m_nNumSlots; }
-	inline bool		IsValid(unsigned int nIndex)
-						{ return nIndex >= 0 && nIndex < m_nNumSlots && !m_pSlotInfos[nIndex].a.m_bFree }
+	inline CDerived*	GetSlots()
+							{ return m_pSlots; }
+	inline bool			IsFree(unsigned int nIndex)
+							{ return m_pSlotInfos[nIndex].a.m_bFree; }
+	inline int			GetSize()
+							{ return m_nNumSlots; }
+	inline bool			IsValid(unsigned int nIndex)
+							{ return nIndex < m_nNumSlots && !m_pSlotInfos[nIndex].a.m_bFree }
 
-	CBase*			GetAt(int nIdentifier)
+	CBase*				GetAt(int nIdentifier)
 	{
 		int nSlotIndex = nIdentifier >> 8;
 		if ( nSlotIndex >= 0 && nSlotIndex < m_nNumSlots && m_pSlotInfos[nSlotIndex].b == (nIdentifier & 0xFF) )
@@ -35,25 +38,28 @@ public:
 			return nullptr;
 	}
 
-	signed int		GetIndex(CBase* pObject)
+	signed int			GetIndex(CBase* pObject)
 	{
 		return ((reinterpret_cast<CDerived*>(pObject) - m_pSlots) << 8) + m_pSlotInfos[reinterpret_cast<CDerived*>(pObject) - m_pSlots].b;
 	}
 
-	signed int		GetIndexOnly(CBase* pObject)
+	signed int			GetIndexOnly(CBase* pObject)
 	{
 		return reinterpret_cast<CDerived*>(pObject) - m_pSlots;
 	}
 
-	CBase*			New()
+	CBase*				New()
 	{
 		bool		bReachedTop = false;
 		do
 		{
-			if ( ++m_nFirstFree == m_nNumSlots )
+			if ( ++m_nFirstFree >= m_nNumSlots )
 			{
 				if ( bReachedTop )
+				{
+					m_nFirstFree = -1;
 					return nullptr;
+				}
 				bReachedTop = true;
 				m_nFirstFree = 0;
 			}
@@ -75,6 +81,7 @@ struct FakeClass : public CBase
 typedef CPool<CPed, FakeClass<0x7C4,CPed>>			CPedPool;
 typedef CPool<CVehicle, FakeClass<0xA18,CVehicle>>	CVehiclePool;
 typedef CPool<CBuilding>							CBuildingPool;
+typedef CPool<CDummy>								CDummyPool;
 
 class CPools
 {
@@ -82,6 +89,7 @@ private:
 	static CPedPool*&			ms_pPedPool;
 	static CVehiclePool*&		ms_pVehiclePool;
 	static CBuildingPool*&		ms_pBuildingPool;
+	static CDummyPool*&			ms_pDummyPool;
 
 public:
 	static inline CPedPool*			GetPedPool()
@@ -90,6 +98,8 @@ public:
 		{ return ms_pVehiclePool; }
 	static inline CBuildingPool*	GetBuildingPool()
 		{ return ms_pBuildingPool; }
+	static inline CDummyPool*		GetDummyPool()
+		{ return ms_pDummyPool; }
 };
 
 static_assert(sizeof(CPool<bool, bool>) == CPool_ARRAYSIZE, "CPool class has wrong size!");

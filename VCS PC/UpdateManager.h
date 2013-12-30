@@ -18,7 +18,7 @@ private:
 	static bool					bSeenUpdaterScreenYet;
 	static char*				pMessages[NUM_MESSAGES_PER_UPT_SCREEN];
 
-#ifdef _DEBUG
+#ifdef DEVBUILD
 	static bool					bDisableAutoCheck;
 #endif
 
@@ -41,7 +41,7 @@ public:
 	static inline void			SetDLCStatus(const char* pName, bool bStatus)
 		{ pUptModuleInterface->AddThisDLCToList(pName, bStatus); }
 
-#ifdef _DEBUG
+#ifdef DEVBUILD
 	static inline void			DisableAutoCheck()
 		{ bDisableAutoCheck = true; }
 #endif

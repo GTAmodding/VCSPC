@@ -188,12 +188,20 @@ float WidescreenSupport::GetTextPosition()
 
 unsigned char WidescreenSupport::GetTextBoxPos()
 {
-	float			fScreenRatio = *ScreenAspectRatio;
+	/*float			fScreenRatio = *ScreenAspectRatio;
 	long double		dBorderProportionsFix = ((-216964.5/50000.0) * fScreenRatio * fScreenRatio) + ((1210981.5/100000.0) * fScreenRatio) - (826714.5/100000.0);
-//	long double		dBorderProportionsFix = ((-144643.0/50000.0) * fScreenRatio * fScreenRatio) + ((807321.0/100000.0) * fScreenRatio) - (551143.0/100000.0);
 	long double		dTextBoxPos = (-144.0 * fScreenRatio) + 256.0;
 
 	if ( dBorderProportionsFix > 0.0 )
 		dTextBoxPos -= dTextBoxPos * dBorderProportionsFix;
-	return dTextBoxPos > 0.0 ? dTextBoxPos : 0;
+	return dTextBoxPos > 0.0 ? dTextBoxPos : 0;*/
+
+	float			fScreenRatio = *ScreenAspectRatio;
+	float			dScreenHeightWeWannaCut = ((-9.0f/16.0f) * fScreenRatio + 1.0f);
+	float			dBorderProportionsFix = ((-144643.0f/50000.0f) * fScreenRatio * fScreenRatio) + ((807321.0f/100000.0f) * fScreenRatio) - (551143.0f/100000.0f);
+
+	if ( dBorderProportionsFix < 0.0 )
+		dBorderProportionsFix = 0.0;
+
+	return dScreenHeightWeWannaCut > 0.0 ? (RsGlobal.MaximumHeight / 2) * (dScreenHeightWeWannaCut - dBorderProportionsFix) : 0;
 }

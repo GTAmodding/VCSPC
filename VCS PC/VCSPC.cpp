@@ -192,7 +192,7 @@ eFontFileIDs		bLastFontsID;
 char				gString[552];
 char				gUString[552];
 
-#if DEBUG
+#if DEVBUILD
 CSprite2d			DevLogos[1];
 #endif
 
@@ -298,7 +298,7 @@ char*						PriorityText;
 char*						Garage_MessageIDString;
 float*						currentFPS;
 RsGlobalType&				RsGlobal = *(RsGlobalType*)0xC17040;
-CCamera*					camera;
+CCamera&					TheCamera = *(CCamera*)0xB6F028;
 CText&						TheText = *(CText*)0xC1B340;
 CClock*						clock_struct;
 CRGBA*						BaseColors;
@@ -318,6 +318,7 @@ CGangWeapons*				gangWeapons;
 CRunningScript**			pActiveScripts;
 CRunningScript*				ScriptsArray;
 RwIm2DVertex* const			aSpriteVertices = (RwIm2DVertex*)0xC80468;
+RwTexture** const			gpCoronaTexture = (RwTexture**)0xC3E000;
 RwCamera*&					Scene = *(RwCamera**)0xC1703C;
 DWORD*						gameState;
 void**						rwengine = (void**)0xC97B24;
@@ -338,9 +339,10 @@ const float					fMapZonePosX = 7.5f;
 //const float					fMenuSliderPosY3 = (MENU_SLIDER_POSY - 30.0) / 448.0;
 //const float					fMenuSliderPosY4 = (MENU_SLIDER_POSY - MENU_SLIDER_WIDTH / 2.0) / 448.0;
 const float					fMenuSliderWidth = MENU_SLIDER_WIDTH;
+const float					fRadarPosX = 35.0f;
 //const float					fRadarWidth = 76.0 * 480.0 / 448.0;
 const float					fRadarHeight = 94.0 * 448.0 / 480.0;
-const float					fRadarPosY = 117.0;
+const float					fRadarPosY = 107.0f;
 //const float					fMenuSliderHeight2 = MENU_SLIDER_HEIGHT / 448.0;
 const float					fCTSliderRight = 370.0;
 const float					fRhinoHitStrength = 1000.0;
@@ -356,12 +358,13 @@ const float					fMinusRadarTileDimensions = -2000.0;
 const float					fRadarTileDimensions2 = 7.0;;
 const float					fSubtitlesWidth = 0.45;
 const float					fSubtitlesHeight = 0.9;
+const float					fTextBoxPosY = 20.0f;
 const float* const			pRefFal = &fRefZVal;
 
 const float fWeaponIconWidth = 75.0f;
 const float fWeaponIconHeight = 72.0f;
-const float	fWLStarPosX	= 32.5f;
-const float fWLStarPosY = 100.0f;
+const float	fWLStarPosX	= HUD_POS_X - 116.0f;
+const float fWLStarPosY = HUD_POS_Y + 53.0f;
 const float fWLStarHeight = 1.5f;
 const float fWLStarWidth = 0.95f;
 const float fWLStarDistance = 20.0f;
@@ -535,7 +538,7 @@ BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
 
 DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 {
-#if DEBUG
+#if DEVBUILD
 	bool	bKeyState = false, bFPSState = true;
 #endif
 
@@ -546,7 +549,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 	while ( !(GetKeyState(VK_PAUSE) & 0x8000) )
 	{
 		Sleep(250);
-#if DEBUG
+#if DEVBUILD
 		if ( GetKeyState(VK_F9) & 0x8000 )
 		{
 			if ( !bKeyState )
@@ -563,7 +566,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 		}
 #endif
 
-#if !defined DEBUG && !defined COMPILE_RC 
+#if !defined DEVBUILD && !defined COMPILE_RC 
 		if ( IsDebuggerPresent() )
 			break;
 
@@ -586,7 +589,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 	case DLL_PROCESS_ATTACH:
 		{
 			LogToFile("Launching GTA: Vice City Stories PC Edition "MOD_VERSION" \""VERSION_NAME"\" build "BUILDNUMBER_STR"...");
-#if DEBUG
+#if DEVBUILD
 			LogToFile("This is a closed dev build!");
 #endif
 #if COMPILE_RC
@@ -848,7 +851,6 @@ __forceinline void DefineVariables()
 	ScreenAspectRatio = (float*)0xC3EFA4;
 	fFOV = (float*)0x8D5038;
 	bHideStyledTextWhileFading = (bool*)0xA44489;
-	camera = (CCamera*)0xB6F028;
 	latestMissionName = (char*)0xB78A00;
 	StyledText_1 = (char*)0xBAACC0;
 	StyledText_2 = (char*)0xBAAD40;
@@ -2132,6 +2134,15 @@ __forceinline void Main_Patches()
 		Patch<const void*>(0x58A921, &fRadarHeight);
 		Patch<const void*>(0x58A9D5, &fRadarHeight);
 
+		Patch<const void*>(0x5834D4, &fRadarPosX);
+		Patch<const void*>(0x58A469, &fRadarPosX);
+		Patch<const void*>(0x58A5E2, &fRadarPosX);
+		Patch<const void*>(0x58A6E6, &fRadarPosX);
+		Patch<const void*>(0x58A79B, &fRadarPosX);
+		Patch<const void*>(0x58A836, &fRadarPosX);
+		Patch<const void*>(0x58A8E9, &fRadarPosX);
+		Patch<const void*>(0x58A98A, &fRadarPosX);
+
 		Patch<const void*>(0x583500, &fRadarPosY);
 		Patch<const void*>(0x58A499, &fRadarPosY);
 		Patch<const void*>(0x58A60E, &fRadarPosY);
@@ -2149,7 +2160,7 @@ __forceinline void Main_Patches()
 	//InjectHook(0x588A4B, HUDInitialiseBreak, PATCH_JUMP);
 	InjectHook(0x588F50, CHud::SetVehicleName, PATCH_JUMP);
 	InjectHook(0x588BB0, CHud::SetZoneName, PATCH_JUMP);
-	InjectHook(0x58D542, CHud::DrawAreaText);
+	InjectHook(0x58D542, CHud::DrawAreaName);
 	InjectHook(0x58FBE9, CHud::DrawVehicleName);
 	InjectHook(0x58FD01, CHud::DrawBigMessage);
 	InjectHook(0x58D56F, CHud::DrawBigMessage);
@@ -2615,6 +2626,7 @@ __forceinline void Main_Patches()
 	call(0x7272B0, dwFunc, PATCH_JUMP);*/
 	InjectHook(0x5900B0, LoadSplashes, PATCH_JUMP);
 	InjectHook(0x58FF60, LoadingScreen, PATCH_JUMP);
+	Nop(0x53BC3F, 5);		// Dirty crashfix
 
 	nop(0x574673, 5);
 	nop(0x5746A0, 5);
@@ -3143,12 +3155,13 @@ __forceinline void Main_Patches()
 	patch(0x57A2DD, &WidescreenSupport::f1_h, 4);
 	patch(0x57A347, &WidescreenSupport::f1_h, 4);
 	patch(0x57639A, &WidescreenSupport::f0pt7_h, 4);
-	patch(0x714843, &fSkyMultFix, 4);
-	patch(0x714860, &fSkyMultFix, 4);
+	Patch<const void*>(0x714843, &fSkyMultFix);
+	Patch<const void*>(0x714860, &fSkyMultFix);
 	patch(0x70CEF8, &WidescreenSupport::fScreenCoorsFix, 4);
 	patch(0x71DA8D, &WidescreenSupport::fScreenCoorsFix, 4);
 //	patch(0x52C9DB, &WidescreenSupport::fSpawningFix, 4);	// Tmp
 	patch(0x514986, &WidescreenSupport::fAimpointFix, 4);
+	Patch<const void*>(0x58BBCB, &fTextBoxPosY);
 	/*patch(0x58C0DE, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C12D, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C144, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);*/
@@ -3277,7 +3290,7 @@ __forceinline void Main_Patches()
 	nop(0x57A516, 1);
 
 	// .set versioning
-#if SET_FILE_VERSION != 6 && !defined DEBUG
+#if SET_FILE_VERSION != 6 && !defined DEVBUILD
 	static const DWORD dwSetFileVersion = SET_FILE_VERSION;
 	patch(0x57C983, SET_FILE_VERSION, 1);
 	patch(0x57C69A, &dwSetFileVersion, 4);
@@ -3613,6 +3626,12 @@ __forceinline void Main_Patches()
 	patchf(0x585DA5, 2.5);	// Vehicles
 	patchf(0x585E4D, 1.5);	// Peds
 	patchf(0x585F8E, 1.0);	// Objects
+
+	// Coronas stored in a vector
+	InjectHook(0x6FC180, CCoronas::RegisterCorona, PATCH_JUMP);
+	InjectHook(0x6FC4D0, CCoronas::UpdateCoronaCoors, PATCH_JUMP);
+	InjectHook(0x53C13B, CCoronas::Update);
+	//InjectHook(0x5BA306, CCoronas::Init);
 
 	// Own BaseColors::BaseColors
 	_asm
@@ -4199,7 +4218,7 @@ __forceinline void UserFiles()
 	Patch<BYTE>(0x74503A, 0x9);
 	Patch<const char*>(0x74503F, "\\GTA Vice City Stories User Files");
 
-#if DEBUG
+#if DEVBUILD
 	Patch<const char*>(0x57C672, "gta_vcsd.set");
 	Patch<const char*>(0x57C902, "gta_vcsd.set");
 	Patch<const char*>(0x7489A0, "gta_vcsd.set");
@@ -4264,7 +4283,7 @@ int random(int a, int b)
 
 void HighspeedCamShake(float shake)
 {
-	camera->CamShake(shake * 0.025f);
+	TheCamera.CamShake(shake * 0.025f);
 }
 
 void ViceSquadCheckInjectA(int townID)
@@ -4478,7 +4497,7 @@ void ParseCommandlineArgument(const char* pArg)
 			return;
 		}
 
-#ifdef _DEBUG
+#ifdef DEVBUILD
 		if ( !strnicmp(pArg, "-noautocheck", 13) )
 		{
 			CUpdateManager::DisableAutoCheck();
@@ -4490,6 +4509,12 @@ void ParseCommandlineArgument(const char* pArg)
 			CDLCManager::ToggleDebugOverride(DLC_HALLOWEEN);
 			return;
 		}
+
+		/*if ( !strncmp(pArg, "-2dfx", 5) )
+		{
+			CDLCManager::ToggleDebugOverride(DLC_2DFX);
+			return;
+		}*/
 #endif
 	}
 }
@@ -4529,7 +4554,7 @@ CPed* __fastcall PedPoolGetAt(CPedPool* pThis, int unused, int nIdentifier)
 	return pThis->GetAt(nIdentifier);
 }
 
-#if defined DEBUG && !defined MAKE_ZZCOOL_MOVIE_DEMO
+#if defined DEVBUILD && !defined MAKE_ZZCOOL_MOVIE_DEMO
 
 void EnterAmazingScreenshotMode(bool bEnable)
 {
@@ -5475,12 +5500,12 @@ NodeCrashFix_ReturnToCode:
 
 void __declspec(naked) NodeCrashFix2()
 {
-#if DEBUG
+#ifdef DEVBUILD
 	static int	nRequest;
 #endif
 	_asm
 	{
-#if DEBUG
+#ifdef DEVBUILD
 		mov		nRequest, edi
 		pushad
 	}
@@ -5916,7 +5941,7 @@ void __declspec(naked) WidescreenFOVHack()
 		fld		[esp+4Ch]
 		cmp		[CCamera::bDontTouchFOVInWidescreen], 0
 		jnz		WidescreenFOVHack_DoFOV
-		mov		eax, [camera]
+		mov		eax, [TheCamera]
 		mov		al, [eax].m_WideScreenOn
 		test	al, al
 		jz		WidescreenFOVHack_DoFOV
@@ -5941,7 +5966,7 @@ void __declspec(naked) WidescreenFOVHack2()
 	{
 		cmp		[CCamera::bDontTouchFOVInWidescreen], 0
 		jnz		WidescreenFOVHack2_DoFOV
-		mov		eax, [camera]
+		mov		eax, [TheCamera]
 		mov		al, [eax].m_WideScreenOn
 		test	al, al
 		jz		WidescreenFOVHack2_DoFOV
@@ -5965,7 +5990,7 @@ void __declspec(naked) WidescreenBordersHack()
 	{
 		push	ecx
 		push	[esp+8]
-		call	CCamera::GetWidescreenDimensions
+		call	CCamera::GetScreenRect
 		pop		ecx
 		retn	4
 	}

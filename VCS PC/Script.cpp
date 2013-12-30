@@ -366,7 +366,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 		{
 			// enter_amazing_screenshot_mode %1d%
 			CollectParameters(1);
-#if defined DEBUG && !defined MAKE_ZZCOOL_MOVIE_DEMO
+#if defined DEVBUILD && !defined MAKE_ZZCOOL_MOVIE_DEMO
 			EnterAmazingScreenshotMode(scriptParams[0].bParam != 0);
 			LogToFile("Opcode 0352 called with params: %d", scriptParams[0]);
 #endif

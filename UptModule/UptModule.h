@@ -3,7 +3,7 @@
 
 #define LOGIN_DATA				"ftp://ronly:vcspc6912@modbase.pl"
 
-#ifdef _DEBUG
+#ifdef DEVBUILD
 //#define HASHMAP_NAME			L"HASH_MAP"				// Retail hashmap
 #define HASHMAP_NAME			L"HASH_MAP_DBUG"		// Debug hashmap
 #else

@@ -25,6 +25,12 @@
     <Filter Include="Header Files\SCM">
       <UniqueIdentifier>{30400435-7aeb-4ddb-a280-4378d9ebb6fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\DLC">
+      <UniqueIdentifier>{585a15ad-6cb3-477f-93dd-057f2804e00a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DLC">
+      <UniqueIdentifier>{69f0b480-6152-4934-815f-5bbf556410ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CCamera.cpp">
@@ -182,6 +188,12 @@
     </ClCompile>
     <ClCompile Include="Pad.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Coronas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Project2dfx.cpp">
+      <Filter>Source Files\DLC</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -376,6 +388,12 @@
     </ClInclude>
     <ClInclude Include="Pad.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Coronas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Project2dfx.h">
+      <Filter>Header Files\DLC</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

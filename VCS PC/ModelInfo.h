@@ -344,6 +344,14 @@ public:
     CColData*						pColData;
 };
 
+class C2dEffect
+{
+public:
+	CVector							vecPos;
+	BYTE							bType;
+	DWORD							nCount;
+};
+
 class NOVMT CBaseModelInfo
 {
 public:
@@ -514,6 +522,9 @@ public:
 	static CDynamicStore<CClumpModelInfo>				ms_clumpModelStore;
 
 public:
+	static inline void									GetModelInfoUInt16(const char* pName, unsigned short* pOutID)
+		{ int	nID; GetModelInfo(pName, &nID); if ( pOutID ) *pOutID = static_cast<unsigned short>(nID); }
+
 	static CBaseModelInfo*								GetModelInfo(const char* pName, int* pOutID);
 	static bool											IsBikeModel(int modelID);
 	static CPedModelInfoVCS*							AddPedModel(int nModelID);

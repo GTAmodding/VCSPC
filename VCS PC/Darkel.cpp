@@ -14,7 +14,7 @@ unsigned int	CDarkel::TotalKillsNeeded;
 // Wrappers
 WRAPPER void CDarkel::StartFrenzy(eWeaponType weapType, int nTimeLimit, unsigned short wKillsNeeded, int nModelToKill, char* pMsg, int nModelToKill2, int nModelToKill3, int nModelToKill4, bool bSoundMessages, bool bHeadShots)
 { WRAPARG(weapType); WRAPARG(nTimeLimit); WRAPARG(wKillsNeeded); WRAPARG(nModelToKill); WRAPARG(pMsg); WRAPARG(nModelToKill2); WRAPARG(nModelToKill3); WRAPARG(nModelToKill4); WRAPARG(bSoundMessages); WRAPARG(bHeadShots); EAXJMP(0x43D3B0); }
-WRAPPER bool CDarkel::func_43D2F0(CPed* pPed) { WRAPARG(pPed); EAXJMP(0x43D2F0); }
+WRAPPER bool CDarkel::ThisPedShouldBeKilledForFrenzy(CPed* pPed) { WRAPARG(pPed); EAXJMP(0x43D2F0); }
 
 
 void CDarkel::StartFrenzyVCS(eWeaponType weapType, int nTimeLimit, unsigned short wKillsNeeded, int nModelToKill, char* pMsg, int nModelToKill2, int nModelToKill3, int nModelToKill4, bool bSoundMessages, bool bHeadShots)
@@ -29,7 +29,7 @@ void CDarkel::RegisterKillByPlayerVehicle(CPed* pKilledPed, eWeaponType lastWeap
 	{
 		if ( (lastWeaponDamage == WEAPONTYPE_RAMMEDBYCAR || lastWeaponDamage == WEAPONTYPE_RUNOVERBYCAR) && WeaponType == WEAPONTYPE_RUNOVERBYCAR )
 		{
-			if ( func_43D2F0(pKilledPed) )
+			if ( ThisPedShouldBeKilledForFrenzy(pKilledPed) )
 				--KillsNeeded;
 
 			CStats::IncrementStat(pKilledPed->GetPedType() == 6 ? HIGHEST_POLICE_KILLS_ON_SPREE : HIGHEST_PED_KILLS_ON_SPREE, 1.0f);
@@ -64,7 +64,7 @@ void CDarkel::DrawMessages()
 			CFont::SetTextBackground(0, 0);
 			CFont::SetScale(_width(0.5f), _height(1.1f));
 			CFont::SetTextAlignment(ALIGN_Right);
-			CFont::SetTextWrapX(0.0f);	// ?
+			CFont::SetTextWrapX(0.0f);
 			CFont::SetFontStyle(FONT_Eurostile);
 			CFont::SetTextOutline(1);
 			CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));

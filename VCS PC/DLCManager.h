@@ -2,6 +2,7 @@
 #define __DLCMGR
 
 #include "..\common\DLCShared.h"
+#include "Project2dfx.h"
 
 class CExpansionPack
 {
@@ -12,6 +13,8 @@ private:
 public:
 	virtual bool			DateValid(const CDate& CurrentDate)
 			{ UNREFERENCED_PARAMETER(CurrentDate); return true; }
+	virtual bool			IsTimed()
+			{ return false; }
 
 	inline void				Activate(bool bState)
 			{ LogToFile("Pack %s is %s", m_pInternalName, bState ? "ACTIVE" : "INACTIVE"); m_bActive = bState; }
@@ -36,6 +39,8 @@ private:
 public:
 	virtual bool			DateValid(const CDate& CurrentDate) override
 			{ return m_launchDate <= CurrentDate && m_expirationDate > CurrentDate; }
+	virtual bool			IsTimed() override
+			{ return true; }
 
 	CTimedExpansionPack(const char* pName, const CDate& BeginDate, const CDate& EndDate)
 		: CExpansionPack(pName), m_launchDate(BeginDate), m_expirationDate(EndDate)
@@ -53,7 +58,7 @@ private:
 	static CExpansionPack*			m_pDLC[NUM_DLC_PACKS];
 	static int						m_nActiveDLCIndex[NUM_DLC_PACKS];
 
-#ifdef _DEBUG
+#ifdef DEVBUILD
 	static bool						m_bDebugOverride[NUM_DLC_PACKS];
 #endif
 
@@ -71,7 +76,7 @@ public:
 	static void						LoadLevelFiles();
 	static void						HandleButtonClick(int nMenuEntry);
 
-#ifdef _DEBUG
+#ifdef DEVBUILD
 	static inline void				ToggleDebugOverride(eExpansionPack eDLC)
 			{ m_bDebugOverride[eDLC] = true; }
 #endif

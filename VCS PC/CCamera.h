@@ -89,7 +89,6 @@ enum
 	FADE_OUT, FADE_IN
 };
 
-#define FUNC_CCamera__GetFadeStage							0x50AE20
 #define	FUNC_CCamera__CamShake								0x50A970
 #define FUNC_CCamera__Find3rdPersonCamTargetVector			0x514970
 
@@ -279,10 +278,12 @@ public:
 
 	inline bool					GetFading() { return m_bFading; };
 	
-	void						GetWidescreenDimensions(CRect& rect);
+	void						GetScreenRect(CRect& rect);
 	void						CamShake(float strength);
 	void						Find3rdPersonCamTargetVector(float dist, float posX, float posY, float posZ, CVector* unkVec, CVector* output);
 	int							GetFadeStage();
+	int							GetLookDirection();
+	bool						IsPositionVisible(const CVector& vecPos, float fRadius);
 };
 
 //static_assert(sizeof(CCamera) == CCamera_ARRAYSIZE, "CCamera class has wrong size!");

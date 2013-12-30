@@ -25,7 +25,7 @@
 //#define INCLUDE_VCSIMG_LOADER
 //#define INCLUDE_MULTIFONTFILES
 
-#ifdef DEBUG
+#ifdef DEVBUILD
 //#define EXTRA_ASH_LOGGING
 //#define TRACE_D3D_MARKER
 //#define EXTRA_WINDOWMODE_CHECKING
@@ -133,7 +133,7 @@ int				random(int a, int b);
 		else
 			dwAddress += 0x40;*/
 
-#if defined DEBUG && !defined MAKE_ZZCOOL_MOVIE_DEMO
+#if defined DEVBUILD && !defined MAKE_ZZCOOL_MOVIE_DEMO
 void			EnterAmazingScreenshotMode(bool bEnable);
 #endif
 
@@ -153,6 +153,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "Rs.h"
 #include "WidescreenSupport.h"
 #include "General.h"
+#include "Coronas.h"
 #include "Timer.h"
 #include "PNGArchive.h"
 #include "CCRC32.h"
@@ -242,7 +243,7 @@ extern std::pair<void*,int>* const materialRestoreData;
 //extern CGridref*			gridref;
 extern CText&				TheText;
 extern void**				rwengine;
-extern CCamera*				camera;
+extern CCamera&				TheCamera;
 extern CGarages*			garages;
 extern CKeyState*			activeKeyState;
 extern CKeyState*			currKeyState;
@@ -252,6 +253,7 @@ extern CGangWeapons*		gangWeapons;
 extern CRunningScript**		pActiveScripts;
 extern CRunningScript*		ScriptsArray;
 extern RwIm2DVertex* const	aSpriteVertices;
+extern RwTexture** const	gpCoronaTexture;
 extern RwCamera*&			Scene;
 extern void					(*BigMessageRestOfFunc)();
 extern void					(*TheScriptsInitFunc)();

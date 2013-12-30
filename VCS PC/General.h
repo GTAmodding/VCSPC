@@ -29,6 +29,8 @@ public:
 			{ x += vec.x; y += vec.y; z += vec.z;
 			return *this; }
 
+	inline float	Magnitude()
+		{ return sqrt(x * x + y * y + z * z); }
 
 	friend inline float DotProduct(const CVector& vec1, const CVector& vec2)
 		{ return vec1.x * vec2.x + vec1.x * vec2.y + vec1.z * vec2.z; }
@@ -91,6 +93,25 @@ public:
 		matrix.pos.z = vecPos.z;
 	}
 
+	friend inline CMatrix operator*(const CMatrix& Rot1, const CMatrix& Rot2)
+		{ return CMatrix(	CVector(Rot1.matrix.right.x * Rot2.matrix.right.x + Rot1.matrix.right.y * Rot2.matrix.up.x + Rot1.matrix.right.z * Rot2.matrix.at.x + Rot2.matrix.pos.x,
+								Rot1.matrix.right.x * Rot2.matrix.right.y + Rot1.matrix.right.y * Rot2.matrix.up.y + Rot1.matrix.right.z * Rot2.matrix.at.y + Rot2.matrix.pos.y,
+								Rot1.matrix.right.x * Rot2.matrix.right.z + Rot1.matrix.right.y * Rot2.matrix.up.z + Rot1.matrix.right.z * Rot2.matrix.at.z + Rot2.matrix.pos.z),
+						CVector(Rot1.matrix.up.x * Rot2.matrix.right.x + Rot1.matrix.up.y * Rot2.matrix.up.x + Rot1.matrix.up.z * Rot2.matrix.at.x + Rot2.matrix.pos.x,
+								Rot1.matrix.up.x * Rot2.matrix.right.y + Rot1.matrix.up.y * Rot2.matrix.up.y + Rot1.matrix.up.z * Rot2.matrix.at.y + Rot2.matrix.pos.y,
+								Rot1.matrix.up.x * Rot2.matrix.right.z + Rot1.matrix.up.y * Rot2.matrix.up.z + Rot1.matrix.up.z * Rot2.matrix.at.z + Rot2.matrix.pos.z),
+						CVector(Rot1.matrix.at.x * Rot2.matrix.right.x + Rot1.matrix.at.y * Rot2.matrix.up.x + Rot1.matrix.at.z * Rot2.matrix.at.x + Rot2.matrix.pos.x,
+								Rot1.matrix.at.x * Rot2.matrix.right.y + Rot1.matrix.at.y * Rot2.matrix.up.y + Rot1.matrix.at.z * Rot2.matrix.at.y + Rot2.matrix.pos.y,
+								Rot1.matrix.at.x * Rot2.matrix.right.z + Rot1.matrix.at.y * Rot2.matrix.up.z + Rot1.matrix.at.z * Rot2.matrix.at.z + Rot2.matrix.pos.z),
+						CVector(Rot1.matrix.pos.x * Rot2.matrix.right.x + Rot1.matrix.pos.y * Rot2.matrix.up.x + Rot1.matrix.pos.z * Rot2.matrix.at.x + Rot2.matrix.pos.x,
+								Rot1.matrix.pos.x * Rot2.matrix.right.y + Rot1.matrix.pos.y * Rot2.matrix.up.y + Rot1.matrix.pos.z * Rot2.matrix.at.y + Rot2.matrix.pos.y,
+								Rot1.matrix.pos.x * Rot2.matrix.right.z + Rot1.matrix.pos.y * Rot2.matrix.up.z + Rot1.matrix.pos.z * Rot2.matrix.at.z + Rot2.matrix.pos.z)); };
+
+	friend inline CVector operator*(const CMatrix& matrix, const CVector& vec)
+			{ return CVector(matrix.matrix.up.x * vec.y + matrix.matrix.right.x * vec.x + matrix.matrix.at.x * vec.z + matrix.matrix.pos.x,
+								matrix.matrix.up.y * vec.y + matrix.matrix.right.y * vec.x + matrix.matrix.at.y * vec.z + matrix.matrix.pos.y,
+								matrix.matrix.up.z * vec.y + matrix.matrix.right.z * vec.x + matrix.matrix.at.z * vec.z + matrix.matrix.pos.z); };
+
 	inline CVector*	GetUp()
 		{ return reinterpret_cast<CVector*>(&matrix.up); }
 
@@ -99,6 +120,9 @@ public:
 
 	inline CVector* GetPos()
 		{ return reinterpret_cast<CVector*>(&matrix.pos); }
+
+	inline void		SetTranslateOnly(float fX, float fY, float fZ)
+		{ matrix.pos.x = fX; matrix.pos.y = fY; matrix.pos.z = fZ; }
 
 	void			SetRotateXOnly(float fAngle);
 	void			SetRotateYOnly(float fAngle);
@@ -166,6 +190,10 @@ public:
 
 	inline CVector*					GetCoords()
 		{ return m_pCoords ? reinterpret_cast<CVector*>(&m_pCoords->matrix.pos) : &m_transform.m_translate; }
+	inline CMatrix*					GetMatrix()
+		{ return m_pCoords; }
+	inline CSimpleTransform&		GetTransform()
+		{ return m_transform; }
 
 	inline void						SetCoords(const CVector& pos)
 	{	if ( m_pCoords ) { m_pCoords->matrix.pos.x = pos.x; m_pCoords->matrix.pos.y = pos.y; m_pCoords->matrix.pos.z = pos.z; }
@@ -267,8 +295,12 @@ public:
 
 	inline short&	ModelIndex() 
 						{ return m_nModelIndex; };
+	inline short	GetModelIndex()
+					{ return m_nModelIndex; }
 
 	void			UpdateRW();
+	void			RegisterReference(CEntity** pAddress);
+	void			CleanUpOldReference(CEntity** pAddress);
 };
 
 class NOVMT CPhysical : public CEntity

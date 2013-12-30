@@ -9,7 +9,7 @@ long				CUpdateManager::nDrawingState;
 bool				CUpdateManager::bSeenUpdaterScreenYet;
 char*				CUpdateManager::pMessages[NUM_MESSAGES_PER_UPT_SCREEN];
 
-#ifdef _DEBUG
+#ifdef DEVBUILD
 bool				CUpdateManager::bDisableAutoCheck = false;
 #endif
 
@@ -49,7 +49,7 @@ void CUpdateManager::Terminate()
 	if ( hUptModuleLibrary )
 	{
 		FreeLibrary(hUptModuleLibrary);
-		pUptModuleInterface = NULL;
+		pUptModuleInterface = nullptr;
 
 		for ( int i = 0; i < NUM_MESSAGES_PER_UPT_SCREEN; ++i )
 			delete[] pMessages[i];
@@ -85,7 +85,7 @@ void CUpdateManager::Process()
 	static unsigned long	nTempCtr = 0;
 	static bool				bTemp = false;
 
-#ifdef _DEBUG
+#ifdef DEVBUILD
 	if ( bDisableAutoCheck )
 		bTemp = true;
 #endif
@@ -254,23 +254,23 @@ void CUpdateManager::Display()
 		switch ( nInterfaceStatus )
 		{
 		case UPTMODULESTATE_IDLE:
-			CFont::PrintString(_x(15.0f), _y(7.5f), TheText.GetText(pUptModuleInterface->UpdateServiceOn() ? "FEU_NOU" : "FEU_USA"));
+			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.GetText(pUptModuleInterface->UpdateServiceOn() ? "FEU_NOU" : "FEU_USA"));
 			break;
 
 		case UPTMODULESTATE_CHECKING:
-			CFont::PrintString(_x(15.0f), _y(7.5f), TheText.GetText("FEU_CHK"));
+			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.GetText("FEU_CHK"));
 			break;
 		case UPTMODULESTATE_NEW_UPDATES:
-			CFont::PrintString(_x(15.0f), _y(7.5f), TheText.GetText("FEU_NEW"));
+			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.GetText("FEU_NEW"));
 			break;
 
 		case UPTMODULESTATE_DOWNLOADING:
 			CMessages::InsertNumberInString(TheText.GetText("FEU_DLU"), static_cast<signed long>(pUptModuleInterface->GetProgress()), -1, -1, -1, -1, -1, gString);
-			CFont::PrintString(_x(15.0f), _y(7.5f), gString);
+			CFont::PrintString(_x(15.0f), _y(3.5f), gString);
 			break;
 
 		case UPTMODULESTATE_ALL_READY:
-			CFont::PrintString(_x(15.0f), _y(7.5f), TheText.GetText("FEU_RDY"));
+			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.GetText("FEU_RDY"));
 			break;
 		}
 	}

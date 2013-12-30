@@ -100,6 +100,9 @@ void CFileLoader::LoadLevels()
 		LoadScene(it->c_str());
 	}
 
+	if ( CDLCManager::GetDLC(DLC_2DFX)->IsEnabled() )
+		CProject2dfx::Init();
+
 	EndLevelLists();
 	RwTexDictionarySetCurrent(pPushedDictionary);
 	InitPostLoadLevelStuff();

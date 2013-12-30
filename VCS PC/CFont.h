@@ -97,7 +97,7 @@ public:
 	static void				SetCentreSize(float fUnk);
 	static void				SetTextWrapX(float fWrap);
 	static void				SetTextJustify(bool bJustify);
-	static void				func_71A210();
+	static void				RenderFontBuffer();
 	static void				SetTextUseProportionalValues(bool bUseProportionalValues);
 	static void				SetTextBackground(unsigned char bUseBackground, unsigned char bBackgroundType);
 	static void				SetTextAlignment(unsigned char bAlign);

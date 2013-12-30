@@ -2,7 +2,7 @@
 
 bool CCamera::bDontTouchFOVInWidescreen;
 
-void CCamera::GetWidescreenDimensions(CRect& rect)
+void CCamera::GetScreenRect(CRect& rect)
 {
 	float			fScreenRatio = *ScreenAspectRatio;
 	float			dScreenHeightWeWannaCut = ((-9.0f/16.0f) * fScreenRatio + 1.0f);
@@ -59,12 +59,6 @@ void CCamera::Find3rdPersonCamTargetVector(float dist, float posX, float posY, f
 	}
 }
 
-int CCamera::GetFadeStage()
-{
-	DWORD dwFunc = (DWORD)FUNC_CCamera__GetFadeStage;
-	_asm
-	{
-		mov		ecx, this
-		call	dwFunc
-	}
-}
+WRAPPER int CCamera::GetFadeStage() { EAXJMP(0x50AE20); }
+WRAPPER int CCamera::GetLookDirection() { EAXJMP(0x50AE90); }
+WRAPPER bool CCamera::IsPositionVisible(const CVector& vecPos, float fRadius) { WRAPARG(vecPos); WRAPARG(fRadius); EAXJMP(0x420D40); }

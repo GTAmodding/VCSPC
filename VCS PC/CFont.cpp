@@ -6,6 +6,7 @@ CFont::tDetails&	CFont::Details = *(CFont::tDetails*)0xC71A60;
 
 WRAPPER void CFont::SetWrapx(float fWrap) { WRAPARG(fWrap); EAXJMP(0x7194D0); }
 WRAPPER void CFont::LoadFontValues() { EAXJMP(0x7187C0); }
+WRAPPER void CFont::RenderFontBuffer() { EAXJMP(0x719840); }
 
 unsigned char CFont::FindSubFontCharacter(char character, unsigned char bFontType)
 {
@@ -229,12 +230,6 @@ void CFont::SetTextJustify(bool bJustify)
 		call	dwFunc
 		add		esp, 4
 	}
-}
-
-void CFont::func_71A210()
-{
-	DWORD dwFunc = (DWORD)0x71A210;
-	_asm call	dwFunc
 }
 
 void CFont::SetTextUseProportionalValues(bool bUseProportionalValues)

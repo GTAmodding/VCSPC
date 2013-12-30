@@ -28,6 +28,8 @@ public:
 	BYTE			GetMinute() 
 						{ return bGameClockMinutes; };
 
+	static bool		GetIsTimeInRange(unsigned char bHourA, unsigned char bHourB);
+
 	static bool		Convert24To12(BYTE& bHour);
 };
 

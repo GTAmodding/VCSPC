@@ -3,13 +3,14 @@
 CExpansionPack*			CDLCManager::m_pDLC[NUM_DLC_PACKS];
 int						CDLCManager::m_nActiveDLCIndex[NUM_DLC_PACKS];
 
-#ifdef _DEBUG
+#ifdef DEVBUILD
 bool					CDLCManager::m_bDebugOverride[NUM_DLC_PACKS];
 #endif
 
 void CDLCManager::Initialise()
 {
 	m_pDLC[DLC_HALLOWEEN] = new CTimedExpansionPack("HALLOWEEN", CDate(30, 10), CDate(3, 11));
+	m_pDLC[DLC_2DFX] = new CExpansionPack("2DFX");
 
 	for ( int i = 0; i < NUM_DLC_PACKS; i++ )
 		m_nActiveDLCIndex[i] = -1;
@@ -18,33 +19,41 @@ void CDLCManager::Initialise()
 void CDLCManager::InitialiseWithUpdater()
 {
 	int		nCurrentArrayIndex = 0;
-	if ( m_pDLC[DLC_HALLOWEEN] )
+
+	//if ( m_pDLC[DLC_HALLOWEEN] )
+	for ( int i = 0; i < NUM_DLC_PACKS; ++i )
 	{
 		// Depends on current date
-		bool		bDateInBounds = m_pDLC[DLC_HALLOWEEN]->DateValid(GetCurrentDate());
-		if ( !CUpdateManager::GetDLCStatus(m_pDLC[DLC_HALLOWEEN]->GetName(), true) )
-			m_pDLC[DLC_HALLOWEEN]->Activate(false);
+		bool		bDateInBounds = m_pDLC[i]->DateValid(GetCurrentDate());
+		if ( !CUpdateManager::GetDLCStatus(m_pDLC[i]->GetName(), m_pDLC[i]->IsTimed()) )
+			m_pDLC[i]->Activate(false);
 		else
-#ifdef _DEBUG
-			m_pDLC[DLC_HALLOWEEN]->Activate(bDateInBounds || m_bDebugOverride[DLC_HALLOWEEN]);
+#ifdef DEVBUILD
+			m_pDLC[i]->Activate(bDateInBounds || m_bDebugOverride[i]);
 #else
-			m_pDLC[DLC_HALLOWEEN]->Activate(bDateInBounds);
+			m_pDLC[i]->Activate(bDateInBounds);
 #endif
 
 		// Add this DLC to list if date is within bounds
-#ifdef _DEBUG
-		if ( bDateInBounds || m_bDebugOverride[DLC_HALLOWEEN] )
+#ifdef DEVBUILD
+		if ( bDateInBounds || m_bDebugOverride[i] )
 #else
 		if ( bDateInBounds )
 #endif
-			m_nActiveDLCIndex[nCurrentArrayIndex++] = DLC_HALLOWEEN;
+			m_nActiveDLCIndex[nCurrentArrayIndex++] = i;
 	}
 }
 
 void CDLCManager::Terminate()
 {
-	if ( m_pDLC[DLC_HALLOWEEN] )
-		delete m_pDLC[DLC_HALLOWEEN];
+	if ( m_pDLC[DLC_2DFX]->IsEnabled() )
+		CProject2dfx::Shutdown();
+
+	for ( int i = 0; i < NUM_DLC_PACKS; i++ )
+	{
+		if ( m_pDLC[i] )
+			delete m_pDLC[i];
+	}
 }
 
 void CDLCManager::LoadLevelFiles()
@@ -69,6 +78,10 @@ void CDLCManager::LoadLevelFiles()
 
 	// Old call
 	//CFileLoader::ParseLevelFile("DATA\\DEFAULT.DAT");
+
+	// Project 2dfx patches
+	if ( m_pDLC[DLC_2DFX]->IsEnabled() )
+		CProject2dfx::Inject();
 }
 
 void CDLCManager::HandleButtonClick(int nMenuEntry)

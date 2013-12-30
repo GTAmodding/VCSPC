@@ -9,7 +9,8 @@ enum eExpansionPack
 	// Halloween DLC (zombies and such) (active 29th October - 1st November)
 	DLC_HALLOWEEN			= 0,
 
-	// More to arrive?
+	// Project 2dfx
+	DLC_2DFX				= 1,
 
 	// Keep this untouched
 	NUM_DLC_PACKS

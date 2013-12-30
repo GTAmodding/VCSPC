@@ -17,7 +17,7 @@ private:
 
 private:
 	static void				StartFrenzy(eWeaponType weapType, int nTimeLimit, unsigned short wKillsNeeded, int nModelToKill, char* pMsg, int nModelToKill2, int nModelToKill3, int nModelToKill4, bool bSoundMessages, bool bHeadShots);
-	static bool				func_43D2F0(CPed* pPed);
+	static bool				ThisPedShouldBeKilledForFrenzy(CPed* pPed);
 
 public:
 	static inline bool		FrenzyOnGoing()
