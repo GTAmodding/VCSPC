@@ -3,6 +3,7 @@
 CSprite2d* const	CRadar::RadarBlipSprites = (CSprite2d*)0xBAA250;
 
 WRAPPER void CRadar::ChangeBlipBrightness(int nBlipID, int nBrightness) { WRAPARG(nBlipID); WRAPARG(nBrightness); EAXJMP(0x583C70); }
+WRAPPER void CRadar::DrawRadarSection(int nX, int nY) { WRAPARG(nX); WRAPARG(nY); EAXJMP(0x586110); }
 
 static const char* const RadarBlipSpriteFilenames[NUM_BLIP_SPRITES] = { "", "", "radar_centre", "arrow", 
 																		"radar_north", "", "radar_gun", "radar_bomb",
@@ -134,4 +135,90 @@ void CRadar::LoadTextures()
 		RadarBlipSprites[i].SetTextureFromSPTA(HudSPTA, RadarBlipSpriteFilenames[i]);
 
 	HudSPTA.CloseArchive();
+}
+
+static RwCamera*	pRadarCam;
+
+void CRadar::Draw3DRadar(int nX, int nY)
+{
+	static bool			bCamCreated = false;
+
+	if ( !bCamCreated )
+	{
+		pRadarCam = RwCameraCreate();
+		RwCameraSetFrame(pRadarCam, RwFrameCreate());
+		RwCameraSetRaster(pRadarCam, RwRasterCreate(512, 512, 0, rwRASTERTYPECAMERATEXTURE));
+		RwCameraSetZRaster(pRadarCam, RwRasterCreate(512, 512, 0, rwRASTERTYPEZBUFFER));
+
+		RwV2d			vecViewWindow = { tan(M_PI/3), tan(M_PI/3) };
+
+		RwCameraSetViewWindow(pRadarCam, &vecViewWindow);
+		RwCameraSetProjection(pRadarCam, rwPERSPECTIVE);
+		bCamCreated = true;
+
+		// helper matrix
+		/*CMatrix			matTemp;
+		matTemp.SetRotateYOnly(-M_PI);
+		matTemp.SetTranslateOnly(0.0, 0.0, 1.0f);
+
+		memcpy(RwFrameGetMatrix(RwCameraGetFrame(pRadarCam)), &matTemp.matrix, sizeof(RwMatrix));*/
+	}
+
+	RwRGBA		color = { 255, 255, 255, 255 };
+
+	RwCameraEndUpdate(Scene);
+	RwCameraClear(pRadarCam, &color, rwCAMERACLEARIMAGE);
+	RwCameraBeginUpdate(pRadarCam);
+
+	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, false);
+	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, false);
+
+	DrawRadarSection(nX - 1, nY - 1);
+	DrawRadarSection(nX, nY - 1);
+	DrawRadarSection(nX + 1, nY - 1);
+	DrawRadarSection(nX - 1, nY);
+	DrawRadarSection(nX, nY);
+	DrawRadarSection(nX + 1, nY);
+	DrawRadarSection(nX - 1, nY + 1);
+	DrawRadarSection(nX, nY + 1);
+	DrawRadarSection(nX + 1, nY + 1);
+
+	RwCameraEndUpdate(pRadarCam);
+	RwCameraBeginUpdate(Scene);
+
+	/*CSprite2d::SetVertices(CRect(_xleft(35.0f), _ydown(107.0f), _xleft(35.0f +  94.0f), _ydown(107.0f - (94.0f * 448.0f / 480.0f))),
+				CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY),
+				1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);*/
+
+	CSprite2d::SetVertices(CRect(_xleft(35.0f), _ydown(107.0f), _xleft(35.0f +  94.0f), _ydown(107.0f - (94.0f * 448.0f / 480.0f))), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY));
+
+	/*aSpriteVertices[0].rhw = 0.41f;
+	aSpriteVertices[1].rhw = 0.41f;
+	aSpriteVertices[2].rhw = 1.0f;
+	aSpriteVertices[3].rhw = 1.0f;*/
+
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwCameraGetRaster(pRadarCam));
+	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
+}
+
+void CRadar::TransformRadarPointToScreenSpace(CVector2D& vecOut, const CVector2D& vecIn)
+{
+	//RwV2d			vecViewWindow = { 3.0f, 3.0f };
+	//CVector			vecTemp(vecIn.x * 1.0f, -vecIn.y;
+	CMatrix			matTemp;
+	matTemp.SetRotateXOnly(-M_PI + M_PI/6);
+	matTemp.SetTranslateOnly(0.0, sin(M_PI/6), cos(M_PI/6));
+	memcpy(RwFrameGetMatrix(RwCameraGetFrame(pRadarCam)), &matTemp.matrix, sizeof(RwMatrix));
+
+	//RwCameraSetViewWindow(pRadarCam, &vecViewWindow);
+	//RwCameraSetProjection(pRadarCam, rwPERSPECTIVE);
+
+	CVector vecOutTemp = matTemp * CVector(vecIn.x, vecIn.y);
+
+
+	vecOut.x = ((vecOutTemp.x / vecOutTemp.z) + 1.0f) * 256.0f;
+	vecOut.y = ((vecOutTemp.y / vecOutTemp.z) + 1.0f) * 256.0f;
+
+	//vecOut.x = (vecIn.x + 1.0f) * 256.0f;
+	//vecOut.y = (vecIn.y + 1.0f) * 256.0f;
 }

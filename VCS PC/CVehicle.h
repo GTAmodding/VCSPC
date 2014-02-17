@@ -1,8 +1,6 @@
 #ifndef __CVEHICLE
 #define __CVEHICLE
 
-#define WIN32_LEAN_AND_MEAN
-
 struct CVehicleFlags
 {
 	//0x428
@@ -96,15 +94,27 @@ private:
 
 public:
 	CVehicleFlags&	GetVehicleFlags() 
-						{ return m_nVehicleFlags; };	
+						{ return m_nVehicleFlags; }
 	CEntity*		GetDamagingEntity()
 						{ return pDamagingEntity; }
+
+	void			SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha);
 };
 
-class CAutomobile : public CVehicle
+class NOVMT CAutomobile : public CVehicle
 {
-private:
-	BYTE		padding[760];
+public:
+	BYTE		paddd[172];
+	RwFrame*	m_pCarNode[20];		// May be wrong?
+	BYTE		padding[432];
+	float		m_fRotorSpeed;
+	BYTE		__moarpad[72];
+};
+
+class NOVMT CHeli : public CAutomobile
+{
+public:
+	void			ProcessRotorsAlpha();
 };
 
 static_assert(sizeof(CVehicle) == CVehicle_ARRAYSIZE, "CVehicle class has wrong size!");

@@ -9,7 +9,7 @@
 
 #define						MENU_SLIDER_POSY 135.0f
 
-#define						NUM_MENUS 46				// Relevant for debugging only
+#define						NUM_MENUS 47				// Relevant for debugging only
 #define						NUM_ENTRIES_PER_MENU 14
 
 #define						NUM_SLIDERS 8
@@ -49,6 +49,10 @@
 #define MODDB_RED_R				0xF4
 #define MODDB_RED_G				0x34
 #define MODDB_RED_B				0x34
+
+#define MENU_RED_R				0xFF
+#define MENU_RED_G				0x48
+#define MENU_RED_B				0x4D
 
 #define						MAX_AA				8
 #define						SET_FILE_VERSION	7
@@ -161,7 +165,7 @@ public:
 	static MenuItem		ms_pMenus[];
 
 public:
-	BYTE			GetHudMode() 
+	BYTE			GetHudMode()
 						{ return hudMode; };
 
 	BYTE			GetLanguage()
@@ -176,14 +180,15 @@ public:
 	void			SetTitleLanguage(DWORD lang)
 						{ titleLanguage = lang; };
 
-	void			SetTextLanguage(BYTE lang)
+	void			SetKeyboardLayout(BYTE lang)
 						{ textLanguage = lang; };
 
 	void			ShowFullscreenMessage(const char* pMessage, bool bUnk1, bool bUnk2);
+	void			SwitchToNewScreen(signed char bScreen);
 
 	void			DrawBackEnd();
 	void			DrawRadioStationIcons();
-	int				DrawSliders(float posX, float posY, float, float height, float distBetweenRects, float filledAmount, int width);
+	int				DisplaySlider(float posX, float posY, float, float height, float distBetweenRects, float filledAmount, int width);
 	void			DrawLeftColumn(MenuItem::MenuEntry& pPosition, const char* pText, const char* pRightText);
 	//float			GetLeftColumnPos_Height(long posY);
 	float			GetRightColumnPos(MenuVar& sPosY);
@@ -192,7 +197,7 @@ public:
 	void			PrintUpdaterScreen();
 	void			PrintDLCScreen();
 	void			ReadFrontendTextures();
-	void			SwitchToNewScreen(signed char bScreen);
+	void			SwitchToNewScreenVCS(signed char bScreen);
 
 	const char*		ProcessDLCSlot(int nSlotID);
 	float			GetTextYPos(const MenuItem::MenuEntry& pPosition);

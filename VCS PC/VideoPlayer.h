@@ -15,7 +15,7 @@ private:
 	static void					UpdateVideoFrame(const CRect* pVideoFrame);
 
 public:
-	static void					Create(const char* pFileName, const CRect* pVideoFrame = nullptr, bool bAudio = true);
+	static void					Create(const char* pFileName, const CRect* pVideoFrame = nullptr, bool bAudio = true, bool bBlackWhite = false);
 	static void					Release();
 	static bool					PlayNextFullscreenFrame();
 	static void					PlayNextFrame();

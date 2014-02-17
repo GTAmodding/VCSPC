@@ -7,6 +7,7 @@ long				CUpdateManager::nInterfaceStatus;
 long				CUpdateManager::nLastInterfaceStatus;
 long				CUpdateManager::nDrawingState;
 bool				CUpdateManager::bSeenUpdaterScreenYet;
+unsigned char		CUpdateManager::bForceUpdate;
 char*				CUpdateManager::pMessages[NUM_MESSAGES_PER_UPT_SCREEN];
 
 #ifdef DEVBUILD
@@ -34,6 +35,7 @@ void CUpdateManager::Init()
 			}
 
 			bSeenUpdaterScreenYet = false;
+			bForceUpdate = false;
 			nActiveMessages = 0;
 			nInterfaceStatus = nLastInterfaceStatus = UPTMODULESTATE_IDLE;
 		}
@@ -61,6 +63,12 @@ void CUpdateManager::Process()
 	if ( pUptModuleInterface )
 		nInterfaceStatus = pUptModuleInterface->Process();
 
+	if ( bForceUpdate == 1 )
+	{
+		pUptModuleInterface->PerformUpdateCheck();
+		++bForceUpdate;
+	}
+
 	if ( nLastInterfaceStatus != nInterfaceStatus )
 	{
 		switch ( nInterfaceStatus )
@@ -70,12 +78,17 @@ void CUpdateManager::Process()
 				bSeenUpdaterScreenYet = false;
 			break;
 
-		case UPTMODULESTATE_NEW_UPDATES:	
+		case UPTMODULESTATE_NEW_UPDATES:
+			if ( bForceUpdate == 2 )
+			{
+				pUptModuleInterface->PerformFilesDownload();
+				++bForceUpdate;
+			}
 			bSeenUpdaterScreenYet = false;
 			break;
 
 		case UPTMODULESTATE_ALL_READY:
-			EchoMessage(TheText.GetText("UPT_INS"));
+			EchoMessage(TheText.Get("UPT_INS"));
 			bSeenUpdaterScreenYet = false;
 			break;
 		}
@@ -239,13 +252,13 @@ void CUpdateManager::Display()
 
 	if ( nDrawingState )
 	{
-		CFont::SetTextBackground(0, 0);
-		CFont::SetTextUseProportionalValues(true);
+		CFont::SetBackground(0, 0);
+		CFont::SetProportional(true);
 		CFont::SetFontStyle(FONT_Eurostile);
-		CFont::SetTextAlignment(ALIGN_Right);
-		CFont::SetTextOutline(1);
+		CFont::SetOrientation(ALIGN_Right);
+		CFont::SetEdge(1);
 		CFont::SetScale(_width(0.35f), _height(0.65f));
-		CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, static_cast<unsigned char>(nTextAlpha)));
+		CFont::SetDropColor(CRGBA(0, 0, 0, static_cast<unsigned char>(nTextAlpha)));
 		if ( nDrawingState == 2 || nDrawingState == 5 )
 			CFont::SetColor(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B, static_cast<unsigned char>(nTextAlpha)));
 		else
@@ -254,23 +267,23 @@ void CUpdateManager::Display()
 		switch ( nInterfaceStatus )
 		{
 		case UPTMODULESTATE_IDLE:
-			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.GetText(pUptModuleInterface->UpdateServiceOn() ? "FEU_NOU" : "FEU_USA"));
+			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.Get(pUptModuleInterface->UpdateServiceOn() ? "FEU_NOU" : "FEU_USA"));
 			break;
 
 		case UPTMODULESTATE_CHECKING:
-			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.GetText("FEU_CHK"));
+			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.Get("FEU_CHK"));
 			break;
 		case UPTMODULESTATE_NEW_UPDATES:
-			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.GetText("FEU_NEW"));
+			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.Get("FEU_NEW"));
 			break;
 
 		case UPTMODULESTATE_DOWNLOADING:
-			CMessages::InsertNumberInString(TheText.GetText("FEU_DLU"), static_cast<signed long>(pUptModuleInterface->GetProgress()), -1, -1, -1, -1, -1, gString);
+			CMessages::InsertNumberInString(TheText.Get("FEU_DLU"), static_cast<signed long>(pUptModuleInterface->GetProgress()), -1, -1, -1, -1, -1, gString);
 			CFont::PrintString(_x(15.0f), _y(3.5f), gString);
 			break;
 
 		case UPTMODULESTATE_ALL_READY:
-			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.GetText("FEU_RDY"));
+			CFont::PrintString(_x(15.0f), _y(3.5f), TheText.Get("FEU_RDY"));
 			break;
 		}
 	}

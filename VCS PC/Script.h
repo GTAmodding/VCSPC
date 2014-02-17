@@ -160,8 +160,7 @@ public:
 
 	~CMappedVariable()
 	{
-		if ( pVarData )
-			delete[] pVarData;
+		delete[] pVarData;
 	}
 };
 

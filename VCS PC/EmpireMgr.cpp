@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 
-CEmpire		CEmpireManager::m_empire[NUM_EMPIRES];
-EmpireType		CEmpireManager::m_empireType[NUM_EMPIRE_TYPES];
+CEmpire			CEmpireManager::m_empire[NUM_EMPIRES];
+tEmpireType		CEmpireManager::m_empireType[NUM_EMPIRE_TYPES];
 
 void CEmpireManager::Initialise()
 {
@@ -11,8 +11,10 @@ void CEmpireManager::Initialise()
 		{
 			SECTION_NOTHING,
 			SECTION_PLACES,
-			SECTION_TYPES
+			SECTION_TYPES,
+			SECTION_DATA
 		} curFileSection = SECTION_NOTHING;
+		CAtomicModelInfo*		pCurrentModelForDataParsing = nullptr;
 
 		while ( const char* pLine = CFileLoader::LoadLine(hFile) )
 		{
@@ -24,11 +26,10 @@ void CEmpireManager::Initialise()
 					{
 						if ( SECTION4(pLine, 'p', 'l', 'a', 'c') )
 							curFileSection = SECTION_PLACES;
-						else
-						{
-							if ( SECTION4(pLine, 't', 'y', 'p', 'e') )
-								curFileSection = SECTION_TYPES;
-						}
+						else if ( SECTION4(pLine, 't', 'y', 'p', 'e') )
+							curFileSection = SECTION_TYPES;
+						else if ( SECTION4(pLine, 'd', 'a', 't', 'a') )
+							curFileSection = SECTION_DATA;
 						break;
 					}
 				case SECTION_PLACES:
@@ -75,6 +76,37 @@ void CEmpireManager::Initialise()
 						}
 						break;
 					}
+				case SECTION_DATA:
+					{
+						if ( SECTION3(pLine, 'e', 'n', 'd') )
+						{
+							if ( pCurrentModelForDataParsing )
+								pCurrentModelForDataParsing->GetEmpireData()->ReduceContainerSize();
+							curFileSection = SECTION_NOTHING;
+						}
+						else
+						{
+							if ( pLine[0] == '%' )
+							{
+								if ( pCurrentModelForDataParsing )
+									pCurrentModelForDataParsing->GetEmpireData()->ReduceContainerSize();
+	
+								pCurrentModelForDataParsing = CModelInfo::GetModelInfo(pLine+2)->AsAtomicModelInfoPtr();
+								pCurrentModelForDataParsing->InitEmpireData();
+							}
+							else
+							{		
+								CSimpleTransform		tempTransform;
+								unsigned int			nIndex;
+
+								assert(pCurrentModelForDataParsing);
+								sscanf(pLine, "%d %f %f %f %f", &nIndex, &tempTransform.m_translate.x, &tempTransform.m_translate.y, &tempTransform.m_translate.z, &tempTransform.m_heading);
+
+								pCurrentModelForDataParsing->GetEmpireData()->AddEntry(static_cast<unsigned short>(nIndex), tempTransform);
+							}
+						}
+						break;
+					}
 				}
 
 			}
@@ -96,6 +128,12 @@ void CEmpireManager::Process()
 				//m_empire[i].Place();
 		}
 	}*/
+}
+
+void CEmpireBuildingData::ReduceContainerSize()
+{
+	for ( auto it = m_buildingData.begin(); it != m_buildingData.end(); it++ )
+		it->second.shrink_to_fit();
 }
 
 void CEmpire::Place()
@@ -140,15 +178,6 @@ void CEmpire::Place()
 				pModelRect->y2 = boundingRect.y2;
 			if ( boundingRect.y1 > pModelRect->y1 )
 				pModelRect->y1 = boundingRect.y1;
-
-			/*if ( boundingRect.x < pModelRect->x )
-				pModelRect->x = boundingRect.x;
-			if ( boundingRect.w > pModelRect->w )
-				pModelRect->w = boundingRect.w;
-			if ( boundingRect.h < pModelRect->h )
-				pModelRect->h = boundingRect.h;
-			if ( boundingRect.y > pModelRect->y )
-				pModelRect->y = boundingRect.y;*/
 		}
 	}
 

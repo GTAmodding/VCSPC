@@ -225,6 +225,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		37, "FEL_ENG", ACTION_STANDARD, 28, 0, -72, 3, 0, 0,
 		//38, "FEL_SPA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		38, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		39, "FEL_HUN", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 4, 0, 0, 3, 0, 0 },
 
 
@@ -352,16 +353,23 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	{ "FEH_DLC", 33, 4,
 		1, "FEE_RES", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_OK", ACTION_STANDARD, 33, 0, 16, 3, 0, 0 },
+
+	// Downloadable Content - DLC installation prompt
+	{ "FEH_DLC", 45, 2,
+		1, "FEE_IXX", ACTION_NONE, 0, 0, 0, 0, 0, 0,
+		5, "FEM_NO", ACTION_STANDARD, 45, 0, -9, 3, 0, 0,
+		57, "FEM_YES", ACTION_STANDARD, 44, 0, 16, 3, 0, 0 },
 };
 
 static inline const char* GetTitlePCByLanguage()
 {
-	static const char* const	cTitlePCNames[] = { "title_pc_EN", /*"title_pc_ES",*/ "title_pc_PL" };
+	static const char* const	cTitlePCNames[] = { "title_pc_EN", /*"title_pc_ES",*/ "title_pc_PL", "title_pc_EN" };
 	return cTitlePCNames[FrontEndMenuManager.GetLanguage()];
 }
 
 WRAPPER void CMenuManager::ShowFullscreenMessage(const char* pMessage, bool bUnk1, bool bUnk2)
 	{ WRAPARG(pMessage); WRAPARG(bUnk1); WRAPARG(bUnk2); EAXJMP(0x579330); }
+WRAPPER void CMenuManager::SwitchToNewScreen(signed char bScreen) { WRAPARG(bScreen); EAXJMP(0x573680); }
 
 void CMenuManager::DrawBackEnd()
 {
@@ -387,13 +395,13 @@ void CMenuManager::DrawBackEnd()
 		CUpdateManager::ReportUpdaterScreenSeen();	// Wrong place
 	}
 
-	CFont::SetTextBackground(0, 0);
-	CFont::SetTextUseProportionalValues(false);
+	CFont::SetBackground(0, 0);
+	CFont::SetProportional(false);
 	CFont::SetFontStyle(FONT_PagerFont);
-	CFont::SetTextAlignment(ALIGN_Right);
-	CFont::SetTextWrapX(0.0);
-	CFont::SetTextOutline(1);
-	CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
+	CFont::SetOrientation(ALIGN_Right);
+	CFont::SetRightJustifyWrap(0.0);
+	CFont::SetEdge(1);
+	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 	CFont::SetScale(_width(0.25f), _height(0.4f));
 	CFont::SetColor(BaseColors[11]);
 	CFont::PrintString(_x(2.5f), _ydown(13.0f), MOD_VERSION" BUILD "BUILDNUMBER_STR);
@@ -423,30 +431,30 @@ void CMenuManager::DrawBackEnd()
 		{
 			textures[16].Draw(CRect(_x(135.0f), _y(122.5f), _x(15.0f), _y(2.5f)), CRGBA(255, 255, 255, 255));
 
-			CFont::SetTextUseProportionalValues(true);
+			CFont::SetProportional(true);
 			CFont::SetScale(_width(0.8f), _height(1.2f));
 			CFont::SetFontStyle(FONT_RageItalic);
-			//CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
-			//CFont::SetTextOutline(1);
-			CFont::SetTextAlignment(ALIGN_Center);
+			//CFont::SetDropColor(CRGBA(0, 0, 0, 255));
+			//CFont::SetEdge(1);
+			CFont::SetOrientation(ALIGN_Center);
 
 			CFont::SetColor(CRGBA(MODDB_RED_R, MODDB_RED_G, MODDB_RED_B, 255));
-			CFont::PrintString(_x(75.0f), _y(115.0f), TheText.GetText("FEP_MOD"));
+			CFont::PrintString(_x(75.0f), _y(115.0f), TheText.Get("FEP_MOD"));
 
-			CFont::SetTextUseProportionalValues(false);
+			CFont::SetProportional(false);
 			CFont::SetFontStyle(FONT_PagerFont);
 			CFont::SetScale(_width(0.375f), _height(0.725f));
 			if ( nDaysTillDeadline >= 3 )
 				CFont::SetColor(CRGBA(255, 255, 255, 255));
 
-			CMessages::InsertNumberInString(TheText.GetText(nDaysTillDeadline == 1 ? "FEP_DY2" : "FEP_DYZ"), nDaysTillDeadline, -1, -1, -1, -1, -1, gString);
+			CMessages::InsertNumberInString(TheText.Get(nDaysTillDeadline == 1 ? "FEP_DY2" : "FEP_DYZ"), nDaysTillDeadline, -1, -1, -1, -1, -1, gString);
 			CFont::PrintString(_x(75.0f), _y(140.0f), gString);
 		}
 	}
 #endif
 
-	CFont::SetTextUseProportionalValues(true);
-	CFont::SetTextOutline(0);
+	CFont::SetProportional(true);
+	CFont::SetEdge(0);
 }
 
 void CMenuManager::DrawRadioStationIcons()
@@ -497,7 +505,7 @@ void CMenuManager::DrawRadioStationIcons()
 	while ( bLoopCounter < 11 );
 }
 
-int CMenuManager::DrawSliders(float posX, float posY, float, float height, float distBetweenRects, float filledAmount, int iWidth)
+int CMenuManager::DisplaySlider(float posX, float posY, float, float height, float distBetweenRects, float filledAmount, int iWidth)
 {
 	BYTE			loopCounter = NUM_SLIDERS * 2;
 	BYTE			positionCounter = 0;
@@ -568,7 +576,7 @@ void CMenuManager::DrawLeftColumn(MenuItem::MenuEntry& pPosition, const char* pT
 
 		CFont::PrintString(fPosX + _xleft(25.0f), fPosY, pText);
 
-		CFont::SetTextAlignment(ALIGN_Right);
+		CFont::SetOrientation(ALIGN_Right);
 		CFont::PrintString(fPosX, fPosY, cSlotNumberText);
 	}
 	else
@@ -679,15 +687,15 @@ void CMenuManager::PrintStats()
 	DWORD	dwStatsToShow = CStats::ConstructStatLine(99999, nIndents);
 
 	CFont::SetFontStyle(FONT_Eurostile);
-	CFont::SetTextOutline(1);
+	CFont::SetEdge(1);
 
 	// Criminal Rating
 	CFont::SetScale(_width(0.425f), _height(0.85f));
-	CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
-	CFont::SetTextAlignment(ALIGN_Left);
+	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
+	CFont::SetOrientation(ALIGN_Left);
 	CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
-	CFont::PrintString(_xleft(50.0f), _y(85.0f), TheText.GetText("CRIMRA"));
-	CFont::SetTextAlignment(ALIGN_Right);
+	CFont::PrintString(_xleft(50.0f), _y(85.0f), TheText.Get("CRIMRA"));
+	CFont::SetOrientation(ALIGN_Right);
 	CFont::PrintString(_x(50.0f), _y(85.0f), CStats::FindCriminalRatingNumber());
 
 	CFont::SetScale(_width(0.3f), _height(0.7f));
@@ -717,11 +725,11 @@ void CMenuManager::PrintStats()
 
 			CStats::ConstructStatLine(dwLoopCounter, nIndents);
 
-			CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, static_cast<BYTE>(fTextAlpha)));
-			CFont::SetTextAlignment(ALIGN_Left);
+			CFont::SetDropColor(CRGBA(0, 0, 0, static_cast<BYTE>(fTextAlpha)));
+			CFont::SetOrientation(ALIGN_Left);
 			CFont::SetColor(CRGBA(255, 255, 255, static_cast<BYTE>(fTextAlpha)));
 			CFont::PrintString(_xleft(50.0f + (nIndents * 3.0f)), fStartingPos, gString);
-			CFont::SetTextAlignment(ALIGN_Right);
+			CFont::SetOrientation(ALIGN_Right);
 			CFont::PrintString(_x(50.0f), fStartingPos, gUString);
 		}
 		++dwLoopCounter;
@@ -732,17 +740,17 @@ void CMenuManager::PrintUpdaterScreen()
 {
 	CFont::SetScale(_width(0.8f), _height(1.2f));
 	CFont::SetFontStyle(FONT_RageItalic);
-	CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
-	CFont::SetTextOutline(1);
-	CFont::SetTextAlignment(ALIGN_Center);
+	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
+	CFont::SetEdge(1);
+	CFont::SetOrientation(ALIGN_Center);
 
 	CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
-	CFont::PrintString(_x(137.5f), _y(15.0f), TheText.GetText("FEU_POW"));
+	CFont::PrintString(_x(137.5f), _y(15.0f), TheText.Get("FEU_POW"));
 
 	CFont::SetFontStyle(FONT_Eurostile);
 	CFont::SetScale(_width(0.3f), _height(0.7f));
 	CFont::SetColor(CRGBA(255, 255, 255, 255));
-	CFont::SetTextAlignment(ALIGN_Left);
+	CFont::SetOrientation(ALIGN_Left);
 
 	float		fStartingPos = _height(100.0f);
 
@@ -774,10 +782,10 @@ void CMenuManager::PrintUpdaterScreen()
 
 	CFont::SetScale(_width(0.35f), _height(0.7f));
 	CFont::SetFontStyle(FONT_PagerFont);
-	CFont::SetTextAlignment(ALIGN_Center);
+	CFont::SetOrientation(ALIGN_Center);
 	if ( CUpdateManager::IsDownloading() )
 	{
-		CMessages::InsertNumberInString(TheText.GetText("FEU_PRC"), static_cast<int>(dDownloadPercentage), -1, -1, -1, -1, -1, gString);
+		CMessages::InsertNumberInString(TheText.Get("FEU_PRC"), static_cast<int>(dDownloadPercentage), -1, -1, -1, -1, -1, gString);
 		CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _ydown(105.0f), gString);
 	}
 
@@ -788,6 +796,9 @@ void CMenuManager::PrintDLCScreen()
 	if ( currentMenuEntry > 1 )
 	{
 		m_nFocusedDLC = CDLCManager::GetActiveDLCWithIndex(currentMenuEntry-2);
+
+		bool		bThisDLCIsEnabled = CDLCManager::GetDLC(static_cast<eExpansionPack>(m_nFocusedDLC))->IsActive();
+		bool		bThisDLCIsInstalled = CDLCManager::GetDLC(static_cast<eExpansionPack>(m_nFocusedDLC))->IsInstalled();
 		if ( m_nLastFocusedDLC != m_nFocusedDLC )
 		{
 			m_nLastFocusedDLC = m_nFocusedDLC;
@@ -798,11 +809,10 @@ void CMenuManager::PrintDLCScreen()
 			_snprintf(cVideoPath, sizeof(cVideoPath), "movies\\dlc%d.bik", m_nFocusedDLC);
 
 			CVideoPlayer::Release();
-			CVideoPlayer::Create(cVideoPath, &videoFrame, false);
+			CVideoPlayer::Create(cVideoPath, &videoFrame, false, !bThisDLCIsInstalled);
 		}
 
 		char		cGXTName[8];
-		bool		bThisDLCIsEnabled = CDLCManager::GetDLC(static_cast<eExpansionPack>(m_nFocusedDLC))->IsActive();
 		_snprintf(cGXTName, sizeof(cGXTName), "FEE_D%02d", m_nFocusedDLC);
 
 		CSprite2d::DrawRect(CRect(_x(251.5f), _ymiddle(195.5f), _x(26.5f), _ymiddle(-66.5f)), CRGBA(0, 0, 0, 255));
@@ -811,19 +821,24 @@ void CMenuManager::PrintDLCScreen()
 
 		CFont::SetWrapx(_x(30.0f));
 		CFont::SetColor(CRGBA(255, 255, 255, 255));
-		CFont::SetTextShadow(1);
-		CFont::SetTextBorderRGBA(CRGBA(0, 0, 0, 255));
+		CFont::SetDropShadowPosition(1);
+		CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 		CFont::SetScale(_width(0.35f), _height(0.7f));
 		CFont::SetFontStyle(FONT_PagerFont);
-		CFont::SetTextJustify(true);
-		CFont::PrintString(_x(249.0f), _ymiddle(142.5f), TheText.GetText(cGXTName));
+		CFont::SetJustify(true);
+		CFont::PrintString(_x(249.0f), _ymiddle(142.5f), TheText.Get(cGXTName));
 
-		if ( bThisDLCIsEnabled )
-			CFont::SetColor(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B, 255));
+		if ( !bThisDLCIsInstalled )
+			CFont::SetColor(CRGBA(MENU_RED_R, MENU_RED_G, MENU_RED_B, 255));
+		else
+		{
+			if ( bThisDLCIsEnabled )
+				CFont::SetColor(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B, 255));
+		}
 		CFont::SetScale(_width(0.6f), _height(1.1f));
-		CFont::SetTextJustify(false);
-		CFont::SetTextAlignment(ALIGN_Center);
-		CFont::PrintString(_x(140.0f), _ymiddle(-87.5f), TheText.GetText(bThisDLCIsEnabled ? "FEE_ON" : "FEE_OFF"));
+		CFont::SetJustify(false);
+		CFont::SetOrientation(ALIGN_Center);
+		CFont::PrintString(_x(140.0f), _ymiddle(-87.5f), TheText.Get(bThisDLCIsInstalled ? (bThisDLCIsEnabled ? "FEE_ON" : "FEE_OFF") : "FEE_ABS"));
 	}
 	else
 	{
@@ -895,7 +910,7 @@ void CMenuManager::ReadFrontendTextures()
 	DLCArchive.CloseArchive();
 }
 
-void CMenuManager::SwitchToNewScreen(signed char bScreen)
+void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 {
 	if ( !bScreen )
 		m_fStatsScrollPos = -120.0f;
@@ -943,6 +958,18 @@ void CMenuManager::SwitchToNewScreen(signed char bScreen)
 	// Focus on DLC entry when exiting from any DLC-oriented screen
 	if ( bLastScreen == 46 || bLastScreen == 47 )
 		currentMenuEntry = 4;
+
+	// Automatically check for updates and mark focused DLC for installation
+	if ( bScreen == 44 && bLastScreen == 48 )
+	{
+		CUpdateManager::SetDLCStatus(CDLCManager::GetDLC(m_nFocusedDLC)->GetName(), true);
+		CUpdateManager::ForceUpdate();
+	}
+
+	// Correct the first entry
+	if ( bScreen == 48 )
+		_snprintf(MenuEntriesList[48].entryList[0].entry, sizeof(MenuEntriesList->entryList->entry), "FEE_I%02d", m_nFocusedDLC);
+
 }
 
 const char* CMenuManager::ProcessDLCSlot(int nSlotID)
@@ -1090,12 +1117,12 @@ float CMenuManager::GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition)
 		fprintf(hFile, "<strong><font color=\"#FFFFFF\">GRAND THEFT AUTO VICE CITY STORIES ");
 		wcstombs(multiByteBuf, L"Śtątystykię!", 512);
 //		fputs(, hFile);
-		fprintf(hFile, "%s</font></strong><br /><font\n", multiByteBuf wcsupr(CStats::SACharsToASCII(TheText.GetText("FEH_STA"), 0)));
+		fprintf(hFile, "%s</font></strong><br /><font\n", multiByteBuf wcsupr(CStats::SACharsToASCII(TheText.Get("FEH_STA"), 0)));
 /*		fprintf(hFile, "color=\"#FFFFFF\">-------------------------------------------------------------------</font></font></div></td> </tr>\n");
 		fprintf(hFile, "<tr align=\"center\" valign=\"top\" bgcolor=\"#000000\">     <td height=\"22\" colspan=\"2\">&nbsp;</td>  </tr>\n");
 		fprintf(hFile, "<tr align=\"center\" valign=\"top\" bgcolor=\"#000000\"> \n");
-//		fwprintf(hFile, L"<td height=\"40\" colspan=\"2\"> <p><font color=\"#F0000C\" size=\"2\" face=\"Arial, Helvetica, sans-serif\"><strong><font color=\"#F0000C\" size=\"1\">%s: \n", CStats::SACharsToASCII(TheText.GetText("FES_DAT"), 0));
-//		fwprintf(hFile, L"%s</font><br>        %s: </strong>", dateBuf, CStats::SACharsToASCII(TheText.GetText("FES_CMI"), 0));
+//		fwprintf(hFile, L"<td height=\"40\" colspan=\"2\"> <p><font color=\"#F0000C\" size=\"2\" face=\"Arial, Helvetica, sans-serif\"><strong><font color=\"#F0000C\" size=\"1\">%s: \n", CStats::SACharsToASCII(TheText.Get("FES_DAT"), 0));
+//		fwprintf(hFile, L"%s</font><br>        %s: </strong>", dateBuf, CStats::SACharsToASCII(TheText.Get("FES_CMI"), 0));
 
 
 		fclose(hFile);
@@ -1195,7 +1222,7 @@ void LoadingScreen()
 				LoadingSprites[CurrentLoadingSprite].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255));
 			}
 		}
-	
+
 		if ( *(bool*)0xBAB31E || *(bool*)0xBAB31F )
 			CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, *(bool*)0xBAB31E ? 255 - *(unsigned char*)0xBAB320 : *(unsigned char*)0xBAB320));
 		else

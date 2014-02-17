@@ -6,9 +6,21 @@
 
 class CBuilding;
 
-struct EmpireType
+struct tEmpireType
 {
 	int					nNormalBuilding[3], nDamagedBuilding[3];
+};
+
+class CEmpireBuildingData
+{
+private:
+	std::map<unsigned short,std::vector<CSimpleTransform>>		m_buildingData;
+
+public:
+	inline void					AddEntry(unsigned short nType, const CSimpleTransform& vecPos)
+		{ m_buildingData[nType].push_back(vecPos); }
+
+	void						ReduceContainerSize();
 };
 
 class CEmpire
@@ -23,8 +35,7 @@ private:
 public:
 	CEmpire()
 		: m_bPlaced(false), m_bDefined(false), m_pBuilding(nullptr), m_nType(-1), m_nScale(0)
-	{
-	}
+	{}
 
 	inline CSimpleTransform*	GetTransform()
 		{ return &m_placement; }
@@ -50,10 +61,10 @@ class CEmpireManager
 {
 private:
 	static CEmpire				m_empire[NUM_EMPIRES];
-	static EmpireType			m_empireType[NUM_EMPIRE_TYPES];
+	static tEmpireType			m_empireType[NUM_EMPIRE_TYPES];
 
 public:
-	static inline EmpireType*	GetInfo(int nIndex)
+	static inline tEmpireType*	GetInfo(int nIndex)
 		{ return &m_empireType[nIndex]; }
 	static inline CEmpire*		GetEmpire(int nIndex)
 		{	assert(nIndex >= 0 && nIndex < NUM_EMPIRES);

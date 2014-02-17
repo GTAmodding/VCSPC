@@ -28,6 +28,7 @@ public:
 
 	static void			InitPerFrame();
 	static void			SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4);
+	static void			SetVertices(const CRect&, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&, float, float, float, float, float, float, float, float);
 	static void			DrawRect(const CRect& rect, const CRGBA& colour);
 };
 

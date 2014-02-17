@@ -36,16 +36,10 @@
     <ClCompile Include="CCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CClock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CConfiscatedWeapons.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CDraw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CFont.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CGridref.cpp">
@@ -55,9 +49,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPedIntelligence.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CWanted.cpp">
@@ -195,6 +186,21 @@
     <ClCompile Include="Project2dfx.cpp">
       <Filter>Source Files\DLC</Filter>
     </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vehicle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Clock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColAccel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCam.h">
@@ -203,16 +209,10 @@
     <ClInclude Include="CCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CClock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CConfiscatedWeapons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CCRC32.H">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CGridref.h">
@@ -222,12 +222,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPedIntelligence.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPhysical.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CVehicle.h">
@@ -394,6 +388,18 @@
     </ClInclude>
     <ClInclude Include="Project2dfx.h">
       <Filter>Header Files\DLC</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Clock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColAccel.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

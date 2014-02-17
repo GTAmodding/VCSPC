@@ -251,7 +251,7 @@ void COnscreenTimer::Process()
 				{
 					if ( nPrevTime / 1000 < m_timer.m_nSoundOnTime && !TheCamera.m_WideScreenOn )
 					{
-						MusicManager->ReportFrontendAudioEvent(33, 0.0f, 1.0f);
+						AudioEngine.ReportFrontendAudioEvent(33, 0.0f, 1.0f);
 						m_timer.m_bFlashing = true;
 					}
 					else
@@ -480,8 +480,7 @@ void CUserDisplay::Init()
 
 void CUserDisplay::Process()
 {
-	DWORD dwFunc = 0x5720A0;
-	_asm call dwFunc
+	((void(*)())0x5720A0)();
 
 	Pager.Process();
 }

@@ -3,6 +3,9 @@
 // Wrappers
 WRAPPER void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4)
 { WRAPARG(rect); WRAPARG(rgb1); WRAPARG(rgb2); WRAPARG(rgb3); WRAPARG(rgb4); EAXJMP(0x727420); }
+// TODO: Name params
+WRAPPER void CSprite2d::SetVertices(const CRect&, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&, float, float, float, float, float, float, float, float) { EAXJMP(0x727710); }
+
 WRAPPER void CSprite2d::InitPerFrame() { EAXJMP(0x727350); }
 
 void CSprite2d::SetTexture(const char* name, const char* maskName)

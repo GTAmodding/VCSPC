@@ -33,6 +33,23 @@
 #define NJ_OFFSET			(MR_OFFSET+MR_STREAMS)
 #define RE_OFFSET			(NJ_OFFSET+NJ_STREAMS)
 
+struct tVehicleAudioSettings
+{
+	signed char		VehicleType;
+	short			EngineOnSound;
+	short			EngineOffSound;
+	signed char		RadioSoundType;		// 0 - standard, 1 - HQ, 2 - bikes
+	float			BassDepth;
+	float			unk1;
+	signed char		HornTon;
+	float			HornFreq;
+	signed char		DoorSound;
+	signed char		unk2;
+	signed char		RadioNum;
+	signed char		RadioType;
+	signed char		PoliceScannerName;
+	float			EngineVolumeBoost;
+};
 
 class CAERadioTrackManager
 {
@@ -46,10 +63,25 @@ public:
 	static bool			Load();
 };
 
-class CMusicManager
+class CAEVehicleAudioEntity
+{
+private:
+	BYTE					pad[128];
+	tVehicleAudioSettings	AudioSettings;
+
+public:
+	void					GetVehicleAudioSettings(short nModelID);
+
+	// VCS PC class extension
+	static void				LoadVehicleAudioSettings();
+};
+
+class CAudioEngine
 {
 public:
 	void				ReportFrontendAudioEvent(long nSoundID, float fUnk, float fVolume);
 };
+
+static_assert(sizeof(tVehicleAudioSettings) == 0x24, "tVehicleAudioSettings has wrong size!");
 
 #endif

@@ -22,10 +22,23 @@ WRAPPER RwCamera* RwCameraClear(RwCamera* camera, RwRGBA* colour, RwInt32 clearM
 WRAPPER RwBool RwImageDestroy(RwImage* image) { WRAPARG(image); EAXJMP(0x802740); }
 WRAPPER RwImage* RwImageFindRasterFormat(RwImage* ipImage, RwInt32 nRasterType, RwInt32* npWidth, RwInt32* npHeight, RwInt32* npDepth, RwInt32* npFormat) { WRAPARG(ipImage); WRAPARG(nRasterType); WRAPARG(npWidth); WRAPARG(npHeight); WRAPARG(npDepth); WRAPARG(npFormat); EAXJMP(0x8042C0); }
 WRAPPER RwImage* RtPNGImageRead(const RwChar* imageName) { WRAPARG(imageName); EAXJMP(0x7CF9B0); }
+WRAPPER RwBool RwFrameDestroy(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F05A0); }
+WRAPPER RwBool RpAtomicDestroy(RpAtomic* atomic) { WRAPARG(atomic); EAXJMP(0x749DC0); }
+WRAPPER RwFrame* RwFrameForAllObjects(RwFrame* frame, RwObjectCallBack callBack, void* data) { WRAPARG(frame); WRAPARG(callBack); WRAPARG(data); EAXJMP(0x7F1200); }
+WRAPPER RwCamera* RwCameraCreate() { EAXJMP(0x7EE4F0); }
+WRAPPER RwFrame* RwFrameCreate() { EAXJMP(0x7F0410); }
+WRAPPER RwCamera* RwCameraSetViewWindow(RwCamera* camera, const RwV2d* viewWindow) { WRAPARG(camera); WRAPARG(viewWindow); EAXJMP(0x7EE410); }
+WRAPPER RwCamera* RwCameraSetProjection(RwCamera* camera, RwCameraProjection projection) { WRAPARG(camera); WRAPARG(projection); EAXJMP(0x7EE3A0); }
+WRAPPER void _rwObjectHasFrameSetFrame(void* object, RwFrame* frame) { WRAPARG(object); WRAPARG(frame); EAXJMP(0x804EF0); }
 
 WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
 
 RwCamera* RwCameraBeginUpdate(RwCamera* camera)
 {
 	return camera->beginUpdate(camera);
+}
+
+RwCamera* RwCameraEndUpdate(RwCamera* camera)
+{
+	return camera->endUpdate(camera);
 }

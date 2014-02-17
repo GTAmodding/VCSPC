@@ -34,9 +34,9 @@ void CPed::GetBonePosition(CVector* result, int boneID, bool bUnk)
 	}
 }
 
-BYTE CPed::func_5E6580()
+BYTE CPed::GetWeaponSkill()
 {
-	DWORD	dwFunc = (DWORD)FUNC_CPed_func_5E6580;
+	DWORD	dwFunc = (DWORD)FUNC_CPed_GetWeaponSkill;
 	BYTE	bResult;
 	_asm
 	{
@@ -55,7 +55,7 @@ long double CPed::GetCrosshairSize()
 	long double crosshairSize;
 
 	weaponID = weaponSlots[m_bActiveWeapon].dwType;
-	unkData = func_5E6580();
+	unkData = GetWeaponSkill();
 	weapPtr = CWeaponInfo::GetWeaponInfo(weaponID, unkData);
 	crosshairSize = 0.5 / weapPtr->GetAccuracy();
 	
@@ -68,8 +68,8 @@ long double CPed::GetCrosshairSize()
 void CPed::Remap()
 {
 	CPedData*	pTempPedData = &CPedData::pPedData[CPools::GetPedPool()->GetIndexOnly(this)];
-	CPedModelInfoVCS::AssignColoursToModel(pTempPedData->m_color1, pTempPedData->m_color2, pTempPedData->m_color3, pTempPedData->m_color4);
-	CPedModelInfoVCS::SetEnvironmentMap(m_pRwObject);
+	CPedModelInfoVCS::SetPedColour(pTempPedData->m_color1, pTempPedData->m_color2, pTempPedData->m_color3, pTempPedData->m_color4);
+	CPedModelInfoVCS::SetEditableMaterials(m_pRwObject);
 }
 
 CPed* CPedData::Constructor(CPed* pPed, WORD model)

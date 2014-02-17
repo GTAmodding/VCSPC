@@ -62,17 +62,22 @@ void CDLCManager::LoadLevelFiles()
 
 	for ( int i = 0; i < NUM_DLC_PACKS; ++i )
 	{
-		if ( m_pDLC[i]->IsEnabled() )
+		if ( m_pDLC[i]->CheckInstallState(i) )
 		{
-			char		cLevelsPath[MAX_PATH];
-			char		cDLCName[32];
-			_snprintf(cLevelsPath, sizeof(cLevelsPath), "dlc\\dlc%d\\content.dat", i);
+			if ( m_pDLC[i]->IsEnabled() )
+			{
+				char		cLevelsPath[MAX_PATH];
+				char		cDLCName[32];
+				_snprintf(cLevelsPath, sizeof(cLevelsPath), "dlc\\dlc%d\\content.dat", i);
 
-			if ( !CFileLoader::ParseLevelFile(cLevelsPath, cDLCName) )
-				m_pDLC[i]->Activate(false);
-
-			if ( _strnicmp(cDLCName, m_pDLC[i]->GetName(), sizeof(cDLCName)) )
-				m_pDLC[i]->Activate(false);
+				if ( !CFileLoader::ParseLevelFile(cLevelsPath, cDLCName) )
+					m_pDLC[i]->Activate(false);
+				else
+				{
+					if ( _strnicmp(cDLCName, m_pDLC[i]->GetName(), sizeof(cDLCName)) )
+						m_pDLC[i]->Activate(false);
+				}
+			}
 		}
 	}
 
@@ -90,5 +95,8 @@ void CDLCManager::HandleButtonClick(int nMenuEntry)
 	const char*		pDLCName = m_pDLC[nDLC]->GetName();
 
 	// Toggle DLC on/off
-	CUpdateManager::SetDLCStatus(pDLCName, CUpdateManager::GetDLCStatus(pDLCName, false) == false);
+	if ( m_pDLC[nDLC]->IsInstalled() )
+		CUpdateManager::SetDLCStatus(pDLCName, CUpdateManager::GetDLCStatus(pDLCName, false) == false);
+	else
+		FrontEndMenuManager.SwitchToNewScreen(48);
 }

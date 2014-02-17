@@ -5,60 +5,57 @@ long*& WidescreenSupport::nCTRubberSliderMinPos = CTRubberMinPos;
 long*& WidescreenSupport::nCTRubberSliderMaxPos = CTRubberMaxPos;
 float*& WidescreenSupport::fHorizontalAspectRatio = WidthAspectRatio;
 float*& WidescreenSupport::fVerticalAspectRatio = HeightAspectRatio;
-float WidescreenSupport::fScreenWidthMultiplier = 640.0;
-float WidescreenSupport::fScreenWidthDivider = 1.0/640.0;
-float WidescreenSupport::fScreenHeightMultiplier = 448.0;
-float WidescreenSupport::f4 = 4.0/640.0;
-float WidescreenSupport::f40 = 40.0/640.0;
-float WidescreenSupport::f45 = 45.0/640.0;
-float WidescreenSupport::f50 = 50.0/640.0;
-float WidescreenSupport::f55 = 55.0/640.0;
-float WidescreenSupport::f60 = 60.0/640.0;
-float WidescreenSupport::f70 = 70.0/640.0;
-float WidescreenSupport::f95 = 95.0/640.0;
-float WidescreenSupport::f100 = 100.0/640.0;
-float WidescreenSupport::f160 = 160.0/640.0;
-float WidescreenSupport::f350 = 350.0/640.0;
-float WidescreenSupport::f555 = 555.0/640.0;
-float WidescreenSupport::f580 = 580.0/640.0;
-float WidescreenSupport::f0pt3 = 0.3/640.0;
-float WidescreenSupport::f1pt3 = 1.3/640.0;
-float WidescreenSupport::f0pt49 = 0.49/640.0;
-float WidescreenSupport::f0pt42 = 0.42/640.0;
-float WidescreenSupport::f0pt35 = 0.35/640.0;
-float WidescreenSupport::f0pt7 = 0.7/640.0;
-float WidescreenSupport::f0pt8 = 0.8/640.0;
-float WidescreenSupport::f0pt56 = 0.56/640.0;
-float WidescreenSupport::fMenuSliderPosX = 0.5 + (MENU_TEXT_POSITION_RCOLUMN/640.0);
-float WidescreenSupport::fMenuSliderWidth = MENU_SLIDER_WIDTH/640.0;
-float WidescreenSupport::fMenuMessageWidth = 640.0 - 210.0;
-float WidescreenSupport::fCTSliderRight = 0.5 + (50.0/640.0);
-float WidescreenSupport::fCTSliderLeft = 0.5 - (50.0/640.0);
-float WidescreenSupport::fScreenCoorsFix = 44800.0/640.0;
-//float WidescreenSupport::fSpawningFix = 44800.0/640.0;
-float WidescreenSupport::fAimpointFix = 0.5;
-float WidescreenSupport::fMapZonePosX2 = 7.5/640.0;
-//float WidescreenSupport::fSkyMultFix = 1.4;
+float WidescreenSupport::fScreenWidthMultiplier = 640.0f;
+float WidescreenSupport::fScreenWidthDivider = 1.0f/640.0f;
+float WidescreenSupport::fScreenHeightMultiplier = 448.0f;
+float WidescreenSupport::f4 = 4.0f/640.0f;
+float WidescreenSupport::f40 = 40.0f/640.0f;
+float WidescreenSupport::f45 = 45.0f/640.0f;
+float WidescreenSupport::f50 = 50.0f/640.0f;
+float WidescreenSupport::f55 = 55.0f/640.0f;
+float WidescreenSupport::f60 = 60.0f/640.0f;
+float WidescreenSupport::f70 = 70.0f/640.0f;
+float WidescreenSupport::f95 = 95.0f/640.0f;
+float WidescreenSupport::f100 = 100.0f/640.0f;
+float WidescreenSupport::f160 = 160.0f/640.0f;
+float WidescreenSupport::f350 = 350.0f/640.0f;
+float WidescreenSupport::f555 = 555.0f/640.0f;
+float WidescreenSupport::f580 = 580.0f/640.0f;
+float WidescreenSupport::f0pt3 = 0.3f/640.0f;
+float WidescreenSupport::f1pt3 = 1.3f/640.0f;
+float WidescreenSupport::f0pt49 = 0.49f/640.0f;
+float WidescreenSupport::f0pt42 = 0.42f/640.0f;
+float WidescreenSupport::f0pt35 = 0.35f/640.0f;
+float WidescreenSupport::f0pt7 = 0.7f/640.0f;
+float WidescreenSupport::f0pt8 = 0.8f/640.0f;
+float WidescreenSupport::f0pt56 = 0.56f/640.0f;
+float WidescreenSupport::fMenuSliderPosX = 0.5f + (MENU_TEXT_POSITION_RCOLUMN/640.0f);
+float WidescreenSupport::fMenuSliderWidth = MENU_SLIDER_WIDTH/640.0f;
+float WidescreenSupport::fMenuMessageWidth = 640.0f - 210.0f;
+float WidescreenSupport::fCTSliderRight = 0.5f + (50.0f/640.0f);
+float WidescreenSupport::fCTSliderLeft = 0.5f - (50.0/640.0f);
+float WidescreenSupport::fScreenCoorsFix = 44800.0f/640.0f;
+//float WidescreenSupport::fSpawningFix = 44800.0f/640.0f;
+float WidescreenSupport::fAimpointFix = 0.5f;
+float WidescreenSupport::fMapZonePosX2 = 7.5f/640.0f;
+//float WidescreenSupport::fSkyMultFix = 1.4f;
 
-float WidescreenSupport::f0pt7_h = 0.7/448.0;
-float WidescreenSupport::f0pt95_h = 0.95/448.0;
-float WidescreenSupport::f1pt2_h = 1.2/448.0;
-float WidescreenSupport::f2pt1_h = 2.1/448.0;
-float WidescreenSupport::f1_h = 1.0/448.0;
-float WidescreenSupport::f28_h = 28.0/448.0;
-float WidescreenSupport::f97_centh = 0.5 - 127.0/448.0;
-float WidescreenSupport::fMenuSliderPosY2 = MENU_SLIDER_POSY / 448.0;
-float WidescreenSupport::fMenuSliderPosY3 = (MENU_SLIDER_POSY - 30.0) / 448.0;
-float WidescreenSupport::fMenuSliderPosY4 = (MENU_SLIDER_POSY - MENU_SLIDER_WIDTH / 2.0) / 448.0;
-float WidescreenSupport::fMenuSliderHeight2 = MENU_SLIDER_HEIGHT / 448.0;
+float WidescreenSupport::f0pt7_h = 0.7f/448.0f;
+float WidescreenSupport::f0pt95_h = 0.95f/448.0f;
+float WidescreenSupport::f1pt2_h = 1.2f/448.0f;
+float WidescreenSupport::f2pt1_h = 2.1f/448.0f;
+float WidescreenSupport::f1_h = 1.0f/448.0f;
+float WidescreenSupport::f28_h = 28.0f/448.0f;
+float WidescreenSupport::f97_centh = 0.5f - 127.0f/448.0f;
+float WidescreenSupport::fMenuSliderPosY2 = MENU_SLIDER_POSY / 448.0f;
+float WidescreenSupport::fMenuSliderPosY3 = (MENU_SLIDER_POSY - 30.0f) / 448.0f;
+float WidescreenSupport::fMenuSliderPosY4 = (MENU_SLIDER_POSY - MENU_SLIDER_WIDTH / 2.0f) / 448.0f;
+float WidescreenSupport::fMenuSliderHeight2 = MENU_SLIDER_HEIGHT / 448.0f;
 
-float WidescreenSupport::fProperWidthMultiplier = 1.0;
-float WidescreenSupport::fProperHeightMultiplier = 480.0/448.0;
+float WidescreenSupport::fProperWidthMultiplier = 1.0f;
+float WidescreenSupport::fProperHeightMultiplier = 480.0f/448.0f;
 
-//float WidescreenSupport::fTextDrawsWidthMultiplier;
-
-//const float WidescreenSupport::fFOVMultiplier = 1.0/((4.0/3.0)/1.2);
-const float WidescreenSupport::fFOVMultiplier = 1.0/((4.0/3.0)/1.1);
+const float WidescreenSupport::fFOVMultiplier = 1.0f/((4.0f/3.0f)/1.1f);
 
 void WidescreenSupport::Recalculate(long nWidth, long nHeight, bool bAlways)
 {
@@ -160,15 +157,15 @@ float WidescreenSupport::SetAspectRatio()
 	switch ( FrontEndMenuManager.m_bAspectRatioMode )
 	{
 	case 1:
-		return *ScreenAspectRatio = 4.0/3.0;
+		return *ScreenAspectRatio = 4.0f/3.0f;
 	case 2:
-		return *ScreenAspectRatio = 5.0/4.0;
+		return *ScreenAspectRatio = 5.0f/4.0f;
 	case 3:
-		return *ScreenAspectRatio = 15.0/9.0;
+		return *ScreenAspectRatio = 15.0f/9.0f;
 	case 4:
-		return *ScreenAspectRatio = 16.0/9.0;
+		return *ScreenAspectRatio = 16.0f/9.0f;
 	case 5:
-		return *ScreenAspectRatio = 16.0/10.0;
+		return *ScreenAspectRatio = 16.0f/10.0f;
 	default:
 		return *ScreenAspectRatio = static_cast<float>(RsGlobal.MaximumWidth) / RsGlobal.MaximumHeight;
 	}
@@ -177,8 +174,8 @@ float WidescreenSupport::SetAspectRatio()
 float WidescreenSupport::GetTextPosition()
 {
 	float			fScreenRatio = *ScreenAspectRatio;
-	long double		dTextPos = (-3375.0 * fScreenRatio * fScreenRatio) + (10800.0 * fScreenRatio) - 8545.0;
-	return dTextPos > 80.0 ? dTextPos : 80.0;
+	double			dTextPos = (-3375.0 * fScreenRatio * fScreenRatio) + (10800.0 * fScreenRatio) - 8545.0;
+	return dTextPos > 80.0 ? static_cast<float>(dTextPos) : 80.0f;
 }
 
 /*float WidescreenSupport::GetSkyWidth()
@@ -203,5 +200,5 @@ unsigned char WidescreenSupport::GetTextBoxPos()
 	if ( dBorderProportionsFix < 0.0 )
 		dBorderProportionsFix = 0.0;
 
-	return dScreenHeightWeWannaCut > 0.0 ? (RsGlobal.MaximumHeight / 2) * (dScreenHeightWeWannaCut - dBorderProportionsFix) : 0;
+	return dScreenHeightWeWannaCut > 0.0 ? static_cast<unsigned char>((RsGlobal.MaximumHeight / 2) * (dScreenHeightWeWannaCut - dBorderProportionsFix)) : 0;
 }

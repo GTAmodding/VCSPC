@@ -48,7 +48,7 @@ class CVector2D
 public:
 	float	x, y;
 
-	CVector2D() 
+	CVector2D()
 	{}
 
 	CVector2D(float fX, float fY)
@@ -68,11 +68,9 @@ public:
 		: pMatrix(nullptr), haveRwMatrix(FALSE)
 	{}
 
-	CMatrix(RwMatrix* rwMatrix, bool bAttach)
-		: pMatrix(rwMatrix), haveRwMatrix(bAttach)
-	{
-		memcpy(&matrix, rwMatrix, sizeof(RwMatrix));
-	}
+	CMatrix(RwMatrix* rwMatrix, bool bAttach=false)
+		: matrix(*rwMatrix), haveRwMatrix(bAttach), pMatrix(bAttach ? rwMatrix : nullptr)
+	{}
 
 	CMatrix(const CVector& vecRight, const CVector& vecUp, const CVector& vecAt, const CVector& vecPos)
 	{
@@ -127,6 +125,8 @@ public:
 	void			SetRotateXOnly(float fAngle);
 	void			SetRotateYOnly(float fAngle);
 	void			SetRotateZOnly(float fAngle);
+
+	void			SetRotateOnly(float fAngleX, float fAngleY, float fAngleZ);
 };
 
 class CSimpleTransform
@@ -137,9 +137,9 @@ public:
 };
 
 class CRGBA
-{ 
+{
 public:
-	BYTE r, g, b, a; 
+	BYTE r, g, b, a;
 
 	inline CRGBA() {}
 
@@ -160,10 +160,10 @@ public:
 };
 
 class CRect
-{ 
+{
 public:
 	float x1, y1;
-	float x2, y2; 
+	float x2, y2;
 
 	inline CRect() {}
 	inline CRect(float a, float b, float c, float d)
@@ -175,12 +175,14 @@ public:
 class CPlaceable
 {
 private:
-    CSimpleTransform				m_transform;		
-    CMatrix*						m_pCoords;			
+    CSimpleTransform				m_transform;
+    CMatrix*						m_pCoords;
 
 public:
 	// Line up the VMTs
 	virtual ~CPlaceable() {}
+
+	inline CPlaceable() {}
 
 	explicit inline CPlaceable(int dummy)
 	{
@@ -241,16 +243,16 @@ public:
     unsigned long	bIsInSafePosition : 1;			// is entity in a collision free safe position
     unsigned long	bWasPostponed : 1;				// was entity control processing postponed
     unsigned long	bIsVisible : 1;					//is the entity visible
-    
+
     unsigned long	bIsBIGBuilding : 1;				// Set if this entity is a big building
     unsigned long	bRenderDamaged : 1;				// use damaged LOD models for objects with applicable damage
-    unsigned long	bStreamingDontDelete : 1;			// Dont let the streaming remove this 
+    unsigned long	bStreamingDontDelete : 1;			// Dont let the streaming remove this
     unsigned long	bRemoveFromWorld : 1;				// remove this entity next time it should be processed
     unsigned long	bHasHitWall : 1;					// has collided with a building (changes subsequent collisions)
     unsigned long	bImBeingRendered : 1;				// don't delete me because I'm being rendered
     unsigned long	bDrawLast :1;						// draw object last
     unsigned long	bDistanceFade :1;					// Fade entity because it is far away
-    
+
     unsigned long	bDontCastShadowsOn : 1;			// Dont cast shadows on this object
     unsigned long	bOffscreen : 1;					// offscreen flag. This can only be trusted when it is set to true
     unsigned long	bIsStaticWaitingForCollision : 1; // this is used by script created entities - they are static until the collision is loaded below them
@@ -259,7 +261,7 @@ public:
     unsigned long	bHasPreRenderEffects : 1;			// Object has a prerender effects attached to it
     unsigned long	bIsTempBuilding : 1;				// whether or not the building is temporary (i.e. can be created and deleted more than once)
     unsigned long	bDontUpdateHierarchy : 1;			// Don't update the aniamtion hierarchy this frame
-    
+
     unsigned long	bHasRoadsignText : 1;				// entity is roadsign and has some 2deffect text stuff to be rendered
     unsigned long	bDisplayedSuperLowLOD : 1;
     unsigned long	bIsProcObject : 1;				// set object has been generate by procedural object generator
@@ -293,7 +295,7 @@ public:
 		// Dummy ctor
 	}
 
-	inline short&	ModelIndex() 
+	inline short&	ModelIndex()
 						{ return m_nModelIndex; };
 	inline short	GetModelIndex()
 					{ return m_nModelIndex; }
@@ -312,7 +314,7 @@ private:
     unsigned int	b0x01 : 1; // 64
     unsigned int	bApplyGravity : 1;
     unsigned int	bDisableFriction : 1;
-    unsigned int	bCollidable : 1; 
+    unsigned int	bCollidable : 1;
     unsigned int	b0x10 : 1;
     unsigned int	bDisableMovement : 1;
     unsigned int	b0x40 : 1;
@@ -384,6 +386,24 @@ public:
 	// Temp
 	CPhysical()
 	: CEntity(0) {}
+};
+
+// TODO: Move it away
+class CKeyGen
+{
+public:
+	static unsigned int		GetUppercaseKey(const char* pEntry);
+};
+
+// TODO: Move away?
+class CGame
+{
+private:
+	static bool&			bMissionPackGame;
+
+public:
+	static inline bool		IsMissionPackGame()
+		{ return bMissionPackGame; }
 };
 
 

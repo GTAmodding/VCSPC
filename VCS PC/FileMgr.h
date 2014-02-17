@@ -40,7 +40,7 @@ private:
 	static char					m_cTimecycPath[64];
 	static char					m_cFrontendPath[64];
 
-public:
+private:
 	static inline void			BeginLevelLists()
 		{	if ( !m_pImagesList ) m_pImagesList = new tFileLoaderList;
 			if ( !m_pObjectsList )  m_pObjectsList = new tFileLoaderList;
@@ -48,11 +48,12 @@ public:
 			if ( !m_pCollisionsList )  m_pCollisionsList = new tFileLoaderList; }
 
 	static inline void			EndLevelLists()
-		{	if ( m_pImagesList ) delete m_pImagesList;
-			if ( m_pObjectsList ) delete m_pObjectsList;
-			if ( m_pScenesList ) delete m_pScenesList;
-			if ( m_pCollisionsList ) delete m_pCollisionsList; }
+		{	delete m_pImagesList;
+			delete m_pObjectsList;
+			delete m_pScenesList;
+			delete m_pCollisionsList; }
 
+public:
 	static inline char*			GetParticlesPath()
 			{ return m_cParticlesPath; }
 	static inline char*			GetPedgrpPath()
@@ -68,6 +69,7 @@ public:
 	static void					LoadScene(const char* pFileName);
 	static void					LoadCollisionFile(const char* pFileName, unsigned char bUnk);
 
+	static int					LoadObject(const char* pLine);
 	static const char*			LoadLine(FILE* hFile);
 	static void					LoadLevels();
 	static bool					ParseLevelFile(const char* pFileName, char* pDLCName);

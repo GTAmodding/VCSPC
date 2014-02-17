@@ -8,6 +8,10 @@ WRAPPER void CEntity::UpdateRW() { EAXJMP(0x446F90); }
 WRAPPER void CEntity::RegisterReference(CEntity** pAddress) { WRAPARG(pAddress); EAXJMP(0x571B70); }
 WRAPPER void CEntity::CleanUpOldReference(CEntity** pAddress) { WRAPARG(pAddress); EAXJMP(0x571A00); }
 
+WRAPPER unsigned int CKeyGen::GetUppercaseKey(const char* pEntry) { WRAPARG(pEntry); EAXJMP(0x53CF30); }
+
+bool& CGame::bMissionPackGame = *(bool*)0xB72910;
+
 /*void CMatrix::UpdateRW()
 {
 	if ( pMatrix )
@@ -75,4 +79,19 @@ void CMatrix::SetRotateZOnly(float fAngle)
 	matrix.right.x = cos(fAngle);
 	matrix.right.y = sin(fAngle);
 	matrix.right.z = 0.0f;
+}
+
+void CMatrix::SetRotateOnly(float fAngleX, float fAngleY, float fAngleZ)
+{
+	matrix.right.x = cos(fAngleZ) * cos(fAngleY) - sin(fAngleZ) * sin(fAngleX) * sin(fAngleY);
+	matrix.right.y = cos(fAngleZ) * sin(fAngleX) * sin(fAngleY) + sin(fAngleZ) * cos(fAngleY);
+	matrix.right.z = -cos(fAngleX) * sin(fAngleY);
+
+	matrix.up.x = -sin(fAngleZ) * cos(fAngleX);
+	matrix.up.y = cos(fAngleZ) * cos(fAngleX);
+	matrix.up.z = sin(fAngleX);
+
+	matrix.at.x = sin(fAngleZ) * sin(fAngleX) * cos(fAngleY) + cos(fAngleZ) * sin(fAngleY);
+	matrix.at.y = sin(fAngleZ) * sin(fAngleY) - cos(fAngleZ) * sin(fAngleX) * cos(fAngleY);
+	matrix.at.z = cos(fAngleX) * cos(fAngleY);
 }

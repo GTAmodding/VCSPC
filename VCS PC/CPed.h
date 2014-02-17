@@ -4,7 +4,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #define FUNC_CPed__GiveWeapon								0x5E6080
-#define FUNC_CPed_func_5E6580								0x5E6580
+#define FUNC_CPed_GetWeaponSkill								0x5E6580
 #define FUNC_CPed__GetBonePosition							0x5E4280
 
 class CPedFlags
@@ -146,7 +146,7 @@ public:
 class CVehicle;
 class CPed;
 
-class CPlayerData
+class CPlayerPedData
 {
 public:
     CWanted* m_Wanted;												// 0x0
@@ -230,7 +230,7 @@ protected:
 	BYTE				__pad1[820];
 	CPedFlags			pedFlags;
 	CPedIntelligence*	pPedIntelligence;
-	CPlayerData*		pPlayerData;
+	CPlayerPedData*		pPlayerData;
 	BYTE				__pad7[80];
 	int					iMoveAnimGroup;
 	BYTE				__pad2[104];
@@ -269,7 +269,7 @@ public:
 							{ return fHealth; };
 	inline float		GetArmour() 
 							{ return fArmour; };
-	inline CPlayerData*	GetPlayerData() 
+	inline CPlayerPedData*	GetPlayerData() 
 							{ return pPlayerData; };
 	inline BYTE			GetActiveWeapon() 
 							{ return m_bActiveWeapon; };
@@ -281,7 +281,7 @@ public:
 
 	void				GiveWeapon(int WeaponType, int WeaponAmmo);
 	void				GetBonePosition(CVector* result, int boneID, bool bUnk);
-	BYTE				func_5E6580();
+	BYTE				GetWeaponSkill();
 
 	long double			GetCrosshairSize();
 	void				Remap();
@@ -301,8 +301,7 @@ public:
 
 	CPedData()
 		: m_color1(0), m_color2(0), m_color3(0), m_color4(0)
-	{
-	}
+	{}
 
 	void				SetColours(BYTE a, BYTE b, BYTE c, BYTE d)
 							{ m_color1 = a; m_color2 = b; m_color3 = c; m_color4 = d; };

@@ -20,6 +20,8 @@ WRAPPER void CFileLoader::LoadCollisionFile(const char* pFileName, unsigned char
 static WRAPPER void InitPostIDEStuff() { EAXJMP(0x5B924E); }
 static WRAPPER void InitPostLoadLevelStuff() { EAXJMP(0x5B930F); }
 
+static WRAPPER void SetAtomicModelInfoFlags(CAtomicModelInfo* pInfo, unsigned int dwFlags) { WRAPARG(pInfo); WRAPARG(dwFlags); EAXJMP(0x5B3B20); }
+
 const char* CFileLoader::LoadLine(FILE* hFile)
 {
 	static char		cLineBuffer[512];
@@ -44,6 +46,107 @@ const char* CFileLoader::LoadLine(FILE* hFile)
 	return p;
 }
 
+int CFileLoader::LoadObject(const char* pLine)
+{
+	int				objID; //objCount;
+	char			modelName[24], texName[24];
+	//float			drawDist[3];
+	float			fDrawDist;
+	unsigned int	flags;
+
+	if ( sscanf(pLine, "%d %s %s %f %d", &objID, modelName, texName, &fDrawDist, &flags) != 5 )
+	{
+		LogToFile("ERROR: Invalid line found when parsing an IDE file: %s", pLine);
+		return -1;
+	}
+	if ( fDrawDist < 4.0f )
+		return -1;
+	/*if ( sscanf(pLine, "%d %s %s %f %d", &objID, modelName, texName, &fDrawDist, &flags) != 5 || drawDist[0] < 4.0f )
+	{
+		// No instances of such lines in files whatsoever
+		// Might have been used by LodAtomicModelInfos?
+		/*if ( sscanf(pLine, "%d %s %s %d", &objID, modelName, texName, &objCount) != 4 )
+			return -1;
+
+		switch ( objCount )
+		{
+		case 1:
+			sscanf(pLine, "%d %s %s %d %f %d", &objID, modelName, texName, &objCount, &drawDist[0], &flags);
+			break;
+		case 2:
+			sscanf(pLine, "%d %s %s %d %f %f %d", &objID, modelName, texName, &objCount, &drawDist[0], &drawDist[1], &flags);
+			break;	
+		case 3:
+			sscanf(pLine, "%d %s %s %d %f %f %f %d", &objID, modelName, texName, &objCount, &drawDist[0], &drawDist[1], &drawDist[2], &flags);
+			break;
+		}
+	}*/
+
+	if ( !CModelInfo::ms_modelInfoPtrs[objID] )
+	{
+		CAtomicModelInfo*		pModel;
+
+		if ( flags & 0x1000 )
+			pModel = CModelInfo::AddDamageAtomicModel(objID);
+		else
+			pModel = CModelInfo::AddAtomicModel(objID);
+
+		pModel->fLodDistanceUnscaled = fDrawDist;
+		pModel->ulHashKey = CKeyGen::GetUppercaseKey(modelName);
+		pModel->SetTexDictionary(texName);
+		SetAtomicModelInfoFlags(pModel, flags);
+
+		/*// TEMP dbug code
+		unsigned int		nTemp = *(unsigned short*)((BYTE*)pModel + 0x12);
+
+		if ( !(nTemp & 0x100) )
+		{
+			nTemp &= 0x7800;
+			assert(nTemp != 0x3000);
+		}*/
+	}
+	return objID;
+}
+
+/*std::map<int, std::string>	TempMap;
+
+void LogName(int nIndex, const char* pName)
+{
+	TempMap[nIndex] = pName;
+}
+
+void __declspec(naked) CatchVehNames()
+{
+	_asm
+	{
+		lea		eax, [esp+0F8h-30h]
+		push	eax
+		push	ecx
+		call	LogName
+		add		esp, 8
+		mov		eax, [esp+0F8h-94h]
+		push	eax
+		mov		eax, 4C6770h
+		call	eax
+		mov		ecx, 5B6FD6h
+		jmp		ecx
+	}
+}
+
+void DumpVehicleAudioSettings()
+{
+	if ( FILE* hFile = CFileMgr::OpenFile("vehaudiosettings.txt", "w") )
+	{
+		for ( short i = 400; i < 612; i++ )
+		{
+			tVehicleAudioSettings		VehicleAudio = ((tVehicleAudioSettings(__stdcall*)(short))0x4F5C10)(i);
+			fprintf(hFile, "%s,\t%d,\t%d,\t%d,\t%d,\t%g,\t%g,\t%d,\t%g,\t%d,\t%d,\t%d,\t%d,\t%d,\t%g\n", TempMap[i].c_str(), VehicleAudio.VehicleType, VehicleAudio.EngineOnSound, VehicleAudio.EngineOffSound, VehicleAudio.RadioSoundType, VehicleAudio.BassDepth, VehicleAudio.unk1, VehicleAudio.HornTon, VehicleAudio.HornFreq, VehicleAudio.DoorSound, VehicleAudio.unk2, VehicleAudio.RadioNum, VehicleAudio.RadioType, VehicleAudio.PoliceScannerName, VehicleAudio.EngineVolumeBoost);
+		}
+
+		CFileMgr::CloseFile(hFile);
+	}
+}*/
+
 void CFileLoader::LoadLevels()
 {
 	RwTexDictionary*	pPushedDictionary = RwTexDictionaryGetCurrent();
@@ -56,6 +159,7 @@ void CFileLoader::LoadLevels()
 
 	Memory::Patch<DWORD>(0x590D2B, 31 + m_pObjectsList->size() + m_pScenesList->size());
 	Memory::Patch<DWORD>(0x590D68, 31 + m_pObjectsList->size() + m_pScenesList->size());
+	//Memory::InjectHook(0x5B6FD0, CatchVehNames, PATCH_JUMP);
 
 	// IMG
 	for ( auto it = m_pImagesList->cbegin(); it != m_pImagesList->cend(); it++ )
@@ -86,6 +190,9 @@ void CFileLoader::LoadLevels()
 #endif
 	InitPostIDEStuff();
 	CPedModelInfoVCS::LoadPedColours();
+	CAEVehicleAudioEntity::LoadVehicleAudioSettings();
+
+	//DumpVehicleAudioSettings();
 
 	for ( int i = 0; i < 20000; ++i )
 	{
@@ -106,6 +213,8 @@ void CFileLoader::LoadLevels()
 	EndLevelLists();
 	RwTexDictionarySetCurrent(pPushedDictionary);
 	InitPostLoadLevelStuff();
+
+	//CColAccel::endCache();
 }
 
 bool CFileLoader::ParseLevelFile(const char* pFileName, char* pDLCName)

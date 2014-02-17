@@ -278,18 +278,18 @@ void CProject2dfx::EnumerateLampposts()
 
 void CProject2dfx::Init()
 {
-	CModelInfo::GetModelInfoUInt16("bouy", &miBouy);
-	CModelInfo::GetModelInfoUInt16("doublestreetlght1", &miDoublestreetlght1);
-	CModelInfo::GetModelInfoUInt16("high_lampost", &miHigh_lampost);
-	CModelInfo::GetModelInfoUInt16("lampost_coast", &miLampost_coast);
-	CModelInfo::GetModelInfoUInt16("lamppost1", &miLamppost1);
-	CModelInfo::GetModelInfoUInt16("lamproad3", &miLamproad3);
-	CModelInfo::GetModelInfoUInt16("mlamppost", &miMlamppost);
-	CModelInfo::GetModelInfoUInt16("Streetlamp1", &miStreetlamp1);
-	CModelInfo::GetModelInfoUInt16("bollardlight", &miBollardlight);
-	CModelInfo::GetModelInfoUInt16("lamppost2", &miLamppost2);
-	CModelInfo::GetModelInfoUInt16("Streetlamp2", &miStreetlamp2);
-	CModelInfo::GetModelInfoUInt16("docks_lights", &miDockslights);
+	miBouy = CModelInfo::GetModelInfoUInt16("bouy");
+	miDoublestreetlght1 = CModelInfo::GetModelInfoUInt16("doublestreetlght1");
+	miHigh_lampost = CModelInfo::GetModelInfoUInt16("high_lampost");
+	miLampost_coast = CModelInfo::GetModelInfoUInt16("lampost_coast");
+	miLamppost1 = CModelInfo::GetModelInfoUInt16("lamppost1");
+	miLamproad3 = CModelInfo::GetModelInfoUInt16("lamproad3");
+	miMlamppost = CModelInfo::GetModelInfoUInt16("mlamppost");
+	miStreetlamp1 = CModelInfo::GetModelInfoUInt16("Streetlamp1");
+	miBollardlight = CModelInfo::GetModelInfoUInt16("bollardlight");
+	miLamppost2 = CModelInfo::GetModelInfoUInt16("lamppost2");
+	miStreetlamp2 = CModelInfo::GetModelInfoUInt16("Streetlamp2");
+	miDockslights = CModelInfo::GetModelInfoUInt16("docks_lights");
 
 	m_pLampposts = new std::vector<CLamppostInfo>;
 
@@ -298,8 +298,7 @@ void CProject2dfx::Init()
 
 void CProject2dfx::Shutdown()
 {
-	if ( m_pLampposts )
-		delete m_pLampposts;
+	delete m_pLampposts;
 }
 
 void CProject2dfx::Render()
@@ -307,9 +306,7 @@ void CProject2dfx::Render()
 	if ( CClock::GetIsTimeInRange(20, 7) )
 	{
 		unsigned char	bAlpha;
-
-		// TODO: This is wrong, change asap
-		unsigned int	nTime = clock_struct->GetHour() * 60 + clock_struct->GetMinute();
+		unsigned int	nTime = CClock::GetHours() * 60 + CClock::GetMinutes();
 
 		if ( nTime >= 20 * 60 )
 			bAlpha = static_cast<unsigned char>((5.0f/6.0f)*nTime - 1000.0f);

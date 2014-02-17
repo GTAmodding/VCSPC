@@ -34,73 +34,42 @@ class CHud
 	friend void Main_Patches();
 
 private:
-	bool			bShouldFPSBeDisplayed :	1;
-	bool			bLCSPS2Style : 1;
-	bool			bShouldGridrefBeDisplayed : 1;
-//	bool			bDrawDevLogos : 1;
+	static bool			bShouldFPSBeDisplayed;
+	static bool			bLCSPS2Style;
 
-	int				CarNameStage;
-	char*			pCarNameToDisplay;
-	char*			pLastCarName;
-	char*			pCarName;
-	int				CarNameShowingTime;
-	int				CarNameFadingTime;
+	static int			CarNameStage;
+	static const char*	pCarNameToDisplay;
+	static const char*	pLastCarName;
+	static const char*	pCarName;
+	static int			CarNameShowingTime;
+	static int			CarNameFadingTime;
 
-	int				m_ZoneState;
-	int				m_ZoneFadeTimer;
-	int				m_ZoneNameTimer;
-	char*			m_pZoneName;
-	char*			m_pLastZoneName;
-	char*			m_ZoneToPrint;
+	static int			m_ZoneState;
+	static int			m_ZoneFadeTimer;
+	static int			m_ZoneNameTimer;
+	static const char*	m_pZoneName;
+	static const char*	m_pLastZoneName;
+	static const char*	m_ZoneToPrint;
 
-	float			BigMessage2Alpha;
-	float			BigMessage3Alpha;
+	static float		BigMessage2Alpha;
+	static float		BigMessage3Alpha;
 
-	static int&		m_HelpMessageState;
+	static int&			m_HelpMessageState;
 
 	static char		m_PagerMessage[16];
 	//float			BigMessage3PosY;
 
 	static CSprite2d* const		Sprites;
 
+private:
+	static void		PrintHealthForPlayer(int playerID, float posX, float posY);
+	static void		PrintArmourForPlayer(int playerID, float posX, float posY);
+	static void		PrintBreathForPlayer(int playerID, float posX, float posY);
+	static void		DrawWeaponAmmo(CPed* ped, float fX, float fY);
+
 public:
-	/*CHud()
-	{
-		bShouldFPSBeDisplayed = false;
-		bLCSPS2Style = false;
-		bShouldGridrefBeDisplayed = false;
-		bDrawDevLogos = false;
-		CarNameStage = 0;
-		pCarNameToDisplay = NULL;
-		pLastCarName = NULL;
-		pCarName = NULL;
-		CarNameShowingTime = 0;
-		CarNameFadingTime = 0;
-
-		m_ZoneState = 0;
-		m_ZoneFadeTimer = 0;
-		m_ZoneNameTimer = 0;
-		m_pZoneName = NULL;
-		m_pLastZoneName = NULL;
-		m_ZoneToPrint = NULL;
-	};*/
-
-	bool		ShouldDisplayFPS() 
-					{ return bShouldFPSBeDisplayed; };
-	bool		IsStyleLCS() 
-					{ return bLCSPS2Style; }
-	bool		ShouldDisplayGridref() 
-					{ return bShouldGridrefBeDisplayed; };
-	/*bool		ShouldLogosBeDrawn()
-					{ return bDrawDevLogos; };*/
-	void		SetFPSDisplay(bool a) 
-					{ bShouldFPSBeDisplayed = a; };
-	void		SetGridrefDisplay(bool a) 
-					{ bShouldGridrefBeDisplayed = a; };
-	void		SetStyleDisplay(bool a) 
-					{ bLCSPS2Style = a; };
-	/*void		SetDevLogosDisplay(bool a)
-					{ bDrawDevLogos = a; };*/
+	static inline void	SetFPSDisplay(bool a) 
+					{ bShouldFPSBeDisplayed = a; };;
 
 	static void		DrawBarChart(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor);
 	static void		DrawWeaponIcon(CPed* pPed, int iX, int iY, float fAlpha);
@@ -108,6 +77,7 @@ public:
 	static void		GetRidOfAllCustomHUDMessages();
 	static void		Initialise();
 	static void		ReInitialise();
+	static void		Shutdown();
 	static void		SetVehicleName(char* carName);
 	static void		SetZoneName(char* zoneName, bool bIgnoreIntID);
 	static void		SetPagerMessage(char* pMsg);
@@ -116,10 +86,6 @@ public:
 	static void		DrawHUD();
 	static void		DrawOnscreenTimer();
 	static void		DrawPermanentTexts();
-	static void		PrintHealthForPlayer(int playerID, float posX, float posY);
-	static void		PrintArmourForPlayer(int playerID, float posX, float posY);
-	static void		PrintBreathForPlayer(int playerID, float posX, float posY);
-	static void		DrawWeaponAmmo(CPed* ped, float fX, float fY);
 	static void		DrawRadioName(void* object, const char* radioName);
 	static void		DrawVehicleName();
 	static void		DrawAreaName();
@@ -130,9 +96,7 @@ public:
 	static void		DrawBigMessage3();
 	static void		DrawBarChartWithRoundBorder(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor);
 	static void		DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor);
-	static float	GetScreenCoordsForPlayerItem(BYTE plrID, float position, BYTE offset);
+	static float	GetYPosBasedOnHealth(unsigned char plrID, float position, signed char offset);
 };
-
-extern CHud		hud;
 
 #endif

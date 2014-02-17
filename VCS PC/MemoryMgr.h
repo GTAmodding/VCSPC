@@ -3,6 +3,7 @@
 
 #define WRAPPER __declspec(naked)
 #define EAXJMP(a) { _asm mov eax, a _asm jmp eax }
+#define VARJMP(a) { _asm jmp a }
 #define WRAPARG(a) UNREFERENCED_PARAMETER(a)
 
 #define NOVMT __declspec(novtable)

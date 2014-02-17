@@ -69,6 +69,14 @@ public:
 		++m_pSlotInfos[m_nFirstFree].a.m_uID;
 		return &m_pSlots[m_nFirstFree];
 	}
+
+	void				Delete(CBase* pObject)
+	{
+		int		nIndex = reinterpret_cast<CDerived*>(pObject) - m_pSlots;
+		m_pSlotInfos[nIndex].a.m_bFree = true;
+		if ( nIndex < m_nFirstFree )
+			m_nFirstFree = nIndex;
+	}
 };
 
 template <int PadSize, class CBase>
@@ -82,6 +90,7 @@ typedef CPool<CPed, FakeClass<0x7C4,CPed>>			CPedPool;
 typedef CPool<CVehicle, FakeClass<0xA18,CVehicle>>	CVehiclePool;
 typedef CPool<CBuilding>							CBuildingPool;
 typedef CPool<CDummy>								CDummyPool;
+typedef CPool<CColModel>							CColModelPool;
 
 class CPools
 {
@@ -90,6 +99,7 @@ private:
 	static CVehiclePool*&		ms_pVehiclePool;
 	static CBuildingPool*&		ms_pBuildingPool;
 	static CDummyPool*&			ms_pDummyPool;
+	static CColModelPool*&		ms_pColModelPool;
 
 public:
 	static inline CPedPool*			GetPedPool()
@@ -100,6 +110,8 @@ public:
 		{ return ms_pBuildingPool; }
 	static inline CDummyPool*		GetDummyPool()
 		{ return ms_pDummyPool; }
+	static inline CColModelPool*	GetColModelPool()
+		{ return ms_pColModelPool; }
 };
 
 static_assert(sizeof(CPool<bool, bool>) == CPool_ARRAYSIZE, "CPool class has wrong size!");

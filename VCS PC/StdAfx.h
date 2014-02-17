@@ -1,4 +1,8 @@
 #pragma warning(disable:4481)	// nonstandard extension used: override specifier 'override'
+#pragma warning(disable:4401)	// member is bit field
+#pragma warning(disable:4733)	// handler not registered as safe handler
+#pragma warning(disable:4725)	// instruction may be inaccurate on some Pentiums
+
 #define WIN32_LEAN_AND_MEAN
 #define _CRT_SECURE_NO_WARNINGS
 #define _USE_MATH_DEFINES
@@ -47,6 +51,8 @@
 //#define LIST_MEMORY
 //#define MAKE_CONSOLE
 //#define DUMP_MENUS
+//#define V_RADAR_TEST
+//#define ROTORS_TEST
 
 //#define MAKE_ZZCOOL_MOVIE_DEMO
 
@@ -65,12 +71,6 @@
 
 // TODO: Remove this, ugh
 #define _patchHandling(h, n) strncpy((char*)((DWORD)0x8D3978 + h * 14), n, 14)
-
-/*#define GAMEVER_10EU_noCD 0
-#define GAMEVER_10US_HOODLUM 1
-#define GAMEVER_11EU_noCD 2
-#define GAMEVER_10EU 3
-#define GAMEVER_UNKNOWN 255*/
 
 #define MOD_VERSION	"v3.0 BETA"
 #define VERSION_NAME "Blue Hesper"
@@ -92,7 +92,6 @@
 #define CEntity_ARRAYSIZE 0x38
 #define CPlaceable_ARRAYSIZE 0x14
 #define LoadedObjectInfo_ARRAYSIZE 0x14
-#define CClock_ARRAYSIZE 0x1C
 #define CMenuManager_ARRAYSIZE 0x1B78
 #define CVehicle_ARRAYSIZE 0x5A0
 #define CPlayerData_ARRAYSIZE 0xAC
@@ -118,20 +117,19 @@
 
 void			LogToFile(const char* str, ...);
 void			ToLower(char* str, BYTE len);
-int				random(int a, int b);
+
+// Some handy funcs
+template<typename T>
+inline T random(T a, T b)
+{
+	return a + static_cast<T>(rand() * (1.0f/32768.0f) * (b - a));
+}
 
 #ifdef MAKE_CONSOLE
 #define echo(x, ...) printf(x, __VA_ARGS__)
 #else
 #define echo(x, ...)
 #endif
-
-/*if ( dwAddress >= 0x7466D0 && dwAddress < 0x857000 )
-	{
-		if ( dwAddress < 0x7BA940 )
-			dwAddress += 0x50;
-		else
-			dwAddress += 0x40;*/
 
 #if defined DEVBUILD && !defined MAKE_ZZCOOL_MOVIE_DEMO
 void			EnterAmazingScreenshotMode(bool bEnable);
@@ -152,6 +150,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "MemoryMgr.h"
 #include "Rs.h"
 #include "WidescreenSupport.h"
+//#include "ColAccel.h"
 #include "General.h"
 #include "Coronas.h"
 #include "Timer.h"
@@ -179,10 +178,10 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "Pools.h"
 #include "Script.h"
 #include "Streaming.h"
-#include "CText.h"
+#include "Text.h"
 #include "RwEngineInstance.h"
-#include "CFont.h"
-#include "CClock.h"
+#include "Font.h"
+#include "Clock.h"
 #include "Hud.h"
 #include "UpdateManager.h"
 #include "DLCManager.h"
@@ -231,14 +230,12 @@ extern float*				ScreenAspectRatio;
 extern float*				fFOV;
 extern BYTE*				bWants_To_Draw_Hud;
 extern BYTE*				radarGrey;
-extern BYTE*				mpackNumber;
 extern bool*				bHideStyledTextWhileFading;
 extern float*				currentFPS;
 extern RsGlobalType&		RsGlobal;
-extern CClock*				clock_struct;
 extern CRGBA*				BaseColors;
 extern CMenuManager&		FrontEndMenuManager;
-extern CMusicManager*		MusicManager;
+extern CAudioEngine&		AudioEngine;
 extern std::pair<void*,int>* const materialRestoreData;
 //extern CGridref*			gridref;
 extern CText&				TheText;
@@ -255,9 +252,8 @@ extern CRunningScript*		ScriptsArray;
 extern RwIm2DVertex* const	aSpriteVertices;
 extern RwTexture** const	gpCoronaTexture;
 extern RwCamera*&			Scene;
-extern void					(*BigMessageRestOfFunc)();
 extern void					(*TheScriptsInitFunc)();
-extern char*				(__thiscall *CLEOGetTextFunc)(CText* object, const char* key);
+extern const char*	(__thiscall *CLEOGetTextFunc)(CText*, const char*);
 
 extern CCRC32				HashingClass;
 extern bool					InAmazingScreenshotMode;

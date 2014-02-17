@@ -36,6 +36,5 @@ public:
 };
 
 static_assert(sizeof(CWanted) == CWanted_ARRAYSIZE, "CWanted class has wrong size!");
-//static_assert(sizeof(CWanted) == CWanted_ARRAYSIZE);
 
 #endif

@@ -1,19 +1,46 @@
 #include "StdAfx.h"
 
 // Static variables
-CBaseModelInfo**					CModelInfo::ms_modelInfoPtrs = (CBaseModelInfo**)0xA9B0C8;
+CBaseModelInfo**						CModelInfo::ms_modelInfoPtrs = (CBaseModelInfo**)0xA9B0C8;
 
-CDynamicStore<CPedModelInfoVCS>		CModelInfo::ms_pedModelStore;
-CDynamicStore<CClumpModelInfo>		CModelInfo::ms_clumpModelStore;
+CDynamicStore<CPedModelInfoVCS>			CModelInfo::ms_pedModelStore;
+CDynamicStore<CAtomicModelInfo>			CModelInfo::ms_atomicModelStore;
+CDynamicStore<CDamageAtomicModelInfo>	CModelInfo::ms_damageAtomicModelStore;
+CDynamicStore<CTimeModelInfo>			CModelInfo::ms_timeModelStore;
 
-CRGBA								CPedModelInfoVCS::ms_pedColourTable[NUM_PED_COLOURS];
-BYTE								CPedModelInfoVCS::bLastPedPrimaryColour;
-BYTE								CPedModelInfoVCS::bLastPedSecondaryColour;
-BYTE								CPedModelInfoVCS::bLastPedTertiaryColour;
-BYTE								CPedModelInfoVCS::bLastPedQuaternaryColour;
+CRGBA									CPedModelInfoVCS::ms_pedColourTable[NUM_PED_COLOURS];
+BYTE									CPedModelInfoVCS::bLastPedPrimaryColour;
+BYTE									CPedModelInfoVCS::bLastPedSecondaryColour;
+BYTE									CPedModelInfoVCS::bLastPedTertiaryColour;
+BYTE									CPedModelInfoVCS::bLastPedQuaternaryColour;
 
 // Wrappers
 WRAPPER CBaseModelInfo* CModelInfo::GetModelInfo(const char* pName, int* pOutID) { WRAPARG(pName); WRAPARG(pOutID); EAXJMP(0x4C5940); }
+
+WRAPPER void CBaseModelInfo::Init() { EAXJMP(0x4C4B10); }
+WRAPPER void CBaseModelInfo::Shutdown() { EAXJMP(0x4C4D50); }
+
+WRAPPER void CClumpModelInfo::DeleteRwObject() { EAXJMP(0x4C4E70); }
+WRAPPER RpAtomic* CClumpModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C5110); }
+WRAPPER RpAtomic* CClumpModelInfo::CreateInstance() { EAXJMP(0x4C5140); }
+WRAPPER void CClumpModelInfo::SetAnimFile(const char* pName) { WRAPARG(pName); EAXJMP(0x4C5200); }
+WRAPPER void CClumpModelInfo::ConvertAnimFileIndex() { EAXJMP(0x4C5250); }
+WRAPPER void CClumpModelInfo::SetClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x4C4F70); }
+
+WRAPPER void CAtomicModelInfo::DeleteRwObject() { EAXJMP(0x4C4440); }
+WRAPPER RpAtomic* CAtomicModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C44D0); }
+WRAPPER RpAtomic* CAtomicModelInfo::CreateInstance() { EAXJMP(0x4C4530); }
+WRAPPER void CAtomicModelInfo::SetAtomic(RpAtomic* pAtomic) { WRAPARG(pAtomic); EAXJMP(0x4C4360); }
+
+WRAPPER RpAtomic* CDamageAtomicModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C4910); }
+WRAPPER RpAtomic* CDamageAtomicModelInfo::CreateInstance() { EAXJMP(0x4C4960); }
+
+WRAPPER void CPedModelInfo::SetClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x4C7340); }
+
+void CColModel::operator delete(void* mem)
+{
+	CPools::GetColModelPool()->Delete(reinterpret_cast<CColModel*>(mem));
+}
 
 bool CModelInfo::IsBikeModel(int modelID)
 {
@@ -24,19 +51,36 @@ bool CModelInfo::IsBikeModel(int modelID)
 
 CPedModelInfoVCS* CModelInfo::AddPedModel(int nModelID)
 {
-	CPedModelInfoVCS*	pNewEntry = ms_pedModelStore.Add();
+	auto	pNewEntry = ms_pedModelStore.Add();
 	pNewEntry->Init();
 	ms_modelInfoPtrs[nModelID] = pNewEntry;
 	return pNewEntry;
 }
 
-CClumpModelInfo* CModelInfo::AddClumpModel(int nModelID)
+CAtomicModelInfo* CModelInfo::AddAtomicModel(int nModelID)
 {
-	CClumpModelInfo*	pNewEntry = ms_clumpModelStore.Add();
+	auto	pNewEntry = ms_atomicModelStore.Add();
 	pNewEntry->Init();
 	ms_modelInfoPtrs[nModelID] = pNewEntry;
 	return pNewEntry;
 }
+
+CDamageAtomicModelInfo* CModelInfo::AddDamageAtomicModel(int nModelID)
+{
+	auto	pNewEntry = ms_damageAtomicModelStore.Add();
+	pNewEntry->Init();
+	ms_modelInfoPtrs[nModelID] = pNewEntry;
+	return pNewEntry;
+}
+
+CTimeModelInfo* CModelInfo::AddTimeModel(int nModelID)
+{
+	auto	pNewEntry = ms_timeModelStore.Add();
+	pNewEntry->Init();
+	ms_modelInfoPtrs[nModelID] = pNewEntry;
+	return pNewEntry;
+}
+
 
 void CModelInfo::ShutDown()
 {
@@ -53,8 +97,19 @@ void CModelInfo::ShutDown()
 	}
 
 	{
-		// Clump model store
-		auto		pEntry = ms_clumpModelStore.GetFirstEntry();
+		// Atomic model store
+		auto		pEntry = ms_atomicModelStore.GetFirstEntry();
+
+		while ( pEntry )
+		{
+			pEntry->m_entry.Shutdown();
+			pEntry = pEntry->m_pPrev;
+		}
+	}
+
+	{
+		// Damageatomic model store
+		auto		pEntry = ms_damageAtomicModelStore.GetFirstEntry();
 
 		while ( pEntry )
 		{
@@ -64,10 +119,56 @@ void CModelInfo::ShutDown()
 	}
 }
 
+void CBaseModelInfo::SetTexDictionary(const char* pDict)
+{
+	int		nSlot = CTxdStore::FindTxdSlot(pDict);
+
+	if ( nSlot == -1 )
+		usTextureDictionary = CTxdStore::AddTxdSlot(pDict);
+	else
+		usTextureDictionary = nSlot;
+}
+
 void CBaseModelInfo::AddRef()
 {
 	++usNumberOfRefs;
 	CTxdStore::AddRef(usTextureDictionary);
+}
+
+void CClumpModelInfo::Init()
+{
+	CBaseModelInfo::Init();
+	nAnimIndex = -1;
+}
+
+void CAtomicModelInfo::Shutdown()
+{
+	delete pEmpireData;
+	CBaseModelInfo::Shutdown();
+}
+
+void CDamageAtomicModelInfo::Init()
+{
+	CBaseModelInfo::Init();
+	pAtomic2 = nullptr;
+}
+
+void CDamageAtomicModelInfo::DeleteRwObject()
+{
+	if ( pAtomic2 )
+	{
+		RpAtomicDestroy(pAtomic2);
+		RwFrameDestroy(RpAtomicGetFrame(pAtomic2));
+		pAtomic2 = nullptr;
+	}
+	CAtomicModelInfo::DeleteRwObject();
+}
+
+void CPedModelInfo::DeleteRwObject()
+{
+	CClumpModelInfo::DeleteRwObject();
+	delete HitColModel;
+	HitColModel = nullptr;
 }
 
 void CPedModelInfoVCS::LoadPedColours()
@@ -92,11 +193,8 @@ void CPedModelInfoVCS::LoadPedColours()
 					{
 						if ( SECTION3(pLine, 'c', 'o', 'l') )
 							curFileSection = SECTION_RGB;
-						else
-						{
-							if ( SECTION3(pLine, 'p', 'e', 'd') )
-								curFileSection = SECTION_READPEDCOLS;
-						}
+						else if ( SECTION3(pLine, 'p', 'e', 'd') )
+							curFileSection = SECTION_READPEDCOLS;
 						break;
 					}
 
@@ -142,7 +240,7 @@ void CPedModelInfoVCS::LoadPedColours()
 														&colours[13][0], &colours[13][1], &colours[13][2], &colours[13][3],
 														&colours[14][0], &colours[14][1], &colours[14][2], &colours[14][3],
 														&colours[15][0], &colours[15][1], &colours[15][2], &colours[15][3]);
-							CPedModelInfoVCS*	modelInfo = static_cast<CPedModelInfoVCS*>(CModelInfo::GetModelInfo(modelName, nullptr));
+							CPedModelInfoVCS*	modelInfo = static_cast<CPedModelInfoVCS*>(CModelInfo::GetModelInfo(modelName));
 							modelInfo->m_bNumPossibleColours = static_cast<BYTE>(valuesGet - 1) / 4;
 							for ( int i = 0; i < modelInfo->m_bNumPossibleColours; ++i )
 							{
@@ -161,7 +259,7 @@ void CPedModelInfoVCS::LoadPedColours()
 	}
 }
 
-void CPedModelInfoVCS::AssignColoursToModel(BYTE primaryColour, BYTE secondaryColour, BYTE tertiaryColour, BYTE quaternaryColour)
+void CPedModelInfoVCS::SetPedColour(unsigned char primaryColour, unsigned char secondaryColour, unsigned char tertiaryColour, unsigned char quaternaryColour)
 {
 	bLastPedPrimaryColour = primaryColour;
 	bLastPedSecondaryColour = secondaryColour;
@@ -169,21 +267,21 @@ void CPedModelInfoVCS::AssignColoursToModel(BYTE primaryColour, BYTE secondaryCo
 	bLastPedQuaternaryColour = quaternaryColour;
 }
 
-void CPedModelInfoVCS::SetEnvironmentMap(RpClump* clump)
+void CPedModelInfoVCS::SetEditableMaterials(RpClump* pClump)
 {
 	std::pair<void*,int>*	pData = materialRestoreData;
-	RpClumpForAllAtomics(clump, SetEnvironmentMapCB, &pData);
+	RpClumpForAllAtomics(pClump, SetEditableMaterialsCB, &pData);
 	pData->first = nullptr;
 }
 
-RpAtomic* CPedModelInfoVCS::SetEnvironmentMapCB(RpAtomic* pAtomic, void* pData)
+RpAtomic* CPedModelInfoVCS::SetEditableMaterialsCB(RpAtomic* pAtomic, void* pData)
 {
 	if ( RpAtomicGetFlags(pAtomic) & rpATOMICRENDER )
-		RpGeometryForAllMaterials(RpAtomicGetGeometry(pAtomic), SetEnvironmentMapCB, pData);
+		RpGeometryForAllMaterials(RpAtomicGetGeometry(pAtomic), SetEditableMaterialsCB, pData);
 	return pAtomic;
 }
 
-RpMaterial* CPedModelInfoVCS::SetEnvironmentMapCB(RpMaterial* pMaterial, void* pData)
+RpMaterial* CPedModelInfoVCS::SetEditableMaterialsCB(RpMaterial* pMaterial, void* pData)
 {
 	int		colorIndexToUse;
 

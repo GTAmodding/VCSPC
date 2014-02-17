@@ -16,6 +16,7 @@ private:
 	static long					nLastInterfaceStatus;
 	static long					nDrawingState;
 	static bool					bSeenUpdaterScreenYet;
+	static unsigned char		bForceUpdate;
 	static char*				pMessages[NUM_MESSAGES_PER_UPT_SCREEN];
 
 #ifdef DEVBUILD
@@ -26,7 +27,7 @@ public:
 	static inline bool			AnyTextDisplaysNow()
 		{ return nDrawingState != 0; }
 
-	static inline  bool			IsDownloading()
+	static inline bool			IsDownloading()
 	{ return nInterfaceStatus == UPTMODULESTATE_DOWNLOADING || nInterfaceStatus == UPTMODULESTATE_ALL_READY; }
 
 	static inline bool			AreUpdatesSeen()
@@ -34,6 +35,9 @@ public:
 
 	static inline void			ReportUpdaterScreenSeen()
 		{ bSeenUpdaterScreenYet = true; }
+	
+	static inline void			ForceUpdate()
+		{ if ( !bForceUpdate ) bForceUpdate = 1; }
 
 	static inline bool			GetDLCStatus(const char* pName, bool bDefault)
 		{ return pUptModuleInterface->GetDLCStatus(pName, bDefault); }

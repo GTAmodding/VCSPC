@@ -1,18 +1,5 @@
-#ifndef __CFONT
-#define __CFONT
-
-#define FUNC_CFont__ResetSlantedTextPos						0x719400
-#define FUNC_CFont__SetTextSlanted							0x719420			
-#define FUNC_CFont__SetTextColour							0x719430
-#define FUNC_CFont__SetFontStyle							0x719490
-#define FUNC_CFont__SetTextWrapX							0x7194F0
-#define FUNC_CFont__SetTextBorderRGBA						0x719510
-#define FUNC_CFont__SetTextShadow							0x719570
-#define FUNC_CFont__SetTextOutline							0x719590
-#define FUNC_CFont__SetTextUseProportionalValues			0x7195B0
-#define FUNC_CFont__SetTextBackground						0x7195C0
-#define FUNC_CFont__SetTextJustify							0x719600
-#define FUNC_CFont__SetTextAlignment						0x719610
+#ifndef __FONT
+#define __FONT
 
 enum	// Align
 {
@@ -88,19 +75,19 @@ public:
 	static void				SetScale(float scaleX, float scaleY);
 	static void				SetScaleLang(float scaleX, float scaleY);
 	static void				SetFontStyle(unsigned char bFont);
-	static void				SetColor(CRGBA colour);
-	static void				SetTextBorderRGBA(CRGBA colour);
-	static void				SetTextShadow(unsigned char bShadow);
-	static void				SetTextOutline(unsigned char bOutline);
-	static void				ResetSlantedTextPos(float fOne, float fTwo);
-	static void				SetTextSlanted(float fAngle);
-	static void				SetCentreSize(float fUnk);
-	static void				SetTextWrapX(float fWrap);
-	static void				SetTextJustify(bool bJustify);
+	static void				SetColor(CRGBA color);
+	static void				SetDropColor(CRGBA color);
+	static void				SetDropShadowPosition(signed char bShadow);
+	static void				SetEdge(signed char bEdge);
+	static void				SetSlantRefPoint(float fOne, float fTwo);
+	static void				SetSlant(float fAngle);
+	static void				SetCentreSize(float fSize);
+	static void				SetRightJustifyWrap(float fWrap);
+	static void				SetJustify(bool bJustify);
 	static void				RenderFontBuffer();
-	static void				SetTextUseProportionalValues(bool bUseProportionalValues);
-	static void				SetTextBackground(unsigned char bUseBackground, unsigned char bBackgroundType);
-	static void				SetTextAlignment(unsigned char bAlign);
+	static void				SetProportional(bool bProportional);
+	static void				SetBackground(unsigned char bUseBackground, unsigned char bBackgroundType);
+	static void				SetOrientation(unsigned char bOrientation);
 	static void				PrintString(float posX, float posY, const char* pText);
 	static void				PrintStringFromBottom(float posX, float posY, const char* pText);
 	static void				SetWrapx(float fWrap);

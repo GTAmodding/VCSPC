@@ -160,6 +160,7 @@ popd</Command>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\include;$(SolutionDir)dependencies\include\rwsdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <AdditionalDependencies>binkw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -305,11 +306,9 @@ popd</Command>
     <ClCompile Include="C3DMarker.cpp" />
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="CCamera.cpp" />
-    <ClCompile Include="CClock.cpp" />
     <ClCompile Include="CConfiscatedWeapons.cpp" />
     <ClCompile Include="CCRC32.Cpp" />
     <ClCompile Include="CDraw.cpp" />
-    <ClCompile Include="CFont.cpp" />
     <ClCompile Include="CGangWeapons.cpp" />
     <ClCompile Include="CGridref.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -317,11 +316,16 @@ popd</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Clock.cpp" />
+    <ClCompile Include="ColAccel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Coronas.cpp" />
     <ClCompile Include="Darkel.cpp" />
     <ClCompile Include="DLCManager.cpp" />
     <ClCompile Include="EmpireMgr.cpp" />
     <ClCompile Include="FileMgr.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="Frontend.cpp" />
     <ClCompile Include="CPed.cpp" />
     <ClCompile Include="CPedIntelligence.cpp" />
@@ -340,7 +344,6 @@ popd</Command>
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="CShadows.cpp" />
     <ClCompile Include="Stats.cpp" />
-    <ClCompile Include="CText.cpp" />
     <ClCompile Include="Messages.cpp" />
     <ClCompile Include="Radar.cpp" />
     <ClCompile Include="Sprite.cpp" />
@@ -355,6 +358,7 @@ popd</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Streaming.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TxdStore.cpp" />
     <ClCompile Include="UpdateManager.cpp" />
@@ -364,6 +368,7 @@ popd</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="VCSPC_SDK_Internal.cpp" />
+    <ClCompile Include="Vehicle.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
     <ClCompile Include="WidescreenSupport.cpp" />
     <ClCompile Include="World.cpp" />
@@ -383,22 +388,22 @@ popd</Command>
     <ClInclude Include="Audio.h" />
     <ClInclude Include="CCam.h" />
     <ClInclude Include="CCamera.h" />
-    <ClInclude Include="CClock.h" />
     <ClInclude Include="CConfiscatedWeapons.h" />
     <ClInclude Include="CCRC32.H" />
+    <ClInclude Include="Clock.h" />
+    <ClInclude Include="ColAccel.h" />
     <ClInclude Include="Coronas.h" />
     <ClInclude Include="CutsceneManager.h" />
-    <ClInclude Include="CFont.h" />
     <ClInclude Include="CGangWeapons.h" />
     <ClInclude Include="CGridref.h" />
     <ClInclude Include="Darkel.h" />
     <ClInclude Include="DLCManager.h" />
     <ClInclude Include="EmpireMgr.h" />
     <ClInclude Include="FileMgr.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="Frontend.h" />
     <ClInclude Include="CPed.h" />
     <ClInclude Include="CPedIntelligence.h" />
-    <ClInclude Include="CPhysical.h" />
     <ClInclude Include="Garages.h" />
     <ClInclude Include="Hud.h" />
     <ClInclude Include="MemoryMgr.h" />
@@ -412,9 +417,9 @@ popd</Command>
     <ClInclude Include="Script.h" />
     <ClInclude Include="CShadows.h" />
     <ClInclude Include="Stats.h" />
-    <ClInclude Include="CText.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="Streaming.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TxdStore.h" />
     <ClInclude Include="UpdateManager.h" />

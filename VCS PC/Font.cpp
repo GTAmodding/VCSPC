@@ -7,16 +7,30 @@ CFont::tDetails&	CFont::Details = *(CFont::tDetails*)0xC71A60;
 WRAPPER void CFont::SetWrapx(float fWrap) { WRAPARG(fWrap); EAXJMP(0x7194D0); }
 WRAPPER void CFont::LoadFontValues() { EAXJMP(0x7187C0); }
 WRAPPER void CFont::RenderFontBuffer() { EAXJMP(0x719840); }
+WRAPPER void CFont::SetColor(CRGBA color) { WRAPARG(color); EAXJMP(0x719430); }
+WRAPPER void CFont::SetDropColor(CRGBA color) { WRAPARG(color); EAXJMP(0x719510); }
+WRAPPER void CFont::SetDropShadowPosition(signed char bShadow) { WRAPARG(bShadow); EAXJMP(0x719570); }
+WRAPPER void CFont::SetEdge(signed char bEdge) { WRAPARG(bEdge); EAXJMP(0x719590); }
+WRAPPER void CFont::SetSlantRefPoint(float fOne, float fTwo) { WRAPARG(fOne); WRAPARG(fTwo); EAXJMP(0x719400); }
+WRAPPER void CFont::SetSlant(float fAngle) { WRAPARG(fAngle); EAXJMP(0x719420); }
+WRAPPER void CFont::SetCentreSize(float fSize) { WRAPARG(fSize); EAXJMP(0x7194E0); }
+WRAPPER void CFont::SetRightJustifyWrap(float fWrap) { WRAPARG(fWrap); EAXJMP(0x7194F0); }
+WRAPPER void CFont::SetJustify(bool bJustify) { WRAPARG(bJustify); EAXJMP(0x719600); }
+WRAPPER void CFont::SetProportional(bool bProportional) { WRAPARG(bProportional); EAXJMP(0x7195B0); }
+WRAPPER void CFont::SetBackground(unsigned char bUseBackground, unsigned char bBackgroundType) { WRAPARG(bUseBackground); WRAPARG(bBackgroundType); EAXJMP(0x7195C0); }
+WRAPPER void CFont::SetOrientation(unsigned char bOrientation) { WRAPARG(bOrientation); EAXJMP(0x719610); }
+WRAPPER void CFont::PrintString(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A700); }
+WRAPPER void CFont::PrintStringFromBottom(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A820); }
 
 unsigned char CFont::FindSubFontCharacter(char character, unsigned char bFontType)
 {
 	UNREFERENCED_PARAMETER(bFontType);
 	if ( character == 4 )
-		return 155;
+		return 187;
 	if ( character >= 16 && character <= 26 )
-		return character + 128;
+		return character + 160;
 	if ( character >= 59 && character <= 61 )
-		return character + 97;
+		return character + 129;
 	/*if ( character == 59 )
 		return 157;
 	if ( character == 60 )
@@ -97,13 +111,13 @@ void CFont::SetScaleLang(float scaleX, float scaleY)
 	Details.textLetterSizeY = scaleY;
 	switch ( FrontEndMenuManager.GetLanguage() )
 	{
-	//case LANG_Spanish:
+	//case LANGUAGE_Spanish:
 	//	Details.textLetterSizeX = scaleX * 0.85f;
 	//	return;
-	case LANG_Polish:
+	case LANGUAGE_Polish:
 		Details.textLetterSizeX = scaleX * 0.95f;
 		return;
-	default:	// LANG_English
+	default:	// LANGUAGE_English
 		Details.textLetterSizeX = scaleX;
 		return;
 	}
@@ -122,156 +136,6 @@ void CFont::SetFontStyle(unsigned char bFont)
 		Details.bFontStyle = 0;
 	}
 }
-
-void CFont::SetColor(CRGBA colour)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextColour;
-	_asm
-	{
-		push	colour
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-void CFont::SetTextBorderRGBA(CRGBA colour)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextBorderRGBA;
-	_asm
-	{
-		mov		eax, colour
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-void CFont::SetTextShadow(unsigned char bShadow)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextShadow;
-	_asm
-	{
-		movzx	eax, bShadow
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-void CFont::SetTextOutline(unsigned char bOutline)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextOutline;
-	_asm
-	{
-		movzx	eax, bOutline
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-void CFont::ResetSlantedTextPos(float fOne, float fTwo)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__ResetSlantedTextPos;
-	_asm
-	{
-		mov		eax, fTwo
-		push	eax
-		mov		eax, fOne
-		push	eax
-		call	dwFunc
-		add		esp, 8
-	}
-}
-
-void CFont::SetTextSlanted(float fAngle)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextSlanted;
-	_asm
-	{
-		mov		eax, fAngle
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-void CFont::SetCentreSize(float fUnk)
-{
-	DWORD dwFunc = (DWORD)0x7194E0;
-	_asm
-	{
-		mov		eax, fUnk
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-void CFont::SetTextWrapX(float fWrap)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextWrapX;
-	_asm
-	{
-		mov		eax, fWrap
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-void CFont::SetTextJustify(bool bJustify)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextJustify;
-	_asm
-	{
-		movzx	eax, bJustify
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-void CFont::SetTextUseProportionalValues(bool bUseProportionalValues)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextUseProportionalValues;
-	_asm
-	{
-		movzx	eax, bUseProportionalValues
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-void CFont::SetTextBackground(unsigned char bUseBackground, unsigned char bBackgroundType)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextBackground;
-	_asm
-	{
-		movzx	eax, bBackgroundType
-		push	eax
-		movzx	eax, bUseBackground
-		push	eax
-		call	dwFunc
-		add		esp, 8
-	}
-}
-
-void CFont::SetTextAlignment(unsigned char bAlign)
-{
-	DWORD dwFunc = (DWORD)FUNC_CFont__SetTextAlignment;
-	_asm
-	{
-		movzx	eax, bAlign
-		push	eax
-		call	dwFunc
-		add		esp, 4
-	}
-}
-
-WRAPPER void CFont::PrintString(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A700); }
-WRAPPER void CFont::PrintStringFromBottom(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A820); }
 
 void CFont::Initialise()
 {

@@ -34,37 +34,6 @@ void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned cha
 				A *= static_cast<unsigned char>((fDistFromCam-35.0f) * (2.0f/3.0f));
 		}
 
-		/*auto it = aCoronas.begin();
-
-		for ( ; it != aCoronas.end(); it++ )
-		{
-			if ( it->Identifier == nID )
-				break;
-		}
-
-		if ( it != aCoronas.end() )
-		{
-			if ( it->FadedIntensity == 0 && A == 0 )
-			{
-				it->Identifier = 0;
-				--NumCoronas;
-				return;
-			}
-		}
-		else
-		{
-			if ( A )
-			{
-				bool	bFoundFreeSlot = false;
-				for ( it = aCoronas.begin(); it != aCoronas.end(); it++ )
-				{
-					if ( !it->Identifier )
-					{
-						bFoundFreeSlot = true;
-						break;
-					}
-				}*/
-
 		bool										bFoundFreeSlot = false;
 		std::vector<CRegisteredCorona>::iterator	freeSlotIt;
 		auto										it = aCoronas.begin();

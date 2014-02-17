@@ -33,7 +33,7 @@ void CVideoPlayer::UpdateVideoFrame(const CRect* pVideoFrame)
 	}
 }
 
-void CVideoPlayer::Create(const char* pFileName, const CRect* pVideoFrame, bool bAudio)
+void CVideoPlayer::Create(const char* pFileName, const CRect* pVideoFrame, bool bAudio, bool bBlackWhite)
 {
 	SYSTEM_INFO		info;
 	unsigned int	openFlags;
@@ -59,11 +59,14 @@ void CVideoPlayer::Create(const char* pFileName, const CRect* pVideoFrame, bool 
 		BinkSetSoundTrack(0, nullptr);
 		openFlags = BINKSNDTRACK;
 	}
+	if ( bBlackWhite )
+		openFlags |= BINKGRAYSCALE;
+
 	m_hBinkPlayer = BinkOpen(pFileName, openFlags);
 	if ( m_hBinkPlayer )
 	{
 		BinkDoFrameAsync(m_hBinkPlayer, 0, m_bExtraThreadIndex);
-		m_hBinkBuffer = BinkBufferOpen(RsGlobal.ps->window, m_hBinkPlayer->Width, m_hBinkPlayer->Height, BINKBUFFERSTRETCHXINT | BINKBUFFERSTRETCHYINT/*BINKBUFFERSTRETCHY*/);
+		m_hBinkBuffer = BinkBufferOpen(RsGlobal.ps->window, m_hBinkPlayer->Width, m_hBinkPlayer->Height, BINKBUFFERAUTO /*BINKBUFFERSTRETCHXINT | BINKBUFFERSTRETCHYINT*//*BINKBUFFERSTRETCHY*/);
 
 		if ( !pVideoFrame )
 		{
@@ -85,7 +88,7 @@ void CVideoPlayer::Create(const char* pFileName, const CRect* pVideoFrame, bool 
 		else
 			BinkBufferSetScale(m_hBinkBuffer, static_cast<unsigned int>(abs(pVideoFrame->x2 - pVideoFrame->x1)), static_cast<unsigned int>(abs(pVideoFrame->y2 - pVideoFrame->y1)));
 
-		m_pVideoRaster = RwRasterCreate(m_hBinkPlayer->Width, m_hBinkPlayer->Height, 32, rwRASTERTYPECAMERATEXTURE);
+		m_pVideoRaster = RwRasterCreate(m_hBinkPlayer->Width, m_hBinkPlayer->Height, 0, rwRASTERTYPECAMERATEXTURE);
 		m_bSurfaceMask = ( RwRasterGetFormat(m_pVideoRaster) == rwRASTERFORMAT565 ) ? BINKSURFACE565 : BINKSURFACE32;
 
 		UpdateVideoFrame(pVideoFrame);

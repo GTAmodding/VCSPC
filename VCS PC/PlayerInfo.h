@@ -12,7 +12,7 @@ class CPlayerInfo
 {
 private:
 	CPed*			pPed;											// 0x0
-	CPlayerData		data;									// 0x4
+	CPlayerPedData	data;									// 0x4
 	CVehicle*		pVehicle;									// 0xB0
 	CVehicle*		pSpecCar;									// 0xB4
 	DWORD			Score;										// 0xB8
@@ -75,7 +75,7 @@ private:
 public:
 	inline CPed*		GetPed() const
 						{ return pPed; };
-	inline CPlayerData&	GetPlayerData()
+	inline CPlayerPedData&	GetPlayerData()
 						{ return data; };
 	inline BYTE			GetMaxHealth() const
 						{ return MaxHealth; };
@@ -92,7 +92,7 @@ public:
 	void			ArrestPlayer();
 };
 
-CWanted* FindPlayerWanted(int nPlayerID);
+CWanted* FindPlayerWanted(signed int nPlayerID);
 
 static_assert(sizeof(CPlayerInfo) == CPlayer_ARRAYSIZE, "CPlayerInfo class has wrong size!");
 
