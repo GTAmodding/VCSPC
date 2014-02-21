@@ -410,7 +410,7 @@ public:
 bool CalcScreenCoors(const CVector& vecIn, CVector* vecOut);
 void LoadingScreenLoadingFile(const char* pText);
 
-static_assert(sizeof(CEntity) == CEntity_ARRAYSIZE, "CEntity class has wrong size!");
-static_assert(sizeof(CPhysical) == CPhysical_ARRAYSIZE, "CPhysical class has wrong size!");
+static_assert(sizeof(CEntity) == 0x38, "Wrong size: CEntity");
+static_assert(sizeof(CPhysical) == 0x138, "Wrong size: CPhysical");
 
 #endif

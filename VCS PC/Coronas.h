@@ -1,6 +1,8 @@
 #ifndef __CORONAS
 #define __CORONAS
 
+#define NUM_CORONAS		3000
+
 class CRegisteredCorona
 {
 public:
@@ -39,14 +41,45 @@ public:
 	void		Update();
 };
 
+class CCoronasLinkedListNode
+{
+private:
+	CCoronasLinkedListNode*		pNext;
+	CCoronasLinkedListNode*		pPrev;
+	CRegisteredCorona*			pEntry;
+
+private:
+	inline void						Remove()
+		{ pNext->pPrev = pPrev; pPrev->pNext = pNext; pNext = nullptr; }
+
+public:
+	inline void						Init()
+		{ pNext = pPrev = this; }
+	inline void						Add(CCoronasLinkedListNode* pHead)
+		{ if ( pNext ) Remove();
+		  pNext = pHead->pNext; pPrev = pHead; pHead->pNext->pPrev = this; pHead->pNext = this; }
+	inline void						SetEntry(CRegisteredCorona* pEnt)
+		{ pEntry = pEnt; }
+	inline CRegisteredCorona*		GetFrom()
+		{ return pEntry; }
+	inline CCoronasLinkedListNode*	GetNextNode()
+		{ return pNext; }
+	inline CCoronasLinkedListNode*	GetPrevNode()
+		{ return pPrev; }
+
+	inline CCoronasLinkedListNode*	First()
+		{ return pNext == this ? nullptr : pNext; }
+};
+
 class CCoronas
 {
 private:
-	static std::vector<CRegisteredCorona>	aCoronas;
-	static bool								bRemakeReferences;
-	static int&								NumCoronas;
-	static int&								bChangeBrightnessImmediately;
-	static float&							ScreenMult;
+	static std::map<unsigned int,CCoronasLinkedListNode*>	UsedMap;
+	static CCoronasLinkedListNode							FreeList, UsedList;		
+	static CCoronasLinkedListNode							aLinkedList[NUM_CORONAS];
+	static CRegisteredCorona								aCoronas[NUM_CORONAS];
+	static int&												bChangeBrightnessImmediately;
+	static float&											ScreenMult;
 
 public:
 	static void							RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned char R, unsigned char G, unsigned char B, unsigned char A, const CVector& Position, float Size, float Range, RwTexture* pTex, unsigned char flareType, unsigned char reflectionType, unsigned char LOSCheck, unsigned char unused, float normalAngle, bool bNeonFade, float PullTowardsCam, bool bFadeIntensity, float FadeSpeed, bool bOnlyFromBelow, bool bWhiteCore);
@@ -55,12 +88,13 @@ public:
 	static void							Init();
 
 	// Hacky hacky
-	static inline void					PrepareForSizeChange()
+	/*static inline void					PrepareForSizeChange()
 	{ if ( aCoronas.size() == aCoronas.capacity() )
-		{ bRemakeReferences = true; InvalidateAllReferences(); } }
+		{ bRemakeReferences = true; InvalidateAllReferences(); } }*/
 
-	static void							UpdatePointersInCode();
-	static void							InvalidateAllReferences();
+	//static void							UpdatePointersInCode();
+	//static void							InvalidateAllReferences();
+	static void								Inject();
 };
 
 static_assert(sizeof(CRegisteredCorona) == 0x3C, "CRegisteredCorona has wrong size!");

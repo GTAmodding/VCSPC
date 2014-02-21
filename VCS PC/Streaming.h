@@ -69,6 +69,6 @@ public:
 	static void		LoadCdDirectory(const char* pArchiveName, int nArchiveIndex, CBlowFish* pEncryption);
 };
 
-static_assert(sizeof(CStreamingInfo) == LoadedObjectInfo_ARRAYSIZE, "CStreamingInfo has wrong size!");
+static_assert(sizeof(CStreamingInfo) == 0x14, "Wrong size: CStreamingInfo");
 
 #endif

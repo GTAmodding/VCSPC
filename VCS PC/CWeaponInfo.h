@@ -1,11 +1,6 @@
 #ifndef __CWEAPONINFO
 #define __CWEAPONINFO
 
-#define WIN32_LEAN_AND_MEAN
-
-#define FUNC_CWeaponInfo__GetWeaponModel					0x454AC0
-#define FUNC_CWeaponInfo__GetWeaponInfo						0x743C60
-
 enum eFireType
 {
     FIRETYPE_MELEE,
@@ -160,8 +155,7 @@ public:
 	DWORD				GetWeaponSlot() 
 							{ return nSlot; };
 
-	static DWORD		GetWeaponModel(eWeaponType weaponID);
-	static CWeaponInfo*	GetWeaponInfo(eWeaponType weaponID, unsigned char bType);
+	static CWeaponInfo*	GetWeaponInfo(eWeaponType weaponID, signed char bType);
 };
 
 //static_assert(sizeof(CWeaponInfo) == CWeaponInfo_ARRAYSIZE);

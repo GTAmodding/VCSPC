@@ -15,6 +15,6 @@ public:
 	static void	Init();
 };
 
-static_assert(sizeof(CGangWeapons) == CGangWeapons_ARRAYSIZE, "CGangWeapons class has wrong size!");
+static_assert(sizeof(CGangWeapons) == 0x10, "Wrong size: CGangWeapons");
 
 #endif

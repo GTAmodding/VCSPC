@@ -100,6 +100,6 @@ const char*		GetFontsDATByLanguage();
 const char*		GetFontsTXDByLanguage();
 eFontFileIDs	GetFontsIDByLanguage();
 
-static_assert(sizeof(CFont::Details) == CFont_ARRAYSIZE && sizeof(CFont::sFontSizes) == 0xD2, "CFont class has wrong size!");
+static_assert(sizeof(CFont::Details) == 0x40 && sizeof(CFont::sFontSizes) == 0xD2, "Wrong size: CFont");
 
 #endif

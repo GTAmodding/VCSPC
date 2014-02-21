@@ -79,7 +79,7 @@
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PreBuildEventUseInBuild>
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</PreBuildEventUseInBuild>
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PreBuildEventUseInBuild>
-    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">true</PreBuildEventUseInBuild>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">false</PreBuildEventUseInBuild>
     <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreLinkEventUseInBuild>
     <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">false</PreLinkEventUseInBuild>
     <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PreLinkEventUseInBuild>
@@ -301,9 +301,9 @@ popd</Command>
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="3DMarkers.cpp" />
     <ClCompile Include="BlowFish.cpp" />
     <ClCompile Include="Building.cpp" />
-    <ClCompile Include="C3DMarker.cpp" />
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="CCamera.cpp" />
     <ClCompile Include="CConfiscatedWeapons.cpp" />
@@ -319,15 +319,19 @@ popd</Command>
     <ClCompile Include="Clock.cpp" />
     <ClCompile Include="ColAccel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Coronas.cpp" />
+    <ClCompile Include="CustomBankLoader.cpp" />
     <ClCompile Include="Darkel.cpp" />
     <ClCompile Include="DLCManager.cpp" />
     <ClCompile Include="EmpireMgr.cpp" />
+    <ClCompile Include="EntryExitMgr.cpp" />
     <ClCompile Include="FileMgr.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Frontend.cpp" />
-    <ClCompile Include="CPed.cpp" />
     <ClCompile Include="CPedIntelligence.cpp" />
     <ClCompile Include="CutsceneManager.cpp" />
     <ClCompile Include="Garages.cpp" />
@@ -335,6 +339,7 @@ popd</Command>
     <ClCompile Include="Hud.cpp" />
     <ClCompile Include="ModelInfo.cpp" />
     <ClCompile Include="Pad.cpp" />
+    <ClCompile Include="Ped.cpp" />
     <ClCompile Include="PlayerInfo.cpp" />
     <ClCompile Include="PNGArchive.cpp" />
     <ClCompile Include="Pools.cpp" />
@@ -382,9 +387,10 @@ popd</Command>
     <ClInclude Include="..\dependencies\include\rwsdk\rtpng.h" />
     <ClInclude Include="..\dependencies\include\rwsdk\rtworld.h" />
     <ClInclude Include="..\dependencies\include\rwsdk\rwcore.h" />
+    <ClInclude Include="3DMarkers.h" />
     <ClInclude Include="AnimMgr.h" />
+    <ClInclude Include="BankLoader.h" />
     <ClInclude Include="Building.h" />
-    <ClInclude Include="C3DMarker.h" />
     <ClInclude Include="Audio.h" />
     <ClInclude Include="CCam.h" />
     <ClInclude Include="CCamera.h" />
@@ -399,20 +405,22 @@ popd</Command>
     <ClInclude Include="Darkel.h" />
     <ClInclude Include="DLCManager.h" />
     <ClInclude Include="EmpireMgr.h" />
+    <ClInclude Include="EntryExitMgr.h" />
     <ClInclude Include="FileMgr.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Frontend.h" />
-    <ClInclude Include="CPed.h" />
     <ClInclude Include="CPedIntelligence.h" />
     <ClInclude Include="Garages.h" />
     <ClInclude Include="Hud.h" />
     <ClInclude Include="MemoryMgr.h" />
     <ClInclude Include="ModelInfo.h" />
     <ClInclude Include="Pad.h" />
+    <ClInclude Include="Ped.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="PNGArchive.h" />
     <ClInclude Include="Pools.h" />
     <ClInclude Include="Project2dfx.h" />
+    <ClInclude Include="Queue.h" />
     <ClInclude Include="Replay.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="CShadows.h" />

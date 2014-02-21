@@ -15,6 +15,6 @@ public:
 	static void		PrintMessages();
 };
 
-static_assert(sizeof(CGarages) == CGarages_ARRAYSIZE, "CGarages class has wrong size!");
+static_assert(sizeof(CGarages) == 0x1C, "Wrong size: CGarages");
 
 #endif

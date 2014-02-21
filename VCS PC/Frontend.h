@@ -211,6 +211,6 @@ public:
 void	LoadingScreen();
 void	LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID);
 
-static_assert(sizeof(CMenuManager) == CMenuManager_ARRAYSIZE, "CMenuManager has wrong size!");
+static_assert(sizeof(CMenuManager) == 0x1B78, "Wrong size: CMenuManager");
 
 #endif

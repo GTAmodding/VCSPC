@@ -18,6 +18,8 @@ public:
 	// 3D radar test
 	static void				Draw3DRadar(int nX, int nY);
 	static void				TransformRadarPointToScreenSpace(CVector2D& vecOut, const CVector2D& vecIn);
+	static void				Set3DVerts(int nVerts, float* pX, float* pY, const CRGBA& rgb);
+	static void				Render3D(void*, void*, int nVerts);
 };
 
 #endif

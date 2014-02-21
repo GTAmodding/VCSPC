@@ -577,8 +577,8 @@ public:
 	void					GetRandomPedColour(BYTE& colour1, BYTE& colour2, BYTE& colour3, BYTE& colour4);
 };
 
-static_assert(sizeof(CBaseModelInfo) == CBaseModelInfo_ARRAYSIZE, "CBaseModelInfo class has wrong size!");
-static_assert(sizeof(CPedModelInfo) == CPedModelInfo_ARRAYSIZE, "CPedModelInfo class has wrong size!");
+static_assert(sizeof(CBaseModelInfo) == 0x20, "Wrong size: CBaseModelInfo");
+static_assert(sizeof(CPedModelInfo) == 0x44, "Wrong size: CPedModelInfo");
 
 class CModelInfo
 {

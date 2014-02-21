@@ -5,6 +5,7 @@ static unsigned short	miBouy = 0xFFFF, miDoublestreetlght1 = 0xFFFF, miHigh_lamp
 static unsigned short	miStreetlamp1 = 0xFFFF, miBollardlight = 0xFFFF, miLamppost2 = 0xFFFF, miStreetlamp2 = 0xFFFF, miDockslights = 0xFFFF;
 
 std::vector<CLamppostInfo>*	CProject2dfx::m_pLampposts = nullptr;
+bool						CProject2dfx::m_bCatchLamppostsNow = false;
 
 static bool IsModelALamppost(unsigned short nModel)
 {
@@ -13,9 +14,21 @@ static bool IsModelALamppost(unsigned short nModel)
 		|| nModel == miLamppost2 || nModel == miStreetlamp2 || nModel == miDockslights;
 }
 
+static void __declspec(naked) LoadObjectInstHook()
+{
+	_asm
+	{
+		push		eax
+		call		CProject2dfx::PossiblyAddThisEntity
+		add			esp, 34h
+		retn
+	}
+}
+
 void CProject2dfx::Inject()
 {
-	Memory::InjectHook(0x53E184, Render);
+	Memory::InjectHook(0x53C131, Render);
+	Memory::InjectHook(0x538439, LoadObjectInstHook, PATCH_JUMP);
 }
 
 void CProject2dfx::RegisterLamppost(CEntity* pObj)
@@ -241,6 +254,7 @@ void CProject2dfx::RegisterLamppost(CEntity* pObj)
 	}
 }
 
+// Now unused
 void CProject2dfx::EnumerateLampposts()
 {
 	{
@@ -292,8 +306,18 @@ void CProject2dfx::Init()
 	miDockslights = CModelInfo::GetModelInfoUInt16("docks_lights");
 
 	m_pLampposts = new std::vector<CLamppostInfo>;
+	m_bCatchLamppostsNow = true;
 
-	EnumerateLampposts();
+	//EnumerateLampposts();
+}
+
+CEntity* CProject2dfx::PossiblyAddThisEntity(CEntity* pEntity)
+{
+	if ( m_bCatchLamppostsNow && IsModelALamppost(pEntity->GetModelIndex()) )
+		RegisterLamppost(pEntity);
+
+	// Saves some hacking
+	return pEntity;
 }
 
 void CProject2dfx::Shutdown()

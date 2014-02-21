@@ -2,6 +2,12 @@
 
 bool CCamera::bDontTouchFOVInWidescreen;
 
+WRAPPER void CamShakeNoPos(CCamera* pCamera, float fStrength) { WRAPARG(pCamera); WRAPARG(fStrength); EAXJMP(0x50A970); }
+
+WRAPPER int CCamera::GetFadeStage() { EAXJMP(0x50AE20); }
+WRAPPER int CCamera::GetLookDirection() { EAXJMP(0x50AE90); }
+WRAPPER bool CCamera::IsPositionVisible(const CVector& vecPos, float fRadius) { WRAPARG(vecPos); WRAPARG(fRadius); EAXJMP(0x420D40); }
+
 void CCamera::GetScreenRect(CRect& rect)
 {
 	float			fScreenRatio = *ScreenAspectRatio;
@@ -22,43 +28,3 @@ void CCamera::GetScreenRect(CRect& rect)
 		rect.y2 = static_cast<float>(RsGlobal.MaximumHeight);
 	}
 }
-
-void CCamera::CamShake(float strength)
-{
-	DWORD dwFunc = (DWORD)FUNC_CCamera__CamShake;
-	_asm
-	{
-		mov		eax, strength
-		push	eax
-		mov		eax, this
-		push	eax
-		call	dwFunc
-		add		esp, 8
-	}
-}
-
-void CCamera::Find3rdPersonCamTargetVector(float dist, float posX, float posY, float posZ, CVector* unkVec, CVector* output)
-{
-	DWORD dwFunc = (DWORD)FUNC_CCamera__Find3rdPersonCamTargetVector;
-	_asm
-	{
-		mov		eax, output
-		push	eax
-		mov		eax, unkVec
-		push	eax
-		mov		eax, posZ
-		push	eax
-		mov		eax, posY
-		push	eax
-		mov		eax, posX
-		push	eax
-		mov		eax, dist
-		push	eax
-		mov		ecx, this
-		call	dwFunc
-	}
-}
-
-WRAPPER int CCamera::GetFadeStage() { EAXJMP(0x50AE20); }
-WRAPPER int CCamera::GetLookDirection() { EAXJMP(0x50AE90); }
-WRAPPER bool CCamera::IsPositionVisible(const CVector& vecPos, float fRadius) { WRAPARG(vecPos); WRAPARG(fRadius); EAXJMP(0x420D40); }

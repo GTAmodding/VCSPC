@@ -849,7 +849,7 @@ void CMenuManager::PrintDLCScreen()
 
 void CMenuManager::ReadFrontendTextures()
 {
-	const char* const		frontend1TexNames[] = {
+	static const char* const	frontend1TexNames[] = {
 									"radio_flash",
 									"radio_vrock",
 									"radio_paradise",
@@ -861,7 +861,7 @@ void CMenuManager::ReadFrontendTextures()
 									"radio_emotion",
 									"radio_TPLAYER" };
 
-	const char* const		frontend2TexNames[] = {
+	static const char* const	frontend2TexNames[] = {
 									"background",
 									"modbase",
 									"map",
@@ -870,7 +870,7 @@ void CMenuManager::ReadFrontendTextures()
 #endif
 											};
 
-	const char* const		frontendpcTexNames[] = {
+	static const char* const	frontendpcTexNames[] = {
 									"mouse",
 									"crosshair" };
 

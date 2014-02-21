@@ -71,6 +71,6 @@ public:
 	void					Unload(bool bKeepMissionText);
 };
 
-static_assert(sizeof(CText) == CText_ARRAYSIZE, "CText class has wrong size!");
+static_assert(sizeof(CText) == 0xA90, "Wrong size: CText");
 
 #endif

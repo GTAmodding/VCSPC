@@ -15,9 +15,8 @@ struct CAnimationStyleDescriptor
 	DWORD						animsCount;
 	const char**				namesPtr;
 	CAnimationStyleUnkData*		unkDataPtr;
-	//DWORD*			unkDataPtr;
 };
 
-static_assert(sizeof(CAnimationStyleDescriptor) == CAnimationStyleDescriptor_ARRAYSIZE, "CAnimationStyleDescriptor class has wrong size!");
+static_assert(sizeof(CAnimationStyleDescriptor) == 0x30, "Wrong size: CAnimationStyleDescriptor");
 
 #endif

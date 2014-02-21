@@ -72,7 +72,7 @@ public:
 					{ bShouldFPSBeDisplayed = a; };;
 
 	static void		DrawBarChart(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor);
-	static void		DrawWeaponIcon(CPed* pPed, int iX, int iY, float fAlpha);
+	static void		DrawWeaponIcon(CPed* pPed, int iX, int iY, float fAlpha=255.0f);
 	
 	static void		GetRidOfAllCustomHUDMessages();
 	static void		Initialise();

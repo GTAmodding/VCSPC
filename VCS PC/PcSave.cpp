@@ -16,9 +16,9 @@ WRAPPER bool C_PcSave::PcClassSaveRoutine(const void* pSource, unsigned int dwSi
 WRAPPER bool C_PcSave::PcClassLoadRoutine(void* pDest, unsigned int dwSize) { WRAPARG(pDest); WRAPARG(dwSize); EAXJMP(0x5D1300); }
 WRAPPER void C_PcSave::LoadFirstBlock(DWORD* pTimestamp) { WRAPARG(pTimestamp); EAXJMP(0x5D1EA0); }
 
-unsigned long C_PcSave::MakeTimestamp()
+unsigned int C_PcSave::MakeTimestamp()
 {
-	static unsigned long nComputedHash = 0;
+	static unsigned int nComputedHash = 0;
 
 	if ( !nComputedHash )
 		nComputedHash = HashingClass.FullCRC(reinterpret_cast<unsigned char*>("VCSPCUPDATERSAVE"), 16);

@@ -51,6 +51,7 @@ void CUpdateManager::Terminate()
 	if ( hUptModuleLibrary )
 	{
 		FreeLibrary(hUptModuleLibrary);
+		hUptModuleLibrary = nullptr;
 		pUptModuleInterface = nullptr;
 
 		for ( int i = 0; i < NUM_MESSAGES_PER_UPT_SCREEN; ++i )
@@ -310,6 +311,12 @@ void CUpdateManager::InstallIfNeeded()
 {
 	if ( nInterfaceStatus == UPTMODULESTATE_ALL_READY )
 		pUptModuleInterface->LaunchInstaller();
+
+	// Can be terminated now
+	//CUpdateManager::Terminate();
+
+	// DIRTY WORKAROUND #2
+	//ExitProcess(0);
 }
 
 float CUpdateManager::GetDownloadProgress()

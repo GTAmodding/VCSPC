@@ -166,12 +166,12 @@ void CRadar::Draw3DRadar(int nX, int nY)
 
 	RwRGBA		color = { 255, 255, 255, 255 };
 
-	RwCameraEndUpdate(Scene);
+	/*RwCameraEndUpdate(Scene);
 	RwCameraClear(pRadarCam, &color, rwCAMERACLEARIMAGE);
-	RwCameraBeginUpdate(pRadarCam);
+	RwCameraBeginUpdate(pRadarCam);*/
 
-	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, false);
-	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, false);
+	//RwRenderStateSet(rwRENDERSTATEZTESTENABLE, false);
+	//RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, false);
 
 	DrawRadarSection(nX - 1, nY - 1);
 	DrawRadarSection(nX, nY - 1);
@@ -183,22 +183,22 @@ void CRadar::Draw3DRadar(int nX, int nY)
 	DrawRadarSection(nX, nY + 1);
 	DrawRadarSection(nX + 1, nY + 1);
 
-	RwCameraEndUpdate(pRadarCam);
-	RwCameraBeginUpdate(Scene);
+	//RwCameraEndUpdate(pRadarCam);
+	//RwCameraBeginUpdate(Scene);
 
 	/*CSprite2d::SetVertices(CRect(_xleft(35.0f), _ydown(107.0f), _xleft(35.0f +  94.0f), _ydown(107.0f - (94.0f * 448.0f / 480.0f))),
 				CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY),
 				1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);*/
 
-	CSprite2d::SetVertices(CRect(_xleft(35.0f), _ydown(107.0f), _xleft(35.0f +  94.0f), _ydown(107.0f - (94.0f * 448.0f / 480.0f))), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY));
+	//CSprite2d::SetVertices(CRect(_xleft(35.0f), _ydown(107.0f), _xleft(35.0f +  94.0f), _ydown(107.0f - (94.0f * 448.0f / 480.0f))), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY), CRGBA(255, 255, 255, HUD_TRANSPARENCY));
 
 	/*aSpriteVertices[0].rhw = 0.41f;
 	aSpriteVertices[1].rhw = 0.41f;
 	aSpriteVertices[2].rhw = 1.0f;
 	aSpriteVertices[3].rhw = 1.0f;*/
 
-	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwCameraGetRaster(pRadarCam));
-	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
+	//RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwCameraGetRaster(pRadarCam));
+	//RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
 }
 
 void CRadar::TransformRadarPointToScreenSpace(CVector2D& vecOut, const CVector2D& vecIn)
@@ -216,9 +216,36 @@ void CRadar::TransformRadarPointToScreenSpace(CVector2D& vecOut, const CVector2D
 	CVector vecOutTemp = matTemp * CVector(vecIn.x, vecIn.y);
 
 
-	vecOut.x = ((vecOutTemp.x / vecOutTemp.z) + 1.0f) * 256.0f;
-	vecOut.y = ((vecOutTemp.y / vecOutTemp.z) + 1.0f) * 256.0f;
+	//vecOut.x = ((vecOutTemp.x / vecOutTemp.z) + 1.0f) * 256.0f;
+	//vecOut.y = ((vecOutTemp.y / vecOutTemp.z) + 1.0f) * 256.0f;
+	//vecOut = vecIn;
 
-	//vecOut.x = (vecIn.x + 1.0f) * 256.0f;
-	//vecOut.y = (vecIn.y + 1.0f) * 256.0f;
+	vecOut.x = (vecIn.x + 1.0f)/* * 256.0f*/;
+	vecOut.y = (vecIn.y + 1.0f)/* * 256.0f*/;
+}
+
+void CRadar::Set3DVerts(int nVerts, float* pX, float* pY, const CRGBA& rgb)
+{
+	RwIm3DVertex			verts[8];
+
+	for ( int i = 0; i < nVerts; i++ )
+	{
+		RwIm3DVertexSetPos(&verts[i], pX[i], pY[i], 0.0);
+		RwIm3DVertexSetRGBA(&verts[i], rgb.r, rgb.g, rgb.b, rgb.a);
+	}
+
+	if ( !RwIm3DTransform(verts, nVerts, &CWorld::Players[CWorld::PlayerInFocus].GetPed()->GetMatrix()->matrix/*nullptr*/, rwIM3D_VERTEXXYZ|rwIM3D_VERTEXRGBA) )
+		assert(!"ERROR!");
+
+}
+
+void CRadar::Render3D(void*, void*, int nVerts)
+{
+	RwImVertexIndex			indices[8];
+
+	for ( int i = 0; i < nVerts; i++ )
+		indices[i] = i;
+
+	RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, indices, nVerts);
+	RwIm3DEnd();
 }

@@ -22,6 +22,7 @@ public:
 	void				SetTexture(const char* name, const char* maskName);
 	void				SetTextureNoMask(const char* name);
 	bool				SetTextureFromSPTA(CPNGArchive& pArchive, const char* pName);
+	//void				SetTextureFromCache(CPNGAccel* pCache, const char* pName);
 	void				Delete();
 	void				Draw(const CRect& rect, const CRGBA& colour);
 	void				Draw(float fPosX, float fPosY, float fWidth, float fHeight, const CRGBA& colour);

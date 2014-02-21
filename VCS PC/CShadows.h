@@ -4,7 +4,7 @@
 class CShadows
 {
 public:
-	static void		RenderIndicatorShadow(RpAtomic* pData, int, int, CVector* position, float radiusX, int, int, float radiusY);
+	static void		RenderIndicatorShadow(unsigned int nIndex, unsigned char, RwTexture*, CVector* pPos, float radiusX, float, float, float radiusY, short);
 };
 
 #endif

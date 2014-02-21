@@ -64,11 +64,16 @@ public:
 			{ return m_cTimecycPath; }
 	static inline char*			GetFrontendPath()
 		{ return m_cFrontendPath; }
+	
+	// Translates a path with device classes
+	static std::string			TranslatePath(const char* pFileName, const char* pDLCName);
 
 	static void					LoadObjectTypes(const char* pFileName);
 	static void					LoadScene(const char* pFileName);
 	static void					LoadCollisionFile(const char* pFileName, unsigned char bUnk);
 
+
+	static void					LoadEntryExit(const char* pLine);
 	static int					LoadObject(const char* pLine);
 	static const char*			LoadLine(FILE* hFile);
 	static void					LoadLevels();

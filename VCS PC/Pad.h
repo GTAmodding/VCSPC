@@ -125,7 +125,7 @@ public:
 	static void			UpdatePads();
 };
 
-static_assert(sizeof(CPad) == CPad_ARRAYSIZE, "CPad class has wrong size!");
-static_assert(sizeof(CKeyState) == CKeyState_ARRAYSIZE, "CKeyState class has wrong size!");
+static_assert(sizeof(CPad) == 0x134, "Wrong size: CPad");
+static_assert(sizeof(CKeyState) == 0x270, "Wrong size: CKeyState");
 
 #endif

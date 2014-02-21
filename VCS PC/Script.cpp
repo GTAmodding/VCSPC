@@ -374,12 +374,23 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 		}
 	case 0x0353:
 		{
-			// show_development_logos %1d%
+			// is_today_the_day %1d%
 			CollectParameters(1);
-/*#if DEBUG
-			hud.SetDevLogosDisplay(scriptParams[0].bParam != 0);
-			LogToFile("Opcode 0353 called with params: %d", scriptParams[0]);
-#endif*/
+			switch ( scriptParams[0].iParam )
+			{
+			case 0:
+				{
+					// INDEPENDENCE_DAY (4.07)
+					CDate		Today = GetCurrentDate();
+					UpdateCompareFlag(Today >= CDate(4, 7) && Today < CDate(5, 7));
+					break;
+				}
+			default:
+				{
+					UpdateCompareFlag(false);
+					break;
+				}
+			}
 			return;
 		}
 	case 0x0354:
@@ -503,7 +514,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			{
 				CEntity*	damagingVehicle = damagedVehicle->GetDamagingEntity();
 				if ( damagingVehicle && damagingVehicle->nType == 2 )
-					scriptParams[0].iParam = CPools::GetVehiclePool()->GetIndex(static_cast<CVehicle*>(damagingVehicle));
+					scriptParams[0].iParam = CPools::GetVehiclePool()->GetHandle(static_cast<CVehicle*>(damagingVehicle));
 				else
 					scriptParams[0].iParam = -1;
 			}

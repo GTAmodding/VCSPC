@@ -29,10 +29,10 @@ private:
 	BYTE			bAfterRemoteVehicleExplosion;					// 0xDD
 	BYTE			bCreateRemoteVehicleExplosion;					// 0xDE
 	BYTE			bFadeAfterRemoteVehicleExplosion;				// 0xDF
-	DWORD			TimeOfRemoteVehicleExplosion;					// 0xE0
-	DWORD			LastTimeEnergyLost;							// 0xE4
-	DWORD			LastTimeArmourLost;							// 0xE8
-	DWORD			LastTimeBigGunFired;							// 0xEC
+	int				TimeOfRemoteVehicleExplosion;					// 0xE0
+	int				LastTimeEnergyLost;							// 0xE4
+	int				LastTimeArmourLost;							// 0xE8
+	int				LastTimeBigGunFired;							// 0xEC
 	DWORD			TimesUpsideDownInARow;						// 0xF0
 	DWORD			TimesStuckInARow;								// 0xF4
 	DWORD			nCarTwoWheelCounter;							// 0xF8
@@ -83,9 +83,9 @@ public:
 						{ return MaxArmour; };
 	inline int			GetDisplayedScore() const
 						{ return DisplayedScore; };
-	inline DWORD		GetLastTimeEnergyLost() const
+	inline int			GetLastTimeEnergyLost() const
 						{ return LastTimeEnergyLost; };
-	inline DWORD		GetLastTimeArmourLost() const
+	inline int			GetLastTimeArmourLost() const
 						{ return LastTimeArmourLost; };
 
 	void			KillPlayer();
@@ -94,6 +94,6 @@ public:
 
 CWanted* FindPlayerWanted(signed int nPlayerID);
 
-static_assert(sizeof(CPlayerInfo) == CPlayer_ARRAYSIZE, "CPlayerInfo class has wrong size!");
+static_assert(sizeof(CPlayerInfo) == 0x190, "Wrong size: CPlayerInfo");
 
 #endif

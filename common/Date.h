@@ -40,8 +40,10 @@ public:
 		m_time = mktime(dateTime);
 	}
 
-	inline double	GetSecondsLeft(const CDate& toDate)
+	inline double	GetSecondsLeft(const CDate& toDate) const
 		{ return difftime(toDate.m_time, m_time); }
+	inline CDate&	RoundToDay()
+		{ m_time -= (m_time % (24*60*60)); return *this; }
 
 	operator time_t() { return m_time; }
 
@@ -55,6 +57,8 @@ public:
 		{ return left.m_time <= right.m_time; }
 	friend bool operator == (const CDate& left, const CDate& right)
 		{ return left.m_time == right.m_time; }
+	friend bool operator != (const CDate& left, const CDate& right)
+		{ return left.m_time != right.m_time; }
 };
 
 inline CDate GetCurrentDate()

@@ -1,8 +1,6 @@
 #ifndef __CCAMERA
 #define __CCAMERA
 
-#define WIN32_LEAN_AND_MEAN
-
 enum eCamMode 
 { 
     MODE_NONE = 0, 
@@ -90,7 +88,6 @@ enum
 };
 
 #define	FUNC_CCamera__CamShake								0x50A970
-#define FUNC_CCamera__Find3rdPersonCamTargetVector			0x514970
 
 struct CBlurStage
 {
@@ -279,12 +276,12 @@ public:
 	inline bool					GetFading() { return m_bFading; };
 	
 	void						GetScreenRect(CRect& rect);
-	void						CamShake(float strength);
-	void						Find3rdPersonCamTargetVector(float dist, float posX, float posY, float posZ, CVector* unkVec, CVector* output);
 	int							GetFadeStage();
 	int							GetLookDirection();
 	bool						IsPositionVisible(const CVector& vecPos, float fRadius);
 };
+
+void CamShakeNoPos(CCamera* pCamera, float fStrength);
 
 //static_assert(sizeof(CCamera) == CCamera_ARRAYSIZE, "CCamera class has wrong size!");
 

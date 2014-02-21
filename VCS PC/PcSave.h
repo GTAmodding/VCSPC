@@ -15,7 +15,7 @@ public:
 	static bool				PcClassSaveRoutine(const void* pSource, unsigned int dwSize);
 	static bool				PcClassLoadRoutine(void* pDest, unsigned int dwSize);
 
-	static unsigned long	MakeTimestamp();
+	static unsigned int	MakeTimestamp();
 	static long				PerformBlockFallbackOnLoad(long nBlock, bool bSpecialBlock0Call);
 	static void				SaveBlockVersion(int nBlock);
 

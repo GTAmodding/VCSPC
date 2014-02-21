@@ -22,6 +22,39 @@ static WRAPPER void InitPostLoadLevelStuff() { EAXJMP(0x5B930F); }
 
 static WRAPPER void SetAtomicModelInfoFlags(CAtomicModelInfo* pInfo, unsigned int dwFlags) { WRAPARG(pInfo); WRAPARG(dwFlags); EAXJMP(0x5B3B20); }
 
+std::string CFileLoader::TranslatePath(const char* pFileName, const char* pDLCName)
+{
+	// Find known device classes
+	const char*		pDLCPos = strstr(pFileName, "dlc:");
+
+	// Find the one closest to 0
+	// Nothing for now
+
+	if ( pDLCPos )
+	{
+		// We need to tokerize the string a bit
+		std::string		strOutString;
+		if ( pDLCPos != pFileName )
+			strOutString.append(pFileName, pDLCPos);
+
+		// Translate dlc: device class to an actual path
+		// Find DLC index by name
+		for ( int i = 0; i < NUM_DLC_PACKS; i++ )
+		{
+			if ( !_stricmp(pDLCName, CDLCManager::GetDLC(i)->GetName()) )
+			{
+				strOutString += "DLC\\DLC";
+				strOutString += std::to_string(static_cast<long long>(i));
+				strOutString += (pDLCPos+4);
+
+				return strOutString;
+			}
+		}
+	}
+
+	return pFileName;
+}
+
 const char* CFileLoader::LoadLine(FILE* hFile)
 {
 	static char		cLineBuffer[512];
@@ -75,7 +108,7 @@ int CFileLoader::LoadObject(const char* pLine)
 			break;
 		case 2:
 			sscanf(pLine, "%d %s %s %d %f %f %d", &objID, modelName, texName, &objCount, &drawDist[0], &drawDist[1], &flags);
-			break;	
+			break;
 		case 3:
 			sscanf(pLine, "%d %s %s %d %f %f %f %d", &objID, modelName, texName, &objCount, &drawDist[0], &drawDist[1], &drawDist[2], &flags);
 			break;
@@ -106,6 +139,52 @@ int CFileLoader::LoadObject(const char* pLine)
 		}*/
 	}
 	return objID;
+}
+
+void CFileLoader::LoadEntryExit(const char* pLine)
+{
+	int		nTimeOn = 0, nTimeOff = 24;
+	int		nSkyUnk = 2;
+	float	fEntX, fEntY, fEntZ, fEntA, fEntRX, fEntRY, fExitX, fExitY, fExitZ, fExitA, fUnused;
+	int		nArea, flags, nExtraColors;
+	char	IntName[8], UniqueName[8];
+
+	sscanf(	pLine, "%f %f %f %f %f %f %f %f %f %f %f %d %d %s %d %d %d %d %s",
+			&fEntX, &fEntY, &fEntZ, &fEntA, &fEntRX, &fEntRY, &fUnused, &fExitX, &fExitY, &fExitZ, &fExitA,
+			&nArea, &flags, IntName, &nExtraColors, &nSkyUnk, &nTimeOn, &nTimeOff, UniqueName);
+
+	char*	pQuote = strrchr(IntName, '\"');
+	if ( pQuote )
+	{
+		*pQuote = '\0';
+		pQuote = IntName+1;
+	}
+	else
+		pQuote = IntName;
+
+	int		nEnexID = CEntryExitManager::AddOne(fEntX, fEntY, fEntZ, fEntA, fEntRX, fEntRY, fUnused, fExitX, fExitY, fExitZ, fExitA, nArea, flags, nExtraColors, nTimeOn, nTimeOff, nSkyUnk, pQuote);
+	
+	if ( CEntryExit* pEnex = CEntryExitManager::GetPool()->GetAtIndex(nEnexID) )
+	{
+		pEnex->AddToBimap(UniqueName);
+
+		if ( flags & 1 )
+			pEnex->wFlags |= 1;
+		if ( flags & 2 )
+			pEnex->wFlags |= 2;
+		if ( flags & 4 )
+			pEnex->wFlags |= 4;
+		if ( flags & 8 )
+			pEnex->wFlags |= 8;
+		if ( flags & 0x10 )
+			pEnex->wFlags |= 0x10;
+		if ( flags & 0x20 )
+			pEnex->wFlags |= 0x20;
+		if ( flags & 0x40 )
+			pEnex->wFlags |= 0x40;
+		if ( flags & 0x80 )
+			pEnex->wFlags |= 0x80;
+	}
 }
 
 /*std::map<int, std::string>	TempMap;
@@ -150,7 +229,7 @@ void DumpVehicleAudioSettings()
 void CFileLoader::LoadLevels()
 {
 	RwTexDictionary*	pPushedDictionary = RwTexDictionaryGetCurrent();
-	
+
 	if ( !pPushedDictionary )
 	{
 		pPushedDictionary = RwTexDictionaryCreate();
@@ -192,6 +271,9 @@ void CFileLoader::LoadLevels()
 	CPedModelInfoVCS::LoadPedColours();
 	CAEVehicleAudioEntity::LoadVehicleAudioSettings();
 
+	if ( CDLCManager::GetDLC(DLC_2DFX)->IsEnabled() )
+		CProject2dfx::Init();
+
 	//DumpVehicleAudioSettings();
 
 	for ( int i = 0; i < 20000; ++i )
@@ -207,12 +289,12 @@ void CFileLoader::LoadLevels()
 		LoadScene(it->c_str());
 	}
 
-	if ( CDLCManager::GetDLC(DLC_2DFX)->IsEnabled() )
-		CProject2dfx::Init();
-
 	EndLevelLists();
 	RwTexDictionarySetCurrent(pPushedDictionary);
 	InitPostLoadLevelStuff();
+
+	if ( CDLCManager::GetDLC(DLC_2DFX)->IsEnabled() )
+		CProject2dfx::EndRegistering();
 
 	//CColAccel::endCache();
 }
@@ -228,27 +310,27 @@ bool CFileLoader::ParseLevelFile(const char* pFileName, char* pDLCName)
 			if ( pLine[0] && pLine[0] != '#' )
 			{
 				if ( !_strnicmp(pLine, "IMG", 3) )
-					m_pImagesList->push_back(pLine+4);
+					m_pImagesList->push_back(TranslatePath(pLine+4, pDLCName));
 				else if ( !_strnicmp(pLine, "IDE", 3) )
-					m_pObjectsList->push_back(pLine+4);
+					m_pObjectsList->push_back(TranslatePath(pLine+4, pDLCName));
 				else if ( !_strnicmp(pLine, "COLFILE", 7) )
-					m_pCollisionsList->push_back(pLine+8);
+					m_pCollisionsList->push_back(TranslatePath(pLine+8, pDLCName));
 				else if ( !_strnicmp(pLine, "IPL", 3) )
-					m_pScenesList->push_back(pLine+4);
+					m_pScenesList->push_back(TranslatePath(pLine+4, pDLCName));
 
 				// DLC overloads
 				else if ( !_strnicmp(pLine, "DLC", 3) )	// NEVER!!! use in non-DLC level file
 					strncpy(pDLCName, pLine+4, 32);
 				else if ( !_strnicmp(pLine, "PARTICLES", 9) )
-					strncpy(m_cParticlesPath, pLine+10, 64);
+					strncpy(m_cParticlesPath, TranslatePath(pLine+10, pDLCName).c_str(), 64);
 				else if ( !_strnicmp(pLine, "PEDGRP", 6) )
-					strncpy(m_cPedgrpPath, pLine+7, 64);
+					strncpy(m_cPedgrpPath, TranslatePath(pLine+7, pDLCName).c_str(), 64);
 				else if ( !_strnicmp(pLine, "POPCYCLE", 8) )
-					strncpy(m_cPopcyclePath, pLine+9, 64);
+					strncpy(m_cPopcyclePath, TranslatePath(pLine+9, pDLCName).c_str(), 64);
 				else if ( !_strnicmp(pLine, "TIMECYCLE", 9) )
-					strncpy(m_cTimecycPath, pLine+10, 64);
+					strncpy(m_cTimecycPath, TranslatePath(pLine+10, pDLCName).c_str(), 64);
 				else if ( !_strnicmp(pLine, "FRONTEND", 8) )
-					strncpy(m_cFrontendPath, pLine+9, 64);
+					strncpy(m_cFrontendPath, TranslatePath(pLine+9, pDLCName).c_str(), 64);
 			}
 		}
 		CFileMgr::CloseFile(hFile);

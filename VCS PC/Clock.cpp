@@ -5,9 +5,7 @@ unsigned char&	CClock::ms_nGameClockMinutes = *(unsigned char*)0xB70152;
 
 bool CClock::GetIsTimeInRange(unsigned char bHourA, unsigned char bHourB)
 {
-	if ( bHourA > bHourB )
-		return ms_nGameClockHours >= bHourA || ms_nGameClockHours < bHourB;
-	return ms_nGameClockHours >= bHourA && ms_nGameClockHours < bHourB;
+	return bHourA > bHourB ? ms_nGameClockHours >= bHourA || ms_nGameClockHours < bHourB : ms_nGameClockHours >= bHourA && ms_nGameClockHours < bHourB;
 }
 
 bool CClock::Convert24To12(unsigned char& bHour)

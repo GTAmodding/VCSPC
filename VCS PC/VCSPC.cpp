@@ -336,23 +336,23 @@ const float					fMapZonePosX = 7.5f;
 const float					fMenuSliderWidth = MENU_SLIDER_WIDTH;
 const float					fRadarPosX = 35.0f;
 //const float					fRadarWidth = 76.0 * 480.0 / 448.0;
-const float					fRadarHeight = 94.0 * 448.0 / 480.0;
+const float					fRadarHeight = 94.0f * 448.0f / 480.0f;
 const float					fRadarPosY = 107.0f;
 //const float					fMenuSliderHeight2 = MENU_SLIDER_HEIGHT / 448.0;
 const float					fCTSliderRight = 370.0;
 const float					fRhinoHitStrength = 1000.0;
 const float					fRefZVal = 1.0;
-const float					fBrightnessStep = 1.0 / 192.0;
+const float					fBrightnessStep = 1.0f / 192.0f;
 const float					fBrightnessStep2 = 12.0;
 const float					fBrightnessMax = 192.0;
 //const float					fBriefTextHeight = 0.7/448.0;
 const float					fNewDrawDistance = MAX_DRAW_DISTANCE;
-const float					fSkyMultFix = 3.1;
+const float					fSkyMultFix = 3.1f;
 const float					fRadarTileDimensions = 2000.0;
 const float					fMinusRadarTileDimensions = -2000.0;
 const float					fRadarTileDimensions2 = 7.0;;
-const float					fSubtitlesWidth = 0.45;
-const float					fSubtitlesHeight = 0.9;
+const float					fSubtitlesWidth = 0.45f;
+const float					fSubtitlesHeight = 0.9f;
 const float					fTextBoxPosY = 20.0f;
 const float* const			pRefFal = &fRefZVal;
 
@@ -501,10 +501,10 @@ const BYTE					ScriptCheckpointsColours_IndirectTable[] = { 0, 1, 0, 2, 2, 2, 2,
 
 
 BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
-	static char		cDebuggerNames[][14] = { 
-		{ 'C'^0x7A, 'h'^0x7A, 'e'^0x7A, 'a'^0x7A, 't'^0x7A, ' '^0x7A, 'E'^0x7A, 'n'^0x7A, 'g'^0x7A, 'i'^0x7A, 'n'^0x7A, 'e'^0x7A, '\0'^0x7A, '\0'^0xAC },
-		{ 'O'^0x7A, 'l'^0x7A, 'l'^0x7A, 'y'^0x7A, 'D'^0x7A, 'b'^0x7A, 'g'^0x7A, '\0'^0x7A, '\0'^0xFF, '\0'^0x52, '\0'^0x12, '\0', '\0'^0x05, '\0'^0xCC },
-		{ 'I'^0x7A, 'D'^0x7A, 'A'^0x7A, '\0'^0x7A, '\0'^0x12, '\0'^0x55, '\0'^0xAD, '\0'^0x99, '\0'^0x76, '\0'^0x43, '\0'^0xDB, '\0'^0xA0, '\0'^0x87, '\0'^0x1F } };
+	static unsigned char		cDebuggerNames[][14] = { 
+		{ 'C'^0x56, 'h'^0x56, 'e'^0x56, 'a'^0x56, 't'^0x56, ' '^0x56, 'E'^0x56, 'n'^0x56, 'g'^0x56, 'i'^0x56, 'n'^0x56, 'e'^0x56, '\0'^0x56, '\0'^0xAC },
+		{ 'O'^0x56, 'l'^0x56, 'l'^0x56, 'y'^0x56, 'D'^0x56, 'b'^0x56, 'g'^0x56, '\0'^0x56, '\0'^0xFF, '\0'^0x52, '\0'^0x12, '\0', '\0'^0x05, '\0'^0xCC },
+		{ 'I'^0x56, 'D'^0x56, 'A'^0x56, '\0'^0x56, '\0'^0x12, '\0'^0x55, '\0'^0xAD, '\0'^0x99, '\0'^0x76, '\0'^0x43, '\0'^0xDB, '\0'^0xA0, '\0'^0x87, '\0'^0x1F } };
     static bool		bDecrypted = false;
 
 	UNREFERENCED_PARAMETER(lParam);
@@ -514,18 +514,32 @@ BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
 		for ( BYTE i = 0; i < 3; ++i )
 		{
 			for ( BYTE j = 0; j < 14;  ++j )
-				cDebuggerNames[i][j] ^= 0x7A;
+				cDebuggerNames[i][j] ^= 0x56;
 		}
 		bDecrypted = true;
 	}
 	
 	char			cBuffer[16];
 
-    GetWindowText(hwnd, cBuffer, 16);
-    if(strstr(cBuffer, cDebuggerNames[0]/*"Cheat Engine"*/) || strstr(cBuffer, cDebuggerNames[1]/*"OllyDbg"*/) || strstr(cBuffer, cDebuggerNames[2]/*"IDA"*/) )
+    GetWindowText(hwnd, cBuffer, sizeof(cBuffer));
+    if(strstr(cBuffer, reinterpret_cast<char*>(cDebuggerNames[0])/*"Cheat Engine"*/) || strstr(cBuffer, reinterpret_cast<char*>(cDebuggerNames[1])/*"OllyDbg"*/) || strstr(cBuffer, reinterpret_cast<char*>(cDebuggerNames[2])/*"IDA"*/) )
 		ExitProcess(0);
 
     return TRUE;
+}
+
+void OnGameTermination()
+{
+	CUpdateManager::InstallIfNeeded();
+
+	delete[] CPedData::pPedData;
+	CUpdateManager::Terminate();
+	CDLCManager::Terminate();
+	//CPNGArchive::Shutdown();
+	LogToFile("Logging ended\n");
+
+	// WORKAROUND
+	ExitProcess(0);
 }
 
 DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
@@ -567,8 +581,8 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 	}
 
 	LogToFile("Process has been killed on user request");
-	CUpdateManager::InstallIfNeeded();
-	ExitProcess(0);
+	OnGameTermination();
+	return TRUE;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
@@ -603,19 +617,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 			CDLCManager::Initialise();
 			break;
 		}
-	case DLL_PROCESS_DETACH:
+	/*case DLL_PROCESS_DETACH:
 		{
-#if NUM_VEHICLES > 212
-			delete ModelCarsMalloc;
-#endif
-			delete[] CPedData::pPedData;
-			CUpdateManager::Terminate();
-			CDLCManager::Terminate();
-			LogToFile("Logging ended\n");
+			LogToFile("Jelly?");
 			break;
-		}
-	default:
-		break;
+		}*/
 	}
 	return TRUE;
 }
@@ -1872,11 +1878,25 @@ void __declspec(naked) CamHack()
 }
 
 // Fixed
-/*void TempExitFix()
+void TempExitFix()
 {
 	CUpdateManager::InstallIfNeeded();
 	ExitProcess(0);
-}*/
+}
+
+void* __stdcall CorrectedMallocTest(int nSize, int nAlign)
+{
+	static int	nTotalSize = 0;
+	int			nProperSize = nSize;
+
+	if ( nSize % nAlign )
+		nProperSize += (4-nSize % nAlign);
+
+	nTotalSize += nProperSize;
+
+	LogToFile("Requesting %d bytes, %d bytes used so far", nSize, nTotalSize);
+	return malloc(nProperSize);
+}
 
 __forceinline void Main_Patches()
 {
@@ -1887,6 +1907,10 @@ __forceinline void Main_Patches()
 
 	// TEMPORARY WORKAROUND FOR A CRASH
 	Patch<BYTE>(0x6195E0, 0xC3);
+
+	//InjectHook(0x4A9CA0, CorrectedMallocTest, PATCH_JUMP);
+	// Fixes a heap corruption by R*
+	Nop(0x5C25D3, 5);
 
 #ifdef INCLUDE_SQUARE_RADAR
 	InjectHook(0x5832F0, SquareRadar, PATCH_JUMP);
@@ -1911,6 +1935,8 @@ __forceinline void Main_Patches()
 #ifdef V_RADAR_TEST
 	InjectHook(0x58696E, Draw3DRadarHook, PATCH_JUMP);
 	InjectHook(0x586408, RadarTransformHook);
+	InjectHook(0x5864EB, CRadar::Set3DVerts);
+	InjectHook(0x586500, CRadar::Render3D);
 #endif
 
 #ifdef INCLUDE_COOL_BINK_SCREEN
@@ -1998,6 +2024,10 @@ __forceinline void Main_Patches()
 #ifndef DONT_FIX_STREAMING
 	InjectHook(0x4076EC, NodeCrashFix2, PATCH_JUMP);
 #endif
+
+	InjectHook(0x748EDA, OnGameTermination);
+
+	CAECustomBankLoader::Patch();
 
 	// Fixes a crash when game is launched for the second time and first instance has no created window yet
 	InjectHook(0x74872D, IsAlreadyRunning);
@@ -2685,7 +2715,6 @@ __forceinline void Main_Patches()
 
 	// Autoupdater
 	InjectHook(0x53E77C, CUpdateManager::Process);
-	InjectHook(0x748EDA, CUpdateManager::InstallIfNeeded);
 	InjectHook(0x53BF4E, UpdaterProcessHack);
 	InjectHook(0x579526, UpdaterMenuDrawHack, PATCH_JUMP);
 	InjectHook(0x579D50, UpdaterTextSwap, PATCH_JUMP);
@@ -2762,15 +2791,19 @@ __forceinline void Main_Patches()
 	Nop(0x573BB8, 3);
 
 	// No green blip
-	patch(0x53E1EC, 0xEB, 1);
+	Patch<BYTE>(0x53E1EC, 0xEB);
 
 	// HJ
 //	patch(0x55AC70, sizeof(HJ_Stats_Jumptable) / sizeof(void*) - 1, 1);
 //	patch(0x55AC7A, &HJ_Stats_Jumptable, 4);
 
 	// RefFix
-	patch(0x6FB97A, &pRefFal, 4);
-	patch(0x6FB9A0, 0, 1);
+	Patch<const void*>(0x6FB97A, &pRefFal);
+	Patch<BYTE>(0x6FB9A0, 0);
+
+	// Relocated sun
+	Patch<float>(0x560A76, 1.0f);
+	Nop(0x560A84, 6);
 
 	// More vehicles
 #if NUM_VEHICLE_MODELS > 212
@@ -3045,6 +3078,7 @@ __forceinline void Main_Patches()
 	InjectHook(0x53BC95, CFileLoader::ParseLevelFile, PATCH_CALL);
 	InjectHook(0x53BC9B, CFileLoader::ParseLevelFile, PATCH_CALL);
 	InjectHook(0x53BCA0, CFileLoader::LoadLevels, PATCH_CALL);
+	InjectHook(0x5B8980, CFileLoader::LoadEntryExit);
 	Patch<BYTE>(0x5B9299, 0xC3);
 	Nop(0x5B931E, 3);
 	Nop(0x5BCFEC, 5);
@@ -3282,8 +3316,10 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x58A88F, HUD_TRANSPARENCY);
 	Patch<DWORD>(0x58A8D9, HUD_TRANSPARENCY);
 	Patch<DWORD>(0x58A98F, HUD_TRANSPARENCY);
-	call(0x58641A/*0x58645D*/, &OpaqueRadarHack, PATCH_JUMP);
-	call(0x586500, &OpaqueRadarHack2, PATCH_NOTHING);
+	InjectHook(0x58641A/*0x58645D*/, OpaqueRadarHack, PATCH_JUMP);
+#ifndef V_RADAR_TEST
+	InjectHook(0x586500, OpaqueRadarHack2);
+#endif
 
 	// Temp? Map screen
 	patchf(0x578825, 2000.0);
@@ -3667,10 +3703,7 @@ __forceinline void Main_Patches()
 	Patch<float>(0x585F8E, 1.0f);	// Objects
 
 	// Coronas stored in a vector
-	InjectHook(0x6FC180, CCoronas::RegisterCorona, PATCH_JUMP);
-	InjectHook(0x6FC4D0, CCoronas::UpdateCoronaCoors, PATCH_JUMP);
-	InjectHook(0x53C13B, CCoronas::Update);
-	//InjectHook(0x5BA306, CCoronas::Init);
+	CCoronas::Inject();
 
 	// Own BaseColors::BaseColors
 	// TODO: Come up with something nicer?
@@ -3678,57 +3711,56 @@ __forceinline void Main_Patches()
 
 	// Weapon sounds
 	// Beretta
-	patchf(0x504FB0, 1.0);
-	patch(0x504FB8, 0xFF, 1);
-	patch(0x504FBE, 0xFF, 1);
-	patch(0x504FC0, 0xFF, 1);
+	Patch<float>(0x504FB0, 1.0f);
+	Patch<BYTE>(0x504FB8, 0xFF);
+	Patch<BYTE>(0x504FBE, 0xFF);
+	Patch<BYTE>(0x504FC0, 0xFF);
 
 	// Python
-	patchf(0x504FD7, 1.0);
-	patch(0x504FDF, 0xFF, 1);
-	patch(0x504FE1, 0x19, 1);
-	patch(0x504FE3, 0x18, 1);
-	patch(0x504FE5, 0xFF, 1);
-	patch(0x504FE7, 0xFF, 1);
+	Patch<float>(0x504FD7, 1.0f);
+	Patch<BYTE>(0x504FDF, 0xFF);
+	Patch<BYTE>(0x504FE1, 0x19);
+	Patch<BYTE>(0x504FE3, 0x18);
+	Patch<BYTE>(0x504FE5, 0xFF);
+	Patch<BYTE>(0x504FE7, 0xFF);
 
 
 	// Skorpion
-	patchf(0x505076, 1.0);
-	patch(0x505084, 0xFF, 1);
-	patch(0x505086, 0xFF, 1);
+	Patch<float>(0x505076, 1.0f);
+	Patch<BYTE>(0x505084, 0xFF);
+	Patch<BYTE>(0x505086, 0xFF);
 
 	// MP5
-	patch(0x5050AB, 0xFF, 1);
-	patch(0x5050AD, 0xFF, 1);
+	Patch<BYTE>(0x5050AB, 0xFF);
+	Patch<BYTE>(0x5050AD, 0xFF);
 
 	// Shotgun, Stubby
-	patch(0x505133, 0xFF, 1);
-	patch(0x505135, 0xFF, 1);
-	patch(0x505250, &WeaponSounds_Shotgun, 4);
-	patch(0x505254, &WeaponSounds_Stubby, 4);
+	Patch<BYTE>(0x505133, 0xFF);
+	Patch<BYTE>(0x505135, 0xFF);
+	Patch<const void*>(0x505250, &WeaponSounds_Shotgun);
+	Patch<const void*>(0x505254, &WeaponSounds_Stubby);
 
 	// SPAS
-	patchf(0x50510D, 0.75);
+	Patch<float>(0x50510D, 0.75f);
 
 	// AK47
-	patch(0x505036, 0xFF, 1);
-	patch(0x505038, 0xFF, 1);
+	Patch<BYTE>(0x505036, 0xFF);
+	Patch<BYTE>(0x505038, 0xFF);
 
 	// M16
-	patch(0x505268, &WeaponSounds_M16, 4);
-
+	Patch<const void*>(0x505268, &WeaponSounds_M16);
 
 	// M249
-	patch(0x50527C, 0x505220, 4); // Minigun sound
-	patch(0x685B5C, 0xEB, 1); // Crosshair
-	patch(0x58E1BF, 36, 1); // Crosshair
-	patch(0x742A44, 1, 1); // INSTANT_HIT
+	Patch<DWORD>(0x50527C, 0x505220); // Minigun sound
+	Patch<BYTE>(0x685B5C, 0xEB); // Crosshair
+	Patch<BYTE>(0x58E1BF, 36); // Crosshair
+	Patch<BYTE>(0x742A44, 1); // INSTANT_HIT
 
 	// FE_GAME
-	call(0x4DDAE6, &BuySoundCentre, PATCH_JUMP);
-	call(0x4DDD84, &ErrorSoundCentre, PATCH_JUMP);
-	patch(0x4DDAE0, 0x1A, 1);
-	patch(0x4DDD7E, 0x1A, 1);
+	InjectHook(0x4DDAE6, BuySoundCentre, PATCH_JUMP);
+	InjectHook(0x4DDD84, ErrorSoundCentre, PATCH_JUMP);
+	Patch<BYTE>(0x4DDAE0, 0x1A);
+	Patch<BYTE>(0x4DDD7E, 0x1A);
 
 	// All time blur
 	/*Nop(0x704D6C, 2);
@@ -4082,7 +4114,7 @@ void InjectDelayedPatches()
 
 void HighspeedCamShake(float shake)
 {
-	TheCamera.CamShake(shake * 0.025f);
+	CamShakeNoPos(&TheCamera, shake * 0.025f);
 }
 
 void ViceSquadCheckInjectA(int townID)
@@ -6698,18 +6730,6 @@ void __declspec(naked) InjectWindowedMode()
 }
 
 #endif
-
-void ToLower(char* str, BYTE len)
-{
-	do
-	{
-		if ( *str >= 'A' && *str <= 'Z' )
-			*str += 0x20;
-		++str;
-		--len;
-	}
-	while ( len );
-}
 
 void LogToFile(const char* str, ...)
 {

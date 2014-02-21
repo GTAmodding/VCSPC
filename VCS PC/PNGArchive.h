@@ -3,7 +3,7 @@
 
 /**** SILENT'S PNG TEXTURE ARCHIVE FORMAT DOCUMENTATION ****
 
-+ 0 - array of absolute offsets to directories (reading is terminated when ftell(file) equals to the first offset)
++ 0 - array of absolute offsets to directories (reading is terminated when ftell(file) equals the first offset)
 + 4*num_directories - array of directories - each entry consists of:
 		+ 0 - char[16] - directory name (00's for root directory)
 		+ 16 - word - number of textures in the directory
@@ -13,11 +13,56 @@
 
 Next section contains raw PNGs data, one after another (no padding) */
 
+#define SPTA_TEX_NAME_LEN		16
+
+class CPNGArchive;
+
+struct SPTAEntryHeader
+{
+	DWORD	dwOffsetToTexture;
+	char	TextureName[SPTA_TEX_NAME_LEN];
+};
+
+// PNG cache
+/*class CPNGAccel
+{
+private:
+	struct Entry
+	{
+		void*		pBuffer;
+
+		// Automatic destruction
+		~Entry() { delete pBuffer; }
+	};
+	struct Directory
+	{
+		std::map<std::string,void*>		pTextures;
+
+		~Directory() { for ( auto it = pTextures.begin(); it != pTextures.end(); it++ ) delete it->second;
+			pTextures.clear(); }
+
+		inline void			AddEntry(const char* pName, void* pMem)
+			{ pTextures[pName] = pMem; }
+	};
+
+	const char*									pCurrentDir;
+	std::map<std::string,Directory>				m_pCachedPNG;
+
+public:
+	~CPNGAccel() { m_pCachedPNG.clear(); }
+	CPNGAccel();
+
+	inline void			SetDirectory(const char* pDirName)
+		{ pCurrentDir = pDirName; }
+	bool				CachePNG(CPNGArchive& pArchive, const char* pName);
+	RwTexture*			ReadTexture(const char* pTextureName);
+};*/
+
 class CPNGArchive
 {
 private:
-	FILE*				m_hArchiveHandle;
-	bool				m_bSetDir;
+	FILE*								m_hArchiveHandle;
+	bool								m_bSetDir;
 
 public:
 	inline CPNGArchive()
@@ -44,6 +89,17 @@ public:
 
 	void				SetDirectory(const char* pDirName);
 	RwTexture*			ReadTexture(const char* pTextureName);
+	//void*				ReadToCache(const char* pTextureName);
+
+/*	// PNG accel stuff
+private:
+	static std::vector<CPNGAccel*>		m_pngCache;
+
+public:
+	static inline void	Shutdown()
+		{ m_pngCache.clear(); }
+	static inline void	NewAccel(CPNGAccel* pAccel)
+		{ m_pngCache.push_back(pAccel); }*/
 };
 
 #endif

@@ -32,18 +32,20 @@ public:
 	CBase*				GetAt(int nIdentifier)
 	{
 		int nSlotIndex = nIdentifier >> 8;
-		if ( nSlotIndex >= 0 && nSlotIndex < m_nNumSlots && m_pSlotInfos[nSlotIndex].b == (nIdentifier & 0xFF) )
-			return &m_pSlots[nSlotIndex];
-		else
-			return nullptr;
+		return nSlotIndex >= 0 && nSlotIndex < m_nNumSlots && m_pSlotInfos[nSlotIndex].b == (nIdentifier & 0xFF) ? &m_pSlots[nSlotIndex] : nullptr;
 	}
 
-	signed int			GetIndex(CBase* pObject)
+	CBase*				GetAtIndex(int nIndex)
+	{
+		return nIndex >= 0 && nIndex < m_nNumSlots && !m_pSlotInfos[nIndex].a.m_bFree ? &m_pSlots[nIndex] : nullptr;
+	}
+
+	signed int			GetHandle(CBase* pObject)
 	{
 		return ((reinterpret_cast<CDerived*>(pObject) - m_pSlots) << 8) + m_pSlotInfos[reinterpret_cast<CDerived*>(pObject) - m_pSlots].b;
 	}
 
-	signed int			GetIndexOnly(CBase* pObject)
+	signed int			GetIndex(CBase* pObject)
 	{
 		return reinterpret_cast<CDerived*>(pObject) - m_pSlots;
 	}
@@ -114,6 +116,6 @@ public:
 		{ return ms_pColModelPool; }
 };
 
-static_assert(sizeof(CPool<bool, bool>) == CPool_ARRAYSIZE, "CPool class has wrong size!");
+static_assert(sizeof(CPool<bool, bool>) == 0x14, "Wrong size: CPool");
 
 #endif

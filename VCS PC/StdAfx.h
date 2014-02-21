@@ -19,6 +19,7 @@
 #include <ctime>
 #include <cmath>
 #include <vector>
+#include <string>
 #include <map>
 #include <cassert>
 #include "buildnumber.h"
@@ -77,52 +78,28 @@
 #define VERSION_NAME_UPPERCASE "BLUE HESPER"
 #define RELEASE_CANDIDATE "1"
 
-#define CEntryData_ARRAYSIZE 0x12
-#define CMenuItem_ARRAYSIZE 0xE2
-#define CPed_ARRAYSIZE 0x79C
-#define CWeaponSlot_ARRAYSIZE 0x1C
-#define CPlayer_ARRAYSIZE 0x190
-#define CRunningScript_ARRAYSIZE 0xE0
-#define CWeaponInfo_ARRAYSIZE 0x70
-#define CDarkel_ARRAYSIZE 0xCC0
-#define RwDevice_ARRAYSIZE 0x38
-#define RwEngineInstance_ARRAYSIZE 0x158
-#define CWanted_ARRAYSIZE 0x29C
-#define CPhysical_ARRAYSIZE 0x138
-#define CEntity_ARRAYSIZE 0x38
-#define CPlaceable_ARRAYSIZE 0x14
-#define LoadedObjectInfo_ARRAYSIZE 0x14
-#define CMenuManager_ARRAYSIZE 0x1B78
-#define CVehicle_ARRAYSIZE 0x5A0
-#define CPlayerData_ARRAYSIZE 0xAC
-#define CGridref_ARRAYSIZE 0xC80
-#define CVehicleModelInfo_ARRAYSIZE 0x308
-#define CPedModelInfo_ARRAYSIZE 0x44
-#define COnscreenTimer_ARRAYSIZE 0x154
-#define CCamera_ARRAYSIZE 0xD78
-#define CBaseModelInfo_ARRAYSIZE 0x20
-#define CText_ARRAYSIZE 0xA90
-#define CGarages_ARRAYSIZE 0x1C
-#define CPad_ARRAYSIZE 0x134
-#define CKeyState_ARRAYSIZE 0x270
-#define CAnimationStyleDescriptor_ARRAYSIZE 0x30
-#define CPool_ARRAYSIZE 0x14
-#define CGangWeapons_ARRAYSIZE 0x10
-#define C3DMarker_ARRAYSIZE 0xA0
-#define CFont_ARRAYSIZE 0x40
-
 #define	PlayerStatsInteger	((int*)0xB78E20)
 #define	PlayerStatsFloat	((float*)0xB79380)
 
 
-void			LogToFile(const char* str, ...);
-void			ToLower(char* str, BYTE len);
-
 // Some handy funcs
+void			LogToFile(const char* str, ...);
+inline void		ToLower(char* str, BYTE len)
+{
+	do
+	{
+		if ( *str >= 'A' && *str <= 'Z' )
+			*str += 0x20;
+		++str;
+		--len;
+	}
+	while ( len );
+}
+
 template<typename T>
 inline T random(T a, T b)
 {
-	return a + static_cast<T>(rand() * (1.0f/32768.0f) * (b - a));
+	return a + static_cast<T>(rand() * (1.0f/(RAND_MAX+1)) * (b - a));
 }
 
 #ifdef MAKE_CONSOLE
@@ -149,9 +126,11 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "..\common\Date.h"
 #include "MemoryMgr.h"
 #include "Rs.h"
+#include "General.h"
 #include "WidescreenSupport.h"
 //#include "ColAccel.h"
-#include "General.h"
+#include "Queue.h"
+#include "BankLoader.h"
 #include "Coronas.h"
 #include "Timer.h"
 #include "PNGArchive.h"
@@ -168,7 +147,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "ModelInfo.h"
 #include "CPedIntelligence.h"
 #include "CWanted.h"
-#include "CPed.h"
+#include "Ped.h"
 #include "Stats.h"
 #include "Darkel.h"
 #include "CVehicle.h"
@@ -193,7 +172,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "Pad.h"
 #include "AnimMgr.h"
 #include "CGangWeapons.h"
-#include "C3DMarker.h"
+#include "3DMarkers.h"
 #include "CShadows.h"
 #include "Audio.h"
 #include "Replay.h"
@@ -201,6 +180,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include "UserDisplay.h"
 #include "Messages.h"
 #include "Radar.h"
+#include "EntryExitMgr.h"
 
 extern char*				latestMissionName;
 extern char*				PriorityText;
@@ -271,10 +251,3 @@ extern CSprite2d				DevLogos[1];
 #endif*/
 
 //extern wchar_t			StatsHTMLLine[256];
-extern const float		fWeaponIconWidth;
-extern const float		fWeaponIconHeight;
-extern const float		fWLStarPosX;
-extern const float		fWLStarPosY;
-extern const float		fWLStarHeight;
-extern const float		fWLStarWidth;
-extern const float		fWLStarDistance;

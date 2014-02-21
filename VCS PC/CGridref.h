@@ -16,6 +16,6 @@ public:
 	static char*	GetNameByID(BYTE gridrefX, BYTE gridrefY);
 };
 
-static_assert(sizeof(CGridref) == CGridref_ARRAYSIZE, "CGridref class has wrong size!");
+static_assert(sizeof(CGridref) == 0xC80, "Wrong size: CGridref");
 
 #endif

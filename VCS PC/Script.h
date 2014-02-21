@@ -178,6 +178,6 @@ public:
 	static bool				IsPlayerOnAMission();
 };
 
-static_assert(sizeof(CRunningScript) == CRunningScript_ARRAYSIZE, "CRunningScript class has wrong size!");
+static_assert(sizeof(CRunningScript) == 0xE0, "Wrong size: CRunningScript");
 
 #endif

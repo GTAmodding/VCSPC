@@ -48,6 +48,17 @@ bool CSprite2d::SetTextureFromSPTA(CPNGArchive& pArchive, const char* pName)
 	return false;
 }
 
+/*void CSprite2d::SetTextureFromCache(CPNGAccel* pCache, const char* pName)
+{
+	if ( pName )
+	{
+		if ( m_pTexture )
+			RwTextureDestroy(m_pTexture);
+
+		m_pTexture = pCache->ReadTexture(pName);
+	}
+}*/
+
 void CSprite2d::Delete()
 {
 	if ( m_pTexture )

@@ -45,9 +45,6 @@
     <ClCompile Include="CGridref.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CPed.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CPedIntelligence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -67,9 +64,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StdAfx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C3DMarker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CShadows.cpp">
@@ -201,6 +195,18 @@
     <ClCompile Include="ColAccel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="3DMarkers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ped.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomBankLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EntryExitMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCam.h">
@@ -216,9 +222,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CGridref.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPedIntelligence.h">
@@ -246,9 +249,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CGangWeapons.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C3DMarker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CShadows.h">
@@ -399,6 +399,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ColAccel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3DMarkers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ped.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BankLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EntryExitMgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

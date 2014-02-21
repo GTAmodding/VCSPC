@@ -1,11 +1,7 @@
-#ifndef __CPED
-#define __CPED
-
-#define WIN32_LEAN_AND_MEAN
-
-#define FUNC_CPed__GiveWeapon								0x5E6080
-#define FUNC_CPed_GetWeaponSkill								0x5E6580
-#define FUNC_CPed__GetBonePosition							0x5E4280
+#ifndef __PED
+#define __PED
+			
+#define FUNC_CPed__GetBonePosition							
 
 class CPedFlags
 {
@@ -279,9 +275,9 @@ public:
 	inline void			SetTargetHeading(float fVal)
 		{ m_fTargetRotation = fVal; }
 
-	void				GiveWeapon(int WeaponType, int WeaponAmmo);
-	void				GetBonePosition(CVector* result, int boneID, bool bUnk);
-	BYTE				GetWeaponSkill();
+	void				GiveWeapon(int WeaponType, int WeaponAmmo, bool bFlag=true);
+	void				GetBonePosition(RwV3d& vecOut, unsigned int nBone, bool bFlag);
+	unsigned char		GetWeaponSkill();
 
 	long double			GetCrosshairSize();
 	void				Remap();
@@ -308,6 +304,6 @@ public:
 	static CPed*		Constructor(CPed* pPed, WORD model);
 };
 
-static_assert(sizeof(CPed) == CPed_ARRAYSIZE, "CPed class has wrong size!");
+static_assert(sizeof(CPed) == 0x79C, "Wrong size: CPed");
 
 #endif

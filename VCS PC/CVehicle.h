@@ -117,6 +117,6 @@ public:
 	void			ProcessRotorsAlpha();
 };
 
-static_assert(sizeof(CVehicle) == CVehicle_ARRAYSIZE, "CVehicle class has wrong size!");
+static_assert(sizeof(CVehicle) == 0x5A0, "Wrong size: CVehicle");
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __C3DMARKER
-#define __C3DMARKER
+#ifndef __3DMARKERS
+#define __3DMARKERS
 
 // VCS colors
 #define MARKER_SET_COLOR_R	0xED
@@ -55,7 +55,7 @@ private:
 	static const float			m_MovingMultiplier;
 
 private:
-	static C3DMarker*			PlaceMarker(RpAtomic* pData, unsigned int markerID, CVector* position, float fSize, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha, unsigned int pulsePeriod, float pulseFraction, int rotateRate, float normalX, float normalY, float normalZ, bool checkZ);
+	static C3DMarker*			PlaceMarker(unsigned int nIndex, unsigned short markerID, CVector& vecPos, float fSize, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha, unsigned short pulsePeriod, float pulseFraction, short rotateRate, float normalX, float normalY, float normalZ, bool checkZ);
 
 public:
 	static inline float*		GetPosZMult()
@@ -63,9 +63,10 @@ public:
 	static inline const float*	GetMovingMult()
 			{ return &m_MovingMultiplier; };
 
-	static void					PlaceMarkerSet(RpAtomic* pData, unsigned int markerID, CVector* position, float fSize, unsigned int red, unsigned int green, unsigned int blue, unsigned char alpha, int pulsePeriod, float pulseFraction);
+	// Last unused param removed
+	static void					PlaceMarkerSet(unsigned int nIndex, unsigned short markerID, CVector& vecPos, float fSize, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha, unsigned short pulsePeriod, float pulseFraction);
 };
 
-static_assert(sizeof(C3DMarker) == C3DMarker_ARRAYSIZE, "C3DMarker class has wrong size!");
+static_assert(sizeof(C3DMarker) == 0xA0, "Wrong size: C3DMarker");
 
 #endif

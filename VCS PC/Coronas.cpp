@@ -1,10 +1,11 @@
 #include "StdAfx.h"
 
-std::vector<CRegisteredCorona>	CCoronas::aCoronas;
-bool							CCoronas::bRemakeReferences;
-int&							CCoronas::NumCoronas = *(int*)0xC3E038;
-int&							CCoronas::bChangeBrightnessImmediately = *(int*)0xC3E034;
-float&							CCoronas::ScreenMult = *(float*)0x8D4B5C;
+std::map<unsigned int,CCoronasLinkedListNode*>	CCoronas::UsedMap;
+CCoronasLinkedListNode							CCoronas::FreeList, CCoronas::UsedList;		
+CCoronasLinkedListNode							CCoronas::aLinkedList[NUM_CORONAS];
+CRegisteredCorona								CCoronas::aCoronas[NUM_CORONAS];
+int&											CCoronas::bChangeBrightnessImmediately = *(int*)0xC3E034;
+float&											CCoronas::ScreenMult = *(float*)0x8D4B5C;
 
 WRAPPER void CRegisteredCorona::Update() { EAXJMP(0x6FABF0); }
 
@@ -34,9 +35,52 @@ void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned cha
 				A *= static_cast<unsigned char>((fDistFromCam-35.0f) * (2.0f/3.0f));
 		}
 
-		bool										bFoundFreeSlot = false;
-		std::vector<CRegisteredCorona>::iterator	freeSlotIt;
-		auto										it = aCoronas.begin();
+		// Is corona already present?
+		CRegisteredCorona*		pSuitableSlot;
+		auto it = UsedMap.find(nID);
+
+		if ( it != UsedMap.end() )
+		{
+			pSuitableSlot = it->second->GetFrom();
+
+			if ( pSuitableSlot->FadedIntensity == 0 && A == 0 )
+			{
+				// Mark as free
+				it->second->GetFrom()->Identifier = 0;				
+				it->second->Add(&FreeList);
+				UsedMap.erase(nID);
+				return;
+			}
+		}
+		else
+		{
+			if ( !A )
+				return;
+
+			// Adding a new element
+			auto	pNewEntry = FreeList.First();
+			if ( !pNewEntry )
+			{
+				LogToFile("ERROR: Not enough space for coronas!");
+				return;
+			}
+
+			pSuitableSlot = pNewEntry->GetFrom();
+
+			// Add to used list and push this index to the map
+			pNewEntry->Add(&UsedList);
+			UsedMap[nID] = pNewEntry;
+
+			pSuitableSlot->FadedIntensity = bFadeIntensity ? 255 : 0;
+			pSuitableSlot->OffScreen = true;
+			pSuitableSlot->JustCreated = true;
+			pSuitableSlot->Identifier = nID;
+		}
+
+
+		/*bool													bFoundFreeSlot = false;
+		std::array<CRegisteredCorona,NUM_CORONAS>::iterator	freeSlotIt;
+		auto													it = aCoronas.begin();
 
 		for ( ; it != aCoronas.end(); it++ )
 		{
@@ -81,39 +125,39 @@ void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned cha
 			}
 			else
 				return;
-		}
+		}*/
 
-		it->Red = R;
-		it->Green = G;
-		it->Blue = B;
-		it->Intensity = A;
-		it->Coordinates = Position;
-		it->Size = Size;
-		it->NormalAngle = normalAngle;
-		it->Range = Range;
-		it->pTex = pTex;
-		it->FlareType = flareType;
-		it->ReflectionType = reflectionType;
-		it->LOSCheck = LOSCheck;
-		it->RegisteredThisFrame = true;
-		it->PullTowardsCam = PullTowardsCam;
-		it->FadeSpeed = FadeSpeed;
+		pSuitableSlot->Red = R;
+		pSuitableSlot->Green = G;
+		pSuitableSlot->Blue = B;
+		pSuitableSlot->Intensity = A;
+		pSuitableSlot->Coordinates = Position;
+		pSuitableSlot->Size = Size;
+		pSuitableSlot->NormalAngle = normalAngle;
+		pSuitableSlot->Range = Range;
+		pSuitableSlot->pTex = pTex;
+		pSuitableSlot->FlareType = flareType;
+		pSuitableSlot->ReflectionType = reflectionType;
+		pSuitableSlot->LOSCheck = LOSCheck;
+		pSuitableSlot->RegisteredThisFrame = true;
+		pSuitableSlot->PullTowardsCam = PullTowardsCam;
+		pSuitableSlot->FadeSpeed = FadeSpeed;
 
-		it->NeonFade = bNeonFade;
-		it->OnlyFromBelow = bOnlyFromBelow;
-		it->WhiteCore = bWhiteCore;
+		pSuitableSlot->NeonFade = bNeonFade;
+		pSuitableSlot->OnlyFromBelow = bOnlyFromBelow;
+		pSuitableSlot->WhiteCore = bWhiteCore;
 
 		if ( pAttachTo )
 		{
-			it->bIsAttachedToEntity = true;
-			it->pEntityAttachedTo = pAttachTo;
+			pSuitableSlot->bIsAttachedToEntity = true;
+			pSuitableSlot->pEntityAttachedTo = pAttachTo;
 
-			pAttachTo->RegisterReference(&it->pEntityAttachedTo);
+			pAttachTo->RegisterReference(&pSuitableSlot->pEntityAttachedTo);
 		}
 		else
 		{
-			it->bIsAttachedToEntity = false;
-			it->pEntityAttachedTo = nullptr;
+			pSuitableSlot->bIsAttachedToEntity = false;
+			pSuitableSlot->pEntityAttachedTo = nullptr;
 		}
 	}
 }
@@ -145,10 +189,26 @@ void CCoronas::Update()
 		nSomeHackyMask = nThisHackyMask;
 	}
 
-	for ( auto it = aCoronas.begin(); it != aCoronas.end(); it++ )
+	auto pNode = UsedList.First();
+	if ( pNode )
 	{
-		if ( it->Identifier )
-			it->Update();
+		while ( pNode != &UsedList )
+		{
+			unsigned int	nIndex = pNode->GetFrom()->Identifier;
+			auto			pNext = pNode->GetNextNode();
+
+			pNode->GetFrom()->Update();
+
+			// Did it become invalid?
+			if ( !pNode->GetFrom()->Identifier )
+			{
+				// Remove from used list
+				pNode->Add(&FreeList);
+				UsedMap.erase(nIndex);
+			}
+
+			pNode = pNext;
+		}
 	}
 }
 
@@ -157,28 +217,30 @@ void CCoronas::UpdateCoronaCoors(unsigned int nID, const CVector& vecPosition, f
 	CVector*	pCamPos = TheCamera.GetCoords();
 	if ( fMaxDist * fMaxDist >= (pCamPos->x - vecPosition.x)*(pCamPos->x - vecPosition.x) + (pCamPos->y - vecPosition.y)*(pCamPos->y - vecPosition.y) )
 	{
-		auto	it = aCoronas.begin();
+		auto	it = UsedMap.find(nID);
 
-		for ( ; it != aCoronas.end(); it++ )
+		if ( it != UsedMap.end() )
 		{
-			if ( it->Identifier == nID )
-				break;
-		}
-
-		if ( it != aCoronas.end() )
-		{
-			it->Coordinates = vecPosition;
-			it->NormalAngle = fNormalAngle;
+			it->second->GetFrom()->Coordinates = vecPosition;
+			it->second->GetFrom()->NormalAngle = fNormalAngle;
 		}
 	}
 }
 
 void CCoronas::Init()
 {
-	// TODO: Do, maybe later
+	// Initialise the lists
+	FreeList.Init();
+	UsedList.Init();
+
+	for ( int i = 0; i < NUM_CORONAS; i++ )
+	{
+		aLinkedList[i].Add(&FreeList);
+		aLinkedList[i].SetEntry(&aCoronas[i]);
+	}
 }
 
-void CCoronas::InvalidateAllReferences()
+/*void CCoronas::InvalidateAllReferences()
 {
 	for ( auto it = aCoronas.begin(); it != aCoronas.end(); it++ )
 	{
@@ -196,7 +258,10 @@ void CCoronas::UpdatePointersInCode()
 		for ( auto it = aCoronas.begin(); it != aCoronas.end(); it++ )
 		{
 			if ( it->pEntityAttachedTo )
+			{
 				it->pEntityAttachedTo->RegisterReference(&it->pEntityAttachedTo);
+				assert(*(int*)(&it->pEntityAttachedTo) == (int)it->pEntityAttachedTo);
+			}
 		}
 
 		// CCoronas::RenderReflections
@@ -215,4 +280,26 @@ void CCoronas::UpdatePointersInCode()
 
 	// CCoronas::Render
 	Memory::Patch<DWORD>(0x6FAF4A, nSize);
+}*/
+
+void CCoronas::Inject()
+{
+	// CCoronas::RenderReflections
+	Memory::Patch<void*>(0x6FB648, &aCoronas->JustCreated + 1);
+	Memory::Patch<void*>(0x6FB6CF, &aCoronas->FadedIntensity);
+
+	// CCoronas::Render
+	Memory::Patch<void*>(0x6FAF42, &aCoronas->pEntityAttachedTo);
+
+	// CCoronas::RenderReflections
+	Memory::Patch<void*>(0x6FB657, &aCoronas[NUM_CORONAS].JustCreated + 1);
+	Memory::Patch<void*>(0x6FB9B8, &aCoronas[NUM_CORONAS].FadedIntensity);
+
+	// CCoronas::Render
+	Memory::Patch<DWORD>(0x6FAF4A, NUM_CORONAS);
+
+	Memory::InjectHook(0x6FC180, CCoronas::RegisterCorona, PATCH_JUMP);
+	Memory::InjectHook(0x6FC4D0, CCoronas::UpdateCoronaCoors, PATCH_JUMP);
+	Memory::InjectHook(0x6FAAD9, CCoronas::Init, PATCH_JUMP);
+	Memory::InjectHook(0x53C13B, CCoronas::Update);
 }
