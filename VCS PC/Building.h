@@ -1,5 +1,7 @@
 #ifndef __BUILDING
-#define __BUILDING 
+#define __BUILDING
+
+#include "General.h"
 
 class NOVMT CBuilding : public CEntity
 {
@@ -24,7 +26,11 @@ public:
 class NOVMT CDummy : public CEntity
 {
 public:
-
+	explicit inline CDummy(int dummy)
+		: CEntity(dummy)
+	{
+		// Dummy ctor
+	}
 };
 
 #endif

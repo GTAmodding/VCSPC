@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "Pad.h"
 
 static CPad* const	Pads = (CPad*)0xB73458;
 

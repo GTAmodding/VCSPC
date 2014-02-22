@@ -15,6 +15,8 @@ public:
 	static void	Init();
 };
 
+extern CGangWeapons*		gangWeapons;
+
 static_assert(sizeof(CGangWeapons) == 0x10, "Wrong size: CGangWeapons");
 
 #endif

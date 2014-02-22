@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "CShadows.h"
+
+#include "3DMarkers.h"
 
 void CShadows::RenderIndicatorShadow(unsigned int nIndex, unsigned char, RwTexture*, CVector* pPos, float radiusX, float, float, float radiusY, short)
 {

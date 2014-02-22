@@ -6,6 +6,7 @@
 //    Implementation of Bruce Schneier's BLOWFISH algorithm from "Applied 
 //    Cryptography", Second Edition.
 #include "StdAfx.h"
+#include <blowfish\Blowfish.h>
 
 //Initialization with a fixed string which consists of the hexadecimal digits of PI (less the initial 3)
 //P-array, 18 32-bit subkeys

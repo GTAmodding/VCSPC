@@ -434,10 +434,8 @@ popd</Command>
     <ClInclude Include="UserDisplay.h" />
     <ClInclude Include="Radar.h" />
     <ClInclude Include="Sprite.h" />
-    <ClInclude Include="CVehicle.h" />
     <ClInclude Include="CWanted.h" />
     <ClInclude Include="CWeaponInfo.h" />
-    <ClInclude Include="CWeaponSlot.h" />
     <ClInclude Include="PcSave.h" />
     <ClInclude Include="Rs.h" />
     <ClInclude Include="StdAfx.h" />
@@ -445,6 +443,7 @@ popd</Command>
     <ClInclude Include="General.h" />
     <ClInclude Include="VCSPC_SDK_Internal.h" />
     <ClInclude Include="VCSPC_SDK.h" />
+    <ClInclude Include="Vehicle.h" />
     <ClInclude Include="VideoPlayer.h" />
     <ClInclude Include="WidescreenSupport.h" />
     <ClInclude Include="World.h" />

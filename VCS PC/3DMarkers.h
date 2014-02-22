@@ -1,6 +1,8 @@
 #ifndef __3DMARKERS
 #define __3DMARKERS
 
+#include "General.h"
+
 // VCS colors
 #define MARKER_SET_COLOR_R	0xED
 #define MARKER_SET_COLOR_G	0x82
@@ -16,8 +18,7 @@
 class C3DMarker
 {
 private:
-    RwMatrix		m_mat;  // local space to world space transform // 0
-    DWORD           dwPad,dwPad2;   // not sure why we need these, it appears to be this way though (eAi)  // 64/68
+    CMatrix			m_mat;  // local space to world space transform // 0
     RpClump*		m_pRwObject; // 72
     void*			m_pMaterial; // 76
     

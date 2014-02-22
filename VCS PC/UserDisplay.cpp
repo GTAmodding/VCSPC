@@ -1,4 +1,12 @@
 #include "StdAfx.h"
+#include "UserDisplay.h"
+
+#include "Messages.h"
+#include "Timer.h"
+#include "Hud.h"
+#include "Replay.h"
+#include "CCamera.h"
+#include "Audio.h"
 
 CPager			CUserDisplay::Pager;
 COnscreenTimer	CUserDisplay::OnscnTimer;

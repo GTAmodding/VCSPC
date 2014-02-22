@@ -1,6 +1,9 @@
 #ifndef __WORLD
 #define __WORLD
 
+#include "General.h"
+#include "PlayerInfo.h"
+
 #define NUM_PLAYERS		2;
 
 class CWorld

@@ -15,6 +15,8 @@ public:
 	static void		PrintMessages();
 };
 
+extern CGarages*			garages;
+
 static_assert(sizeof(CGarages) == 0x1C, "Wrong size: CGarages");
 
 #endif

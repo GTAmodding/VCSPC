@@ -22,6 +22,11 @@
 #include <string>
 #include <map>
 #include <cassert>
+
+#pragma warning(disable:4512)
+#include <boost\bimap.hpp>
+#pragma warning(default:4512)
+
 #include "buildnumber.h"
 
 
@@ -119,68 +124,11 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include <rwsdk\rpworld.h>
 #include <rwsdk\rtpng.h>
 
-#include <binkW32\bink.h>
-#include <blowfish\Blowfish.h>
-#include "VCSPC_SDK_Internal.h"
-#include "VCSPC_SDK.h"
-#include "..\common\Date.h"
+#include "CCRC32.h"
 #include "MemoryMgr.h"
 #include "Rs.h"
-#include "General.h"
 #include "WidescreenSupport.h"
-//#include "ColAccel.h"
-#include "Queue.h"
-#include "BankLoader.h"
-#include "Coronas.h"
-#include "Timer.h"
-#include "PNGArchive.h"
-#include "CCRC32.h"
 #include "FileMgr.h"
-#include "PcSave.h"
-#include "Sprite.h"
-#include "EmpireMgr.h"
-#include "CCam.h"
-#include "CCamera.h"
-#include "Building.h"
-#include "CWeaponInfo.h"
-#include "CWeaponSlot.h"
-#include "ModelInfo.h"
-#include "CPedIntelligence.h"
-#include "CWanted.h"
-#include "Ped.h"
-#include "Stats.h"
-#include "Darkel.h"
-#include "CVehicle.h"
-#include "PlayerInfo.h"
-#include "World.h"
-#include "CConfiscatedWeapons.h"
-#include "Pools.h"
-#include "Script.h"
-#include "Streaming.h"
-#include "Text.h"
-#include "RwEngineInstance.h"
-#include "Font.h"
-#include "Clock.h"
-#include "Hud.h"
-#include "UpdateManager.h"
-#include "DLCManager.h"
-#include "Frontend.h"
-#include "CutsceneManager.h"
-#include "Garages.h"
-//#include "CGridref.h"
-#include "TxdStore.h"
-#include "Pad.h"
-#include "AnimMgr.h"
-#include "CGangWeapons.h"
-#include "3DMarkers.h"
-#include "CShadows.h"
-#include "Audio.h"
-#include "Replay.h"
-#include "VideoPlayer.h"
-#include "UserDisplay.h"
-#include "Messages.h"
-#include "Radar.h"
-#include "EntryExitMgr.h"
 
 extern char*				latestMissionName;
 extern char*				PriorityText;
@@ -192,8 +140,6 @@ extern char*				StyledText_5;
 extern char*				StyledText_6;
 extern char*				StyledText_7;
 extern char*				Garage_MessageIDString;
-extern SCRIPT_VAR*			scriptParams;
-extern SCRIPT_VAR*			scriptLocals;
 extern void*				scmBlock;
 extern DWORD*				CPopulation__allRandomPedThisType;
 extern DWORD*				unkLastBreathCheck;
@@ -201,9 +147,6 @@ extern DWORD*				PlayerEnexEntryStage;
 extern DWORD*				activeInterior;
 extern DWORD*				memoryAvailable;
 extern DWORD*				memoryUsed;
-extern eFlash*				wFlashingComponentID;
-extern long*				CTRubberMinPos;
-extern long*				CTRubberMaxPos;
 extern float*				WidthAspectRatio;
 extern float*				HeightAspectRatio;
 extern float*				ScreenAspectRatio;
@@ -212,42 +155,19 @@ extern BYTE*				bWants_To_Draw_Hud;
 extern BYTE*				radarGrey;
 extern bool*				bHideStyledTextWhileFading;
 extern float*				currentFPS;
-extern RsGlobalType&		RsGlobal;
-extern CRGBA*				BaseColors;
-extern CMenuManager&		FrontEndMenuManager;
-extern CAudioEngine&		AudioEngine;
-extern std::pair<void*,int>* const materialRestoreData;
 //extern CGridref*			gridref;
-extern CText&				TheText;
 extern void**				rwengine;
-extern CCamera&				TheCamera;
-extern CGarages*			garages;
-extern CKeyState*			activeKeyState;
-extern CKeyState*			currKeyState;
-extern CKeyState*			prevKeyState;
 //extern CSprite2d*			texFonts;
-extern CGangWeapons*		gangWeapons;
-extern CRunningScript**		pActiveScripts;
-extern CRunningScript*		ScriptsArray;
-extern RwIm2DVertex* const	aSpriteVertices;
-extern RwTexture** const	gpCoronaTexture;
-extern RwCamera*&			Scene;
 extern void					(*TheScriptsInitFunc)();
-extern const char*	(__thiscall *CLEOGetTextFunc)(CText*, const char*);
 
-extern CCRC32				HashingClass;
 extern bool					InAmazingScreenshotMode;
-//extern BYTE					bLastPedPrimaryColour, bLastPedSecondaryColour, bLastPedTertiaryColour, bLastPedQuaternaryColour;
+
+extern char					gString[552];
+extern char					gUString[552];
+extern CCRC32				HashHelper;
+
 #ifdef INCLUDE_MULTIFONTFILES
 extern bool					bCanReloadFonts;
 extern eFontFileIDs			bLastFontsID;
 #endif
 
-extern char					gString[552];
-extern char					gUString[552];
-
-/*#if DEBUG
-extern CSprite2d				DevLogos[1];
-#endif*/
-
-//extern wchar_t			StatsHTMLLine[256];

@@ -1,6 +1,8 @@
 #ifndef __USERDISPLAY
 #define __USERDISPLAY
 
+#include "General.h"
+
 #define NUM_MAX_PAGER_MESSAGES	8
 
 #define NUM_ONSCREEN_COUNTERS	4

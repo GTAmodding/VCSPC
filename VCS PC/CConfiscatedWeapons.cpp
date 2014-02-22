@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "CConfiscatedWeapons.h"
 
 void CConfiscatedWeapons::SaveConfiscatedWeapons(const CPlayerInfo& pPlayer)
 {
@@ -7,8 +8,8 @@ void CConfiscatedWeapons::SaveConfiscatedWeapons(const CPlayerInfo& pPlayer)
 
 	do
 	{
-		dwWeapType[bLoopCounter] = pPlayer.GetPed()->GetWeaponSlots()[bLoopCounter].dwType;
-		dwWeapAmmo[bLoopCounter] = pPlayer.GetPed()->GetWeaponSlots()[bLoopCounter].dwAmmoRemaining;
+		dwWeapType[bLoopCounter] = pPlayer.GetPed()->GetWeaponSlots()[bLoopCounter].m_eWeaponType;
+		dwWeapAmmo[bLoopCounter] = pPlayer.GetPed()->GetWeaponSlots()[bLoopCounter].m_nAmmoTotal;
 		if ( dwWeapType[bLoopCounter] )
 			bAnyWeaponsToReturn = true;
 

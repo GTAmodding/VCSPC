@@ -1,6 +1,9 @@
 #ifndef __SPRITE
 #define __SPRITE
 
+#include "PNGArchive.h"
+#include "General.h"
+
 #define NUM_LOADING_SPLASHES		12
 
 class CSprite2d
@@ -33,5 +36,6 @@ public:
 	static void			DrawRect(const CRect& rect, const CRGBA& colour);
 };
 
+extern RwIm2DVertex* const	aSpriteVertices;
 
 #endif

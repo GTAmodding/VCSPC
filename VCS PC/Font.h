@@ -1,6 +1,9 @@
 #ifndef __FONT
 #define __FONT
 
+#include "General.h"
+#include "Sprite.h"
+
 enum	// Align
 {
 	ALIGN_Center,

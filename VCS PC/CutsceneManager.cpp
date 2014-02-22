@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "CutsceneManager.h"
+
+#include "ModelInfo.h"
 
 void CCutsceneMgr::SetProperCSPlrModel(char* pModel)
 {

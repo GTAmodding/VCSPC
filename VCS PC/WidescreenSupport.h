@@ -1,12 +1,14 @@
 #ifndef __WIDESCREENSUPPORT
 #define __WIDESCREENSUPPORT
 
+#include "General.h"
+
 class WidescreenSupport
 {
 public:
-	static long&	nCTRubberSlider;
-	static long*&	nCTRubberSliderMinPos;
-	static long*&	nCTRubberSliderMaxPos;
+	static int&		nCTRubberSlider;
+	static int&		nCTRubberSliderMinPos;
+	static int&		nCTRubberSliderMaxPos;
 	static float*&	fHorizontalAspectRatio;
 	static float*&	fVerticalAspectRatio;
 	static float	fScreenWidthMultiplier;
@@ -63,27 +65,23 @@ public:
 
 	static const float	fFOVMultiplier;
 
-	static void				Recalculate(long nWidth, long nHeight, bool bAlways);
+	static void				Recalculate(int nWidth, int nHeight, bool bAlways);
 	static float			SetAspectRatio();
 	static float			GetTextPosition();
 //	static float			GetSkyWidth();
 	static unsigned char	GetTextBoxPos();
 //	static void		SetFieldOfView(float FOV);
 
-	inline static float GetScreenWidthMultiplier()
-	{
-		return fScreenWidthMultiplier;
-	}
+	static inline float GetScreenWidthMultiplier()
+		{ return fScreenWidthMultiplier; }
 
-	inline static float GetScreenWidthDivider()
-	{
-		return fScreenWidthDivider;
-	}
+	static inline float GetScreenWidthDivider()
+		{ return fScreenWidthDivider; }
 
-	inline static float GetScreenHeightMultiplier()
-	{
-		return fScreenHeightMultiplier;
-	}
+	static inline float GetScreenHeightMultiplier()
+		{ return fScreenHeightMultiplier; }
+
+	static CVector2D	GetFullscreenImageDimensions(float fImageAspectRatio, float fScreenAspectRatio, bool bFitToScreen);
 };
 
 #endif

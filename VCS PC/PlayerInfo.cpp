@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "PlayerInfo.h"
+
+#include "World.h"
 
 // Wrappers
 WRAPPER void CPlayerInfo::KillPlayer() { EAXJMP(0x56E580); }

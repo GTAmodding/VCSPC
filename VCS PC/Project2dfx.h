@@ -1,6 +1,8 @@
 #ifndef __PROJECT2DFX
 #define __PROJECT2DFX
 
+#include "General.h"
+
 #define		CORONAS_FARCLIP			2500.0f
 
 class CLamppostInfo

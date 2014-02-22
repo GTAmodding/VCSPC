@@ -1,7 +1,7 @@
 #ifndef __CCONFISCATEDWEAPONS
 #define __CCONFISCATEDWEAPONS
 
-#define WIN32_LEAN_AND_MEAN
+#include "PlayerInfo.h"
 
 class CConfiscatedWeapons
 {

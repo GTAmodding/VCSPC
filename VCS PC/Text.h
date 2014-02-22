@@ -71,6 +71,9 @@ public:
 	void					Unload(bool bKeepMissionText);
 };
 
+extern const char*	(__thiscall *CLEOGetTextFunc)(CText*, const char*);
+extern CText&				TheText;
+
 static_assert(sizeof(CText) == 0xA90, "Wrong size: CText");
 
 #endif

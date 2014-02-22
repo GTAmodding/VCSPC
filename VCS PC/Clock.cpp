@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "Clock.h"
 
 unsigned char&	CClock::ms_nGameClockHours = *(unsigned char*)0xB70153;
 unsigned char&	CClock::ms_nGameClockMinutes = *(unsigned char*)0xB70152;

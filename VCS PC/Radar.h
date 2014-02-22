@@ -1,6 +1,9 @@
 #ifndef __RADAR
 #define __RADAR
 
+#include "General.h"
+#include "Sprite.h"
+
 #define NUM_BLIP_SPRITES	64
 
 class CRadar

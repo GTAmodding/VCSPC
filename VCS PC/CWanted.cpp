@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "CWanted.h"
 
 bool CWanted::ShouldSendViceSquad()
 {

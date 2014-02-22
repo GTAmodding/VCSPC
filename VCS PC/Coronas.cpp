@@ -1,4 +1,8 @@
 #include "StdAfx.h"
+#include "Coronas.h"
+
+#include "CCamera.h"
+#include "Timer.h"
 
 std::map<unsigned int,CCoronasLinkedListNode*>	CCoronas::UsedMap;
 CCoronasLinkedListNode							CCoronas::FreeList, CCoronas::UsedList;		

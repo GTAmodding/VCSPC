@@ -82,6 +82,8 @@ public:
 	void				ReportFrontendAudioEvent(long nSoundID, float fUnk, float fVolume);
 };
 
+extern CAudioEngine&		AudioEngine;
+
 static_assert(sizeof(tVehicleAudioSettings) == 0x24, "tVehicleAudioSettings has wrong size!");
 
 #endif

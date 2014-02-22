@@ -1,6 +1,8 @@
 #ifndef __GENERAL
 #define __GENERAL
 
+#include "..\common\Date.h"
+
 #define RAD_TO_DEG								(180.0/M_PI)
 #define DEG_TO_RAD								(M_PI/180.0)
 
@@ -409,6 +411,10 @@ public:
 
 bool CalcScreenCoors(const CVector& vecIn, CVector* vecOut);
 void LoadingScreenLoadingFile(const char* pText);
+
+extern CRGBA*				BaseColors;
+extern RwCamera*&			Scene;
+extern CCRC32				HashHelper;
 
 static_assert(sizeof(CEntity) == 0x38, "Wrong size: CEntity");
 static_assert(sizeof(CPhysical) == 0x138, "Wrong size: CPhysical");

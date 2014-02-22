@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "DLCManager.h"
+
+#include "Frontend.h"
 
 CExpansionPack*			CDLCManager::m_pDLC[NUM_DLC_PACKS];
 int						CDLCManager::m_nActiveDLCIndex[NUM_DLC_PACKS];

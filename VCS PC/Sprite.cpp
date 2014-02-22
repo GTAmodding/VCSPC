@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "Sprite.h"
 
 // Wrappers
 WRAPPER void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4)

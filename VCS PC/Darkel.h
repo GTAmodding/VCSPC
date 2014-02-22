@@ -1,6 +1,9 @@
 #ifndef __DARKEL
 #define __DARKEL
 
+#include "Ped.h"
+#include "CWeaponInfo.h"
+
 class CDarkel
 {
 private:

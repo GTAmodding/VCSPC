@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "Messages.h"
 
 // Wrappers
 WRAPPER void CMessages::InsertNumberInString(const char* pszText, int nNumber1, int nNumber2, int nNumber3, int nNumber4, int nNumber5, int nNumber6, char* pszOutBuf)

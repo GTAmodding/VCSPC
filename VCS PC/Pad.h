@@ -125,6 +125,10 @@ public:
 	static void			UpdatePads();
 };
 
+extern CKeyState*			activeKeyState;
+extern CKeyState*			currKeyState;
+extern CKeyState*			prevKeyState;
+
 static_assert(sizeof(CPad) == 0x134, "Wrong size: CPad");
 static_assert(sizeof(CKeyState) == 0x270, "Wrong size: CKeyState");
 

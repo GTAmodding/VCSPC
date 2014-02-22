@@ -14,6 +14,7 @@
  *
  */
 #include "StdAfx.h"
+#include "BankLoader.h"
 
 // Request status
 enum

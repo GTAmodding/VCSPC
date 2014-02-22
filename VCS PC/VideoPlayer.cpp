@@ -1,4 +1,8 @@
 #include "StdAfx.h"
+#include "VideoPlayer.h"
+
+#include "Rs.h"
+#include "Sprite.h"
 
 BINK*				CVideoPlayer::m_hBinkPlayer;
 BINKBUFFER*			CVideoPlayer::m_hBinkBuffer;
@@ -70,20 +74,9 @@ void CVideoPlayer::Create(const char* pFileName, const CRect* pVideoFrame, bool 
 
 		if ( !pVideoFrame )
 		{
-			unsigned int	dwBinkWindowScale[2];
-			double			fVideoAspectRatio = static_cast<double>(m_hBinkPlayer->Width) / m_hBinkPlayer->Height;
+			CVector2D		vecVidScale = WidescreenSupport::GetFullscreenImageDimensions(static_cast<float>(m_hBinkPlayer->Width)/m_hBinkPlayer->Height, WidescreenSupport::SetAspectRatio(), true);
 			
-			if ( static_cast<double>(RsGlobal.MaximumHeight) * fVideoAspectRatio > RsGlobal.MaximumWidth )
-			{
-				dwBinkWindowScale[0] = RsGlobal.MaximumWidth;
-				dwBinkWindowScale[1] = static_cast<unsigned int>(RsGlobal.MaximumWidth / fVideoAspectRatio);
-			}
-			else
-			{
-				dwBinkWindowScale[0] = static_cast<unsigned int>(RsGlobal.MaximumHeight * fVideoAspectRatio);
-				dwBinkWindowScale[1] = RsGlobal.MaximumHeight;
-			}
-			BinkBufferSetScale(m_hBinkBuffer, dwBinkWindowScale[0], dwBinkWindowScale[1]);
+			BinkBufferSetScale(m_hBinkBuffer, static_cast<unsigned int>(vecVidScale.x), static_cast<unsigned int>(vecVidScale.y));
 		}
 		else
 			BinkBufferSetScale(m_hBinkBuffer, static_cast<unsigned int>(abs(pVideoFrame->x2 - pVideoFrame->x1)), static_cast<unsigned int>(abs(pVideoFrame->y2 - pVideoFrame->y1)));

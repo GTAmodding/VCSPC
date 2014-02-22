@@ -1,6 +1,9 @@
 #ifndef __MODELINFO
 #define __MODELINFO
 
+#include "EmpireMgr.h"
+#include "General.h"
+
 // Not used with CDynamicStore-based storages
 #define NUM_VEHICLE_MODELS									212
 #define NUM_PED_MODELS										278
@@ -605,5 +608,7 @@ public:
 	static CTimeModelInfo*								AddTimeModel(int nModelID);
 	static void											ShutDown();
 };
+
+extern std::pair<void*,int>* const materialRestoreData;
 
 #endif

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "World.h"
 
 CPlayerInfo* const	CWorld::Players = (CPlayerInfo*)0xB7CD98;
 unsigned char&		CWorld::PlayerInFocus = *(unsigned char*)0xB7CD74;

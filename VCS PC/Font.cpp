@@ -1,4 +1,8 @@
 #include "StdAfx.h"
+#include "Font.h"
+
+#include "Frontend.h"
+#include "Text.h"
 
 CSprite2d			CFont::Sprite[NUM_FONT_SHEETS];
 CFont::sFontSizes	CFont::Size[NUM_FONT_SHEETS];

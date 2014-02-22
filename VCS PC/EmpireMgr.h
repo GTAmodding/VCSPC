@@ -1,10 +1,12 @@
 #ifndef __EMPIREMGR
 #define __EMPIREMGR
 
+#include "General.h"
+#include "Building.h"
+
 #define NUM_EMPIRES				30
 #define NUM_EMPIRE_TYPES		7		// Including Undeveloped
 
-class CBuilding;
 
 struct tEmpireType
 {

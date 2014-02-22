@@ -1,9 +1,18 @@
 ﻿#include "StdAfx.h"
+#include "Frontend.h"
+
+#include "Font.h"
+#include "Timer.h"
+#include "UpdateManager.h"
+#include "Messages.h"
+#include "Stats.h"
+#include "VideoPlayer.h"
+#include "Text.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
 
-long				CMenuManager::ms_nRubberSlider;
+int					CMenuManager::ms_nRubberSlider;
 float				CMenuManager::m_fStatsScrollPos;
 int					CMenuManager::m_nFocusedDLC = -1;
 int					CMenuManager::m_nLastFocusedDLC = -1;
@@ -374,18 +383,9 @@ WRAPPER void CMenuManager::SwitchToNewScreen(signed char bScreen) { WRAPARG(bScr
 void CMenuManager::DrawBackEnd()
 {
 	// Calculate proper dimensions
-	CVector2D				vecSplashScale;
-	if ( RsGlobal.MaximumHeight * 16.0f/9.0f > RsGlobal.MaximumWidth )
-	{
-		vecSplashScale.x = RsGlobal.MaximumHeight * (16.0f/9.0f);
-		vecSplashScale.y = static_cast<float>(RsGlobal.MaximumHeight);
-	}
-	else
-	{
-		vecSplashScale.x = static_cast<float>(RsGlobal.MaximumWidth);
-		vecSplashScale.y = RsGlobal.MaximumWidth * (9.0f/16.0f);
-	}
-
+	// Displayed image is 16:9
+	CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(16.0f/9.0f, *ScreenAspectRatio, false);
+	
 	CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, RsGlobal.MaximumHeight * 0.95f - 5.0f), CRGBA(7, 7, 7, 255));
 	textures[13].Draw(CRect(-2.5f - (vecSplashScale.x-RsGlobal.MaximumWidth), RsGlobal.MaximumHeight * 0.95f, RsGlobal.MaximumWidth + 2.5f, -2.5f - (vecSplashScale.y-RsGlobal.MaximumHeight)), CRGBA(255, 255, 255, 255));
 
@@ -619,17 +619,7 @@ void CMenuManager::DrawOutroSplash()
 	{
 		LoadSplashes(true, 0);
 
-		CVector2D				vecSplashScale;
-		if ( RsGlobal.MaximumHeight * 512.0f/400.0f > RsGlobal.MaximumWidth )
-		{
-			vecSplashScale.x = static_cast<float>(RsGlobal.MaximumWidth);
-			vecSplashScale.y = static_cast<float>(RsGlobal.MaximumWidth * (1.0f/(512.0f/400.0f)));
-		}
-		else
-		{
-			vecSplashScale.x = static_cast<float>(RsGlobal.MaximumHeight * (512.0f/400.0f));
-			vecSplashScale.y = static_cast<float>(RsGlobal.MaximumHeight);
-		}
+		CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(512.0f/400.0f, *ScreenAspectRatio, true);
 
 		rectSpriteDimensions.x1 = 0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x);
 		rectSpriteDimensions.y1 = 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y);
@@ -1202,17 +1192,7 @@ void LoadingScreen()
 			if ( !CurrentLoadingSprite )
 			{
 				// title_pc
-				CVector2D				vecSplashScale;
-				if ( RsGlobal.MaximumHeight * 640.0f/448.0f > RsGlobal.MaximumWidth )
-				{
-					vecSplashScale.x = static_cast<float>(RsGlobal.MaximumWidth);
-					vecSplashScale.y = static_cast<float>(RsGlobal.MaximumWidth * (1.0f/(640.0f/448.0f)));
-				}
-				else
-				{
-					vecSplashScale.x = static_cast<float>(RsGlobal.MaximumHeight * (640.0f/448.0f));
-					vecSplashScale.y = static_cast<float>(RsGlobal.MaximumHeight);
-				}
+				CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(640.0f/448.0f, WidescreenSupport::SetAspectRatio(), true);
 
 				LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
 			}

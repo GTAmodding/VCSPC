@@ -1,4 +1,8 @@
 #include "StdAfx.h"
+#include "ModelInfo.h"
+
+#include "Pools.h"
+#include "TxdStore.h"
 
 // Static variables
 CBaseModelInfo**						CModelInfo::ms_modelInfoPtrs = (CBaseModelInfo**)0xA9B0C8;

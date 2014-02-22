@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "VCSPC_SDK_Internal.h"
+
+#include "WidescreenSupport.h"
 
 void VCSAPI GetGameMetrics(float* pOutWidth, float* pOutHeight)
 {

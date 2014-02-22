@@ -1,4 +1,9 @@
 #include "StdAfx.h"
+#include "Ped.h"
+
+#include "ModelInfo.h"
+#include "Pools.h"
+#include "PcSave.h"
 
 // Static variables
 CPedData* CPedData::pPedData = new CPedData[140];
@@ -7,10 +12,12 @@ CPedData* CPedData::pPedData = new CPedData[140];
 WRAPPER void CPed::GiveWeapon(int WeaponType, int WeaponAmmo, bool bFlag) { WRAPARG(WeaponType); WRAPARG(WeaponAmmo); WRAPARG(bFlag); EAXJMP(0x5E6080); }
 WRAPPER void CPed::GetBonePosition(RwV3d& vecOut, unsigned int nBone, bool bFlag) { WRAPARG(vecOut); WRAPARG(nBone); WRAPARG(bFlag); EAXJMP(0x5E4280); }
 WRAPPER unsigned char CPed::GetWeaponSkill() { EAXJMP(0x5E6580); }
+WRAPPER void CPed::SetCharCreatedBy(unsigned char bBy) { WRAPARG(bBy); EAXJMP(0x5E47E0); }
+WRAPPER void CPed::SetCurrentWeapon(int nSlot) { WRAPARG(nSlot); EAXJMP(0x5E61F0); }
 
 long double CPed::GetCrosshairSize()
 {
-	CWeaponInfo* pWeapon = CWeaponInfo::GetWeaponInfo(weaponSlots[m_bActiveWeapon].dwType, GetWeaponSkill());
+	CWeaponInfo* pWeapon = CWeaponInfo::GetWeaponInfo(weaponSlots[m_bActiveWeapon].m_eWeaponType, GetWeaponSkill());
 	
 	if ( !pWeapon->GetWeaponType() )
 		return 0.0;
@@ -24,6 +31,19 @@ void CPed::Remap()
 	CPedModelInfoVCS::SetPedColour(pTempPedData->m_color1, pTempPedData->m_color2, pTempPedData->m_color3, pTempPedData->m_color4);
 	CPedModelInfoVCS::SetEditableMaterials(m_pRwObject);
 }
+
+bool CPed::Save()
+{
+	CPedSaveStructure::Construct(this);
+	return true;
+}
+
+bool CPed::Load()
+{
+	CPedSaveStructure::Extract(this);
+	return true;
+}
+
 
 CPed* CPedData::Constructor(CPed* pPed, WORD model)
 {

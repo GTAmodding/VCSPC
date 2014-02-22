@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "Vehicle.h"
 
 static RwObject* GetCurrentAtomicObjectCB(RwObject* pObject, void* data)
 {

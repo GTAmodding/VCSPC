@@ -98,7 +98,6 @@ namespace MemoryVP
 #define patch(a, v, s) _patch((void*)(a), (DWORD)(v), (s))
 #define patchf(a, v) _patch((void*)(a), (float)(v))
 #define nop(a, v) _nop((void*)(a), (v))
-#define call(a, v, bAddCall) _call((void*)(a), (DWORD)(v), (bAddCall))
 #define charptr(a, v) _charptr((void*)(a), (const char*)(v))
 
 __declspec(deprecated) inline void _patch(void* pAddress, DWORD data, DWORD iSize)
@@ -138,25 +137,6 @@ __declspec(deprecated) inline void _nop(void* pAddress, DWORD size)
 		}
 		while ( sizeCopy );
 	}
-}
-
-__declspec(deprecated) inline void _call(void* pAddress, DWORD data, DWORD bPatchType)
-{
-	switch ( bPatchType )
-	{
-	case PATCH_JUMP:
-		*(BYTE*)pAddress = (BYTE)0xE9;
-		break;
-
-	case PATCH_CALL:
-		*(BYTE*)pAddress = (BYTE)0xE8;
-		break;
-
-	default:
-		break;
-	}
-
-	*(DWORD*)((DWORD)pAddress + 1) = (DWORD)data - (DWORD)pAddress - 5;
 }
 
 __declspec(deprecated) inline void _charptr(void* pAddress, const char* pChar)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Queue.h"
+
 struct CAEBankLookupItem
 {
   char 			m_iPak;

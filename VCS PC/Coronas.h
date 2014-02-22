@@ -1,6 +1,8 @@
 #ifndef __CORONAS
 #define __CORONAS
 
+#include "General.h"
+
 #define NUM_CORONAS		3000
 
 class CRegisteredCorona
@@ -96,6 +98,8 @@ public:
 	//static void							InvalidateAllReferences();
 	static void								Inject();
 };
+
+extern RwTexture** const	gpCoronaTexture;
 
 static_assert(sizeof(CRegisteredCorona) == 0x3C, "CRegisteredCorona has wrong size!");
 

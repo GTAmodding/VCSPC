@@ -1,4 +1,7 @@
 #include "stdafx.h"
+#include "Rs.h"
+
+const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 
 WRAPPER RsEventStatus RsEventHandler(RsEvent eventID, void* param) { WRAPARG(eventID); WRAPARG(param); EAXJMP(0x619B60); }
 

@@ -1,6 +1,8 @@
 #ifndef __CSHADOWS
 #define __CSHADOWS
 
+#include "General.h"
+
 class CShadows
 {
 public:

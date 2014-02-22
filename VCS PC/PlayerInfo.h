@@ -1,6 +1,10 @@
 #ifndef __PLAYERINFO
 #define __PLAYERINFO
 
+#include "Ped.h"
+#include "Vehicle.h"
+#include "CWanted.h"
+
 class CPlayerCrosshair
 {
 private:

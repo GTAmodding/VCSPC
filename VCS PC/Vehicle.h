@@ -1,5 +1,7 @@
-#ifndef __CVEHICLE
-#define __CVEHICLE
+#ifndef __VEHICLE
+#define __VEHICLE
+
+#include "General.h"
 
 struct CVehicleFlags
 {

@@ -1,6 +1,10 @@
 #ifndef __CPCSAVE
 #define __CPCSAV
 
+#include "General.h"
+#include "CWeaponInfo.h"
+#include "Ped.h"
+
 // Special Block 0 handling
 #define SAVE_FALLBACK_BLOCK0_VERSION						1
 
@@ -16,12 +20,60 @@ public:
 	static bool				PcClassLoadRoutine(void* pDest, unsigned int dwSize);
 
 	static unsigned int	MakeTimestamp();
-	static long				PerformBlockFallbackOnLoad(long nBlock, bool bSpecialBlock0Call);
+	static int				PerformBlockFallbackOnLoad(int nBlock, bool bSpecialBlock0Call);
 	static void				SaveBlockVersion(int nBlock);
 
 	// Dirty
 	void					LoadFirstBlock(DWORD* pTimestamp);
 };
+
+class CPedSaveStructure
+{
+private:
+	class CPedSaveStructure001
+	{
+	private:
+		CVector			Coords;
+		float			fHealth;
+		float			fArmour;
+		CWeaponSlot		Weapons[13];
+		unsigned char	bCreatedBy;
+		unsigned char	bActiveWeapon;
+		unsigned char	nAreaID;
+		int				nEntryExitID;
+		unsigned char	bFightStyle1;
+		unsigned char	bFightStyle2;
+
+	public:
+		void			Construct(CPed* pPed);		// Should never be used
+		void			Extract(CPed* pPed);
+	};
+
+	class CPedSaveStructure002
+	{
+	private:
+		CVector			Coords;
+		float			fHealth;
+		float			fArmour;
+		unsigned char	bCreatedBy;
+		unsigned char	nAreaID;
+		unsigned int	nEntryExitHash;
+		unsigned char	bFightStyle1;
+		unsigned char	bFightStyle2;
+
+	public:
+		void			Construct(CPed* pPed);		// Should never be used
+		void			Extract(CPed* pPed);
+	};
+
+public:
+	static void			Construct(CPed* pPed);
+	static void			Extract(CPed* pPed);
+
+	static_assert(sizeof(CPedSaveStructure001) == 0x18C, "Wrong size: CPedSaveStructure001");
+	static_assert(sizeof(CPedSaveStructure001) != sizeof(CPedSaveStructure002), "Ped save structure size conflicting");
+};
+
 
 // For hooking sake
 extern int		SlotValidation[NUM_SAVE_SLOTS+1];

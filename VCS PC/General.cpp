@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "General.h"
 
 // Wrappers
 WRAPPER bool CalcScreenCoors(const CVector& vecIn, CVector* vecOut) { WRAPARG(vecIn); WRAPARG(vecOut); EAXJMP(0x71DAB0); }

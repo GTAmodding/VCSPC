@@ -1,6 +1,5 @@
 #include "StdAfx.h"
-
-//std::vector<CPNGAccel*>		CPNGArchive::m_pngCache;
+#include "PNGArchive.h"
 
 static RwBool SPTAClose(void* data)
 {

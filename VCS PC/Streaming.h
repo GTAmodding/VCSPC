@@ -1,6 +1,8 @@
 #ifndef __CSTREAMING
 #define __CSTREAMING	
 
+#include "blowfish\Blowfish.h"
+
 #define NUM_IMG_FILES		64
 #define NUM_STREAMS			(NUM_IMG_FILES+24)
 #define MAX_DRAW_DISTANCE	450.0

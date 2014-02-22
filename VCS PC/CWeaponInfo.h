@@ -113,15 +113,28 @@ enum eWeaponType
     WEAPONTYPE_FLARE
 };
 
+class CWeaponSlot
+{
+public:
+	eWeaponType		m_eWeaponType;
+	eWeaponState	m_eState;
+	int				m_nAmmoInClip;
+	int				m_nAmmoTotal;
+	int				m_nTimer;
+	int				m_Unknown;
+	void*			m_pParticle;
+};
+
+
 class CWeaponInfo
 {
-private:
+public:
 	DWORD				weaponType;
 	DWORD				targetRange;
 	DWORD				weaponRange;
-	DWORD				dwModelID;
-	DWORD				dwModelID2;
-	DWORD				nSlot;
+	int					dwModelID;
+	int					dwModelID2;
+	int					nSlot;
 	DWORD				hexFlags;
 	DWORD				animStyle;
 	WORD				ammoClip;
@@ -146,13 +159,13 @@ private:
 	DWORD				animStyle2;
 
 public:
-	float				GetAccuracy() 
+	inline float				GetAccuracy() 
 							{ return accuracy; };
-	DWORD				GetWeaponType() 
+	inline DWORD				GetWeaponType() 
 							{ return weaponType; };
-	DWORD				GetClipSize() 
+	inline DWORD				GetClipSize() 
 							{ return ammoClip; };
-	DWORD				GetWeaponSlot() 
+	inline DWORD				GetWeaponSlot() 
 							{ return nSlot; };
 
 	static CWeaponInfo*	GetWeaponInfo(eWeaponType weaponID, signed char bType);

@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 
+#include "General.h"
+#include "Frontend.h"
+
 void CRGBA::BaseColors__Constructor()
 {	
 	this[0].r = 0xA6;

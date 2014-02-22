@@ -1,4 +1,11 @@
 #include "StdAfx.h"
+#include "Project2dfx.h"
+
+#include "Coronas.h"
+#include "ModelInfo.h"
+#include "Pools.h"
+#include "CCamera.h"
+#include "Clock.h"
 
 // Model IDs
 static unsigned short	miBouy = 0xFFFF, miDoublestreetlght1 = 0xFFFF, miHigh_lampost = 0xFFFF, miLampost_coast = 0xFFFF, miLamppost1 = 0xFFFF, miLamproad3 = 0xFFFF, miMlamppost = 0xFFFF;

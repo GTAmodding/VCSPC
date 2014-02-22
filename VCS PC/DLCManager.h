@@ -2,6 +2,10 @@
 #define __DLCMGR
 
 #include "..\common\DLCShared.h"
+#include "UpdateManager.h"
+#include "General.h"
+
+// DLC headers
 #include "Project2dfx.h"
 
 class CExpansionPack

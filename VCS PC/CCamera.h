@@ -1,6 +1,9 @@
 #ifndef __CCAMERA
 #define __CCAMERA
 
+#include "General.h"
+#include "CCam.h"
+
 enum eCamMode 
 { 
     MODE_NONE = 0, 
@@ -86,8 +89,6 @@ enum
 {
 	FADE_OUT, FADE_IN
 };
-
-#define	FUNC_CCamera__CamShake								0x50A970
 
 struct CBlurStage
 {
@@ -282,6 +283,8 @@ public:
 };
 
 void CamShakeNoPos(CCamera* pCamera, float fStrength);
+
+extern CCamera&				TheCamera;
 
 //static_assert(sizeof(CCamera) == CCamera_ARRAYSIZE, "CCamera class has wrong size!");
 

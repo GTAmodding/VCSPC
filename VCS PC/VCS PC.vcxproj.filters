@@ -227,16 +227,10 @@
     <ClInclude Include="CPedIntelligence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CVehicle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CWanted.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CWeaponInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CWeaponSlot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StdAfx.h">
@@ -414,6 +408,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EntryExitMgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vehicle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,8 @@
 #include "StdAfx.h"
+#include "Radar.h"
+
+#include "PlayerInfo.h"
+#include "World.h"
 
 CSprite2d* const	CRadar::RadarBlipSprites = (CSprite2d*)0xBAA250;
 

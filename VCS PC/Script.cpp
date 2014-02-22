@@ -1,7 +1,18 @@
 #include "StdAfx.h"
+#include "Script.h"
 
-//CScriptSub*			CScriptSub::m_storage[MAX_SCM_FUNCS_AT_ONCE] = {	};
-//DWORD				CScriptSub::currentIndex = 0;
+#include "General.h"
+#include "Vehicle.h"
+#include "CConfiscatedWeapons.h"
+#include "Text.h"
+#include "CCamera.h"
+#include "Radar.h"
+#include "UserDisplay.h"
+#include "Streaming.h"
+#include "World.h"
+#include "Pools.h"
+#include "EmpireMgr.h"
+#include "PcSave.h"
 
 CScriptFunction		CRunningScript::ms_scriptFunction[NUM_SCRIPTS];
 
@@ -19,12 +30,7 @@ WRAPPER void CRunningScript::SetIP(int IP) { WRAPARG(IP); EAXJMP(0x464DA0); }
 
 void CRunningScript::Init()
 {
-	DWORD dwFunc = 0x4648E0;
-	_asm
-	{
-		mov		ecx, this
-		call	dwFunc
-	}
+	((void(__thiscall*)(CRunningScript*))0x4648E0)(this);
 
 	ms_scriptFunction[this - ScriptsArray].Init(this);
 }
@@ -824,11 +830,11 @@ void CScriptFunction::LoadAllFunctions()
 	return cVar;
 }*/
 
-#define HashVariable(str) HashingClass.FullCRC(reinterpret_cast<unsigned char*>(str), sizeof(str)-1)
+#define HashVariable(str) HashHelper.FullCRC(reinterpret_cast<unsigned char*>(str), sizeof(str)-1)
 
 static void SaveVariable(char* pVarName, long nIndex, long nArraySize = 1)
 {
-	long	nHash = HashingClass.FullCRC(reinterpret_cast<unsigned char*>(pVarName), strlen(pVarName));
+	long	nHash = HashHelper.FullCRC(reinterpret_cast<unsigned char*>(pVarName), strlen(pVarName));
 
 	C_PcSave::PcClassSaveRoutine(&nHash, sizeof(long));
 	C_PcSave::PcClassSaveRoutine(&nArraySize, sizeof(char));

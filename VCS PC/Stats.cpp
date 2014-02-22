@@ -1,4 +1,8 @@
 #include "StdAfx.h"
+#include "Stats.h"
+
+#include "Text.h"
+#include "Timer.h"
 
 enum
 {

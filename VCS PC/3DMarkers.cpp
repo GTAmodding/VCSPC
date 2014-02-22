@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "3DMarkers.h"
+
+#include "Timer.h"
 
 // Static variables
 float		C3DMarkers::m_PosZMult;

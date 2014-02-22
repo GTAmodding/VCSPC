@@ -65,6 +65,7 @@ BOOL			RsCameraBeginUpdate(RwCamera* pCamera);
 
 void			DoRWStuffEndOfFrame();
 
-const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
+extern RsGlobalType&		RsGlobal;
+extern const DWORD			RsGlobalFrameLimits[5];
 
 #endif

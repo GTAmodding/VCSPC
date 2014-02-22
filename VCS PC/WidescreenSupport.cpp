@@ -1,8 +1,12 @@
 #include "StdAfx.h"
+#include "WidescreenSupport.h"
 
-long& WidescreenSupport::nCTRubberSlider = CMenuManager::ms_nRubberSlider = 640/2;
-long*& WidescreenSupport::nCTRubberSliderMinPos = CTRubberMinPos;
-long*& WidescreenSupport::nCTRubberSliderMaxPos = CTRubberMaxPos;
+#include "Frontend.h"
+#include "Rs.h"
+
+int& WidescreenSupport::nCTRubberSlider = CMenuManager::ms_nRubberSlider = 640/2;
+int& WidescreenSupport::nCTRubberSliderMinPos = *(int*)0x57BCBD;
+int& WidescreenSupport::nCTRubberSliderMaxPos = *(int*)0x57BCAB;
 float*& WidescreenSupport::fHorizontalAspectRatio = WidthAspectRatio;
 float*& WidescreenSupport::fVerticalAspectRatio = HeightAspectRatio;
 float WidescreenSupport::fScreenWidthMultiplier = 640.0f;
@@ -57,16 +61,16 @@ float WidescreenSupport::fProperHeightMultiplier = 480.0f/448.0f;
 
 const float WidescreenSupport::fFOVMultiplier = 1.0f/((4.0f/3.0f)/1.1f);
 
-void WidescreenSupport::Recalculate(long nWidth, long nHeight, bool bAlways)
+void WidescreenSupport::Recalculate(int nWidth, int nHeight, bool bAlways)
 {
-	static long	savedResWidth = 0, savedResHeight = 0;
+	static int	savedResWidth = 0, savedResHeight = 0;
 
 	if ( bAlways || nWidth != savedResWidth || nHeight != savedResHeight )
 	{
-		static const double	fPrecalculatedMultipliers[] = { 4.0/3.0*480.0, 640.0/*5.0/4.0*480.0*/, 15.0/9.0*480.0, 16.0/9.0*480.0, 16.0/10.0*480.0 };
-		static const double	fPrecalculatedHeightMults[] = { 448.0, (4.0/5.0)*640.0/(480.0/448.0), 448.0, 448.0, 448.0 };
-		double				fNewResolutionWidthMultiplier;
-		double				fNewResolutionHeightMultiplier;
+		static const float	fPrecalculatedMultipliers[] = { 4.0f/3.0f*480.0f, 640.0f/*5.0/4.0*480.0*/, 15.0f/9.0f*480.0f, 16.0f/9.0f*480.0f, 16.0f/10.0f*480.0f };
+		static const float	fPrecalculatedHeightMults[] = { 448.0f, (4.0f/5.0f)*640.0f/(480.0f/448.0f), 448.0f, 448.0f, 448.0f };
+		float				fNewResolutionWidthMultiplier;
+		float				fNewResolutionHeightMultiplier;
 
 		savedResWidth = nWidth;
 		savedResHeight = nHeight;
@@ -80,14 +84,14 @@ void WidescreenSupport::Recalculate(long nWidth, long nHeight, bool bAlways)
 			}
 			else
 			{
-				fNewResolutionWidthMultiplier = static_cast<float>(nWidth) / nHeight * 480.0;
-				if ( fNewResolutionWidthMultiplier < 640.0 )
+				fNewResolutionWidthMultiplier = static_cast<float>(nWidth) / nHeight * 480.0f;
+				if ( fNewResolutionWidthMultiplier < 640.0f )
 				{
-					fNewResolutionWidthMultiplier = 640.0;
-					fNewResolutionHeightMultiplier = static_cast<float>(nHeight) / nWidth * (640.0/(480.0/448.0));
+					fNewResolutionWidthMultiplier = 640.0f;
+					fNewResolutionHeightMultiplier = static_cast<float>(nHeight) / nWidth * (640.0f/(480.0f/448.0f));
 				}
 				else
-					fNewResolutionHeightMultiplier = 448.0;
+					fNewResolutionHeightMultiplier = 448.0f;
 				/*if ( fNewResolutionWidthMultiplier < 622.5 )
 					fNewResolutionWidthMultiplier = 622.5;*/
 			}
@@ -98,53 +102,53 @@ void WidescreenSupport::Recalculate(long nWidth, long nHeight, bool bAlways)
 			fNewResolutionHeightMultiplier = fPrecalculatedHeightMults[FrontEndMenuManager.m_bAspectRatioMode - 1];
 		}
 
-		nCTRubberSlider = fNewResolutionWidthMultiplier/2.0;
-		*nCTRubberSliderMinPos = fNewResolutionWidthMultiplier/2.0 - 50;
-		*nCTRubberSliderMaxPos = fNewResolutionWidthMultiplier/2.0 + 50;
-		*fHorizontalAspectRatio = fScreenWidthDivider = 1.0/fNewResolutionWidthMultiplier;
-		*fVerticalAspectRatio = /*fScreenHeightDivider =*/ 1.0/fNewResolutionHeightMultiplier;
+		nCTRubberSlider = static_cast<int>(fNewResolutionWidthMultiplier/2.0f);
+		nCTRubberSliderMinPos = static_cast<int>(fNewResolutionWidthMultiplier/2.0f) - 50;
+		nCTRubberSliderMaxPos = static_cast<int>(fNewResolutionWidthMultiplier/2.0f) + 50;
+		*fHorizontalAspectRatio = fScreenWidthDivider = 1.0f/fNewResolutionWidthMultiplier;
+		*fVerticalAspectRatio = /*fScreenHeightDivider =*/ 1.0f/fNewResolutionHeightMultiplier;
 		fScreenWidthMultiplier = fNewResolutionWidthMultiplier;
 		fScreenHeightMultiplier = fNewResolutionHeightMultiplier;
-		f4 = 4.0/fNewResolutionWidthMultiplier;
-		f40 = 40.0/fNewResolutionWidthMultiplier;
-		f45 = 45.0/fNewResolutionWidthMultiplier;
-		f50 = 50.0/fNewResolutionWidthMultiplier;
-		f55 = 55.0/fNewResolutionWidthMultiplier;
-		f60 = 60.0/fNewResolutionWidthMultiplier;
-		f70 = 70.0/fNewResolutionWidthMultiplier;
-		f95 = 95.0/fNewResolutionWidthMultiplier;
-		f100 = 100.0/fNewResolutionWidthMultiplier;
-		f160 = 160.0/fNewResolutionWidthMultiplier;
-		f350 = 350.0/fNewResolutionWidthMultiplier;
-		f555 = 555.0/fNewResolutionWidthMultiplier;
-		f580 = 580.0/fNewResolutionWidthMultiplier;
-		f0pt3 = 0.3/fNewResolutionWidthMultiplier;
-		f1pt3 = 1.3/fNewResolutionWidthMultiplier;
-		f0pt49 = 0.49/fNewResolutionWidthMultiplier;
-		f0pt42 = 0.42/fNewResolutionWidthMultiplier;
-		f0pt35 = 0.35/fNewResolutionWidthMultiplier;
-		f0pt7 = 0.7/fNewResolutionWidthMultiplier;
-		f0pt8 = 0.8/fNewResolutionWidthMultiplier;
-		f0pt56 = 0.56/fNewResolutionWidthMultiplier;
-		fMenuSliderPosX = 0.5 + (MENU_TEXT_POSITION_RCOLUMN/fNewResolutionWidthMultiplier);
+		f4 = 4.0f/fNewResolutionWidthMultiplier;
+		f40 = 40.0f/fNewResolutionWidthMultiplier;
+		f45 = 45.0f/fNewResolutionWidthMultiplier;
+		f50 = 50.0f/fNewResolutionWidthMultiplier;
+		f55 = 55.0f/fNewResolutionWidthMultiplier;
+		f60 = 60.0f/fNewResolutionWidthMultiplier;
+		f70 = 70.0f/fNewResolutionWidthMultiplier;
+		f95 = 95.0f/fNewResolutionWidthMultiplier;
+		f100 = 100.0f/fNewResolutionWidthMultiplier;
+		f160 = 160.0f/fNewResolutionWidthMultiplier;
+		f350 = 350.0f/fNewResolutionWidthMultiplier;
+		f555 = 555.0f/fNewResolutionWidthMultiplier;
+		f580 = 580.0f/fNewResolutionWidthMultiplier;
+		f0pt3 = 0.3f/fNewResolutionWidthMultiplier;
+		f1pt3 = 1.3f/fNewResolutionWidthMultiplier;
+		f0pt49 = 0.49f/fNewResolutionWidthMultiplier;
+		f0pt42 = 0.42f/fNewResolutionWidthMultiplier;
+		f0pt35 = 0.35f/fNewResolutionWidthMultiplier;
+		f0pt7 = 0.7f/fNewResolutionWidthMultiplier;
+		f0pt8 = 0.8f/fNewResolutionWidthMultiplier;
+		f0pt56 = 0.56f/fNewResolutionWidthMultiplier;
+		fMenuSliderPosX = 0.5f + (MENU_TEXT_POSITION_RCOLUMN/fNewResolutionWidthMultiplier);
 		fMenuSliderWidth = MENU_SLIDER_WIDTH/fNewResolutionWidthMultiplier;
-		fMenuMessageWidth = fNewResolutionWidthMultiplier - 210.0;
-		fCTSliderRight = 0.5 + (50.0/fNewResolutionWidthMultiplier);
-		fCTSliderLeft = 0.5 - (50.0/fNewResolutionWidthMultiplier);
-		fScreenCoorsFix = 44800.0/fNewResolutionWidthMultiplier;
-		fAimpointFix = (9.0/12800.0)*fNewResolutionWidthMultiplier + 0.1;
-		fMapZonePosX2 = 7.5/fNewResolutionWidthMultiplier;
+		fMenuMessageWidth = fNewResolutionWidthMultiplier - 210.0f;
+		fCTSliderRight = 0.5f + (50.0f/fNewResolutionWidthMultiplier);
+		fCTSliderLeft = 0.5f - (50.0f/fNewResolutionWidthMultiplier);
+		fScreenCoorsFix = 44800.0f/fNewResolutionWidthMultiplier;
+		fAimpointFix = (9.0f/12800.0f)*fNewResolutionWidthMultiplier + 0.1f;
+		fMapZonePosX2 = 7.5f/fNewResolutionWidthMultiplier;
 
-		f0pt7_h = 0.7/fNewResolutionHeightMultiplier;
-		f0pt95_h = 0.95/fNewResolutionHeightMultiplier;
-		f1pt2_h = 1.2/fNewResolutionHeightMultiplier;
-		f2pt1_h = 2.1/fNewResolutionHeightMultiplier;
-		f1_h = 1.0/fNewResolutionHeightMultiplier;
-		f28_h = 28.0/fNewResolutionHeightMultiplier;
-		f97_centh = 0.5 - 127.0/fNewResolutionHeightMultiplier;
-		fMenuSliderPosY2 = 0.5 + (MENU_SLIDER_POSY - 224.0) / fNewResolutionHeightMultiplier;
-		fMenuSliderPosY3 = 0.5 + (MENU_SLIDER_POSY - 254.0) / fNewResolutionHeightMultiplier;
-		fMenuSliderPosY4 = 0.5 + (MENU_SLIDER_POSY - 224.0 - MENU_SLIDER_WIDTH / 2.0) / fNewResolutionHeightMultiplier;
+		f0pt7_h = 0.7f/fNewResolutionHeightMultiplier;
+		f0pt95_h = 0.95f/fNewResolutionHeightMultiplier;
+		f1pt2_h = 1.2f/fNewResolutionHeightMultiplier;
+		f2pt1_h = 2.1f/fNewResolutionHeightMultiplier;
+		f1_h = 1.0f/fNewResolutionHeightMultiplier;
+		f28_h = 28.0f/fNewResolutionHeightMultiplier;
+		f97_centh = 0.5f - 127.0f/fNewResolutionHeightMultiplier;
+		fMenuSliderPosY2 = 0.5f + (MENU_SLIDER_POSY - 224.0f) / fNewResolutionHeightMultiplier;
+		fMenuSliderPosY3 = 0.5f + (MENU_SLIDER_POSY - 254.0f) / fNewResolutionHeightMultiplier;
+		fMenuSliderPosY4 = 0.5f + (MENU_SLIDER_POSY - 224.0f - MENU_SLIDER_WIDTH / 2.0f) / fNewResolutionHeightMultiplier;
 		fMenuSliderHeight2 = MENU_SLIDER_HEIGHT / fNewResolutionHeightMultiplier;
 
 		fProperWidthMultiplier = static_cast<float>(nWidth)/fNewResolutionWidthMultiplier;
@@ -201,4 +205,18 @@ unsigned char WidescreenSupport::GetTextBoxPos()
 		dBorderProportionsFix = 0.0;
 
 	return dScreenHeightWeWannaCut > 0.0 ? static_cast<unsigned char>((RsGlobal.MaximumHeight / 2) * (dScreenHeightWeWannaCut - dBorderProportionsFix)) : 0;
+}
+
+CVector2D WidescreenSupport::GetFullscreenImageDimensions(float fImageAspectRatio, float fScreenAspectRatio, bool bFitToScreen)
+{
+	if ( bFitToScreen )
+	{
+		if ( fScreenAspectRatio < fImageAspectRatio )
+			return CVector2D(static_cast<float>(RsGlobal.MaximumWidth), RsGlobal.MaximumHeight * fScreenAspectRatio / fImageAspectRatio);
+		return CVector2D(RsGlobal.MaximumWidth * fImageAspectRatio / fScreenAspectRatio, static_cast<float>(RsGlobal.MaximumHeight));
+	}
+
+	if ( fScreenAspectRatio > fImageAspectRatio )
+		return CVector2D(static_cast<float>(RsGlobal.MaximumWidth), RsGlobal.MaximumHeight * fScreenAspectRatio / fImageAspectRatio);
+	return CVector2D(RsGlobal.MaximumWidth * fImageAspectRatio / fScreenAspectRatio, static_cast<float>(RsGlobal.MaximumHeight));
 }

@@ -1,7 +1,12 @@
 #ifndef __PED
 #define __PED
 			
-#define FUNC_CPed__GetBonePosition							
+#include "CWanted.h"
+#include "General.h"
+#include "CPedIntelligence.h"
+#include "CWeaponInfo.h"
+
+class CEntryExit;
 
 class CPedFlags
 {
@@ -222,12 +227,13 @@ public:
 
 class NOVMT CPed : public CPhysical
 {
-protected:
+public:
 	BYTE				__pad1[820];
 	CPedFlags			pedFlags;
 	CPedIntelligence*	pPedIntelligence;
 	CPlayerPedData*		pPlayerData;
-	BYTE				__pad7[80];
+	unsigned char		PedCreatedBy;
+	BYTE				__pad7[76];
 	int					iMoveAnimGroup;
 	BYTE				__pad2[104];
 	float				fHealth;
@@ -244,9 +250,16 @@ protected:
 	CWeaponSlot			weaponSlots[13];
 	BYTE				__pad5[12];
 	BYTE				m_bActiveWeapon;
-	BYTE				__pad6[128];
+	BYTE				__pad65[20];
+	unsigned char		bFightingStyle, bFightingStyleExtra;
+	BYTE				__pad6[92];
+	CEntryExit*			pCurrentEntryExit;
+	BYTE				__pad64[12];
 
 public:
+	virtual bool		Save();
+	virtual bool		Load();
+
 	inline DWORD		GetPedType() 
 							{ return pedType; };
 	inline CPedFlags&	GetPedFlags() 
@@ -278,6 +291,8 @@ public:
 	void				GiveWeapon(int WeaponType, int WeaponAmmo, bool bFlag=true);
 	void				GetBonePosition(RwV3d& vecOut, unsigned int nBone, bool bFlag);
 	unsigned char		GetWeaponSkill();
+	void				SetCharCreatedBy(unsigned char bBy);
+	void				SetCurrentWeapon(int nSlot);
 
 	long double			GetCrosshairSize();
 	void				Remap();
@@ -286,7 +301,8 @@ public:
 class CPedData
 {
 private:
-friend class CPed;
+	friend class CPed;
+
 	BYTE				m_color1;
 	BYTE				m_color2;
 	BYTE				m_color3;

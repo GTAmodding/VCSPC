@@ -1,4 +1,10 @@
 #include "StdAfx.h"
+#include "Garages.h"
+
+#include "Timer.h"
+#include "Font.h"
+#include "Messages.h"
+#include "Text.h"
 
 void CGarages::PrintMessages()
 {

@@ -1,4 +1,11 @@
 #include "StdAfx.h"
+#include "FileMgr.h"
+
+#include "ModelInfo.h"
+#include "DLCManager.h"
+#include "Streaming.h"
+#include "EntryExitMgr.h"
+#include "Audio.h"
 
 tFileLoaderList*		CFileLoader::m_pImagesList;
 tFileLoaderList*		CFileLoader::m_pObjectsList;
@@ -147,43 +154,51 @@ void CFileLoader::LoadEntryExit(const char* pLine)
 	int		nSkyUnk = 2;
 	float	fEntX, fEntY, fEntZ, fEntA, fEntRX, fEntRY, fExitX, fExitY, fExitZ, fExitA, fUnused;
 	int		nArea, flags, nExtraColors;
-	char	IntName[8], UniqueName[8];
+	char	IntName[8], UniqueName[8] = "";
 
 	sscanf(	pLine, "%f %f %f %f %f %f %f %f %f %f %f %d %d %s %d %d %d %d %s",
 			&fEntX, &fEntY, &fEntZ, &fEntA, &fEntRX, &fEntRY, &fUnused, &fExitX, &fExitY, &fExitZ, &fExitA,
 			&nArea, &flags, IntName, &nExtraColors, &nSkyUnk, &nTimeOn, &nTimeOff, UniqueName);
-
-	char*	pQuote = strrchr(IntName, '\"');
-	if ( pQuote )
-	{
-		*pQuote = '\0';
-		pQuote = IntName+1;
-	}
-	else
-		pQuote = IntName;
-
-	int		nEnexID = CEntryExitManager::AddOne(fEntX, fEntY, fEntZ, fEntA, fEntRX, fEntRY, fUnused, fExitX, fExitY, fExitZ, fExitA, nArea, flags, nExtraColors, nTimeOn, nTimeOff, nSkyUnk, pQuote);
 	
-	if ( CEntryExit* pEnex = CEntryExitManager::GetPool()->GetAtIndex(nEnexID) )
-	{
-		pEnex->AddToBimap(UniqueName);
+	
+	auto			nLen = strlen(UniqueName);
+	unsigned int	nHash = nLen ? HashHelper.FullCRC(reinterpret_cast<unsigned char*>(UniqueName), nLen) : 0xFFFFFFFF;
 
-		if ( flags & 1 )
-			pEnex->wFlags |= 1;
-		if ( flags & 2 )
-			pEnex->wFlags |= 2;
-		if ( flags & 4 )
-			pEnex->wFlags |= 4;
-		if ( flags & 8 )
-			pEnex->wFlags |= 8;
-		if ( flags & 0x10 )
-			pEnex->wFlags |= 0x10;
-		if ( flags & 0x20 )
-			pEnex->wFlags |= 0x20;
-		if ( flags & 0x40 )
-			pEnex->wFlags |= 0x40;
-		if ( flags & 0x80 )
-			pEnex->wFlags |= 0x80;
+	assert(!CEntryExit::IsDefined(nHash));
+	if ( !CEntryExit::IsDefined(nHash) )
+	{
+		char*	pQuote = strrchr(IntName, '\"');
+		if ( pQuote )
+		{
+			*pQuote = '\0';
+			pQuote = IntName+1;
+		}
+		else
+			pQuote = IntName;
+
+		int		nEnexID = CEntryExitManager::AddOne(fEntX, fEntY, fEntZ, fEntA, fEntRX, fEntRY, fUnused, fExitX, fExitY, fExitZ, fExitA, nArea, flags, nExtraColors, nTimeOn, nTimeOff, nSkyUnk, pQuote);
+	
+		if ( CEntryExit* pEnex = CEntryExitManager::GetPool()->GetAtIndex(nEnexID) )
+		{
+			pEnex->AddToBimap(nHash);
+
+			if ( flags & 1 )
+				pEnex->wFlags |= 1;
+			if ( flags & 2 )
+				pEnex->wFlags |= 2;
+			if ( flags & 4 )
+				pEnex->wFlags |= 4;
+			if ( flags & 8 )
+				pEnex->wFlags |= 8;
+			if ( flags & 0x10 )
+				pEnex->wFlags |= 0x10;
+			if ( flags & 0x20 )
+				pEnex->wFlags |= 0x20;
+			if ( flags & 0x40 )
+				pEnex->wFlags |= 0x40;
+			if ( flags & 0x80 )
+				pEnex->wFlags |= 0x80;
+		}
 	}
 }
 

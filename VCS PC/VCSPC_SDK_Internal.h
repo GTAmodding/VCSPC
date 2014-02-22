@@ -3,6 +3,8 @@
 
 #define VCSPCSDKLINK __declspec(dllexport)
 
+#include "VCSPC_SDK.h"
+
 // Mod checks
 inline bool IVHudPresent()
 {

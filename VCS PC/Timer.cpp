@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "Timer.h"
 
 int&				CTimer::m_snTimeInMilliseconds = *(int*)0xB7CB84;
 int&				CTimer::m_snTimeInMillisecondsPauseMode = *(int*)0xB7CB7C;

@@ -1,6 +1,9 @@
 #ifndef __VIDEOPLAYER
 #define __VIDEOPLAYER
 
+#include <binkW32\bink.h>
+#include "General.h"
+
 class CVideoPlayer
 {
 private:

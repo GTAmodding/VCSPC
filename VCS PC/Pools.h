@@ -88,6 +88,12 @@ struct FakeClass : public CBase
 };
 
 // Type definitions for specific pool types
+#include "General.h"
+#include "Ped.h"
+#include "Vehicle.h"
+#include "Building.h"
+#include "ModelInfo.h"
+
 typedef CPool<CPed, FakeClass<0x7C4,CPed>>			CPedPool;
 typedef CPool<CVehicle, FakeClass<0xA18,CVehicle>>	CVehiclePool;
 typedef CPool<CBuilding>							CBuildingPool;

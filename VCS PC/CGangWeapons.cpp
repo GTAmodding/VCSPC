@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "CGangWeapons.h"
 
 void CGangWeapons::Init()
 {

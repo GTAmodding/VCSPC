@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "TxdStore.h"
 
 WRAPPER void CTxdStore::PushCurrentTxd() { EAXJMP(0x7316A0); }
 WRAPPER void CTxdStore::PopCurrentTxd() { EAXJMP(0x7316B0); }

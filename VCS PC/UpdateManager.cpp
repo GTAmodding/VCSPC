@@ -1,4 +1,12 @@
 #include "StdAfx.h"
+#include "UpdateManager.h"
+
+#include "Script.h"
+#include "Frontend.h"
+#include "Text.h"
+#include "Timer.h"
+#include "Font.h"
+#include "Messages.h"
 
 IUpdaterClient001*	CUpdateManager::pUptModuleInterface;
 HMODULE				CUpdateManager::hUptModuleLibrary;

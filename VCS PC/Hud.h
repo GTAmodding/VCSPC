@@ -1,6 +1,10 @@
 #ifndef __HUD
 #define __HUD
 
+#include "General.h"
+#include "Ped.h"
+#include "Sprite.h"
+
 enum eFlash
 {
 	FLASH_Armourbar = 3,
@@ -98,5 +102,7 @@ public:
 	static void		DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor);
 	static float	GetYPosBasedOnHealth(unsigned char plrID, float position, signed char offset);
 };
+
+extern eFlash*				wFlashingComponentID;
 
 #endif

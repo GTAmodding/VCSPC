@@ -178,6 +178,11 @@ public:
 	static bool				IsPlayerOnAMission();
 };
 
+extern SCRIPT_VAR*			scriptParams;
+extern SCRIPT_VAR*			scriptLocals;
+extern CRunningScript**		pActiveScripts;
+extern CRunningScript*		ScriptsArray;
+
 static_assert(sizeof(CRunningScript) == 0xE0, "Wrong size: CRunningScript");
 
 #endif

@@ -1,6 +1,9 @@
 #ifndef __CMENUMANAGER
 #define __CMENUMANAGER
 
+#include "Sprite.h"
+#include "DLCManager.h"
+
 #define						MENU_TEXT_POSITION_LCOLUMN 320.0f	// Adjusted by the game
 #define						MENU_TEXT_POSITION_RCOLUMN 70.0f
 //#define						MENU_TEXT_POSITION_RCOLUMN 250.0f
@@ -158,7 +161,7 @@ private:
 	// VCS PC class extension
 	static int			m_nFocusedDLC, m_nLastFocusedDLC;
 	static float		m_fStatsScrollPos;
-	static long			ms_nRubberSlider;
+	static int			ms_nRubberSlider;
 	static bool			m_bLastDLCState[NUM_DLC_PACKS];
 
 public:
@@ -210,6 +213,8 @@ public:
 
 void	LoadingScreen();
 void	LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID);
+
+extern CMenuManager&		FrontEndMenuManager;
 
 static_assert(sizeof(CMenuManager) == 0x1B78, "Wrong size: CMenuManager");
 

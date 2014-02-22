@@ -1,4 +1,9 @@
 #include "StdAfx.h"
+#include "Streaming.h"
+
+#include "ModelInfo.h"
+#include "CWanted.h"
+#include "PlayerInfo.h"
 
 CStreamingInfo* const	CStreaming::ms_aInfoForModel = (CStreamingInfo*)0x8E4CC0;
 
@@ -35,14 +40,14 @@ void CStreaming::StreamCopModels(int nTownID)
 
 	if ( ms_aInfoForModel[281].uLoadStatus != StreamingModelLoaded || ms_aInfoForModel[VT_POLICEM].uLoadStatus != StreamingModelLoaded )
 	{
-		CStreaming::RequestModel(281, 2);
-		CStreaming::RequestModel(VT_POLICEM, 2);
+		RequestModel(281, 2);
+		RequestModel(VT_POLICEM, 2);
 	}
 
 	if ( ms_bCopBikeAllowed && (ms_aInfoForModel[284].uLoadStatus != StreamingModelLoaded || ms_aInfoForModel[VT_ELECTRAP].uLoadStatus != StreamingModelLoaded)  )
 	{
-		CStreaming::RequestModel(284, 2);
-		CStreaming::RequestModel(VT_ELECTRAP, 2);
+		RequestModel(284, 2);
+		RequestModel(VT_ELECTRAP, 2);
 	}
 }
 

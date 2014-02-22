@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "CGridref.h"
 
 void CGridref::Draw()
 {

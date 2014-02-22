@@ -1,4 +1,12 @@
 #include "StdAfx.h"
+#include "Darkel.h"
+
+#include "Stats.h"
+#include "Replay.h"
+#include "Font.h"
+#include "Timer.h"
+#include "Messages.h"
+#include "Text.h"
 
 bool&			CDarkel::bNeedHeadShot = *(bool*)0x969A49;
 bool&			CDarkel::bStandardSoundAndMessages = *(bool*)0x969A4A;

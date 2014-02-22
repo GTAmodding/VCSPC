@@ -1,4 +1,8 @@
 #include "StdAfx.h"
+#include "EmpireMgr.h"
+
+#include "ModelInfo.h"
+#include "World.h"
 
 CEmpire			CEmpireManager::m_empire[NUM_EMPIRES];
 tEmpireType		CEmpireManager::m_empireType[NUM_EMPIRE_TYPES];

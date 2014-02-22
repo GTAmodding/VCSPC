@@ -1,4 +1,8 @@
 #include "StdAfx.h"
+#include "Audio.h"
+
+#include "PcSave.h"
+#include "ModelInfo.h"
 
 signed char	CAERadioTrackManager::bTracksPlayedRecently[NUM_RADIOSTATIONS];
 

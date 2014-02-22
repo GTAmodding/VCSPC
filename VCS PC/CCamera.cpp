@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "CCamera.h"
 
 bool CCamera::bDontTouchFOVInWidescreen;
 
