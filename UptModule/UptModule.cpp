@@ -137,7 +137,7 @@ static bool IsWindowsVistaOrHigher()
 
 DWORD WINAPI HashingThread(LPVOID lpParam)
 {
-	CCRC32				HashingClass;
+	CCRC32				HashHelper;
 	HashPair*			pStruct = reinterpret_cast<HashPair*>(lpParam);
 	HANDLE				handles[2] = { hCRCEvent, hTerminatingEvent };
 
@@ -146,7 +146,7 @@ DWORD WINAPI HashingThread(LPVOID lpParam)
 		DWORD	dwReturnCode = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
 		if ( !(dwReturnCode - WAIT_OBJECT_0) )
 		{
-			HashingClass.FileCRC(pStruct->first.c_str(), &pStruct->second, 8388608);
+			HashHelper.FileCRC(pStruct->first.c_str(), &pStruct->second, 8388608);
 			ResetEvent(hCRCEvent);
 			SetEvent(hMainEvent);
 		}
@@ -664,7 +664,7 @@ long CUpdater::ParseHashmap(bool& bFinished)
 			{
 				if ( wCurrentReadFile < wNumberOfFiles )
 				{
-	//				static CCRC32	HashingClass;
+	//				static CCRC32	HashHelper;
 					WORD			wStringLength;
 					wchar_t			wcWideFileName[MAX_PATH];
 
@@ -690,7 +690,7 @@ long CUpdater::ParseHashmap(bool& bFinished)
 
 		//				strncpy(cFullFilePath, szFullGamePath, MAX_PATH);
 		//				PathAppend(cFullFilePath, cFileName);
-		//				HashingClass.FileCRC(cFullFilePath, &dwLocalHash);
+		//				HashHelper.FileCRC(cFullFilePath, &dwLocalHash);
 					}
 					else
 						++wCurrentReadFile;

@@ -632,10 +632,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 	case DLL_PROCESS_ATTACH:
 		{
 			LogToFile("Launching GTA: Vice City Stories PC Edition "MOD_VERSION" \""VERSION_NAME"\" build "BUILDNUMBER_STR"...");
-#if DEVBUILD
+#ifdef DEVBUILD
 			LogToFile("This is a closed dev build!");
 #endif
-#if COMPILE_RC
+#ifdef COMPILE_RC
 			LogToFile("This is a Release Candidate "RELEASE_CANDIDATE" build");
 #endif
 			LogToFile("Logging started");
@@ -1860,6 +1860,21 @@ void ListMemory()
 
 #endif
 
+#ifdef DEBUG_GETMODELINFO_WRAPPER
+
+CBaseModelInfo* GetModelInfoWrapper(const char* pName, int* pID)
+{
+	CBaseModelInfo*		pInfo = CModelInfo::GetModelInfo(pName, pID);
+
+	if ( !pInfo )
+		LogToFile("Model not found: %s", pName);
+
+	return pInfo;
+}
+
+
+#endif
+
 /*RpAtomic* myfunc(RpAtomic* pAtomic, float alpha)
 {
 	BYTE bAlpha = alpha;
@@ -2060,6 +2075,10 @@ __forceinline void Main_Patches()
 	InjectHook(0x4076EC, NodeCrashFix2, PATCH_JUMP);
 #endif
 
+#ifdef DEBUG_GETMODELINFO_WRAPPER
+	InjectHook(0x5B6B1B, GetModelInfoWrapper);
+	InjectHook(0x5B6CA5, GetModelInfoWrapper);
+#endif
 	InjectHook(0x748EDA, OnGameTermination);
 
 	CAECustomBankLoader::Patch();
@@ -2137,8 +2156,10 @@ __forceinline void Main_Patches()
 	Patch<WORD>(0x48DDED, 0x4141);
 	Patch<void*>(0x48DE38, func_052E);
 	
-	// 06BA opcode
+	// 06BA, 06CB, 06CC opcodes
 	Patch<void*>(0x498F68, func_06BA);
+	Patch<void*>(0x498FAC, func_06BA);
+	Patch<void*>(0x498FB0, func_06BA);
 
 	// 0050, 0051, 0054 and 0055 opcodes
 	Patch<void*>(0x466D90, func_0050);
@@ -3116,6 +3137,11 @@ __forceinline void Main_Patches()
 	InjectHook(0x404910, PedPoolGetAt, PATCH_JUMP);
 
 	// Empire Buildings
+	Patch<void*>(0x495F38, func_069C);
+	Patch<void*>(0x495F3C, func_069C);
+	Patch<void*>(0x495F40, func_069C);
+	Patch<void*>(0x495F44, func_069C);
+	Patch<void*>(0x495F48, func_069C);
 	Patch<void*>(0x495F4C, func_069C);
 	Patch<void*>(0x495F50, func_069C);
 	Patch<void*>(0x495F68, func_069C);
@@ -3124,10 +3150,9 @@ __forceinline void Main_Patches()
 	Patch<void*>(0x495F74, func_069C);
 	Patch<void*>(0x495F78, func_069C);
 	Patch<void*>(0x495F7C, func_069C);
-#ifdef _INCLUDE_BETA_CODE
+
 	Patch<const char*>(0x4111AE, "empire_perma");
 	InjectHook(0x53C215, CEmpireManager::Process);
-#endif
 
 	// Menu background
 	patch(0x57B764, 0x36EBC030, 4);
@@ -3687,6 +3712,7 @@ __forceinline void Main_Patches()
 	// arrow.dff as marker
 	Patch<const float*>(0x725636, C3DMarkers::GetPosZMult());
 	Patch<const float*>(0x7259A1, C3DMarkers::GetPosZMult());
+	//Patch<const float*>(0x7232C7, C3DMarkers::GetPosZMult());
 	Patch<const float*>(0x72564B, C3DMarkers::GetMovingMult());
 	Patch<const float*>(0x7259A9, C3DMarkers::GetMovingMult());
 	Nop(0x72563A, 6);
@@ -3695,6 +3721,7 @@ __forceinline void Main_Patches()
 	Nop(0x725647, 2);
 	InjectHook(0x725037, InjectArrowMarker);
 	Patch<BYTE>(0x726DA6, 5);
+	Patch<DWORD>(0x7232C1, 0xC7C6DC);
 
 	// Arrow sizes
 	Patch<float>(0x585DA5, 2.5f);	// Vehicles

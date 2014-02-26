@@ -6,9 +6,6 @@
 #define RAD_TO_DEG								(180.0/M_PI)
 #define DEG_TO_RAD								(M_PI/180.0)
 
-// TODO: Reverse it
-#define FUNC_CPlaceable__GetRotation			0x441DB0
-
 #define FUNC_CEntity__GetBoundCentre				0x534250
 
 class CVector
@@ -158,6 +155,20 @@ public:
 		: r(red), g(green), b(blue), a(alpha)
 	{}
 
+	friend CRGBA Blend(const CRGBA& One, unsigned int OneStrength, const CRGBA& Two, unsigned int TwoStrength)
+		{	unsigned int	TotalStrength = OneStrength + TwoStrength;
+			return CRGBA(	((One.r * OneStrength) + (Two.r * TwoStrength))/TotalStrength,
+							((One.g * OneStrength) + (Two.g * TwoStrength))/TotalStrength,
+							((One.b * OneStrength) + (Two.b * TwoStrength))/TotalStrength,
+							((One.a * OneStrength) + (Two.a * TwoStrength))/TotalStrength); }
+
+	friend CRGBA Blend(const CRGBA& One, unsigned int OneStrength, const CRGBA& Two, unsigned int TwoStrength, const CRGBA& Three, unsigned int ThreeStrength)
+		{	unsigned int	TotalStrength = OneStrength + TwoStrength + ThreeStrength;
+			return CRGBA(	((One.r * OneStrength) + (Two.r * TwoStrength) + (Three.r * ThreeStrength))/TotalStrength,
+							((One.g * OneStrength) + (Two.g * TwoStrength) + (Three.g * ThreeStrength))/TotalStrength,
+							((One.b * OneStrength) + (Two.b * TwoStrength) + (Three.b * ThreeStrength))/TotalStrength,
+							((One.a * OneStrength) + (Two.a * TwoStrength) + (Three.a * ThreeStrength))/TotalStrength); }
+
 	void	BaseColors__Constructor();
 };
 
@@ -198,6 +209,8 @@ public:
 		{ return m_pCoords; }
 	inline CSimpleTransform&		GetTransform()
 		{ return m_transform; }
+	inline float					GetHeading()
+		{ return m_pCoords ? atan2(-m_pCoords->GetUp()->x, m_pCoords->GetUp()->y) : m_transform.m_heading; }
 
 	inline void						SetCoords(const CVector& pos)
 	{	if ( m_pCoords ) { m_pCoords->matrix.pos.x = pos.x; m_pCoords->matrix.pos.y = pos.y; m_pCoords->matrix.pos.z = pos.z; }

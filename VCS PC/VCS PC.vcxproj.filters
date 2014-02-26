@@ -207,6 +207,9 @@
     <ClCompile Include="EntryExitMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GroupedBuildings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCam.h">
@@ -411,6 +414,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vehicle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupedBuildings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

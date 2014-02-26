@@ -395,6 +395,25 @@ void CMenuManager::DrawBackEnd()
 		CUpdateManager::ReportUpdaterScreenSeen();	// Wrong place
 	}
 
+#ifdef FANCY_FRONTEND_CONTROLLERS_TEST
+	int					nColourCycle = CTimer::m_snTimeInMillisecondsPauseMode % 15000;
+	const CRGBA			PinkColour(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B);
+	const CRGBA			CyanColour(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B);
+	CRGBA				BlendColour;
+
+	if ( nColourCycle < 5000 )
+		BlendColour = PinkColour;
+	else if ( nColourCycle < 7500 )
+		BlendColour = Blend(PinkColour, 7500-nColourCycle, CyanColour, nColourCycle-5000);
+	else if ( nColourCycle < 12500 )
+		BlendColour = CyanColour;
+	else
+		BlendColour = Blend(PinkColour, nColourCycle-12500, CyanColour, 15000-nColourCycle);
+
+	textures[17].Draw(CRect(_x(425.0f), _y(230.0f), _x(25.0f), _y(30.0f)), BlendColour);
+	textures[16].Draw(CRect(_x(425.0f), _y(230.0f), _x(25.0f), _y(30.0f)), CRGBA(255, 255, 255, 255));
+#endif
+
 	CFont::SetBackground(0, 0);
 	CFont::SetProportional(false);
 	CFont::SetFontStyle(FONT_PagerFont);
@@ -856,7 +875,10 @@ void CMenuManager::ReadFrontendTextures()
 									"modbase",
 									"map",
 #ifdef INCLUDE_PROMO_BANNER
-									"banner"
+									"banner",
+#endif
+#ifdef FANCY_FRONTEND_CONTROLLERS_TEST
+									"ps3front", "ps3back",
 #endif
 											};
 

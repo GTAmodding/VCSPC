@@ -18,7 +18,8 @@ void CEmpireManager::Initialise()
 			SECTION_TYPES,
 			SECTION_DATA
 		} curFileSection = SECTION_NOTHING;
-		CAtomicModelInfo*		pCurrentModelForDataParsing = nullptr;
+		CAtomicModelInfo*						pCurrentModelForDataParsing = nullptr;
+		std::map<unsigned int,unsigned char>	countMap;
 
 		while ( const char* pLine = CFileLoader::LoadLine(hFile) )
 		{
@@ -62,7 +63,7 @@ void CEmpireManager::Initialise()
 						{
 							char			cNormalName[24], cDamagedName[24];
 							int				nIndex;
-							int				nNormalModel, nDamagedModel;
+							int				nNormalModel, nDamagedModel, n1stAuxModel = -1, n2ndAuxModel = -1, n3rdAuxModel = -1;;
 							char			cType;
 
 							sscanf(pLine, "%d %c %s %s", &nIndex, &cType, cNormalName, cDamagedName);
@@ -70,8 +71,17 @@ void CEmpireManager::Initialise()
 
 							CModelInfo::GetModelInfo(cNormalName, &nNormalModel);
 							CModelInfo::GetModelInfo(cDamagedName, &nDamagedModel);
+							
+							// Get additional models
+							CModelInfo::GetModelInfo(std::string(cNormalName + std::string("_n")).c_str(), &n1stAuxModel);		// Neon
+							CModelInfo::GetModelInfo(std::string(cNormalName + std::string("_f")).c_str(), &n2ndAuxModel);		// Fence
+							CModelInfo::GetModelInfo(std::string(cDamagedName + std::string("_a")).c_str(), &n3rdAuxModel);		// Alpha
+
 							m_empireType[nIndex].nNormalBuilding[toupper(cType) - 'A'] = nNormalModel;
 							m_empireType[nIndex].nDamagedBuilding[toupper(cType) - 'A'] = nDamagedModel;
+							m_empireType[nIndex].nAdditionalModel[toupper(cType) - 'A'][0] = n1stAuxModel;
+							m_empireType[nIndex].nAdditionalModel[toupper(cType) - 'A'][1] = n2ndAuxModel;
+							m_empireType[nIndex].nAdditionalModel[toupper(cType) - 'A'][2] = n3rdAuxModel;
 
 							// Collisions are MINE, bitch!
 							// EDIT: Crashes
@@ -84,29 +94,34 @@ void CEmpireManager::Initialise()
 					{
 						if ( SECTION3(pLine, 'e', 'n', 'd') )
 						{
-							if ( pCurrentModelForDataParsing )
-								pCurrentModelForDataParsing->GetEmpireData()->ReduceContainerSize();
+							/*if ( pCurrentModelForDataParsing )
+								pCurrentModelForDataParsing->GetEmpireData()->ReduceContainerSize();*/
 							curFileSection = SECTION_NOTHING;
 						}
 						else
 						{
 							if ( pLine[0] == '%' )
 							{
-								if ( pCurrentModelForDataParsing )
-									pCurrentModelForDataParsing->GetEmpireData()->ReduceContainerSize();
+								/*if ( pCurrentModelForDataParsing )
+									pCurrentModelForDataParsing->GetEmpireData()->ReduceContainerSize();*/
 	
 								pCurrentModelForDataParsing = CModelInfo::GetModelInfo(pLine+2)->AsAtomicModelInfoPtr();
 								pCurrentModelForDataParsing->InitEmpireData();
 							}
 							else
 							{		
-								CSimpleTransform		tempTransform;
-								unsigned int			nIndex;
+								CSimpleTransform			tempData;
+								unsigned int				nTypeID;
+								char						nSubgroup;
 
 								assert(pCurrentModelForDataParsing);
-								sscanf(pLine, "%d %f %f %f %f", &nIndex, &tempTransform.m_translate.x, &tempTransform.m_translate.y, &tempTransform.m_translate.z, &tempTransform.m_heading);
+								sscanf(pLine, "%d %c %f %f %f %f", &nTypeID, &nSubgroup, &tempData.m_translate.x, &tempData.m_translate.y, &tempData.m_translate.z, &tempData.m_heading);
+								nSubgroup = static_cast<char>(tolower(nSubgroup));
 
-								pCurrentModelForDataParsing->GetEmpireData()->AddEntry(static_cast<unsigned short>(nIndex), tempTransform);
+								// Get the index and increase it afterwards
+								unsigned char		nIndex = countMap[PackKey(static_cast<unsigned short>(nTypeID), nSubgroup)];
+								pCurrentModelForDataParsing->GetEmpireData()->AddEntry(static_cast<unsigned short>(nTypeID), nSubgroup, nIndex++, tempData);
+								countMap[PackKey(static_cast<unsigned short>(nTypeID), nSubgroup)] = nIndex;
 							}
 						}
 						break;
@@ -136,25 +151,48 @@ void CEmpireManager::Process()
 
 void CEmpireBuildingData::ReduceContainerSize()
 {
-	for ( auto it = m_buildingData.begin(); it != m_buildingData.end(); it++ )
-		it->second.shrink_to_fit();
+	/*for ( auto it = m_buildingData.begin(); it != m_buildingData.end(); it++ )
+		it->second.Entry.shrink_to_fit();*/
 }
 
 void CEmpire::Place()
 {
-	if ( m_nType == -1 )
+	if ( m_nType == -1 || m_nScale == -1 )
 		return;
 
+	// TODO: Damaged check
 	int				nModelIndex = CEmpireManager::GetInfo(m_nType)->nNormalBuilding[m_nScale];
+	if ( nModelIndex == 0 )
+		return;
+
 	CBuilding*		pEmpireBuilding = new CBuilding;
 
-	m_pBuilding = pEmpireBuilding;
-	m_bPlaced = true;
-
-	// Temp
 	pEmpireBuilding->SetModelIndexNoCreate(nModelIndex);
 	pEmpireBuilding->SetCoords(m_placement.m_translate);
 	pEmpireBuilding->SetHeading(m_placement.m_heading);
+
+	m_pBuilding[0] = pEmpireBuilding;
+
+	// Additional models
+	CBuilding		pAdditionalBuilding[2];
+
+	// TODO: Damaged check
+	for ( int i = 0; i < 2; i++ )
+	{
+		int		nAuxModel = CEmpireManager::GetInfo(m_nType)->nAdditionalModel[m_nScale][i];
+		if ( nAuxModel != -1 )
+		{
+			CBuilding*		pAdditionalBuilding = new CBuilding;
+
+			pAdditionalBuilding->SetModelIndexNoCreate(nAuxModel);
+			pAdditionalBuilding->SetCoords(m_placement.m_translate);
+			pAdditionalBuilding->SetHeading(m_placement.m_heading);
+
+			m_pBuilding[i+1] = pAdditionalBuilding;
+		}
+	}
+
+	m_bPlaced = true;
 
 	CColModel*		pColModel = CModelInfo::ms_modelInfoPtrs[nModelIndex]->GetColModel();
 	if ( pColModel )
@@ -185,17 +223,24 @@ void CEmpire::Place()
 		}
 	}
 
-	CWorld::Add(pEmpireBuilding);
+	for ( int i = 0; i < 3; i++ )
+	{
+		if ( m_pBuilding[i] )
+			CWorld::Add(m_pBuilding[i]);
+	}
 }
 
 void CEmpire::Remove()
 {
-	if ( m_pBuilding )
+	for ( int i = 0; i < 3; i++ )
 	{
-		CWorld::Remove(m_pBuilding);
+		if ( m_pBuilding[i] )
+		{
+			CWorld::Remove(m_pBuilding[i]);
 
-		delete m_pBuilding;
-		m_pBuilding = nullptr;
+			delete m_pBuilding[i];
+			m_pBuilding[i] = nullptr;
+		}
 	}
 	m_bPlaced = false;
 }

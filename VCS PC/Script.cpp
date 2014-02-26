@@ -13,6 +13,7 @@
 #include "Pools.h"
 #include "EmpireMgr.h"
 #include "PcSave.h"
+#include "GroupedBuildings.h"
 
 CScriptFunction		CRunningScript::ms_scriptFunction[NUM_SCRIPTS];
 
@@ -567,6 +568,163 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			weaponsToReturn.ReturnConfiscatedWeapons(CWorld::Players[0]);
 			return;
 		}
+	case 0x690:
+		{
+			// get_empire_building_data %1d% %2d%
+			CollectParameters(1);
+
+			CBuilding*		pEmpireBuilding = CEmpireManager::GetEmpire(scriptParams[0].iParam)->GetBuilding();
+			scriptParams[0].iParam = pEmpireBuilding /*&& pEmpireBuilding->GetMatrix()*/  /*pEmpireBuilding->m_pRwObject*/ ? CPools::GetBuildingPool()->GetHandle(pEmpireBuilding) : -1;
+
+			StoreParameters(1);
+			return;
+		}
+	case 0x691:
+		{
+			// get_number_of_building_data_entries %1d% %2d% %3d%
+			CollectParameters(2);
+
+			CBuilding*		pEmpireBuilding = CPools::GetBuildingPool()->GetAt(scriptParams[0].iParam);
+			if ( pEmpireBuilding )
+			{
+				auto*	pModelInfo = CModelInfo::ms_modelInfoPtrs[pEmpireBuilding->GetModelIndex()]->AsAtomicModelInfoPtr();
+				if ( pModelInfo )
+				{
+					auto*		pData = pModelInfo->GetEmpireData();
+					scriptParams[0].iParam = pData ? pData->GetNumEntriesOfType(scriptParams[1].wParam) : 0;
+				}
+				else
+					scriptParams[0].iParam = 0;
+			}
+			else
+				scriptParams[0].iParam = 0;
+
+			StoreParameters(1);
+			return;
+		}
+	case 0x692:
+		{
+			// retrieve_building_data %1d% %2d% %3d% %4d% %5d% %6d% %7d%
+			CollectParameters(3);
+
+			CBuilding*		pEmpireBuilding = CPools::GetBuildingPool()->GetAt(scriptParams[0].iParam);
+			if ( pEmpireBuilding )
+			{
+				auto*	pModelInfo = CModelInfo::ms_modelInfoPtrs[pEmpireBuilding->GetModelIndex()]->AsAtomicModelInfoPtr();
+				if ( pModelInfo )
+				{
+					auto*		pData = pModelInfo->GetEmpireData();
+					if ( pData )
+					{
+						// Make the data relative to building coords
+						auto&				TheData = pData->GetData(scriptParams[1].wParam, scriptParams[2].bParam);
+						CVector				vecOut;
+						
+						CMatrix*	pBuildingMatrix = pEmpireBuilding->GetMatrix();
+						float		fBuildingHeading = pEmpireBuilding->GetHeading();
+
+
+						if ( pBuildingMatrix )
+							vecOut = *pBuildingMatrix * TheData.m_translate;
+						else
+						{
+							vecOut.x = TheData.m_translate.x * cos(fBuildingHeading) - TheData.m_translate.y * sin(fBuildingHeading) + pEmpireBuilding->GetTransform().m_translate.x;
+							vecOut.y = TheData.m_translate.x * sin(fBuildingHeading) + TheData.m_translate.y * cos(fBuildingHeading) + pEmpireBuilding->GetTransform().m_translate.y;
+							vecOut.z = TheData.m_translate.z + pEmpireBuilding->GetTransform().m_translate.z;
+						}
+
+						//TheData.m_heading += fBuildingHeading * RAD_TO_DEG;
+
+						//TheData.m_translate = *pEmpireBuilding->GetMatrix() * TheData.m_translate;
+						//TheData.m_heading += pEmpireBuilding->GetHeading() * RAD_TO_DEG;
+
+						// Store it
+						scriptParams[0].fParam = vecOut.x;
+						scriptParams[1].fParam = vecOut.y;
+						scriptParams[2].fParam = vecOut.z;
+						scriptParams[3].fParam = TheData.m_heading + static_cast<float>(pEmpireBuilding->GetHeading() * RAD_TO_DEG);
+					}
+				}
+			}
+
+			StoreParameters(4);
+			return;
+		}
+	case 0x693:
+		{
+			// get_number_of_building_data_entries_subgroup %1d% %2d% %3d% %4g% %5d%
+			char			cSubgroup[8];
+			CollectParameters(3);
+			GetStringParam(cSubgroup, 8);
+
+			CBuilding*		pEmpireBuilding = CPools::GetBuildingPool()->GetAt(scriptParams[0].iParam);
+			if ( pEmpireBuilding )
+			{
+				auto*	pModelInfo = CModelInfo::ms_modelInfoPtrs[pEmpireBuilding->GetModelIndex()]->AsAtomicModelInfoPtr();
+				if ( pModelInfo )
+				{
+					auto*		pData = pModelInfo->GetEmpireData();
+					scriptParams[0].iParam = pData ? pData->GetNumEntriesOfType(scriptParams[1].wParam, static_cast<char>(tolower(cSubgroup[0]))) : 0;
+				}
+				else
+					scriptParams[0].iParam = 0;
+			}
+			else
+				scriptParams[0].iParam = 0;
+
+			StoreParameters(1);
+			return;
+		}
+	case 0x694:
+		{
+			// retrieve_building_data_subgroup %1d% %2d% %3d% %4d% %5g% %6d% %7d% %8d% %9d%
+			char			cSubgroup[8];
+			CollectParameters(4);
+			GetStringParam(cSubgroup, 8);
+
+			CBuilding*		pEmpireBuilding = CPools::GetBuildingPool()->GetAt(scriptParams[0].iParam);
+			if ( pEmpireBuilding )
+			{
+				auto*	pModelInfo = CModelInfo::ms_modelInfoPtrs[pEmpireBuilding->GetModelIndex()]->AsAtomicModelInfoPtr();
+				if ( pModelInfo )
+				{
+					auto*		pData = pModelInfo->GetEmpireData();
+					if ( pData )
+					{
+						// Make the data relative to building coords
+						auto&				TheData = pData->GetData(scriptParams[1].wParam, static_cast<char>(tolower(cSubgroup[0])), scriptParams[2].bParam);
+						CVector				vecOut;
+						
+						CMatrix*	pBuildingMatrix = pEmpireBuilding->GetMatrix();
+						float		fBuildingHeading = pEmpireBuilding->GetHeading();
+
+
+						if ( pBuildingMatrix )
+							vecOut = *pBuildingMatrix * TheData.m_translate;
+						else
+						{
+							vecOut.x = TheData.m_translate.x * cos(fBuildingHeading) - TheData.m_translate.y * sin(fBuildingHeading) + pEmpireBuilding->GetTransform().m_translate.x;
+							vecOut.y = TheData.m_translate.x * sin(fBuildingHeading) + TheData.m_translate.y * cos(fBuildingHeading) + pEmpireBuilding->GetTransform().m_translate.y;
+							vecOut.z = TheData.m_translate.z + pEmpireBuilding->GetTransform().m_translate.z;
+						}
+
+						//TheData.m_heading += fBuildingHeading * RAD_TO_DEG;
+
+						//TheData.m_translate = *pEmpireBuilding->GetMatrix() * TheData.m_translate;
+						//TheData.m_heading += pEmpireBuilding->GetHeading() * RAD_TO_DEG;
+
+						// Store it
+						scriptParams[0].fParam = vecOut.x;
+						scriptParams[1].fParam = vecOut.y;
+						scriptParams[2].fParam = vecOut.z;
+						scriptParams[3].fParam = TheData.m_heading + static_cast<float>(pEmpireBuilding->GetHeading() * RAD_TO_DEG);
+					}
+				}
+			}
+
+			StoreParameters(4);
+			return;
+		}
 	case 0x695:
 		{
 			// get_empire_coords %1d% %2d% %3d% %4d%
@@ -610,7 +768,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			// set_empire_scale %1d% %2d%
 			CollectParameters(2);
 			// TODO: More needed?
-			CEmpireManager::GetEmpire(scriptParams[0].iParam)->SetScale(scriptParams[1].iParam);
+			CEmpireManager::GetEmpire(scriptParams[0].iParam)->SetScale(scriptParams[1].iParam-1);
 			return;
 		}
 	case 0x069F:
@@ -655,6 +813,48 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 
 			pThePed->SetHeading(fHeading);
 			pThePed->UpdateRW();
+			return;
+		}
+	case 0x06CB:
+		{
+			// set_building_group_model %1g% %2d%
+			char	cGroupName[16];
+
+			GetStringParam(cGroupName, 16);
+			CollectParameters(1);
+
+			int				nNumGroups = CGroupedBuildings::GetNumGroups();
+			unsigned int	nHash = HashHelper.FullCRC(reinterpret_cast<unsigned char*>(cGroupName), strlen(cGroupName));
+
+			for ( int i = 0; i < nNumGroups; i++ )
+			{
+				if ( nHash == CGroupedBuildings::GetGroup(i)->GetHash() )
+				{
+					CGroupedBuildings::GetGroup(i)->SetActiveBuilding(scriptParams[0].iParam);
+					return;
+				}
+			}
+			return;
+		}
+	case 0x06CC:
+		{
+			// get_building_group_data %1d% %2d%
+			char	cGroupName[16];
+
+			GetStringParam(cGroupName, 16);
+
+			int				nNumGroups = CGroupedBuildings::GetNumGroups();
+			unsigned int	nHash = HashHelper.FullCRC(reinterpret_cast<unsigned char*>(cGroupName), strlen(cGroupName));
+
+			for ( int i = 0; i < nNumGroups; i++ )
+			{
+				if ( nHash == CGroupedBuildings::GetGroup(i)->GetHash() )
+				{
+					scriptParams[0].iParam = CPools::GetBuildingPool()->GetHandle(CGroupedBuildings::GetGroup(i)->GetBuilding());
+					StoreParameters(1);
+					return;
+				}
+			}
 			return;
 		}
 	case 0x0821:

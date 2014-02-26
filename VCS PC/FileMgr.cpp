@@ -6,6 +6,7 @@
 #include "Streaming.h"
 #include "EntryExitMgr.h"
 #include "Audio.h"
+#include "GroupedBuildings.h"
 
 tFileLoaderList*		CFileLoader::m_pImagesList;
 tFileLoaderList*		CFileLoader::m_pObjectsList;
@@ -154,7 +155,7 @@ void CFileLoader::LoadEntryExit(const char* pLine)
 	int		nSkyUnk = 2;
 	float	fEntX, fEntY, fEntZ, fEntA, fEntRX, fEntRY, fExitX, fExitY, fExitZ, fExitA, fUnused;
 	int		nArea, flags, nExtraColors;
-	char	IntName[8], UniqueName[8] = "";
+	char	IntName[16], UniqueName[16] = "";
 
 	sscanf(	pLine, "%f %f %f %f %f %f %f %f %f %f %f %d %d %s %d %d %d %d %s",
 			&fEntX, &fEntY, &fEntZ, &fEntA, &fEntRX, &fEntRY, &fUnused, &fExitX, &fExitY, &fExitZ, &fExitA,
@@ -279,12 +280,11 @@ void CFileLoader::LoadLevels()
 	InitModelIndices();
 
 	// Wraps some calls
-#ifdef _INCLUDE_BETA_CODE
 	CEmpireManager::Initialise();
-#endif
 	InitPostIDEStuff();
 	CPedModelInfoVCS::LoadPedColours();
 	CAEVehicleAudioEntity::LoadVehicleAudioSettings();
+	CGroupedBuildings::Initialise();
 
 	if ( CDLCManager::GetDLC(DLC_2DFX)->IsEnabled() )
 		CProject2dfx::Init();

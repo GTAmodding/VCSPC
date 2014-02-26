@@ -336,6 +336,7 @@ popd</Command>
     <ClCompile Include="CutsceneManager.cpp" />
     <ClCompile Include="Garages.cpp" />
     <ClCompile Include="General.cpp" />
+    <ClCompile Include="GroupedBuildings.cpp" />
     <ClCompile Include="Hud.cpp" />
     <ClCompile Include="ModelInfo.cpp" />
     <ClCompile Include="Pad.cpp" />
@@ -411,6 +412,7 @@ popd</Command>
     <ClInclude Include="Frontend.h" />
     <ClInclude Include="CPedIntelligence.h" />
     <ClInclude Include="Garages.h" />
+    <ClInclude Include="GroupedBuildings.h" />
     <ClInclude Include="Hud.h" />
     <ClInclude Include="MemoryMgr.h" />
     <ClInclude Include="ModelInfo.h" />

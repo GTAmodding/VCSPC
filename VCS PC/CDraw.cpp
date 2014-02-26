@@ -117,7 +117,7 @@ void CRGBA::BaseColors__Constructor()
 
 	this[12].r = 0x00;
 	this[12].g = 0x64;
-	this[12].b = 0xA1;
+	this[12].b = 0x96;
 	this[12].a = 0xFF;
 
 	this[13].r = 0x1F;
