@@ -101,6 +101,6 @@ public:
 
 extern RwTexture** const	gpCoronaTexture;
 
-static_assert(sizeof(CRegisteredCorona) == 0x3C, "CRegisteredCorona has wrong size!");
+static_assert(sizeof(CRegisteredCorona) == 0x3C, "Wrong size: CRegisteredCorona");
 
 #endif

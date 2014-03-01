@@ -302,6 +302,7 @@ popd</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="3DMarkers.cpp" />
+    <ClCompile Include="Antennas.cpp" />
     <ClCompile Include="BlowFish.cpp" />
     <ClCompile Include="Building.cpp" />
     <ClCompile Include="Audio.cpp" />
@@ -390,6 +391,7 @@ popd</Command>
     <ClInclude Include="..\dependencies\include\rwsdk\rwcore.h" />
     <ClInclude Include="3DMarkers.h" />
     <ClInclude Include="AnimMgr.h" />
+    <ClInclude Include="Antennas.h" />
     <ClInclude Include="BankLoader.h" />
     <ClInclude Include="Building.h" />
     <ClInclude Include="Audio.h" />

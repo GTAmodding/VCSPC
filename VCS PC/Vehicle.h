@@ -2,6 +2,7 @@
 #define __VEHICLE
 
 #include "General.h"
+#include "ModelInfo.h"
 
 struct CVehicleFlags
 {
@@ -111,6 +112,9 @@ public:
 	BYTE		padding[432];
 	float		m_fRotorSpeed;
 	BYTE		__moarpad[72];
+
+public:
+	CColModel*	RenderAntennas();
 };
 
 class NOVMT CHeli : public CAutomobile

@@ -31,6 +31,7 @@ WRAPPER RwCamera* RwCameraSetViewWindow(RwCamera* camera, const RwV2d* viewWindo
 WRAPPER RwCamera* RwCameraSetProjection(RwCamera* camera, RwCameraProjection projection) { WRAPARG(camera); WRAPARG(projection); EAXJMP(0x7EE3A0); }
 WRAPPER void* RwIm3DTransform(RwIm3DVertex* pVerts, RwUInt32 numVerts, RwMatrix* ltm, RwUInt32 flags) { WRAPARG(pVerts); WRAPARG(numVerts); WRAPARG(ltm); WRAPARG(flags); EAXJMP(0x7EF450); }
 WRAPPER RwBool RwIm3DRenderIndexedPrimitive(RwPrimitiveType primType, RwImVertexIndex* indices, RwInt32 numIndices) { WRAPARG(primType); WRAPARG(indices); WRAPARG(numIndices); EAXJMP(0x7EF550); }
+WRAPPER RwBool RwIm3DRenderLine(RwInt32 vert1, RwInt32 vert2) { WRAPARG(vert1); WRAPARG(vert2); EAXJMP(0x7EF900); }
 WRAPPER RwBool RwIm3DEnd() { EAXJMP(0x7EF520); }
 WRAPPER void _rwObjectHasFrameSetFrame(void* object, RwFrame* frame) { WRAPARG(object); WRAPARG(frame); EAXJMP(0x804EF0); }
 

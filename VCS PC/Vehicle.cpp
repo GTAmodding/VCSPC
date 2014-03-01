@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "Vehicle.h"
 
+#include "Antennas.h"
+
 static RwObject* GetCurrentAtomicObjectCB(RwObject* pObject, void* data)
 {
 	if ( RpAtomicGetFlags(pObject) & rpATOMICRENDER )
@@ -69,4 +71,38 @@ void CHeli::ProcessRotorsAlpha()
 		if ( pOutAtomic )
 			SetComponentAtomicAlpha(pOutAtomic, nMovingRotorAlpha);
 	}
+}
+
+CColModel* CAutomobile::RenderAntennas()
+{
+	if ( m_nModelIndex == VT_RCBANDIT )
+	{
+		CMatrix*	pCoords = GetMatrix();
+		if ( pCoords )
+			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this), *pCoords->GetAt(), *pCoords * CVector(0.13f, -0.55f, 0.5f), 1.0f, 0.9f);
+	}
+	if ( m_nModelIndex == VT_WILLARD )
+	{
+		CMatrix*	pCoords = GetMatrix();
+		if ( pCoords )
+			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this), *pCoords->GetAt(), *pCoords * CVector(-1.0f, 0.84f, 0.375f), 1.1f, 0.93f);
+	}
+	else if ( m_nModelIndex == VT_STINGER )
+	{
+		CMatrix*	pCoords = GetMatrix();
+		if ( pCoords )
+			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this), *pCoords->GetAt(), *pCoords * CVector(-0.8f, -1.75f, 0.23f), 0.5f, 0.9f);
+	}
+	/*else if ( m_nModelIndex == VT_POLICEM )
+	{
+		CMatrix*	pCoords = GetMatrix();
+		if ( pCoords )
+		{
+			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this), *pCoords->GetAt(), *pCoords * CVector(0.9f, -2.25f, 0.22f), 1.25f, 0.95f);
+			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this) + 1, *pCoords->GetAt(), *pCoords * CVector(-0.9f, -2.25f, 0.22f), 1.25f, 0.95f);
+			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this) + 2, (*pCoords->GetAt() - (*pCoords->GetUp() * 0.5f)).Normalize(), *pCoords * CVector(0.0f, -1.1f, 0.68f), 0.75f, 0.9f);
+		}
+	}*/
+
+	return ((CColModel*(__thiscall*)(CEntity*))0x535300)(this);
 }

@@ -30,6 +30,8 @@ public:
 
 	inline float	Magnitude()
 		{ return sqrt(x * x + y * y + z * z); }
+	inline CVector&	Normalize()
+		{ float	fInvLen = 1.0f / Magnitude(); x *= fInvLen; y *= fInvLen; z *= fInvLen; return *this; }
 
 	friend inline float DotProduct(const CVector& vec1, const CVector& vec2)
 		{ return vec1.x * vec2.x + vec1.x * vec2.y + vec1.z * vec2.z; }
@@ -40,6 +42,8 @@ public:
 		{ return CVector(vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z); }
 	friend inline CVector operator-(const CVector& vec1, const CVector& vec2)
 		{ return CVector(vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z); }
+	friend inline CVector operator-(const CVector& vec)
+		{ return CVector(-vec.x, -vec.y, -vec.z); }
 };
 
 class CVector2D
@@ -109,21 +113,34 @@ public:
 								matrix.matrix.up.y * vec.y + matrix.matrix.right.y * vec.x + matrix.matrix.at.y * vec.z + matrix.matrix.pos.y,
 								matrix.matrix.up.z * vec.y + matrix.matrix.right.z * vec.x + matrix.matrix.at.z * vec.z + matrix.matrix.pos.z); };
 
+	inline CVector*	GetRight()
+		{ return reinterpret_cast<CVector*>(&matrix.right); }
 	inline CVector*	GetUp()
 		{ return reinterpret_cast<CVector*>(&matrix.up); }
-
 	inline CVector*	GetAt()
 		{ return reinterpret_cast<CVector*>(&matrix.at); }
-
 	inline CVector* GetPos()
 		{ return reinterpret_cast<CVector*>(&matrix.pos); }
 
 	inline void		SetTranslateOnly(float fX, float fY, float fZ)
 		{ matrix.pos.x = fX; matrix.pos.y = fY; matrix.pos.z = fZ; }
+	
+	inline void		SetRotateX(float fAngle)
+		{ SetRotateXOnly(fAngle); matrix.pos.x = 0.0f; matrix.pos.y = 0.0f; matrix.pos.z = 0.0f; }
+
+	inline void		SetRotateY(float fAngle)
+		{ SetRotateYOnly(fAngle); matrix.pos.x = 0.0f; matrix.pos.y = 0.0f; matrix.pos.z = 0.0f; }
+
+	inline void		SetRotateZ(float fAngle)
+		{ SetRotateZOnly(fAngle); matrix.pos.x = 0.0f; matrix.pos.y = 0.0f; matrix.pos.z = 0.0f; }
 
 	void			SetRotateXOnly(float fAngle);
 	void			SetRotateYOnly(float fAngle);
 	void			SetRotateZOnly(float fAngle);
+
+	void			RotateX(float fAngle);
+	void			RotateY(float fAngle);
+	void			RotateZ(float fAngle);
 
 	void			SetRotateOnly(float fAngleX, float fAngleY, float fAngleZ);
 };

@@ -96,3 +96,25 @@ void CMatrix::SetRotateOnly(float fAngleX, float fAngleY, float fAngleZ)
 	matrix.at.y = sin(fAngleZ) * sin(fAngleY) - cos(fAngleZ) * sin(fAngleX) * cos(fAngleY);
 	matrix.at.z = cos(fAngleX) * cos(fAngleY);
 }
+
+void CMatrix::RotateX(float fAngle)
+{
+	CMatrix		RotationMatrix;
+	RotationMatrix.SetRotateX(fAngle);
+	*this = *this * RotationMatrix;
+}
+
+void CMatrix::RotateY(float fAngle)
+{
+	CMatrix		RotationMatrix;
+	RotationMatrix.SetRotateY(fAngle);
+
+	*this = *this * RotationMatrix;
+}
+
+void CMatrix::RotateZ(float fAngle)
+{
+	CMatrix		RotationMatrix;
+	RotationMatrix.SetRotateZ(fAngle);
+	*this = *this * RotationMatrix;
+}

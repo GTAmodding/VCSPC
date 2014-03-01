@@ -44,7 +44,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		5, "FET_DEF", ACTION_STANDARD, 24, 0, 143, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 42, 0, 0, 3, 0, 0 },
 
-
+	// Display Setup
 	{ "FEH_DIS", 33, 2,
 		27, "FED_BRI", ACTION_CLICKORARROWS, 4, 0, -97, 2, 0, 0,
 		33, "MAP_LEG", ACTION_CLICKORARROWS, 4, 0, 0, 2, 0, 0,
@@ -52,7 +52,6 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		35, "FED_HUD", ACTION_CLICKORARROWS, 4, 0, 0, 2, 0, 0,
 		25, "FED_SUB", ACTION_CLICKORARROWS, 4, 0, 0, 2, 0, 0,
 		65, "FED_GLS", ACTION_CLICKORARROWS, 4, 0, 0, 2, 0, 0,
-		5, "FED_ADV", ACTION_STANDARD, 27, 0, 96, 3, 0, 0,
 		5, "FET_DEF", ACTION_STANDARD, 23, 0, 141, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 33, 0, 0, 3, 0, 0 },
 
@@ -218,8 +217,8 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		6, "FEA_SCN", ACTION_STANDARD, 26, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 3, 0, 136, 3, 0, 0 },
 
-
-	{ "FEH_DIS", 4, 3,
+	// Graphics Setup
+	{ "FEH_GFX", 33, 3,
 		61, "FEM_LOD", ACTION_CLICKORARROWS, 27, 0, -97, 2, 0, 0,
 		24, "FEM_FRM", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		26, "FED_WIS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
@@ -227,10 +226,10 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		43, "FED_MIP", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		56, "FED_RES", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		2, "FEDS_TB", ACTION_STANDARD, 4, 0, 136, 3, 0, 0 },
+		2, "FEDS_TB", ACTION_STANDARD, 33, 0, 136, 3, 0, 0 },
 
 	// Language
-	{ "FEH_LAN", 33, 3,
+	{ "FEH_LAN", 33, 4,
 		37, "FEL_ENG", ACTION_STANDARD, 28, 0, -72, 3, 0, 0,
 		//38, "FEL_SPA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		38, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
@@ -261,6 +260,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		5, "FEO_CON", ACTION_STANDARD, 36, 0, -72, 3, 0, 0,
 		5, "FEO_AUD", ACTION_STANDARD, 3, 0, 0, 3, 0, 0,
 		5, "FEO_DIS", ACTION_STANDARD, 4, 0, 0, 3, 0, 0,
+		5, "FEO_GFX", ACTION_STANDARD, 27, 0, 0, 3, 0, 0,
 		5, "FEO_LAN", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		5, "FEO_DLC", ACTION_STANDARD, 45, 0, 0, 3, 0, 0,
 		5, "FEO_UPT", ACTION_STANDARD, 44, 0, 0, 3, 0, 0,
@@ -332,12 +332,12 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 
 	// Game Updates
-	{ "FEH_UPT", 33, 5,
+	{ "FEH_UPT", 33, 6,
 		ACTION_UPDATER_BUTTON, "FEU_UPC", ACTION_UPDATER, 44, 0, 78, 3, 1, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
 
 	// Downloadable Content
-	{ "FEH_DLC", 33, 4,
+	{ "FEH_DLC", 33, 5,
 		1, "FEE_HEA", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0,	// Hacky hacky
 		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 60, -70, 1, 0, -1,
@@ -354,12 +354,12 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1 },
 
 	// Downloadable Content - no DLCs available
-	{ "FEH_DLC", 33, 4,
+	{ "FEH_DLC", 33, 5,
 		1, "FEE_NON", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_OK", ACTION_STANDARD, 33, 0, 16, 3, 0, 0 },
 
 	// Downloadable Content - game restart required
-	{ "FEH_DLC", 33, 4,
+	{ "FEH_DLC", 33, 5,
 		1, "FEE_RES", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_OK", ACTION_STANDARD, 33, 0, 16, 3, 0, 0 },
 
@@ -969,7 +969,7 @@ void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 
 	// Focus on DLC entry when exiting from any DLC-oriented screen
 	if ( bLastScreen == 46 || bLastScreen == 47 )
-		currentMenuEntry = 4;
+		currentMenuEntry = 5;
 
 	// Automatically check for updates and mark focused DLC for installation
 	if ( bScreen == 44 && bLastScreen == 48 )

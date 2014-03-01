@@ -39,6 +39,7 @@
 #include "VideoPlayer.h"
 #include "World.h"
 #include "EntryExitMgr.h"
+#include "Antennas.h"
 #include "VCSPC_SDK_Internal.h"
 
 // Regular functions
@@ -166,6 +167,7 @@ void			Widescreen_StringInject();
 //void			Widescreen_TextDrawsFix();
 void			Widescreen_TextDrawsFix2();
 void			DriveByKillFix();
+void			LookLeftRightHack();
 //void			ZeroScriptsCounter();
 void			LoadFunctionBreak();
 void			RightShockKeyHack();
@@ -294,7 +296,6 @@ void*						VideoPlayerCreate1_JumpBack;
 void*						VideoPlayerPlayNextFrame_JumpBack;
 void*						VideoPlayerProc_JumpBack;
 void*						VideoPlayerRelease_JumpBack;
-void*						MaxosFrameLimitHack_JumpBack;
 void*						FrameLimit_SwitchInject_JumpBack;
 void*						FrameLimit_StringInject_JumpBack;
 /*void*						LoadFontsHack_JumpBack;
@@ -853,7 +854,6 @@ __forceinline void DefineVariables()
 	VideoPlayerPlayNextFrame_JumpBack = (void*)0x748DA3;
 	VideoPlayerProc_JumpBack = (void*)0x74817E;
 	VideoPlayerRelease_JumpBack = (void*)0x748C21;
-	MaxosFrameLimitHack_JumpBack = (void*)0x748DA3;
 	FrameLimit_SwitchInject_JumpBack = (void*)0x57CECF;
 	FrameLimit_StringInject_JumpBack = (void*)0x57A168;
 	/*LoadFontsHack_JumpBack = (void*)0x5BA6E5;
@@ -2126,6 +2126,9 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x43DDD8, 0xFE);
 	InjectHook(0x43DDDC, DriveByKillFix, PATCH_JUMP);
 	//patch(0x43DDDD, 0xFA, 1);
+
+	// Looking left/right blocked with RC Bandit
+	InjectHook(0x52780D, LookLeftRightHack, PATCH_JUMP);
 
 	// No beep in rampages
 	Patch<float>(0x43DE26, 0.0f);
@@ -3583,36 +3586,37 @@ __forceinline void Main_Patches()
 	Patch<float>(0x555A74, MAX_DRAW_DISTANCE);
 
 	// 12 save slots
-	patch(0x619166, SlotSaveDate, 4);
-	patch(0x619191, SlotSaveDate, 4);
-	patch(0x618D08, SlotSaveDate, 4);
-	patch(0x619182, &SlotFileName[NUM_SAVE_SLOTS], 4);
-	patch(0x61916B, SlotFileName, 4);
-	patch(0x619189, SlotFileName, 4);
-	patch(0x5D0F4B, SlotFileName, 4);
-	patch(0x579BD5, SlotValidation, 4);
-	patch(0x57B6AD, SlotValidation, 4);
-	patch(0x5772B3, &SlotValidation[1], 4);
-	patch(0x5772D3, &SlotValidation[1], 4);
-	patch(0x5797D7, &SlotValidation[1], 4);
-	patch(0x619157, &SlotValidation[1], 4);
-	patch(0x61922D, &SlotValidation[1], 4);
-	patch(0x619247, &SlotValidation[1], 4);
+	Patch<void*>(0x619166, SlotSaveDate);
+	Patch<void*>(0x619191, SlotSaveDate);
+	Patch<void*>(0x618D08, SlotSaveDate);
+	Patch<void*>(0x619182, &SlotFileName[NUM_SAVE_SLOTS]);
+	Patch<void*>(0x61916B, SlotFileName);
+	Patch<void*>(0x619189, SlotFileName);
+	Patch<void*>(0x5D0F4B, SlotFileName);
+	Patch<void*>(0x579BD5, SlotValidation);
+	Patch<void*>(0x57B6AD, SlotValidation);
+	Patch<void*>(0x5772B3, &SlotValidation[1]);
+	Patch<void*>(0x5772D3, &SlotValidation[1]);
+	Patch<void*>(0x5797D7, &SlotValidation[1]);
+	Patch<void*>(0x619157, &SlotValidation[1]);
+	Patch<void*>(0x61922D, &SlotValidation[1]);
+	Patch<void*>(0x619247, &SlotValidation[1]);
 
-	patch(0x61914D, NUM_SAVE_SLOTS, 4);
-	patch(0x619388, NUM_SAVE_SLOTS, 1);
+	Patch<DWORD>(0x61914D, NUM_SAVE_SLOTS);
+	Patch<DWORD>(0x57378F, NUM_SAVE_SLOTS+1);
+	Patch<BYTE>(0x619388, NUM_SAVE_SLOTS);
 
-	patch(0x57728F, ACTION_SAVE_12, 1);
-	patch(0x5772FD, ACTION_SAVE_12, 1);
-	patch(0x579921, ACTION_SAVE_12, 1);
-	patch(0x579BB6, ACTION_SAVE_12, 1);
-	patch(0x57A241, ACTION_SAVE_12, 1);
-	patch(0x57B6A7, ACTION_SAVE_12, 1);
-	patch(0x579903, ACTION_MISSIONPACK, 1);
-	patch(0x579AFB, ACTION_MISSIONPACK, 1);
-	patch(0x579CDA, ACTION_MISSIONPACK, 1);
-	//patch(0x579D52, ACTION_JOYMOUSE, 1);
-	patch(0x57B6F5, ACTION_CLICKORARROWS, 1);
+	Patch<BYTE>(0x57728F, ACTION_SAVE_12);
+	Patch<BYTE>(0x5772FD, ACTION_SAVE_12);
+	Patch<BYTE>(0x579921, ACTION_SAVE_12);
+	Patch<BYTE>(0x579BB6, ACTION_SAVE_12);
+	Patch<BYTE>(0x57A241, ACTION_SAVE_12);
+	Patch<BYTE>(0x57B6A7, ACTION_SAVE_12);
+	Patch<BYTE>(0x579903, ACTION_MISSIONPACK);
+	Patch<BYTE>(0x579AFB, ACTION_MISSIONPACK);
+	Patch<BYTE>(0x579CDA, ACTION_MISSIONPACK);
+	//Patch<BYTE>(0x579D52, ACTION_JOYMOUSE);
+	Patch<BYTE>(0x57B6F5, ACTION_CLICKORARROWS);
 
 	Patch<DWORD>(0x57344F, sizeof(MenuItem));
 	Patch<DWORD>(0x5736FD, sizeof(MenuItem));
@@ -3730,6 +3734,10 @@ __forceinline void Main_Patches()
 
 	// Coronas stored in a vector
 	CCoronas::Inject();
+
+	// Antennas
+	CAntennas::Inject();
+	InjectMethod(0x6AAB8B, CAutomobile::RenderAntennas, PATCH_NOTHING);
 
 	// Own BaseColors::BaseColors
 	// TODO: Come up with something nicer?
@@ -4320,6 +4328,8 @@ void CdStreamClearNames()
 	}
 }
 
+static bool		bNoTimeFix = false;
+
 void ParseCommandlineFile()
 {
 	if ( FILE* hFile = fopen("commandline.txt", "r") )
@@ -4354,6 +4364,12 @@ void ParseCommandlineArgument(const char* pArg)
 		{
 			// TODO: Define this variable properly
 			*(DWORD*)0xC8D4C0 = 5;
+			return;
+		}
+
+		if ( !_strnicmp(pArg, "-notimefix", 10) )
+		{
+			bNoTimeFix = true;
 			return;
 		}
 
@@ -5668,7 +5684,7 @@ void __declspec(naked) MenuEntryColourHack()
 		mov		al, [ebp].bCurrentScreen
 		cmp		al, 33
 		jnz		MenuEntryColourHack_CheckMainScreen
-		cmp		ebx, 5
+		cmp		ebx, 6
 		jz		MenuEntryColourHack_ColourGuided
 		jmp		MenuEntryColourHack_ColourNormal
 
@@ -5991,6 +6007,25 @@ void __declspec(naked) Widescreen_TextDrawsFix2()
 	}
 }
 
+void __declspec(naked) LookLeftRightHack()
+{
+	_asm
+	{
+		xor		bl, bl
+		cmp		[ecx]CEntity.m_nModelIndex, VT_RCBANDIT
+		jz		LookLeftRightHack_ReturnTrue
+		cmp		eax, 5
+		jnz		LookLeftRightHack_Return
+
+LookLeftRightHack_ReturnTrue:
+		inc		bl
+
+LookLeftRightHack_Return:
+		mov		eax, 52781Dh
+		jmp		eax
+	}
+}
+
 void __declspec(naked) DriveByKillFix()
 {
 	_asm
@@ -6196,8 +6231,7 @@ void __declspec(naked) VideoPlayerRelease()
 void __declspec(naked) MaxosFrameLimitHack()
 {
 	static float		fOne, fTwo;
-	static const float	fSecond = 1000.0;
-	static int			nSyncDiff;
+	static const float	fSecond = 1000.0f;
 
 	_asm
 	{
@@ -6217,18 +6251,26 @@ MaxosFrameLimitHack_LimitFrames:
 		mov		fTwo, eax
 	}
 
-	if( fOne > fTwo ) 
+	if( fOne > fTwo )
 	{
-		nSyncDiff = static_cast<int>(fOne - fTwo);
+		if ( !bNoTimeFix )
+		{
+			static int			nSyncDiff;
+
+			nSyncDiff = static_cast<int>(fOne - fTwo) - 5;
 		
-
-		if( nSyncDiff > 0 )
- 			MsgWaitForMultipleObjects(0, NULL, FALSE, nSyncDiff, QS_ALLEVENTS);
-
+			if( nSyncDiff > 0 )
+ 				MsgWaitForMultipleObjects(0, nullptr, FALSE, nSyncDiff, QS_ALLEVENTS);
+		}
 	}
 	else
 		RsEventHandler(rsIDLE, reinterpret_cast<void*>(1));
-	_asm jmp		MaxosFrameLimitHack_JumpBack
+
+	_asm
+	{
+		mov		eax, 748DA3h
+		jmp		eax
+	}
 }
 
 void __declspec(naked) FrameLimit_SwitchInject()

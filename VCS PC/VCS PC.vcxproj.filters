@@ -210,6 +210,9 @@
     <ClCompile Include="GroupedBuildings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Antennas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCam.h">
@@ -417,6 +420,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GroupedBuildings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Antennas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

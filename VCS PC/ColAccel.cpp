@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "ColAccel.h"
 
+#include "FileMgr.h"
+
 const char*&	CColAccel::mp_cCacheName = *(const char**)0x8D0F84;
 int&			CColAccel::m_iCachingColSize = *(int*)0xBC409C;
 int&			CColAccel::m_iCacheState = *(int*)0xBC40A0;

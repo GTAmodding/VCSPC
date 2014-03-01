@@ -104,6 +104,7 @@ void CEmpireManager::Initialise()
 							{
 								/*if ( pCurrentModelForDataParsing )
 									pCurrentModelForDataParsing->GetEmpireData()->ReduceContainerSize();*/
+								countMap.clear();
 	
 								pCurrentModelForDataParsing = CModelInfo::GetModelInfo(pLine+2)->AsAtomicModelInfoPtr();
 								pCurrentModelForDataParsing->InitEmpireData();
