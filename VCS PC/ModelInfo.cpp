@@ -11,12 +11,15 @@ CDynamicStore<CPedModelInfoVCS>			CModelInfo::ms_pedModelStore;
 CDynamicStore<CAtomicModelInfo>			CModelInfo::ms_atomicModelStore;
 CDynamicStore<CDamageAtomicModelInfo>	CModelInfo::ms_damageAtomicModelStore;
 CDynamicStore<CTimeModelInfo>			CModelInfo::ms_timeModelStore;
+CModelInfoDrawDistStorage				CModelInfo::ms_drawDistStorage;
 
 CRGBA									CPedModelInfoVCS::ms_pedColourTable[NUM_PED_COLOURS];
 BYTE									CPedModelInfoVCS::bLastPedPrimaryColour;
 BYTE									CPedModelInfoVCS::bLastPedSecondaryColour;
 BYTE									CPedModelInfoVCS::bLastPedTertiaryColour;
 BYTE									CPedModelInfoVCS::bLastPedQuaternaryColour;
+
+float&									ms_lodDistScale = *(float*)0x8CD800;
 
 // Wrappers
 WRAPPER CBaseModelInfo* CModelInfo::GetModelInfo(const char* pName, int* pOutID) { WRAPARG(pName); WRAPARG(pOutID); EAXJMP(0x4C5940); }
@@ -44,6 +47,37 @@ WRAPPER void CPedModelInfo::SetClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(
 void CColModel::operator delete(void* mem)
 {
 	CPools::GetColModelPool()->Delete(reinterpret_cast<CColModel*>(mem));
+}
+
+void CModelInfoDrawDistStorage::AddToList(int nIndex, CBaseModelInfo* pModelInfo)
+{
+	if ( !m_nMin && !m_nMax )
+		m_nMin = m_nMax = nIndex;
+	else
+	{
+		if ( m_nMin > nIndex )
+			m_nMin = nIndex;
+		else if ( nIndex >= m_nMax )
+			m_nMax = nIndex + 1;
+	}
+	
+	m_pMalloc[nIndex] = Pack(pModelInfo->fLodDistanceUnscaled);
+
+	// Recalculate
+	pModelInfo->RecalcDrawDistance(pModelInfo->fLodDistanceUnscaled);
+}
+
+void CModelInfoDrawDistStorage::RecalcDrawDistances()
+{
+	for ( int i = m_nMin; i < m_nMax; ++i )
+	{
+		if ( CModelInfo::ms_modelInfoPtrs[i] )
+		{
+			unsigned char		nModelType = CModelInfo::ms_modelInfoPtrs[i]->GetModelType();
+			if ( nModelType == 1 || nModelType == 3 || nModelType == 5 || nModelType == 8 )
+				CModelInfo::ms_modelInfoPtrs[i]->RecalcDrawDistance(Unpack(m_pMalloc[i-m_nMin]));
+		}
+	}
 }
 
 bool CModelInfo::IsBikeModel(int modelID)
@@ -121,6 +155,8 @@ void CModelInfo::ShutDown()
 			pEntry = pEntry->m_pPrev;
 		}
 	}
+
+	ms_drawDistStorage.Shutdown();
 }
 
 void CBaseModelInfo::SetTexDictionary(const char* pDict)
@@ -137,6 +173,11 @@ void CBaseModelInfo::AddRef()
 {
 	++usNumberOfRefs;
 	CTxdStore::AddRef(usTextureDictionary);
+}
+
+void CBaseModelInfo::RecalcDrawDistance(float fOldDist)
+{
+	fLodDistanceUnscaled = min(fOldDist, 1371.5f * ms_lodDistScale - 668.5f);
 }
 
 void CClumpModelInfo::Init()

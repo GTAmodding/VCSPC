@@ -168,6 +168,7 @@ void			Widescreen_StringInject();
 void			Widescreen_TextDrawsFix2();
 void			DriveByKillFix();
 void			LookLeftRightHack();
+void			DrawDistanceRecalc();
 //void			ZeroScriptsCounter();
 void			LoadFunctionBreak();
 void			RightShockKeyHack();
@@ -1934,6 +1935,102 @@ void TempExitFix()
 	ExitProcess(0);
 }
 
+static const RwMatrix* pMat;
+static const RwSphere* pSphere;
+
+struct CShadowCamera
+{
+	RwCamera*		m_pCamera;
+	RwTexture*		m_pTexture;
+
+	RwCamera*		SetCenter(RwV3d* vector)
+	{
+		RwFrame*	pCamFrame = RwCameraGetFrame(m_pCamera);
+		RwMatrix*	pCamMat = RwFrameGetMatrix(pCamFrame);
+		CMatrix		Helper(pCamMat);
+
+		/*Helper.SetTranslateOnly(m_pCamera->farPlane * -0.5 * pCamFrame->modelling.at.x + vector->x,
+			m_pCamera->farPlane * -0.5 * pCamFrame->modelling.at.y + vector->y,
+			m_pCamera->farPlane * -0.5 * pCamFrame->modelling.at.z + vector->z);*/
+		//Helper.SetTranslateOnly(538.648, -1065.9757, 11.0);
+
+		CVector		vecToSun;
+
+		vecToSun.x = pMat->pos.x - 538.6483f;
+		vecToSun.y = pMat->pos.y - -1065.9757f;
+		vecToSun.z = pMat->pos.z - 11.0f;
+		vecToSun.Normalize();
+
+		Helper.SetRotateOnly(-M_PI/2, 0.0, atan2(-vecToSun.x, vecToSun.y));
+
+		vecToSun = pMat->pos - (vecToSun*pSphere->radius * 1.1f);
+
+		Helper.SetTranslateOnly(vecToSun.x, vecToSun.y, vecToSun.z);
+		//Helper.SetTranslateOnly(vector->x, vector->y, vector->z);
+		Helper.UpdateRW();
+
+		CCoronas::RegisterCorona(111111111, nullptr, 255, 0, 0, 255, CVector(538.648, -1065.9757, 11.0), 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
+
+
+		CVector		vecPos = *Helper.GetPos();
+		CVector		vecRight = *Helper.GetPos() + *Helper.GetRight();
+		CVector		vecUp = *Helper.GetPos() + *Helper.GetUp();
+		CVector		vecAt = *Helper.GetPos() + *Helper.GetAt();
+
+		/*vecRight += matrix->right;
+		vecUp += matrix->up;
+		vecAt += matrix->at;*/
+
+		// pos
+		CCoronas::RegisterCorona(111111112, nullptr, 255, 255, 0, 255, vecPos, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
+	
+		// right
+		CCoronas::RegisterCorona(111111112 + 1, nullptr, 255, 0, 0, 255, vecRight, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
+
+		// up
+		CCoronas::RegisterCorona(111111112 + 2, nullptr, 0, 255, 0, 255, vecUp, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
+
+		// at
+		CCoronas::RegisterCorona(111111112 + 3, nullptr, 0, 0, 255, 255, vecAt, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
+
+
+		/*pCamMat->pos.x = ;
+		pCamMat->pos.y = ;
+		pCamMat->pos.z = */
+
+		//*pCamMat = *Helper.matrix;
+		//memcpy(pCamMat, &Helper.matrix, sizeof(RwMatrix));
+
+		//RwMatrixUpdate(pCamMat);
+		RwFrameUpdateObjects(pCamFrame);
+		RwFrameOrthoNormalize(pCamFrame);
+
+		return m_pCamera;
+	}
+};
+
+RwV3d* CheckRenderingSrc(RwV3d* pointsOut, const RwSphere* pointsIn, RwInt32 numPoints, const RwMatrix* matrix)
+{
+	//RwV3d		vecIn = pointsIn->center;
+
+	/*vecIn.x *= 5.0f;
+	vecIn.y *= 5.0f;
+	vecIn.z *= 5.0f;*/
+	//vecIn.x = -2.0f;
+	//vecIn.y = 0.0;
+	//vecIn.z = 0.0f;
+	*pointsOut = matrix->pos;
+
+	pMat = matrix;
+	pSphere = pointsIn;
+
+	//auto*		pVec = RwV3dTransformPoints(pointsOut, &vecIn, numPoints, matrix);
+	
+	return pointsOut;
+}
+
+static const RwV3d		FakeSunValues = { 0 };
+
 void* __stdcall CorrectedMallocTest(int nSize, int nAlign)
 {
 	static int	nTotalSize = 0;
@@ -2071,6 +2168,24 @@ __forceinline void Main_Patches()
 	// Crash fix
 //	call(0x552CD0, &NodeCrashFix, PATCH_JUMP);
 
+#ifdef NEW_SHADOWS_TEST
+	Patch<BYTE>(0x706825, 8);
+	Patch<BYTE>(0x706832, 8);
+	Patch<BYTE>(0x7064C2, 9);
+	Patch<BYTE>(0x7064F9, 8);
+	Patch<BYTE>(0x53E159, 0xC3);
+	Patch<DWORD>(0x70BDA0, 0x042474FF);
+	Patch<DWORD>(0x70BDA4, 0xC40350B9);
+	Patch<DWORD>(0x70BDA8, 0xADF2E800);
+	Patch<DWORD>(0x70BDAC, 0x90C3FFFF);
+	Patch<DWORD>(0x707E09, 0x9090C031);
+	Patch<BYTE>(0x707E0D, 0x90);
+	Patch<const void*>(0x707E14, &FakeSunValues);
+	Patch<const void*>(0x707E1B, &FakeSunValues);
+	InjectHook(0x70663A, CheckRenderingSrc);
+	InjectMethod(0x70664C, CShadowCamera::SetCenter, PATCH_NOTHING);
+#endif
+
 #ifndef DONT_FIX_STREAMING
 	InjectHook(0x4076EC, NodeCrashFix2, PATCH_JUMP);
 #endif
@@ -2089,6 +2204,10 @@ __forceinline void Main_Patches()
 	// CConfiscatedWeapons injectors
 	InjectHook(0x442D06, CGameLogic__Update_Wasted);
 	InjectHook(0x442D2F, CGameLogic__Update_Busted);
+
+	// DOUBLE_RWHEELS SA bug fix
+	Patch<WORD>(0x4C9290, 0xE281);
+	Patch<DWORD>(0x4C9292, 0xFFFDFFFC);
 
 	// Don't change velocity when colliding with peds in a vehicle
 	//call(0x5F12CA, &CPhysical__ApplyMoveForce_Nop, PATCH_CALL);
@@ -3068,6 +3187,9 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x573487, &fBrightnessStep2);
 	Patch<const void*>(0x5734AD, &fBrightnessMax);
 	Patch<const void*>(0x5734BC, &fBrightnessMax);
+
+	// Tweaked draw distance
+	InjectHook(0x5735C8, DrawDistanceRecalc);
 
 	// Widescreen
 	Patch<DWORD>(0x745B71, 0x9090687D);
@@ -6023,6 +6145,16 @@ LookLeftRightHack_ReturnTrue:
 LookLeftRightHack_Return:
 		mov		eax, 52781Dh
 		jmp		eax
+	}
+}
+
+void __declspec(naked) DrawDistanceRecalc()
+{
+	_asm
+	{
+		mov		eax, 57C660h
+		call	eax
+		jmp		CModelInfo::RecalcDrawDistances
 	}
 }
 

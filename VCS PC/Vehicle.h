@@ -107,7 +107,7 @@ public:
 class NOVMT CAutomobile : public CVehicle
 {
 public:
-	BYTE		paddd[172];
+	BYTE		paddd[168];
 	RwFrame*	m_pCarNode[20];		// May be wrong?
 	BYTE		padding[432];
 	float		m_fRotorSpeed;
@@ -115,6 +115,7 @@ public:
 
 public:
 	CColModel*	RenderAntennas();
+	void		DebugWheelDisplay();
 };
 
 class NOVMT CHeli : public CAutomobile

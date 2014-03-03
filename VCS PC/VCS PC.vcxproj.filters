@@ -425,6 +425,9 @@
     <ClInclude Include="Antennas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Maths.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="LoadVars.inc">

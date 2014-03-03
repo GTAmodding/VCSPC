@@ -291,11 +291,22 @@ void CFileLoader::LoadLevels()
 
 	//DumpVehicleAudioSettings();
 
+	auto*	pStorage = CModelInfo::GetDrawDistanceStorage();
+
+	pStorage->Init();
 	for ( int i = 0; i < 20000; ++i )
 	{
 		if ( CModelInfo::ms_modelInfoPtrs[i] )
+		{
 			CModelInfo::ms_modelInfoPtrs[i]->ConvertAnimFileIndex();
+
+			unsigned char		nModelType = CModelInfo::ms_modelInfoPtrs[i]->GetModelType();
+			if ( nModelType == 1 || nModelType == 3 || nModelType == 5 || nModelType == 8 )
+				pStorage->AddToList(i, CModelInfo::ms_modelInfoPtrs[i]);
+		}
 	}
+
+	pStorage->Shrink();
 
 	// IPL
 	for ( auto it = m_pScenesList->cbegin(); it != m_pScenesList->cend(); it++ )

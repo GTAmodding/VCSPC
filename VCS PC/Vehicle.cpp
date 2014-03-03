@@ -24,9 +24,47 @@ void CVehicle::SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha)
 	RpGeometryForAllMaterials(pGeometry, SetCompAlphaCB, reinterpret_cast<void*>(nAlpha));
 }
 
+#include "Font.h"
+
+static float		fCurrentY;
+
+static RwFrame* DisplayFrameInfo(RwFrame* frame, void* pData)
+{
+	char			Temp[256];
+
+	RwMatrix*		pMat = RwFrameGetMatrix(frame);
+	int				nFlags = rwMatrixGetFlags(pMat);
+	sprintf(Temp, "%g %g %g %X", pMat->pos.x, pMat->pos.y, pMat->pos.z, nFlags);
+	//rwMatrixSetFlags(pMat, 0);
+
+	CFont::SetProportional(true);
+	CFont::SetEdge(1);
+	CFont::SetFontStyle(FONT_Eurostile);
+	CFont::SetScale(_width(0.3f), _height(0.5f));
+	CFont::SetOrientation(ALIGN_Left);
+	CFont::SetColor(CRGBA(255, 255, 255, 255));
+	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
+	CFont::PrintString(_xleft(10.0f), _y(fCurrentY), Temp);
+
+	fCurrentY += 10.0f;
+
+	RwFrameForAllChildren(frame, DisplayFrameInfo, pData);
+	return frame;
+}
+
+void CAutomobile::DebugWheelDisplay()
+{
+	fCurrentY = 10.0f;
+
+	DisplayFrameInfo(m_pCarNode[2], nullptr);
+	DisplayFrameInfo(m_pCarNode[5], nullptr);
+	DisplayFrameInfo(m_pCarNode[4], nullptr);
+	DisplayFrameInfo(m_pCarNode[7], nullptr);
+}
+
 void CHeli::ProcessRotorsAlpha()
 {
-	double		dRotorsSpeed, dMovingRotorSpeed;
+	/*double		dRotorsSpeed, dMovingRotorSpeed;
 
 	if ( m_fRotorSpeed > 0.0 )
 		dRotorsSpeed = min(1.7 * (1.0/0.22) * m_fRotorSpeed, 1.5);
@@ -70,7 +108,7 @@ void CHeli::ProcessRotorsAlpha()
 		RwFrameForAllObjects(m_pCarNode[14], GetCurrentAtomicObjectCB, &pOutAtomic);
 		if ( pOutAtomic )
 			SetComponentAtomicAlpha(pOutAtomic, nMovingRotorAlpha);
-	}
+	}*/
 }
 
 CColModel* CAutomobile::RenderAntennas()
@@ -87,12 +125,12 @@ CColModel* CAutomobile::RenderAntennas()
 		if ( pCoords )
 			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this), *pCoords->GetAt(), *pCoords * CVector(-1.0f, 0.84f, 0.375f), 1.1f, 0.93f);
 	}
-	else if ( m_nModelIndex == VT_STINGER )
+	/*else if ( m_nModelIndex == VT_STINGER )
 	{
 		CMatrix*	pCoords = GetMatrix();
 		if ( pCoords )
-			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this), *pCoords->GetAt(), *pCoords * CVector(-0.8f, -1.75f, 0.23f), 0.5f, 0.9f);
-	}
+			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this), *pCoords->GetAt(), *pCoords * CVector(-0.8f, -1.75f, 0.2f), 0.5f, 0.9f);
+	}*/
 	/*else if ( m_nModelIndex == VT_POLICEM )
 	{
 		CMatrix*	pCoords = GetMatrix();

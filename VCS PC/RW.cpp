@@ -17,6 +17,7 @@ WRAPPER RwRaster* RwRasterUnlock(RwRaster* raster) { WRAPARG(raster); EAXJMP(0x7
 WRAPPER RwRaster* RwRasterSetFromImage(RwRaster* raster, RwImage* image) { WRAPARG(raster); WRAPARG(image); EAXJMP(0x804290); }
 WRAPPER RpClump* RpClumpAddAtomic(RpClump* clump, RpAtomic* atomic) { WRAPARG(clump); WRAPARG(atomic); EAXJMP(0x74A490); }
 WRAPPER RwFrame* RwFrameSetIdentity(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F10B0); }
+WRAPPER RwFrame* RwFrameForAllChildren(RwFrame* frame, RwFrameCallBack callBack, void* data) { WRAPARG(frame); WRAPARG(callBack); WRAPARG(data); EAXJMP(0x7F0DC0); }
 WRAPPER RpClump* RpClumpCreate() { EAXJMP(0x74A290); }
 WRAPPER RwCamera* RwCameraClear(RwCamera* camera, RwRGBA* colour, RwInt32 clearMode) { WRAPARG(camera); WRAPARG(colour); WRAPARG(clearMode); EAXJMP(0x7EE340); }
 WRAPPER RwBool RwImageDestroy(RwImage* image) { WRAPARG(image); EAXJMP(0x802740); }
@@ -34,6 +35,11 @@ WRAPPER RwBool RwIm3DRenderIndexedPrimitive(RwPrimitiveType primType, RwImVertex
 WRAPPER RwBool RwIm3DRenderLine(RwInt32 vert1, RwInt32 vert2) { WRAPARG(vert1); WRAPARG(vert2); EAXJMP(0x7EF900); }
 WRAPPER RwBool RwIm3DEnd() { EAXJMP(0x7EF520); }
 WRAPPER void _rwObjectHasFrameSetFrame(void* object, RwFrame* frame) { WRAPARG(object); WRAPARG(frame); EAXJMP(0x804EF0); }
+WRAPPER RwBool RwMatrixDestroy(RwMatrix* mpMat) { WRAPARG(mpMat); EAXJMP(0x7F2A20); }
+
+WRAPPER RwV3d* RwV3dTransformPoints(RwV3d* pointsOut, const RwV3d* pointsIn, RwInt32 numPoints, const RwMatrix* matrix) { WRAPARG(pointsOut); WRAPARG(pointsIn); WRAPARG(numPoints); WRAPARG(matrix); EAXJMP(0x7EDD90); }
+WRAPPER RwFrame* RwFrameUpdateObjects(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F0910); }
+WRAPPER RwFrame* RwFrameOrthoNormalize(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F1170); }
 
 WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
 
@@ -45,4 +51,10 @@ RwCamera* RwCameraBeginUpdate(RwCamera* camera)
 RwCamera* RwCameraEndUpdate(RwCamera* camera)
 {
 	return camera->endUpdate(camera);
+}
+
+RwMatrix* RwMatrixUpdate(RwMatrix* matrix)
+{
+	matrix->flags &= ~(rwMATRIXTYPEMASK|rwMATRIXINTERNALIDENTITY);
+	return matrix;
 }

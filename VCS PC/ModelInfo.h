@@ -449,6 +449,7 @@ public:
 	inline unsigned int		GetHash() { return ulHashKey; }
 	inline short			GetTextureDict() { return usTextureDictionary; }
 
+	void					RecalcDrawDistance(float fOldDist);
 	void					SetTexDictionary(const char* pDict);
 	void					AddRef();
 };
@@ -580,8 +581,34 @@ public:
 	void					GetRandomPedColour(BYTE& colour1, BYTE& colour2, BYTE& colour3, BYTE& colour4);
 };
 
-static_assert(sizeof(CBaseModelInfo) == 0x20, "Wrong size: CBaseModelInfo");
-static_assert(sizeof(CPedModelInfo) == 0x44, "Wrong size: CPedModelInfo");
+class CModelInfoDrawDistStorage
+{
+private:
+	unsigned short*	m_pMalloc;
+	int				m_nMin, m_nMax;
+
+private:
+	inline unsigned short	Pack(float value)
+		{ return static_cast<unsigned short>(round(value * 20000 / 1000)); }
+	inline float	Unpack(unsigned short value)
+	{ return static_cast<float>(value) * 1000 / 20000; }
+
+public:
+	inline void		Init()
+		{ m_nMin = m_nMax = 0; m_pMalloc = new unsigned short[20000]; }
+	inline void		Shrink()
+	{	unsigned short* pNewMalloc = new unsigned short[m_nMax-m_nMin];
+		memcpy(pNewMalloc, &m_pMalloc[m_nMin], (m_nMax-m_nMin) * sizeof(unsigned short));
+		delete m_pMalloc;
+		m_pMalloc = pNewMalloc;
+	}
+
+	inline void		Shutdown()
+		{ delete m_pMalloc; }
+
+	void			AddToList(int nIndex, CBaseModelInfo* pModelInfo);
+	void			RecalcDrawDistances();
+};
 
 class CModelInfo
 {
@@ -595,8 +622,14 @@ public:
 	static CDynamicStore<CAtomicModelInfo>				ms_atomicModelStore;
 	static CDynamicStore<CDamageAtomicModelInfo>		ms_damageAtomicModelStore;
 	static CDynamicStore<CTimeModelInfo>				ms_timeModelStore;
+	static CModelInfoDrawDistStorage					ms_drawDistStorage;
 
 public:
+	static inline CModelInfoDrawDistStorage*			GetDrawDistanceStorage()
+		{ return &ms_drawDistStorage; }
+	static inline void									RecalcDrawDistances()
+		{ ms_drawDistStorage.RecalcDrawDistances(); }
+
 	static inline unsigned short						GetModelInfoUInt16(const char* pName)
 		{ int	nID; GetModelInfo(pName, &nID); return static_cast<unsigned short>(nID); }
 
@@ -610,5 +643,8 @@ public:
 };
 
 extern std::pair<void*,int>* const materialRestoreData;
+
+static_assert(sizeof(CBaseModelInfo) == 0x20, "Wrong size: CBaseModelInfo");
+static_assert(sizeof(CPedModelInfo) == 0x44, "Wrong size: CPedModelInfo");
 
 #endif

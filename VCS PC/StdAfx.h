@@ -62,6 +62,8 @@
 //#define DEBUG_GETMODELINFO_WRAPPER
 //#define FANCY_FRONTEND_CONTROLLERS_TEST
 
+#define NEW_SHADOWS_TEST
+
 //#define MAKE_ZZCOOL_MOVIE_DEMO
 
 #endif
@@ -109,6 +111,11 @@ inline T random(T a, T b)
 	return a + static_cast<T>(rand() * (1.0f/(RAND_MAX+1)) * (b - a));
 }
 
+inline int round(double value)
+{
+	return static_cast<int>(value + 0.5);
+}
+
 #ifdef MAKE_CONSOLE
 #define echo(x, ...) printf(x, __VA_ARGS__)
 #else
@@ -128,6 +135,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 
 #include "CCRC32.h"
 #include "MemoryMgr.h"
+#include "Maths.h"
 #include "Rs.h"
 #include "WidescreenSupport.h"
 #include "FileMgr.h"

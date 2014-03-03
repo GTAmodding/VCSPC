@@ -416,6 +416,7 @@ popd</Command>
     <ClInclude Include="Garages.h" />
     <ClInclude Include="GroupedBuildings.h" />
     <ClInclude Include="Hud.h" />
+    <ClInclude Include="Maths.h" />
     <ClInclude Include="MemoryMgr.h" />
     <ClInclude Include="ModelInfo.h" />
     <ClInclude Include="Pad.h" />
