@@ -197,6 +197,14 @@ public:
 		matrix.pos.x = 0.0f; matrix.pos.y = 0.0f; matrix.pos.z = 0.0f;
 	}
 
+	inline void		SetScale(float fScale)
+	{	
+		matrix.right.x = fScale; matrix.right.y = 0.0f; matrix.right.z = 0.0f;
+		matrix.up.x = 0.0f; matrix.up.y = fScale; matrix.up.z = 0.0f;
+		matrix.at.x = 0.0f; matrix.at.y = 0.0f; matrix.at.z = fScale;
+		matrix.pos.x = 0.0f; matrix.pos.y = 0.0f; matrix.pos.z = 0.0f;
+	}
+
 	inline void		RotateX(float fAngle)
 	{
 		CMatrix		RotationMatrix;

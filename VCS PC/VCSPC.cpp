@@ -65,7 +65,7 @@ void			LoadGameFailedMessage(unsigned char bMessageIndex);
 void			MessageLoop();
 void			CdStreamClearNames();
 void			ParseCommandlineFile();
-void			ParseCommandlineArgument(const char* pArg);
+char*			ParseCommandlineArgument(char* pArg);
 BOOL			IsAlreadyRunning();
 CVehicle*		__fastcall VehiclePoolGetAt(CVehiclePool* pThis, int unused, int nIdentifier);
 CPed*			__fastcall PedPoolGetAt(CPedPool* pThis, int unused, int nIdentifier);
@@ -160,6 +160,7 @@ void			WidescreenSupportRecalculateHack3();
 void			WidescreenFOVHack();
 void			WidescreenFOVHack2();
 void			WidescreenBordersHack();
+void			AimpointCalc();
 void			WidescreenTextPositionHack();
 void			WidescreenSkyWidthHack();
 void			Widescreen_SwitchInject();
@@ -321,7 +322,7 @@ BYTE*						bWants_To_Draw_Hud;
 BYTE*						radarGrey;
 float*						WidthAspectRatio;
 float*						HeightAspectRatio;
-float*						ScreenAspectRatio;
+float&						ScreenAspectRatio = *(float*)0xC3EFA4;
 float*						fFOV;
 bool*						bHideStyledTextWhileFading;
 char*						latestMissionName;
@@ -389,7 +390,7 @@ const float					fNewDrawDistance = MAX_DRAW_DISTANCE;
 const float					fSkyMultFix = 3.5f;
 const float					fRadarTileDimensions = 2000.0;
 const float					fMinusRadarTileDimensions = -2000.0;
-const float					fRadarTileDimensions2 = 7.0;;
+const float					fRadarTileDimensions2 = 7.0f;
 const float					fSubtitlesWidth = 0.45f;
 const float					fSubtitlesHeight = 0.9f;
 const float					fTextBoxPosY = 20.0f;
@@ -397,12 +398,12 @@ const float* const			pRefFal = &fRefZVal;
 
 static const float			fWeaponIconWidth = 75.0f;
 static const float			fWeaponIconHeight = 72.0f;
-static const float			fWLStarPosX	= HUD_POS_X - 116.0f;
+/*static const float			fWLStarPosX	= HUD_POS_X - 115.25f;
 static const float			fWLStarPosY = HUD_POS_Y + 53.0f;
 static const float			fWLStarHeight = 1.5f;
 static const float			fWLStarWidth = 0.95f;
 static const float			fWLStarDistance = 20.0f;
-static const float			fWLStarAlpha = HUD_TRANSPARENCY;
+static const float			fWLStarAlpha = HUD_TRANSPARENCY;*/
 
 static const char			aEnglish_gxt[] = "ENGLISH.GXT";
 static const char			aSpanish_gxt[] = "SPANISH.GXT";
@@ -583,19 +584,20 @@ void OnGameTermination()
 
 DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 {
-#if DEVBUILD
-	bool	bKeyState = false, bFPSState = true;
+#ifdef DEVBUILD
+	bool			bKeyState = false, bFPSState = true;
+	static float	fCurrentFOV = 70.0f;
 #endif
 
 	UNREFERENCED_PARAMETER(lpParam);
 
 	LogToFile("Emergency key thread created");
 
-	while ( !(GetKeyState(VK_PAUSE) & 0x8000) )
+	while ( !(GetAsyncKeyState(VK_PAUSE) & 0x8000) )
 	{
 		Sleep(250);
-#if DEVBUILD
-		if ( GetKeyState(VK_F9) & 0x8000 )
+#ifdef DEVBUILD
+		if ( GetAsyncKeyState(VK_F9) & 0x8000 )
 		{
 			if ( !bKeyState )
 			{
@@ -608,6 +610,28 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 		{
 			if ( bKeyState )
 				bKeyState = false;
+		}
+
+		if ( GetAsyncKeyState(VK_OEM_4) & 0x8000 )
+		{
+			fCurrentFOV -= 1.0f;
+			if ( fCurrentFOV < 15.0f )
+				fCurrentFOV = 15.0f;
+
+			Memory::Patch<const void*>(0x522F3A, &fCurrentFOV);
+			Memory::Patch<const void*>(0x522F5D, &fCurrentFOV);
+			Memory::Patch<float>(0x522F7A, fCurrentFOV);
+		}
+
+		if ( GetAsyncKeyState(VK_OEM_6) & 0x8000 )
+		{
+			fCurrentFOV += 1.0f;
+			if ( fCurrentFOV > 170.0f )
+				fCurrentFOV = 170.0f;
+
+			Memory::Patch<const void*>(0x522F3A, &fCurrentFOV);
+			Memory::Patch<const void*>(0x522F5D, &fCurrentFOV);
+			Memory::Patch<float>(0x522F7A, fCurrentFOV);
 		}
 #endif
 
@@ -879,7 +903,6 @@ __forceinline void DefineVariables()
 	radarGrey = (BYTE*)0xA444A4;
 	WidthAspectRatio = (float*)0x859520;
 	HeightAspectRatio = (float*)0x859524;
-	ScreenAspectRatio = (float*)0xC3EFA4;
 	fFOV = (float*)0x8D5038;
 	bHideStyledTextWhileFading = (bool*)0xA44489;
 	latestMissionName = (char*)0xB78A00;
@@ -1935,13 +1958,28 @@ void TempExitFix()
 	ExitProcess(0);
 }
 
-static const RwMatrix* pMat;
+/*static const RwMatrix* pMat;
 static const RwSphere* pSphere;
+
+#include "TimeCycle.h"
 
 struct CShadowCamera
 {
 	RwCamera*		m_pCamera;
 	RwTexture*		m_pTexture;
+
+	void			Rescale(RpLight* pLight)
+	{
+		/*RwMatrix*	pCamMat = RwFrameGetMatrix(RwCameraGetFrame(m_pCamera));
+		RwMatrix*	pLightMat = RwFrameGetMatrix(RpLightGetFrame(pLight));
+
+		pCamMat->right = pLightMat->right;
+		pCamMat->up = pLightMat->up;
+		pCamMat->at = pLightMat->at;
+
+		RwMatrixUpdate(pCamMat);
+		RwFrameUpdateObjects(RwCameraGetFrame(m_pCamera));*/
+/*	}
 
 	RwCamera*		SetCenter(RwV3d* vector)
 	{
@@ -1954,18 +1992,27 @@ struct CShadowCamera
 			m_pCamera->farPlane * -0.5 * pCamFrame->modelling.at.z + vector->z);*/
 		//Helper.SetTranslateOnly(538.648, -1065.9757, 11.0);
 
-		CVector		vecToSun;
+		
 
-		vecToSun.x = pMat->pos.x - 538.6483f;
-		vecToSun.y = pMat->pos.y - -1065.9757f;
-		vecToSun.z = pMat->pos.z - 11.0f;
+		//CVector		vecToSun(pMat->pos - CTimeCycle::m_VectorToSun[CTimeCycle::m_CurrentStoredValue]);
+/*		CVector		vecToSun = -CTimeCycle::m_VectorToSun[CTimeCycle::m_CurrentStoredValue];
+		vecToSun.z = 0.0f;
 		vecToSun.Normalize();
+		//CMatrix		ScalingMatrix;
 
-		Helper.SetRotateOnly(-M_PI/2, 0.0, atan2(-vecToSun.x, vecToSun.y));
+		//ScalingMatrix.SetScale(1.0f);
+
+		/*vecToSun.x = pMat->pos.x - 538.6483f;
+		vecToSun.y = pMat->pos.y - -1065.9757f;
+		vecToSun.z = pMat->pos.z - 11.0f;*/
+
+/*		Helper.SetRotateOnly(-M_PI/2, 0.0, atan2(-vecToSun.x, vecToSun.y));
 
 		vecToSun = pMat->pos - (vecToSun*pSphere->radius * 1.1f);
 
 		Helper.SetTranslateOnly(vecToSun.x, vecToSun.y, vecToSun.z);
+		//CMatrix		SecondHelper = Helper * ScalingMatrix;
+		//Helper.CopyOnlyMatrix(SecondHelper);
 		//Helper.SetTranslateOnly(vector->x, vector->y, vector->z);
 		Helper.UpdateRW();
 
@@ -1982,7 +2029,7 @@ struct CShadowCamera
 		vecAt += matrix->at;*/
 
 		// pos
-		CCoronas::RegisterCorona(111111112, nullptr, 255, 255, 0, 255, vecPos, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
+/*		CCoronas::RegisterCorona(111111112, nullptr, 255, 255, 0, 255, vecPos, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
 	
 		// right
 		CCoronas::RegisterCorona(111111112 + 1, nullptr, 255, 0, 0, 255, vecRight, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
@@ -2002,7 +2049,7 @@ struct CShadowCamera
 		//memcpy(pCamMat, &Helper.matrix, sizeof(RwMatrix));
 
 		//RwMatrixUpdate(pCamMat);
-		RwFrameUpdateObjects(pCamFrame);
+/*		RwFrameUpdateObjects(pCamFrame);
 		RwFrameOrthoNormalize(pCamFrame);
 
 		return m_pCamera;
@@ -2019,7 +2066,7 @@ RwV3d* CheckRenderingSrc(RwV3d* pointsOut, const RwSphere* pointsIn, RwInt32 num
 	//vecIn.x = -2.0f;
 	//vecIn.y = 0.0;
 	//vecIn.z = 0.0f;
-	*pointsOut = matrix->pos;
+/*	*pointsOut = matrix->pos;
 
 	pMat = matrix;
 	pSphere = pointsIn;
@@ -2029,7 +2076,31 @@ RwV3d* CheckRenderingSrc(RwV3d* pointsOut, const RwSphere* pointsIn, RwInt32 num
 	return pointsOut;
 }
 
-static const RwV3d		FakeSunValues = { 0 };
+float* RescaleHook(float* pointsOut, const RwV3d* pointsIn, RwInt32 numPoints, const RwMatrix* matrix)
+{
+	//RwV3d		vecIn = pointsIn->center;
+
+	/*vecIn.x *= 5.0f;
+	vecIn.y *= 5.0f;
+	vecIn.z *= 5.0f;*/
+	//vecIn.x = -2.0f;
+	//vecIn.y = 0.0;
+	//vecIn.z = 0.0f;
+/*	pointsOut[0] = matrix->pos.x;
+	pointsOut[1] = matrix->pos.y;
+	pointsOut[2] = matrix->pos.z;
+	pointsOut[3] *= 2.0f;
+	//*pointsOut = matrix->pos;
+
+	//pMat = matrix;
+	//pSphere = pointsIn;
+
+	//auto*		pVec = RwV3dTransformPoints(pointsOut, &vecIn, numPoints, matrix);
+	
+	return pointsOut;
+}
+
+static const RwV3d		FakeSunValues = { 0 };*/
 
 void* __stdcall CorrectedMallocTest(int nSize, int nAlign)
 {
@@ -2174,16 +2245,22 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x7064C2, 9);
 	Patch<BYTE>(0x7064F9, 8);
 	Patch<BYTE>(0x53E159, 0xC3);
-	Patch<DWORD>(0x70BDA0, 0x042474FF);
-	Patch<DWORD>(0x70BDA4, 0xC40350B9);
-	Patch<DWORD>(0x70BDA8, 0xADF2E800);
-	Patch<DWORD>(0x70BDAC, 0x90C3FFFF);
+	//Patch<DWORD>(0x70BDA0, 0x042474FF);
+	//Patch<DWORD>(0x70BDA4, 0xC40350B9);
+	//Patch<DWORD>(0x70BDA8, 0xADF2E800);
+	//Patch<DWORD>(0x70BDAC, 0x90C3FFFF);
 	Patch<DWORD>(0x707E09, 0x9090C031);
 	Patch<BYTE>(0x707E0D, 0x90);
+	//Patch<DWORD>(0x707E4F, 0x900CC483);
+	//Patch<BYTE>(0x707E53, 0x90);
 	Patch<const void*>(0x707E14, &FakeSunValues);
 	Patch<const void*>(0x707E1B, &FakeSunValues);
 	InjectHook(0x70663A, CheckRenderingSrc);
+	//InjectHook(0x706573, RescaleHook);
 	InjectMethod(0x70664C, CShadowCamera::SetCenter, PATCH_NOTHING);
+	InjectMethod(0x705981, CShadowCamera::Rescale, PATCH_NOTHING);
+	//static const float		fFrustumSize = 2.0f;
+	//Patch<const void*>(0x7065CC, &fFrustumSize);
 #endif
 
 #ifndef DONT_FIX_STREAMING
@@ -2208,6 +2285,12 @@ __forceinline void Main_Patches()
 	// DOUBLE_RWHEELS SA bug fix
 	Patch<WORD>(0x4C9290, 0xE281);
 	Patch<DWORD>(0x4C9292, 0xFFFDFFFC);
+
+	// Bumped up shadows quality
+	Memory::Patch<BYTE>(0x706825, 8);
+	Memory::Patch<BYTE>(0x706832, 8);
+	Memory::Patch<BYTE>(0x7064C2, 9);
+	Memory::Patch<BYTE>(0x7064F9, 8);
 
 	// Don't change velocity when colliding with peds in a vehicle
 	//call(0x5F12CA, &CPhysical__ApplyMoveForce_Nop, PATCH_CALL);
@@ -2321,13 +2404,14 @@ __forceinline void Main_Patches()
 	if ( !IVHudPresent() )
 	{
 		InjectHook(0x58FBD6, CHud::DrawHUD);
+		InjectHook(0x58FBDB, CHud::DrawWanted);
 		Patch<const void*>(0x58D896, &fWeaponIconHeight);
 		Patch<const void*>(0x58D94D, &fWeaponIconHeight);
 		Patch<const void*>(0x58D8CB, &fWeaponIconWidth);
 		Patch<const void*>(0x58D935, &fWeaponIconWidth);
 		//Patch<DWORD>(0x58D89B, HUD_TRANSPARENCY);
 
-		Patch<WORD>(0x58DF18, 0xE990);
+		/*Patch<WORD>(0x58DF18, 0xE990);
 		Patch<BYTE>(0x58DE23, 0xEB);
 		InjectHook(0x588B60, CHud::GetYPosBasedOnHealth, PATCH_JUMP);
 		Patch<BYTE>(0x58DD41, 0);
@@ -2347,7 +2431,7 @@ __forceinline void Main_Patches()
 		Patch<const void*>(0x58DCC0, &fWLStarWidth);
 		Patch<const void*>(0x58DD86, &fWLStarWidth);
 		Patch<const void*>(0x58DFED, &fWLStarDistance);
-		Patch<const void*>(0x58D9BA, &fWLStarAlpha);
+		Patch<const void*>(0x58D9BA, &fWLStarAlpha);*/
 		/*Patch<const void*>(0x5834C2, &fRadarWidth);
 		Patch<const void*>(0x58781B, &fRadarWidth);
 		Patch<const void*>(0x58A449, &fRadarWidth);
@@ -3228,7 +3312,7 @@ __forceinline void Main_Patches()
 	patch(0x7469A0, 0x909000B0, 4);
 
 	// Commandline arguments
-	patch(0x619C40, &CommandlineEventHack, 4);
+	Patch<const void*>(0x619C40, &CommandlineEventHack);
 	InjectHook(0x7488FB, ReadCommandlineFile, PATCH_JUMP);
 
 	// DLC support
@@ -3393,10 +3477,11 @@ __forceinline void Main_Patches()
 	patch(0x57639A, &WidescreenSupport::f0pt7_h, 4);
 	Patch<const void*>(0x714843, &fSkyMultFix);
 	Patch<const void*>(0x714860, &fSkyMultFix);
-	patch(0x70CEF8, &WidescreenSupport::fScreenCoorsFix, 4);
-	patch(0x71DA8D, &WidescreenSupport::fScreenCoorsFix, 4);
+	Patch<const void*>(0x70CEF8, &WidescreenSupport::fScreenCoorsFix);
+	Patch<const void*>(0x71DA8D, &WidescreenSupport::fScreenCoorsFix);
 //	patch(0x52C9DB, &WidescreenSupport::fSpawningFix, 4);	// Tmp
-	patch(0x514986, &WidescreenSupport::fAimpointFix, 4);
+	///Patch<const void*>(0x514986, &WidescreenSupport::fAimpointFix);
+	//Patch<const void*>(0x50AD53, &WidescreenSupport::fAimpointFix);		// Not needed?
 	Patch<const void*>(0x58BBCB, &fTextBoxPosY);
 	/*patch(0x58C0DE, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C12D, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
@@ -3414,6 +3499,7 @@ __forceinline void Main_Patches()
 	InjectHook(0x72FCF9, WidescreenFOVHack, PATCH_JUMP);
 	InjectHook(0x514D63, WidescreenFOVHack2, PATCH_CALL);
 	InjectHook(0x514878, WidescreenBordersHack);
+	InjectHook(0x51499E, AimpointCalc, PATCH_JUMP);
 	InjectHook(0x5BC8FF, CameraInitHack, PATCH_JUMP);
 	InjectHook(0x58C3C8, WidescreenTextPositionHack, PATCH_CALL);
 	InjectHook(0x58BB88, WidescreenSupport::GetTextBoxPos, PATCH_CALL);
@@ -3423,6 +3509,7 @@ __forceinline void Main_Patches()
 //	InjectHook(0x58C0BB, Widescreen_TextDrawsFix, PATCH_CALL);
 	InjectHook(0x58C1EC, Widescreen_TextDrawsFix2, PATCH_JUMP);
 	patch(0x58BB8D, 0x05EB, 2);
+	Nop(0x50AD79, 6);
 	Nop(0x58C3CD, 1);
 //	Nop(0x714846, 1);
 	Nop(0x514D68, 1);
@@ -4464,14 +4551,14 @@ void ParseCommandlineFile()
 			ParseCommandlineArgument(strtok(cLine, " "));
 
 			while ( char* pNextArg = strtok(nullptr, " ") )
-				ParseCommandlineArgument(pNextArg);
+				pNextArg = ParseCommandlineArgument(pNextArg);
 		}
 
 		fclose(hFile);
 	}
 }
 
-void ParseCommandlineArgument(const char* pArg)
+char* ParseCommandlineArgument(char* pArg)
 {
 	if ( pArg )
 	{
@@ -4479,33 +4566,48 @@ void ParseCommandlineArgument(const char* pArg)
 		{
 			SetWindowTextW(RsGlobal.ps->window, L"GTA: San Andreas");
 			RsGlobal.AppName = "GTA: San Andreas";
-			return;
+			return pArg;
 		}
 
 		if ( !_strnicmp(pArg, "-nointro", 8) )
 		{
 			// TODO: Define this variable properly
 			*(DWORD*)0xC8D4C0 = 5;
-			return;
+			return pArg;
 		}
 
 		if ( !_strnicmp(pArg, "-notimefix", 10) )
 		{
 			bNoTimeFix = true;
-			return;
+			return pArg;
+		}
+
+		if ( !_strnicmp(pArg, "-pedshadowquality", 18) )
+		{
+			pArg = strtok(nullptr, " ");
+			int		nNewShadowQuality = atoi(pArg);
+
+			if ( nNewShadowQuality >= 1 && nNewShadowQuality <= 4 )
+			{
+				Memory::Patch<BYTE>(0x706825, static_cast<BYTE>(nNewShadowQuality + 5));
+				Memory::Patch<BYTE>(0x706832, static_cast<BYTE>(nNewShadowQuality + 5));
+				Memory::Patch<BYTE>(0x7064C2, static_cast<BYTE>(nNewShadowQuality + 6));
+				Memory::Patch<BYTE>(0x7064F9, static_cast<BYTE>(nNewShadowQuality + 5));
+			}
+			return pArg;
 		}
 
 #ifdef DEVBUILD
 		if ( !_strnicmp(pArg, "-noautocheck", 13) )
 		{
 			CUpdateManager::DisableAutoCheck();
-			return;
+			return pArg;
 		}
 
 		if ( !_strnicmp(pArg, "-zombiedlc", 10) )
 		{
 			CDLCManager::ToggleDebugOverride(DLC_HALLOWEEN);
-			return;
+			return pArg;
 		}
 
 		/*if ( !_strnicmp(pArg, "-2dfx", 5) )
@@ -4515,6 +4617,7 @@ void ParseCommandlineArgument(const char* pArg)
 		}*/
 #endif
 	}
+	return pArg;
 }
 
 BOOL IsAlreadyRunning()
@@ -5980,7 +6083,7 @@ void __declspec(naked) WidescreenFOVHack()
 		jmp		WidescreenFOVHack_JumpBack
 
 WidescreenFOVHack_DoFOV:
-		fmul	[WidescreenSupport::fFOVMultiplier]
+		//fmul	[WidescreenSupport::fFOVMultiplier]
 		fst		[esp+14h]
 		fmul	[esp+50h]
 		fstp	[esp+10h]
@@ -5988,7 +6091,7 @@ WidescreenFOVHack_DoFOV:
 	}
 }
 
-void __declspec(naked) WidescreenFOVHack2()
+/*void __declspec(naked) WidescreenFOVHack2()
 {
 	_asm
 	{
@@ -6007,8 +6110,39 @@ WidescreenFOVHack2_DoFOV:
 		fld		[eax]
 		mov		eax, [fFOV]
 		fmul	[eax]
-		fmul	[WidescreenSupport::fFOVMultiplier]
+		//fmul	[WidescreenSupport::fFOVMultiplier]
 		retn
+	}
+}*/
+
+static float CalcFOV()
+{
+	float	TehFOV = ScreenAspectRatio > 1.0f ? *fFOV * ScreenAspectRatio : *fFOV; 
+	return	TehFOV >= 175.0f ? 175.0f : TehFOV;
+}
+
+void __declspec(naked) WidescreenFOVHack2()
+{
+	_asm
+	{
+		push	ecx
+		call	CalcFOV
+		pop		ecx
+		retn
+	}
+}
+
+void __declspec(naked) AimpointCalc()
+{
+	_asm
+	{
+		fstp	st
+		mov		edx, [ScreenAspectRatio]
+		fmul	[edx]
+		mov		edi, [esp+1Ch+14h]
+		mov     edx, edi
+		mov		ebx, 5149A6h
+		jmp		ebx
 	}
 }
 

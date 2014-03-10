@@ -59,7 +59,8 @@ float WidescreenSupport::fMenuSliderHeight2 = MENU_SLIDER_HEIGHT / 448.0f;
 float WidescreenSupport::fProperWidthMultiplier = 1.0f;
 float WidescreenSupport::fProperHeightMultiplier = 480.0f/448.0f;
 
-const float WidescreenSupport::fFOVMultiplier = 1.0f/((4.0f/3.0f)/1.1f);
+//const float WidescreenSupport::fFOVMultiplier = 1.0f/((4.0f/3.0f)/1.1f);
+//const float WidescreenSupport::fFOVMultiplier = 1.0f/((4.0f/3.0f)/1.0f);
 
 void WidescreenSupport::Recalculate(int nWidth, int nHeight, bool bAlways)
 {
@@ -136,8 +137,10 @@ void WidescreenSupport::Recalculate(int nWidth, int nHeight, bool bAlways)
 		fCTSliderRight = 0.5f + (50.0f/fNewResolutionWidthMultiplier);
 		fCTSliderLeft = 0.5f - (50.0f/fNewResolutionWidthMultiplier);
 		fScreenCoorsFix = 44800.0f/fNewResolutionWidthMultiplier;
-		fAimpointFix = (9.0f/12800.0f)*fNewResolutionWidthMultiplier + 0.1f;
+		//fAimpointFix = (9.0f/12800.0f)*fNewResolutionWidthMultiplier + 0.1f;
 		fMapZonePosX2 = 7.5f/fNewResolutionWidthMultiplier;
+
+		fAimpointFix = 0.5f * atan(RAD_TO_DEG * SetAspectRatio()) /** ((4.0f/3.0f)/1.1f)*/;
 
 		f0pt7_h = 0.7f/fNewResolutionHeightMultiplier;
 		f0pt95_h = 0.95f/fNewResolutionHeightMultiplier;
@@ -161,23 +164,23 @@ float WidescreenSupport::SetAspectRatio()
 	switch ( FrontEndMenuManager.m_bAspectRatioMode )
 	{
 	case 1:
-		return *ScreenAspectRatio = 4.0f/3.0f;
+		return ScreenAspectRatio = 4.0f/3.0f;
 	case 2:
-		return *ScreenAspectRatio = 5.0f/4.0f;
+		return ScreenAspectRatio = 5.0f/4.0f;
 	case 3:
-		return *ScreenAspectRatio = 15.0f/9.0f;
+		return ScreenAspectRatio = 15.0f/9.0f;
 	case 4:
-		return *ScreenAspectRatio = 16.0f/9.0f;
+		return ScreenAspectRatio = 16.0f/9.0f;
 	case 5:
-		return *ScreenAspectRatio = 16.0f/10.0f;
+		return ScreenAspectRatio = 16.0f/10.0f;
 	default:
-		return *ScreenAspectRatio = static_cast<float>(RsGlobal.MaximumWidth) / RsGlobal.MaximumHeight;
+		return ScreenAspectRatio = static_cast<float>(RsGlobal.MaximumWidth) / RsGlobal.MaximumHeight;
 	}
 }
 
 float WidescreenSupport::GetTextPosition()
 {
-	float			fScreenRatio = *ScreenAspectRatio;
+	float			fScreenRatio = ScreenAspectRatio;
 	double			dTextPos = (-3375.0 * fScreenRatio * fScreenRatio) + (10800.0 * fScreenRatio) - 8545.0;
 	return dTextPos > 80.0 ? static_cast<float>(dTextPos) : 80.0f;
 }
@@ -197,7 +200,7 @@ unsigned char WidescreenSupport::GetTextBoxPos()
 		dTextBoxPos -= dTextBoxPos * dBorderProportionsFix;
 	return dTextBoxPos > 0.0 ? dTextBoxPos : 0;*/
 
-	float			fScreenRatio = *ScreenAspectRatio;
+	float			fScreenRatio = ScreenAspectRatio;
 	float			dScreenHeightWeWannaCut = ((-9.0f/16.0f) * fScreenRatio + 1.0f);
 	float			dBorderProportionsFix = ((-144643.0f/50000.0f) * fScreenRatio * fScreenRatio) + ((807321.0f/100000.0f) * fScreenRatio) - (551143.0f/100000.0f);
 

@@ -366,6 +366,7 @@ popd</Command>
     </ClCompile>
     <ClCompile Include="Streaming.cpp" />
     <ClCompile Include="Text.cpp" />
+    <ClCompile Include="TimeCycle.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TxdStore.cpp" />
     <ClCompile Include="UpdateManager.cpp" />
@@ -433,6 +434,7 @@ popd</Command>
     <ClInclude Include="Messages.h" />
     <ClInclude Include="Streaming.h" />
     <ClInclude Include="Text.h" />
+    <ClInclude Include="TimeCycle.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TxdStore.h" />
     <ClInclude Include="UpdateManager.h" />

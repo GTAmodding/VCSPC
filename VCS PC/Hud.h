@@ -88,6 +88,7 @@ public:
 	static bool		HelpMessageShown();
 
 	static void		DrawHUD();
+	static void		DrawWanted();
 	static void		DrawOnscreenTimer();
 	static void		DrawPermanentTexts();
 	static void		DrawRadioName(void* object, const char* radioName);

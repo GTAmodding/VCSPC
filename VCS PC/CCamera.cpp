@@ -11,7 +11,7 @@ WRAPPER bool CCamera::IsPositionVisible(const CVector& vecPos, float fRadius) { 
 
 void CCamera::GetScreenRect(CRect& rect)
 {
-	float			fScreenRatio = *ScreenAspectRatio;
+	float			fScreenRatio = ScreenAspectRatio;
 	float			dScreenHeightWeWannaCut = ((-9.0f/16.0f) * fScreenRatio + 1.0f);
 	float			dBorderProportionsFix = ((-144643.0f/50000.0f) * fScreenRatio * fScreenRatio) + ((807321.0f/100000.0f) * fScreenRatio) - (551143.0f/100000.0f);
 

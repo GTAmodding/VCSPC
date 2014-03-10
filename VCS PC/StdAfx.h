@@ -61,8 +61,9 @@
 //#define ROTORS_TEST
 //#define DEBUG_GETMODELINFO_WRAPPER
 //#define FANCY_FRONTEND_CONTROLLERS_TEST
+#define SHOW_FOV_FANCY_RHYME
 
-#define NEW_SHADOWS_TEST
+//#define NEW_SHADOWS_TEST
 
 //#define MAKE_ZZCOOL_MOVIE_DEMO
 
@@ -159,7 +160,7 @@ extern DWORD*				memoryAvailable;
 extern DWORD*				memoryUsed;
 extern float*				WidthAspectRatio;
 extern float*				HeightAspectRatio;
-extern float*				ScreenAspectRatio;
+extern float&				ScreenAspectRatio;
 extern float*				fFOV;
 extern BYTE*				bWants_To_Draw_Hud;
 extern BYTE*				radarGrey;

@@ -63,7 +63,7 @@ public:
 
 //	static float	fTextDrawsWidthMultiplier;
 
-	static const float	fFOVMultiplier;
+	//static const float	fFOVMultiplier;
 
 	static void				Recalculate(int nWidth, int nHeight, bool bAlways);
 	static float			SetAspectRatio();

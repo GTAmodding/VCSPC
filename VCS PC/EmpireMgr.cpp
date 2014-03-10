@@ -119,6 +119,10 @@ void CEmpireManager::Initialise()
 								sscanf(pLine, "%d %c %f %f %f %f", &nTypeID, &nSubgroup, &tempData.m_translate.x, &tempData.m_translate.y, &tempData.m_translate.z, &tempData.m_heading);
 								nSubgroup = static_cast<char>(tolower(nSubgroup));
 
+								// Normalize the angle
+								while ( tempData.m_heading < 0.0f )
+									tempData.m_heading += 360.0f;
+
 								// Get the index and increase it afterwards
 								unsigned char		nIndex = countMap[PackKey(static_cast<unsigned short>(nTypeID), nSubgroup)];
 								pCurrentModelForDataParsing->GetEmpireData()->AddEntry(static_cast<unsigned short>(nTypeID), nSubgroup, nIndex++, tempData);

@@ -31,6 +31,8 @@ private:
 
 public:
 	inline int		GetWantedLevel() { return m_WantedLevel; }
+	inline int		GetWantedLevelBeforeParole() { return m_WantedLevelBeforeParole; }
+	inline int		GetTimeWantedLevelChanged() { return m_LastTimeWantedLevelChanged; }
 
 	bool			ShouldSendViceSquad();
 };
