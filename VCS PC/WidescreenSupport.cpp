@@ -140,7 +140,7 @@ void WidescreenSupport::Recalculate(int nWidth, int nHeight, bool bAlways)
 		//fAimpointFix = (9.0f/12800.0f)*fNewResolutionWidthMultiplier + 0.1f;
 		fMapZonePosX2 = 7.5f/fNewResolutionWidthMultiplier;
 
-		fAimpointFix = 0.5f * atan(RAD_TO_DEG * SetAspectRatio()) /** ((4.0f/3.0f)/1.1f)*/;
+		fAimpointFix = 0.5f * static_cast<float>(atan(RAD_TO_DEG * SetAspectRatio())) /** ((4.0f/3.0f)/1.1f)*/;
 
 		f0pt7_h = 0.7f/fNewResolutionHeightMultiplier;
 		f0pt95_h = 0.95f/fNewResolutionHeightMultiplier;

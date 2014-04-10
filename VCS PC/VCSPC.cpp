@@ -40,6 +40,7 @@
 #include "World.h"
 #include "EntryExitMgr.h"
 #include "Antennas.h"
+#include "ControlsMgr.h"
 #include "VCSPC_SDK_Internal.h"
 
 // Regular functions
@@ -67,6 +68,8 @@ void			CdStreamClearNames();
 void			ParseCommandlineFile();
 char*			ParseCommandlineArgument(char* pArg);
 BOOL			IsAlreadyRunning();
+void			SaveLanguageHack(FILE* stream, const char* ptr, size_t len);
+void			LoadLanguageHack(FILE* stream, void* buf, size_t len);
 CVehicle*		__fastcall VehiclePoolGetAt(CVehiclePool* pThis, int unused, int nIdentifier);
 CPed*			__fastcall PedPoolGetAt(CPedPool* pThis, int unused, int nIdentifier);
 /*#if DEBUG
@@ -105,13 +108,19 @@ void			func_6D1AA0();
 void			GoodCitizenBonusFlag();
 void			InCarKilledCounterBreak();
 void			Language_CASE_English();
+void			Language_CASE_German();
 void			Language_CASE_Spanish();
+void			Language_CASE_Brazilian();
 void			Language_CASE_Polish();
 void			Language_CASE_Hungarian();
+void			Language_CASE_Romanian();
 void			MissionLanguage_CASE_English();
+void			MissionLanguage_CASE_German();
+void			MissionLanguage_CASE_Brazilian();
 void			MissionLanguage_CASE_Spanish();
 void			MissionLanguage_CASE_Polish();
 void			MissionLanguage_CASE_Hungarian();
+void			MissionLanguage_CASE_Romanian();
 void			CGameLogic__Update_Busted();
 void			CGameLogic__Update_Wasted();
 void			AssignViceSquadToVehicle();
@@ -207,6 +216,7 @@ void			LoadGameWithDLCHack();
 void			DLCMenuAction();
 void			VehAudioHook();
 void			RotorsHook();
+void			Language6Action();
 #ifdef INCLUDE_MULTIFONTFILES
 void			MultipleFontsDAT_Inject();
 void			MultipleFontsTXD_Inject();
@@ -379,17 +389,17 @@ const float					fRadarPosX = 35.0f;
 const float					fRadarHeight = 94.0f * 448.0f / 480.0f;
 const float					fRadarPosY = 107.0f;
 //const float					fMenuSliderHeight2 = MENU_SLIDER_HEIGHT / 448.0;
-const float					fCTSliderRight = 370.0;
-const float					fRhinoHitStrength = 1000.0;
-const float					fRefZVal = 1.0;
+const float					fCTSliderRight = 370.0f;
+const float					fRhinoHitStrength = 1000.0f;
+const float					fRefZVal = 1.0f;
 const float					fBrightnessStep = 1.0f / 192.0f;
-const float					fBrightnessStep2 = 12.0;
-const float					fBrightnessMax = 192.0;
+const float					fBrightnessStep2 = 12.0f;
+const float					fBrightnessMax = 192.0f;
 //const float					fBriefTextHeight = 0.7/448.0;
 const float					fNewDrawDistance = MAX_DRAW_DISTANCE;
 const float					fSkyMultFix = 3.5f;
-const float					fRadarTileDimensions = 2000.0;
-const float					fMinusRadarTileDimensions = -2000.0;
+const float					fRadarTileDimensions = 2000.0f;
+const float					fMinusRadarTileDimensions = -2000.0f;
 const float					fRadarTileDimensions2 = 7.0f;
 const float					fSubtitlesWidth = 0.45f;
 const float					fSubtitlesHeight = 0.9f;
@@ -406,9 +416,12 @@ static const float			fWLStarDistance = 20.0f;
 static const float			fWLStarAlpha = HUD_TRANSPARENCY;*/
 
 static const char			aEnglish_gxt[] = "ENGLISH.GXT";
+static const char			aGerman_gxt[] = "GERMAN.GXT";
+static const char			aBrazilian_gxt[] = "BRAZILIAN.GXT";
 static const char			aSpanish_gxt[] = "SPANISH.GXT";
 static const char			aPolish_gxt[] = "POLISH.GXT";
 static const char			aHungarian_gxt[] = "HUNGARIAN.GXT";
+static const char			aRomanian_gxt[] = "ROMANIAN.GXT";
 static const char			aFem_24H[] = "FEM_24H";
 static const char			aFem_12H[] = "FEM_12H";
 static const char			aFem_Fps[] = "FEM_FPS";
@@ -457,16 +470,16 @@ const BYTE					CAutomobile__PreRenderCoronasTable[] = {
 									4, 4, 4, 0, 0, 0, 0, 4, 4, 4,
 									4, 2 };
 
-const BYTE					MenuActionsTable[] = {
+const BYTE					PCMenuActionsTable[] = {
 									0, 1, 2, 3, 33, 33, 33, 33,
 									33, 33, 33, 33, 33, 33, 33, 33,
 									33, 33, 4, 33, 33, 33, 33, 33,
 									33, 33, 33, 33, 5, 33, 33, 6,
 									7, 8, 9, 10, 11, 12, 13, 14, 15,
 									16, 17, 18, 19, 20, 21, 22, 23,
-									24, 25, 26, 27, 28, 29, 33, 33, 30, 31, 32, 34, 35 };
+									24, 25, 26, 27, 28, 29, 33, 33, 30, 31, 32, 34, 35, 36 };
 
-const void*	const			MenuActionsAddresses[] = {
+const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57D397, (void*)0x57D2FA, (void*)0x57D322,
 									(void*)0x57D32B, (void*)0x57CEC7, (void*)0x57D3A5,
 									(void*)0x57D418, (void*)0x57D3CD, (void*)0x57D3DD,
@@ -478,7 +491,7 @@ const void*	const			MenuActionsAddresses[] = {
 									(void*)0x57D386, (void*)0x57CF9B, (void*)0x57D268,
 									(void*)0x57CF5B, (void*)0x57CE6D, (void*)0x57CE9A,
 									(void*)0x57D21F, (void*)0x57CF1B, (void*)0x57CF3B,
-									(void*)0x57D447, UpdaterMenuAction, DLCMenuAction };
+									(void*)0x57D447, Language6Action, UpdaterMenuAction, DLCMenuAction };
 
 const int					iRadioTracks[NUM_RADIOSTATIONS][31] = {
 				{ AA_OFFSET+1, AA_OFFSET+4, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922 },
@@ -528,8 +541,8 @@ const CutsceneData			cutsceneStreams[] = { { "JERA1", CUTSCENE_OFFSET+CUT_JERA1 
 												{ "MARA1", CUTSCENE_OFFSET+CUT_MARA1 }, { "MARA2", CUTSCENE_OFFSET+CUT_MARA2 }, { "MARA5", CUTSCENE_OFFSET+CUT_MARA5 },
 												{ "PHILA1", CUTSCENE_OFFSET+CUT_PHILA1 },  { "PHILA2", CUTSCENE_OFFSET+CUT_PHILA2 },  { "PHILA3", CUTSCENE_OFFSET+CUT_PHILA3 },  { "PHILA4", CUTSCENE_OFFSET+CUT_PHILA4 } };
 
-const void*	const			_CText__load_Jumptable[] = { Language_CASE_English, /*Language_CASE_Spanish,*/ Language_CASE_Polish, Language_CASE_Hungarian };
-const void*	const			_CText__loadMission_Jumptable[] = { MissionLanguage_CASE_English, /*MissionLanguage_CASE_Spanish,*/ MissionLanguage_CASE_Polish, MissionLanguage_CASE_Hungarian };
+const void*	const			_CText__load_Jumptable[] = { Language_CASE_English, (void*)0x6A01F1,/*Language_CASE_Spanish,*/ Language_CASE_Brazilian, Language_CASE_Polish, Language_CASE_Hungarian, Language_CASE_Romanian };
+const void*	const			_CText__loadMission_Jumptable[] = { MissionLanguage_CASE_English, (void*)0x69FD14, /*MissionLanguage_CASE_Spanish,*/ MissionLanguage_CASE_Brazilian, MissionLanguage_CASE_Polish, MissionLanguage_CASE_Hungarian, MissionLanguage_CASE_Romanian };
 
 /*const void*					HJ_Stats_Jumptable[] =  { (void*)0x55AC7E, FlamingStunt, (void*)0x55AC97,
 													(void*)0x55ACB0, DoubleFlamingStunt, (void*)0x55ACC9,
@@ -648,44 +661,29 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 	return TRUE;
 }
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
+extern "C" __declspec(dllexport) BOOL OnGameLaunch()
 {
-	UNREFERENCED_PARAMETER(hModule);
-	UNREFERENCED_PARAMETER(lpReserved);
-
-	switch ( reason )
-	{
-	case DLL_PROCESS_ATTACH:
-		{
-			LogToFile("Launching GTA: Vice City Stories PC Edition "MOD_VERSION" \""VERSION_NAME"\" build "BUILDNUMBER_STR"...");
+	LogToFile("Launching GTA: Vice City Stories PC Edition "MOD_VERSION" \""VERSION_NAME"\" build "BUILDNUMBER_STR"...");
 #ifdef DEVBUILD
-			LogToFile("This is a closed dev build!");
+	LogToFile("This is a closed dev build!");
 #endif
 #ifdef COMPILE_RC
-			LogToFile("This is a Release Candidate "RELEASE_CANDIDATE" build");
+	LogToFile("This is a Release Candidate "RELEASE_CANDIDATE" build");
 #endif
-			LogToFile("Logging started");
+	LogToFile("Logging started");
 #ifdef COLLECT_PC_INFO
-			CollectPCInfo();
+	CollectPCInfo();
 #endif
-			DetermineGameVer();
-			DefineVariables();
-			Main_Patches();
-			PatchMenus();
-			AnimationStylesPatching();
-			UserFiles();
-			CreateThread(NULL, 0, ProcessEmergencyKey, 0, 0, 0);
+	DetermineGameVer();
+	DefineVariables();
+	Main_Patches();
+	PatchMenus();
+	AnimationStylesPatching();
+	UserFiles();
+	CreateThread(NULL, 0, ProcessEmergencyKey, 0, 0, 0);
 
-			// DLC initialisation
-			CDLCManager::Initialise();
-			break;
-		}
-	/*case DLL_PROCESS_DETACH:
-		{
-			LogToFile("Jelly?");
-			break;
-		}*/
-	}
+	// DLC initialisation
+	CDLCManager::Initialise();
 	return TRUE;
 }
 
@@ -2977,8 +2975,8 @@ __forceinline void Main_Patches()
 	InjectHook(0x579D50, UpdaterTextSwap, PATCH_JUMP);
 //	InjectHook(0x576E13, MenuToggleHack, PATCH_JUMP
 //	InjectHook(0x573680, SetToNewMenuHack, PATCH_JUMP);
-	Patch<const void*>(0x57CD84, MenuActionsTable);
-	Patch<const void*>(0x57CD8B, MenuActionsAddresses);
+	Patch<const void*>(0x57CD84, PCMenuActionsTable);
+	Patch<const void*>(0x57CD8B, PCMenuActionsAddresses);
 	Patch<BYTE>(0x57CD74, NUM_MENU_ACTIONS-7);
 	Patch<WORD>(0x573830, 0xCE8B);
 	Patch<BYTE>(0x573832, 0x5E);
@@ -3608,18 +3606,42 @@ __forceinline void Main_Patches()
 	}
 	call(0x57DDE0, dwFunc, PATCH_JUMP);*/
 
-	patch(0x5759C5, offsetof(CMenuManager, textures[15]), 4);
+	Patch<DWORD>(0x5759C5, offsetof(CMenuManager, textures[15]));
 
 	// No arrow.txd
-	patch(0x57A511, 0xDBE9, 4);
+	Patch<DWORD>(0x57A511, 0xDBE9);
 	Nop(0x57A516, 1);
 
-	// .set versioning
-#if SET_FILE_VERSION != 6 && !defined DEVBUILD
+	// .set alterations
+#if SET_FILE_VERSION != 6
 	static const DWORD dwSetFileVersion = SET_FILE_VERSION;
-	patch(0x57C983, SET_FILE_VERSION, 1);
-	patch(0x57C69A, &dwSetFileVersion, 4);
+
+	Patch<BYTE>(0x57C983, SET_FILE_VERSION);
+	Patch<BYTE>(0x530590, CONTROLS_FILE_VERSION);
+	Patch<const void*>(0x57C69A, &dwSetFileVersion);
 #endif
+	Patch<const char*>(0x7489A0, "controls.set");
+	//Patch<WORD>(0x57C6A7, 0x09EB);
+	InjectHook(0x57C7E7, SaveLanguageHack);
+	InjectHook(0x57CABB, LoadLanguageHack);
+	InjectMethod(0x57C6AD, CControllerConfigManager::SaveToFile, PATCH_NOTHING);
+	InjectMethod(0x57C990, CControllerConfigManager::LoadFromFile, PATCH_NOTHING);
+	// Upgrading CRT of CControllerConfigManager::SaveSettings and CControllerConfigManager::LoadSettings
+	InjectHook(0x52D220, CFileMgr::Write);
+	InjectHook(0x52D237, CFileMgr::Write);
+	InjectHook(0x530551, CFileMgr::Read);
+	InjectHook(0x530582, CFileMgr::Read);
+	InjectHook(0x5305AA, CFileMgr::Read);
+	InjectHook(0x530605, CFileMgr::Read);
+	InjectHook(0x530575, CFileMgr::Seek);
+	InjectHook(0x5305BF, CFileMgr::Seek);
+	InjectHook(0x5305D7, CFileMgr::Seek);
+	InjectHook(0x5305FC, CFileMgr::Seek);
+	InjectHook(0x7489A4, CFileMgr::OpenFile);
+	InjectHook(0x7489CC, CFileMgr::CloseFile);
+	Nop(0x57C6A7, 1);
+	Nop(0x57C98A, 1);
+	Nop(0x57C997, 6);
 
 	// Larger 02A7 sphere
 //	patchf(0x585CD4, 3.0);
@@ -3731,8 +3753,8 @@ __forceinline void Main_Patches()
 	patch(0x53BB60, NUM_IMG_FILES, 1);
 	patch(0x406B75, NUM_STREAMS, 4);
 	patch(0x406815, NUM_STREAMS, 1);
-	patch(0x5B8E55, 18000, 4);
-	patch(0x5B8EB0, 18000, 4);
+	Patch<DWORD>(0x5B8E55, 21000);
+	Patch<DWORD>(0x5B8EB0, 21000);
 	patch(0x5B8E6A, 0x8000000, 4);
 	patch(0x408408, 0x90C35E5F, 4);
 	patch(0x5B619C, 8, 1);
@@ -3947,6 +3969,9 @@ __forceinline void Main_Patches()
 	// Antennas
 	CAntennas::Inject();
 	InjectMethod(0x6AAB8B, CAutomobile::RenderAntennas, PATCH_NOTHING);
+
+	// Own pad
+	CPad::Inject();
 
 	// Own BaseColors::BaseColors
 	// TODO: Come up with something nicer?
@@ -4313,11 +4338,11 @@ __forceinline void UserFiles()
 #if DEVBUILD
 	Patch<const char*>(0x57C672, "gta_vcsd.set");
 	Patch<const char*>(0x57C902, "gta_vcsd.set");
-	Patch<const char*>(0x7489A0, "gta_vcsd.set");
+	//Patch<const char*>(0x7489A0, "gta_vcsd.set");
 #else
 	Patch<const char*>(0x57C672, "gta_vcs.set");
 	Patch<const char*>(0x57C902, "gta_vcs.set");
-	Patch<const char*>(0x7489A0, "gta_vcs.set");
+	//Patch<const char*>(0x7489A0, "gta_vcs.set");
 #endif
 	Patch<const char*>(0x619045, "GTAVCSsf");
 }
@@ -4462,16 +4487,27 @@ void InitialiseLanguage()
 		break;
 	}
 
-	switch ( GetUserDefaultLCID() & 0x3FF )
+	LCID	LanguageCode = GetUserDefaultLCID();
+
+	switch ( LCID_PRIMARY_LANG(LanguageCode) )
 	{
+	case LANG_GERMAN:
+		FrontEndMenuManager.SetLanguage(LCID_SUBLANG(LanguageCode) == SUBLANG_GERMAN || LCID_SUBLANG(LanguageCode) == SUBLANG_GERMAN_AUSTRIAN || LCID_SUBLANG(LanguageCode) == SUBLANG_GERMAN_LIECHTENSTEIN ? LANGUAGE_German : LANGUAGE_English);
+		break;
 	//case LANG_SPANISH:
 	//	FrontEndMenuManager.SetLanguage(LANGUAGE_Spanish);
 	//	break;
 	case LANG_POLISH:
 		FrontEndMenuManager.SetLanguage(LANGUAGE_Polish);
 		break;
+	case LANG_PORTUGUESE:
+		FrontEndMenuManager.SetLanguage(LCID_SUBLANG(LanguageCode) == SUBLANG_PORTUGUESE_BRAZILIAN ? LANGUAGE_Brazilian : LANGUAGE_English);
+		break;
 	case LANG_HUNGARIAN:
 		FrontEndMenuManager.SetLanguage(LANGUAGE_Hungarian);
+		break;
+	case LANG_ROMANIAN:
+		FrontEndMenuManager.SetLanguage(LANGUAGE_Romanian);
 		break;
 	default:
 		FrontEndMenuManager.SetLanguage(LANGUAGE_English);
@@ -4645,6 +4681,25 @@ BOOL IsAlreadyRunning()
 
 	InjectDelayedPatches();
 	return FALSE;
+}
+
+void SaveLanguageHack(FILE* stream, const char* ptr, size_t len)
+{
+	UNREFERENCED_PARAMETER(len);
+
+	((void(*)(const void*, size_t, size_t, FILE*))0x823674)(CText::GetLanguageAcronymByIndex(*ptr), 1, 2, stream);
+}
+
+void LoadLanguageHack(FILE* stream, void* buf, size_t len)
+{
+	UNREFERENCED_PARAMETER(len);
+
+	// fread from an old CRT
+	char		LangName[2];
+
+	((void(*)(void*, size_t, size_t, FILE*))0x823521)(LangName, 1, sizeof(LangName), stream);
+
+	*static_cast<unsigned char*>(buf) = CText::GetLanguageIndexByAcronym(LangName);
 }
 
 CVehicle* __fastcall VehiclePoolGetAt(CVehiclePool* pThis, int unused, int nIdentifier)
@@ -5193,11 +5248,31 @@ void __declspec(naked) Language_CASE_English()
 	}
 }
 
+void __declspec(naked) Language_CASE_German()
+{
+	_asm
+	{
+		push	offset aGerman_gxt
+		mov		edx, 6A020Eh
+		jmp		edx
+	}
+}
+
 void __declspec(naked) Language_CASE_Spanish()
 {
 	_asm
 	{
 		push	offset aSpanish_gxt
+		mov		edx, 6A020Eh
+		jmp		edx
+	}
+}
+
+void __declspec(naked) Language_CASE_Brazilian()
+{
+	_asm
+	{
+		push	offset aBrazilian_gxt
 		mov		edx, 6A020Eh
 		jmp		edx
 	}
@@ -5223,6 +5298,16 @@ void __declspec(naked) Language_CASE_Hungarian()
 	}
 }
 
+void __declspec(naked) Language_CASE_Romanian()
+{
+	_asm
+	{
+		push	offset aRomanian_gxt
+		mov		edx, 6A020Eh
+		jmp		edx
+	}
+}
+
 void __declspec(naked) MissionLanguage_CASE_English()
 {
 	_asm
@@ -5233,11 +5318,31 @@ void __declspec(naked) MissionLanguage_CASE_English()
 	}
 }
 
+void __declspec(naked) MissionLanguage_CASE_German()
+{
+	_asm
+	{
+		push	offset aGerman_gxt
+		mov		eax, 69FD31h
+		jmp		eax
+	}
+}
+
 void __declspec(naked) MissionLanguage_CASE_Spanish()
 {
 	_asm
 	{
 		push	offset aSpanish_gxt
+		mov		eax, 69FD31h
+		jmp		eax
+	}
+}
+
+void __declspec(naked) MissionLanguage_CASE_Brazilian()
+{
+	_asm
+	{
+		push	offset aBrazilian_gxt
 		mov		eax, 69FD31h
 		jmp		eax
 	}
@@ -5263,12 +5368,21 @@ void __declspec(naked) MissionLanguage_CASE_Hungarian()
 	}
 }
 
-void __declspec(naked) CGameLogic__Update_Busted()
+void __declspec(naked) MissionLanguage_CASE_Romanian()
 {
-	_asm call CPlayerInfo::ArrestPlayer
-	LogToFile("Busted! :D");
 	_asm
 	{
+		push	offset aRomanian_gxt
+		mov		eax, 69FD31h
+		jmp		eax
+	}
+}
+
+void __declspec(naked) CGameLogic__Update_Busted()
+{
+	_asm
+	{
+		call	CPlayerInfo::ArrestPlayer
 		push	esi
 		mov		ecx, offset weaponsToReturn
 		call	CConfiscatedWeapons::SaveConfiscatedWeapons
@@ -5278,10 +5392,9 @@ void __declspec(naked) CGameLogic__Update_Busted()
 
 void __declspec(naked) CGameLogic__Update_Wasted()
 {
-	_asm call CPlayerInfo::KillPlayer
-	LogToFile("Wasted! :D");
 	_asm
 	{
+		call	CPlayerInfo::KillPlayer
 		push	esi
 		mov		ecx, offset weaponsToReturn
 		call	CConfiscatedWeapons::SaveConfiscatedWeapons
@@ -6985,6 +7098,25 @@ void __declspec(naked) RotorsHook()
 		call	CHeli::ProcessRotorsAlpha
 		mov		ecx, 6C4521h
 		jmp		ecx
+	}
+}
+
+void __declspec(naked) Language6Action()
+{
+	_asm
+	{
+		cmp		[esi]CMenuManager.language, 5
+		jz		Language6Action_ReturnFalse
+		mov		[esi]CMenuManager.language, 5
+		mov		eax, 57D429h
+		jmp		eax
+
+Language6Action_ReturnFalse:
+		pop		edi
+		pop		esi
+		mov		al, bl
+		pop		ebx
+		retn	8
 	}
 }
 

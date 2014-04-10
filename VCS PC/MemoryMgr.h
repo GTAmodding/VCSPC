@@ -2,6 +2,7 @@
 #define __MEMORYMGR
 
 #define WRAPPER __declspec(naked)
+#define DEPRECATED __declspec(deprecated)
 #define EAXJMP(a) { _asm mov eax, a _asm jmp eax }
 #define VARJMP(a) { _asm jmp a }
 #define WRAPARG(a) UNREFERENCED_PARAMETER(a)
@@ -12,6 +13,8 @@
 // A macro used to inject method pointers
 #define InjectMethod(address, hook, nType) { void* __funcPtr; { _asm mov eax, offset hook _asm mov __funcPtr, eax } \
 											Memory::InjectHook(address, __funcPtr, nType); }
+#define InjectMethodVP(address, hook, nType) { void* __funcPtr; { _asm mov eax, offset hook _asm mov __funcPtr, eax } \
+											MemoryVP::InjectHook(address, __funcPtr, nType); }
 
 enum
 {

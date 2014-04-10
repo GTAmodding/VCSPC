@@ -1,12 +1,19 @@
 #ifndef __TEXT__ // Whoa, __TEXT was defined somewhere already :o
 #define __TEXT__
 
+// LCID helpers
+#define LCID_PRIMARY_LANG(a)	((a) & 0x3FF)
+#define LCID_SUBLANG(a)			(((a) >> 10) & 0x3F)
+
 enum eLanguages
 {
 	LANGUAGE_English,
+	LANGUAGE_German,
 	//LANGUAGE_Spanish,
+	LANGUAGE_Brazilian,
 	LANGUAGE_Polish,
 	LANGUAGE_Hungarian,
+	LANGUAGE_Romanian,
 	NUM_LANGUAGES
 };
 
@@ -69,6 +76,9 @@ public:
 	void					ReloadFontsFiles(bool bKeepMissionText);
 	void					Load(bool bKeepMissionText);
 	void					Unload(bool bKeepMissionText);
+
+	static const char*		GetLanguageAcronymByIndex(unsigned char nLanguage);
+	static unsigned char	GetLanguageIndexByAcronym(const char* pAcronym);
 };
 
 extern const char*	(__thiscall *CLEOGetTextFunc)(CText*, const char*);

@@ -1,6 +1,8 @@
 #ifndef __CPAD
 #define __CPAD
 
+#define PADS_IDLE_TIME		60000
+
 struct CKeyState
 {
 	WORD				FKeys[12];
@@ -80,7 +82,8 @@ public:
 	short LEFTSHOCK;
 	short RIGHTSHOCK;
 
-	short m_bChatIndicated;
+	short HOME;
+
 	short m_bPedWalk;
 	short m_bVehicleMouseLook;
 	short m_bRadioTrackSkip;
@@ -88,7 +91,7 @@ public:
 
 class CPad
 {
-private:
+public:
 	CControllerState	NewState;
 	CControllerState	OldState;
 	WORD				SteeringLeftRightBuffer[10];
@@ -98,7 +101,7 @@ private:
 	CControllerState	PCTempMouseState;
 	BYTE				Phase;
 	WORD				Mode;
-	WORD				ShakeDur;
+	short				ShakeDur;
 	WORD				DisablePlayerControls;
 	BYTE				ShakeFreq;
 	BYTE				bHornHistory[5];
@@ -112,7 +115,7 @@ private:
 	bool				bDisablePlayerCycleWeapon;
 	bool				bDisablePlayerJump;
 	bool				bDisablePlayerDisplayVitalStats;
-	DWORD				LastTimeTouched;
+	int					LastTimeTouched;
 	DWORD				AverageWeapon;
 	DWORD				AverageEntries;
 	DWORD				NoShakeBeforeThis;
@@ -121,8 +124,13 @@ private:
 public:
 	inline bool			CrossJustDown() { return NewState.CROSS && !OldState.CROSS; }
 
+	CControllerState	ReconcileTwoControllersInput(const CControllerState& rDevice1, const CControllerState& rDevice2);
+
 	static CPad*		GetPad(int nPad);
 	static void			UpdatePads();
+
+	// Temp
+	static void			Inject();
 };
 
 extern CKeyState*			activeKeyState;

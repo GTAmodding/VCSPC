@@ -122,6 +122,8 @@
       </EntryPointSymbol>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>%40echo off
@@ -175,6 +177,8 @@ popd</Command>
       </EntryPointSymbol>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>%40echo off
@@ -230,6 +234,8 @@ popd</Command>
       <TargetMachine>MachineX86</TargetMachine>
       <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>%40echo off
@@ -282,6 +288,8 @@ popd</Command>
       <TargetMachine>MachineX86</TargetMachine>
       <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>%40echo off
@@ -324,6 +332,7 @@ popd</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="ControlsMgr.cpp" />
     <ClCompile Include="Coronas.cpp" />
     <ClCompile Include="CustomBankLoader.cpp" />
     <ClCompile Include="Darkel.cpp" />
@@ -380,6 +389,7 @@ popd</Command>
     <ClCompile Include="VideoPlayer.cpp" />
     <ClCompile Include="WidescreenSupport.cpp" />
     <ClCompile Include="World.cpp" />
+    <ClCompile Include="X360Pad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\Date.h" />
@@ -402,6 +412,7 @@ popd</Command>
     <ClInclude Include="CCRC32.H" />
     <ClInclude Include="Clock.h" />
     <ClInclude Include="ColAccel.h" />
+    <ClInclude Include="ControlsMgr.h" />
     <ClInclude Include="Coronas.h" />
     <ClInclude Include="CutsceneManager.h" />
     <ClInclude Include="CGangWeapons.h" />
@@ -454,6 +465,7 @@ popd</Command>
     <ClInclude Include="VideoPlayer.h" />
     <ClInclude Include="WidescreenSupport.h" />
     <ClInclude Include="World.h" />
+    <ClInclude Include="X360Pad.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LoadVars.inc" />

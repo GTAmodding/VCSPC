@@ -32,15 +32,17 @@ public:
 		: r(red), g(green), b(blue), a(alpha)
 	{}
 
-	friend CRGBA Blend(const CRGBA& One, unsigned int OneStrength, const CRGBA& Two, unsigned int TwoStrength)
-		{	unsigned int	TotalStrength = OneStrength + TwoStrength;
+	template <typename T>
+	friend CRGBA Blend(const CRGBA& One, T OneStrength, const CRGBA& Two, T TwoStrength)
+		{	T	TotalStrength = OneStrength + TwoStrength;
 			return CRGBA(	((One.r * OneStrength) + (Two.r * TwoStrength))/TotalStrength,
 							((One.g * OneStrength) + (Two.g * TwoStrength))/TotalStrength,
 							((One.b * OneStrength) + (Two.b * TwoStrength))/TotalStrength,
 							((One.a * OneStrength) + (Two.a * TwoStrength))/TotalStrength); }
 
-	friend CRGBA Blend(const CRGBA& One, unsigned int OneStrength, const CRGBA& Two, unsigned int TwoStrength, const CRGBA& Three, unsigned int ThreeStrength)
-		{	unsigned int	TotalStrength = OneStrength + TwoStrength + ThreeStrength;
+	template <typename T>
+	friend CRGBA Blend(const CRGBA& One, T OneStrength, const CRGBA& Two, T TwoStrength, const CRGBA& Three, T ThreeStrength)
+		{	T	TotalStrength = OneStrength + TwoStrength + ThreeStrength;
 			return CRGBA(	((One.r * OneStrength) + (Two.r * TwoStrength) + (Three.r * ThreeStrength))/TotalStrength,
 							((One.g * OneStrength) + (Two.g * TwoStrength) + (Three.g * ThreeStrength))/TotalStrength,
 							((One.b * OneStrength) + (Two.b * TwoStrength) + (Three.b * ThreeStrength))/TotalStrength,

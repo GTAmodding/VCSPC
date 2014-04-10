@@ -62,7 +62,7 @@ private:
 		unsigned char	bFightStyle2;
 
 	public:
-		void			Construct(CPed* pPed);		// Should never be used
+		void			Construct(CPed* pPed);
 		void			Extract(CPed* pPed);
 	};
 

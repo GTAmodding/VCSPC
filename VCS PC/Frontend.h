@@ -58,7 +58,7 @@
 #define MENU_RED_B				0x4D
 
 #define						MAX_AA				8
-#define						SET_FILE_VERSION	7
+#define						SET_FILE_VERSION	8
 
 // Macroes
 #define MenuEntriesList (CMenuManager::ms_pMenus)
@@ -66,7 +66,8 @@
 enum eMenuActions
 {
 	// TODO: Fill?
-	ACTION_UPDATER_BUTTON		= 66,
+	ACTION_TOGGLE_LANGUAGE_6	= 66,
+	ACTION_UPDATER_BUTTON,
 	ACTION_TOGGLE_DLC,
 
 	NUM_MENU_ACTIONS
@@ -126,7 +127,6 @@ struct MenuItem
 class CMenuManager
 {
 	friend			void Main_Patches();
-	friend			RwTexture* GetTheTexture();
 	friend			class WidescreenSupport;
 private:
 	bool			bUnkScroll;
@@ -168,22 +168,22 @@ public:
 	static MenuItem		ms_pMenus[];
 
 public:
-	BYTE			GetHudMode()
+	inline BYTE		GetHudMode()
 						{ return hudMode; };
 
-	BYTE			GetLanguage()
+	inline BYTE		GetLanguage()
 						{ return language; };
 
-	bool			IsActive()
+	inline bool		IsActive()
 						{ return bIsActive; };
 
-	void			SetLanguage(BYTE lang)
+	inline void		SetLanguage(BYTE lang)
 						{ language = lang; };
 
-	void			SetTitleLanguage(DWORD lang)
+	inline void		SetTitleLanguage(DWORD lang)
 						{ titleLanguage = lang; };
 
-	void			SetKeyboardLayout(BYTE lang)
+	inline void		SetKeyboardLayout(BYTE lang)
 						{ textLanguage = lang; };
 
 	void			ShowFullscreenMessage(const char* pMessage, bool bUnk1, bool bUnk2);

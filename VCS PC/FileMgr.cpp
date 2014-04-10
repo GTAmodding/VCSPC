@@ -18,6 +18,7 @@ char					CFileLoader::m_cPedgrpPath[64] = "DATA\\PEDGRP.DAT";
 char					CFileLoader::m_cPopcyclePath[64] = "DATA\\POPCYCLE.DAT";
 char					CFileLoader::m_cTimecycPath[64] = "DATA\\TIMECYC.DAT";
 char					CFileLoader::m_cFrontendPath[64] = "\0";
+char					CFileLoader::m_cP2dfxPath[64];
 
 // Wrappers
 WRAPPER void CFileLoader::LoadObjectTypes(const char* pFileName) { WRAPARG(pFileName); EAXJMP(0x5B8400); }
@@ -67,7 +68,7 @@ const char* CFileLoader::LoadLine(FILE* hFile)
 {
 	static char		cLineBuffer[512];
 
-	if ( !CFileMgr::ReadLine(hFile, cLineBuffer, 512) )
+	if ( !CFileMgr::ReadLine(hFile, cLineBuffer, sizeof(cLineBuffer)) )
 		return nullptr;
 
 	for ( int i = 0; cLineBuffer[i]; ++i )
@@ -151,11 +152,12 @@ int CFileLoader::LoadObject(const char* pLine)
 
 void CFileLoader::LoadEntryExit(const char* pLine)
 {
-	int		nTimeOn = 0, nTimeOff = 24;
-	int		nSkyUnk = 2;
-	float	fEntX, fEntY, fEntZ, fEntA, fEntRX, fEntRY, fExitX, fExitY, fExitZ, fExitA, fUnused;
-	int		nArea, flags, nExtraColors;
-	char	IntName[16], UniqueName[16] = "";
+	int						nTimeOn = 0, nTimeOff = 24;
+	int						nSkyUnk = 2;
+	float					fEntX, fEntY, fEntZ, fEntA, fEntRX, fEntRY, fExitX, fExitY, fExitZ, fExitA, fUnused;
+	int						nArea, flags, nExtraColors;
+	char					IntName[16], UniqueName[16] = "";
+	static unsigned int		nFakeHash = 0;
 
 	sscanf(	pLine, "%f %f %f %f %f %f %f %f %f %f %f %d %d %s %d %d %d %d %s",
 			&fEntX, &fEntY, &fEntZ, &fEntA, &fEntRX, &fEntRY, &fUnused, &fExitX, &fExitY, &fExitZ, &fExitA,
@@ -163,7 +165,7 @@ void CFileLoader::LoadEntryExit(const char* pLine)
 	
 	
 	auto			nLen = strlen(UniqueName);
-	unsigned int	nHash = nLen ? HashHelper.FullCRC(reinterpret_cast<unsigned char*>(UniqueName), nLen) : 0xFFFFFFFF;
+	unsigned int	nHash = nLen ? HashHelper.FullCRC(reinterpret_cast<unsigned char*>(UniqueName), nLen) : nFakeHash++;
 
 	assert(!CEntryExit::IsDefined(nHash));
 	if ( !CEntryExit::IsDefined(nHash) )
@@ -357,6 +359,8 @@ bool CFileLoader::ParseLevelFile(const char* pFileName, char* pDLCName)
 					strncpy(m_cTimecycPath, TranslatePath(pLine+10, pDLCName).c_str(), 64);
 				else if ( !_strnicmp(pLine, "FRONTEND", 8) )
 					strncpy(m_cFrontendPath, TranslatePath(pLine+9, pDLCName).c_str(), 64);
+				else if ( !_strnicmp(pLine, "P2DFX", 5) )
+					strncpy(m_cP2dfxPath, TranslatePath(pLine+6, pDLCName).c_str(), 64);
 			}
 		}
 		CFileMgr::CloseFile(hFile);

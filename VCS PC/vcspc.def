@@ -1,0 +1,3 @@
+LIBRARY		vcspc.dll
+EXPORTS
+	OnGameLaunch				@1 NONAME

@@ -95,7 +95,7 @@ void C_PcSave::SaveBlockVersion(int nBlock)
 	}
 }
 
-void CPedSaveStructure::CPedSaveStructure001::Construct(CPed* pPed)
+DEPRECATED void CPedSaveStructure::CPedSaveStructure001::Construct(CPed* pPed)
 {
 	Coords = *pPed->GetCoords();
 	fHealth = pPed->fHealth;
@@ -166,6 +166,8 @@ void CPedSaveStructure::CPedSaveStructure001::Extract(CPed* pPed)
 		pPed->pCurrentEntryExit = it != pBimap->right.end() ? it->second : nullptr;
 	}
 }
+
+
 
 void CPedSaveStructure::CPedSaveStructure002::Construct(CPed* pPed)
 {

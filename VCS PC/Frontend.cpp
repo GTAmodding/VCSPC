@@ -231,9 +231,12 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	// Language
 	{ "FEH_LAN", 33, 4,
 		37, "FEL_ENG", ACTION_STANDARD, 28, 0, -72, 3, 0, 0,
+		38, "FEL_GER", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		39, "FEL_BRA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		//38, "FEL_SPA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		38, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		39, "FEL_HUN", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		40, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		41, "FEL_HUN", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		ACTION_TOGGLE_LANGUAGE_6, "FEL_RON", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 4, 0, 0, 3, 0, 0 },
 
 
@@ -372,7 +375,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 static inline const char* GetTitlePCByLanguage()
 {
-	static const char* const	cTitlePCNames[] = { "title_pc_EN", /*"title_pc_ES",*/ "title_pc_PL", "title_pc_EN" };
+	static const char* const	cTitlePCNames[] = { "title_pc_EN", "title_pc_EN", /*"title_pc_ES",*/ "title_pc_PL", "title_pc_EN", "title_pc_EN" };
 	return cTitlePCNames[FrontEndMenuManager.GetLanguage()];
 }
 

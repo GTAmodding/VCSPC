@@ -9,6 +9,8 @@ WRAPPER const char* CKeyArray::Search(const char* pKey, unsigned char* bFound) {
 
 const char*	(__thiscall *CLEOGetTextFunc)(CText*, const char*);
 
+static const char	TheLanguageNames[NUM_LANGUAGES][2] = { { 'E', 'N' }, { 'D', 'E' }, { 'B', 'R' }, { 'P', 'L' }, { 'H', 'U' }, { 'R', 'O' } };
+
 const char* CText::Get(const char* pEntry)
 {
 	static char		GxtErrorString[24];
@@ -68,4 +70,20 @@ void CText::ReloadFontsFiles(bool bKeepMissionText)
 		CTxdStore::PopCurrentTxd();
 	}
 #endif
+}
+
+const char* CText::GetLanguageAcronymByIndex(unsigned char nLanguage)
+{
+	return TheLanguageNames[nLanguage];
+}
+
+unsigned char CText::GetLanguageIndexByAcronym(const char* pAcronym)
+{
+	for ( unsigned char i = 0; i < NUM_LANGUAGES; ++i )
+	{
+		if ( pAcronym[0] == TheLanguageNames[i][0] && pAcronym[1] == TheLanguageNames[i][1] )
+			return i;
+	}
+
+	return LANGUAGE_English;
 }

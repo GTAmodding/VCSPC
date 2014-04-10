@@ -8,15 +8,17 @@ class CFileMgr
 {
 public:
 	static inline FILE*		OpenFile(const char* path, const char* mode)
-				{ return fopen(path, mode); };
+				{ return fopen(path, mode); }
 	static inline  int		CloseFile(FILE* stream)
-				{ return fclose(stream); };
+				{ return fclose(stream); }
 	static inline bool		ReadLine(FILE* stream, char* str, int num)
-				{ return fgets(str, num, stream) != nullptr; };
+				{ return fgets(str, num, stream) != nullptr; }
 	static inline size_t	Read(FILE* stream, void* buf, size_t len)
-				{ return fread(buf, 1, len, stream); };
+				{ return fread(buf, 1, len, stream); }
+	static inline size_t	Write(FILE* stream, const char* ptr, size_t len)
+				{ return fwrite(ptr, 1, len, stream); }
 	static inline bool		Seek(FILE* stream, long pos, int from)
-				{ return fseek(stream, pos, from) != 0; };
+				{ return fseek(stream, pos, from) != 0; }
 };
 
 // Now uses multiple lists
@@ -39,6 +41,7 @@ private:
 	static char					m_cPopcyclePath[64];
 	static char					m_cTimecycPath[64];
 	static char					m_cFrontendPath[64];
+	static char					m_cP2dfxPath[64];
 
 private:
 	static inline void			BeginLevelLists()
@@ -64,6 +67,8 @@ public:
 			{ return m_cTimecycPath; }
 	static inline char*			GetFrontendPath()
 		{ return m_cFrontendPath; }
+	static inline char*			GetP2dfxPath()
+		{ return m_cP2dfxPath; }
 	
 	// Translates a path with device classes
 	static std::string			TranslatePath(const char* pFileName, const char* pDLCName);

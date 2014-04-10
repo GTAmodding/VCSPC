@@ -7,6 +7,16 @@
 CEmpire			CEmpireManager::m_empire[NUM_EMPIRES];
 tEmpireType		CEmpireManager::m_empireType[NUM_EMPIRE_TYPES];
 
+static inline unsigned int	PackKey(unsigned short nType, char nSubgroup)
+{
+	return nType << 16 | nSubgroup; 
+}
+
+static inline unsigned int	PackKey(unsigned short nType, char nSubgroup, unsigned char nIndex)
+{
+	return nType << 16 | nSubgroup << 8 | nIndex;
+}
+
 void CEmpireManager::Initialise()
 {
 	if ( FILE* hFile = CFileMgr::OpenFile("DATA\\EMPIRES.DAT", "r") )
@@ -152,6 +162,33 @@ void CEmpireManager::Process()
 				//m_empire[i].Place();
 		}
 	}*/
+}
+
+void CEmpireBuildingData::AddEntry(unsigned short nTypeID, char nSubgroup, unsigned char nIndex, const CSimpleTransform& vecPos)
+{
+	m_buildingData[PackKey(nTypeID, nSubgroup, nIndex)] = vecPos;
+}
+
+int CEmpireBuildingData::GetNumEntriesOfType(unsigned short nType)
+{
+	return std::distance(m_buildingData.lower_bound(PackKey(nType, 'a', 0)), m_buildingData.upper_bound(PackKey(nType, 'z', 0xFF)));
+}
+
+int CEmpireBuildingData::GetNumEntriesOfType(unsigned short nType, char nSubgroup)
+{
+	return std::distance(m_buildingData.lower_bound(PackKey(nType, nSubgroup, 0)), m_buildingData.upper_bound(PackKey(nType, nSubgroup, 0xFF)));
+}
+
+CSimpleTransform& CEmpireBuildingData::GetData(unsigned short nType, unsigned char nIndex)
+{
+	auto it = m_buildingData.lower_bound(PackKey(nType, 'a', 0));
+	std::advance(it, nIndex);
+	return it->second;
+}
+
+CSimpleTransform& CEmpireBuildingData::GetData(unsigned short nType, char nSubgroup, unsigned char nIndex)
+{
+	return m_buildingData[PackKey(nType, nSubgroup, nIndex)];
 }
 
 void CEmpireBuildingData::ReduceContainerSize()

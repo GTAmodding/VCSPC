@@ -21,18 +21,17 @@ public:
 class CProject2dfx
 {
 private:
-	static std::vector<CLamppostInfo>*	m_pLampposts;
-	static bool							m_bCatchLamppostsNow;
+	static std::vector<const CLamppostInfo>*			m_pLampposts;
+	static std::map<unsigned int, const CLamppostInfo>*	m_pFileContent;
+	static bool											m_bCatchLamppostsNow;
 
 private:
-	static void							EnumerateLampposts();
+	static bool							IsModelALamppost(unsigned short nModel);
 	static void							RegisterLamppost(CEntity* pObj);
 
 public:
-	static inline bool					LampsRegisteringOn()
-				{ return m_bCatchLamppostsNow; }
 	static inline void					EndRegistering()
-		{ m_bCatchLamppostsNow = false; m_pLampposts->shrink_to_fit(); }
+		{ m_bCatchLamppostsNow = false; delete m_pFileContent; m_pLampposts->shrink_to_fit(); }
 
 	static CEntity*						PossiblyAddThisEntity(CEntity* pEntity);
 	static void							Inject();

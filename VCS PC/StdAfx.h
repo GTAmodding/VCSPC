@@ -22,6 +22,7 @@
 #include <string>
 #include <map>
 #include <cassert>
+#include <xinput.h>
 
 #pragma warning(disable:4512)
 #include <boost\bimap.hpp>

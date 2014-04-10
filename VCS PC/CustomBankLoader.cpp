@@ -401,6 +401,9 @@ DWORD WINAPI BankLoadingThread(void* arg)
         else
         {
             // That's baddd
+#ifdef DEVBUILD
+			LogToFile("Tried to open bank file %s but failed", f.m_szFilepath.c_str());
+#endif
 			assert(!"Baad");
         }
 

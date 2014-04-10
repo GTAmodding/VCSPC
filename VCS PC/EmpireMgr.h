@@ -24,28 +24,17 @@ struct tEmpireBuildingDataSection
 	std::map<char,unsigned int>				CountEntriesBySubgroup;
 };*/
 
-static inline unsigned int	PackKey(unsigned short nType, char nSubgroup)
-{ return nType << 16 | nSubgroup; }
-
-static inline unsigned int	PackKey(unsigned short nType, char nSubgroup, unsigned char nIndex)
-{ return nType << 16 | nSubgroup << 8 | nIndex; }
-
 class CEmpireBuildingData
 {
 private:
 	std::map<unsigned int,CSimpleTransform>				m_buildingData;
 
 public:
-	inline void					AddEntry(unsigned short nTypeID, char nSubgroup, unsigned char nIndex, const CSimpleTransform& vecPos)
-		{ m_buildingData[PackKey(nTypeID, nSubgroup, nIndex)] = vecPos;  }
-	inline int					GetNumEntriesOfType(unsigned short nType)
-	{ return std::distance(m_buildingData.lower_bound(PackKey(nType, 'a', 0)), m_buildingData.upper_bound(PackKey(nType, 'z', 0xFF))); }
-	inline int					GetNumEntriesOfType(unsigned short nType, char nSubgroup)
-		{ return std::distance(m_buildingData.lower_bound(PackKey(nType, nSubgroup, 0)), m_buildingData.upper_bound(PackKey(nType, nSubgroup, 0xFF))); }
-	inline CSimpleTransform&	GetData(unsigned short nType, unsigned char nIndex)
-		{ auto it = m_buildingData.lower_bound(PackKey(nType, 'a', 0)); std::advance(it, nIndex); return it->second; }
-	inline CSimpleTransform&	GetData(unsigned short nType, char nSubgroup, unsigned char nIndex)
-		{ return m_buildingData[PackKey(nType, nSubgroup, nIndex)]; }
+	void				AddEntry(unsigned short nTypeID, char nSubgroup, unsigned char nIndex, const CSimpleTransform& vecPos);
+	int					GetNumEntriesOfType(unsigned short nType);
+	int					GetNumEntriesOfType(unsigned short nType, char nSubgroup);
+	CSimpleTransform&	GetData(unsigned short nType, unsigned char nIndex);
+	CSimpleTransform&	GetData(unsigned short nType, char nSubgroup, unsigned char nIndex);
 
 	void						ReduceContainerSize();
 };
