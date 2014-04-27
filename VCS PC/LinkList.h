@@ -1,7 +1,11 @@
+#ifndef __LINKLIST__
+#define __LINKLIST__
+
 template <class T>
-class CLinkVC {
+class CLink 
+{
 public:
-	void Insert(CLinkVC<T>* pAttach) {
+	inline void Insert(CLink<T>* pAttach) {
 		pAttach->m_pNext = m_pNext;
 		m_pNext->m_pPrev = pAttach;
 		
@@ -9,32 +13,33 @@ public:
 		m_pNext = pAttach;
 	}
 
-	void Remove(void) {
+	inline void Remove(void) {
 		m_pNext->m_pPrev = m_pPrev;
 		m_pPrev->m_pNext = m_pNext;
 	}
 
-	T* V(void) {
+	inline T& V(void) {
 		return m_pItem;
 	}
 
-	T* m_pItem; // 0-4
-	//pointer to the item
-	CLinkVC<T>* m_pPrev; // 4-8
+	T m_pItem; // 0-4
+	// an item
+	CLink<T>* m_pPrev; // 4-8
 	//next link in the list
-	CLinkVC<T>* m_pNext; // 8-12
+	CLink<T>* m_pNext; // 8-12
 	//prev link in the list
 };
 
 template <class T>
-class CLinkListVC {
+class CLinkList {
 public:
-	CLinkListVC(void) {
-		m_plnLinks = NULL;
+	CLinkList(void)
+		: m_plnLinks(nullptr)
+	{
 	}
 
 	void Init(int nNumLinks) {
-		m_plnLinks = new CLinkVC<T>[nNumLinks];
+		m_plnLinks = new CLink<T>[nNumLinks];
 
 		m_lnListHead.m_pNext = &m_lnListTail;
 		m_lnListTail.m_pPrev = &m_lnListHead;
@@ -50,21 +55,21 @@ public:
 	void Shutdown(void) {
 		delete[] m_plnLinks;
 
-		m_plnLinks = NULL;
+		m_plnLinks = nullptr;
 	}
 
-	CLinkVC<T>* InsertSorted(T* pItem) {
-		CLinkVC<T>* pLink = m_lnFreeListHead.m_pNext;
+	CLink<T>* InsertSorted(const T& pItem) {
+		CLink<T>* pLink = m_lnFreeListHead.m_pNext;
 
 		if(pLink == &m_lnFreeListTail) {
-			return NULL;
+			return nullptr;
 		}
 
 		pLink->m_pItem = pItem;
 
 		pLink->Remove();
 
-		CLinkVC<T>* pInsertAfter = &m_lnListHead;
+		CLink<T>* pInsertAfter = &m_lnListHead;
 
 		while(pInsertAfter->m_pNext != &m_lnListTail && *pInsertAfter->m_pNext->m_pItem < *pItem) {
 			pInsertAfter = pInsertAfter->m_pNext;
@@ -75,11 +80,11 @@ public:
 		return pLink;
 	}
 
-	CLinkVC<T>* Insert(T* pItem) {
-		CLinkVC<T>* pLink = m_lnFreeListHead.m_pNext;
+	CLink<T>* Insert(const T& pItem) {
+		CLink<T>* pLink = m_lnFreeListHead.m_pNext;
 
 		if(pLink == &m_lnFreeListTail) {
-			return NULL;
+			return nullptr;
 		}
 
 		pLink->m_pItem = pItem;
@@ -96,12 +101,12 @@ public:
 		}
 	}
 
-	void Remove(CLinkVC<T>* pLink) {
+	void Remove(CLink<T>* pLink) {
 		pLink->Remove();
 		m_lnFreeListHead.Insert(pLink);
 	}
 
-	CLinkVC<T>* Next(CLinkVC<T>* pCurrent) {
+	CLink<T>* Next(CLink<T>* pCurrent) {
 		if(pCurrent == 0) {
 			pCurrent = &m_lnListHead;
 		}
@@ -114,14 +119,16 @@ public:
 		}
 	}
 
-	CLinkVC<T> m_lnListHead; // 0-12
+	CLink<T> m_lnListHead; // 0-12
 	//head of the list of active links
-	CLinkVC<T> m_lnListTail; // 12-24
+	CLink<T> m_lnListTail; // 12-24
 	//tail of the list of active links
-	CLinkVC<T> m_lnFreeListHead; // 24-36
+	CLink<T> m_lnFreeListHead; // 24-36
 	//head of the list of free links
-	CLinkVC<T> m_lnFreeListTail; // 36-48
+	CLink<T> m_lnFreeListTail; // 36-48
 	//tail of the list of free links
-	CLinkVC<T>* m_plnLinks; // 48-52
+	CLink<T>* m_plnLinks; // 48-52
 	//pointer to actual array of links
 };
+
+#endif

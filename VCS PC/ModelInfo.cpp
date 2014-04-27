@@ -7,6 +7,13 @@
 // Static variables
 CBaseModelInfo**						CModelInfo::ms_modelInfoPtrs = (CBaseModelInfo**)0xA9B0C8;
 
+RwTexture*&								CVehicleModelInfo::ms_pRemapTexture = *(RwTexture**)0xB4E47C;
+RwTexture*&								CVehicleModelInfo::ms_pLightsTexture = *(RwTexture**)0xB4E68C;
+RwTexture*&								CVehicleModelInfo::ms_pLightsOnTexture = *(RwTexture**)0xB4E690;
+bool* const								CVehicleModelInfo::ms_lightsOn = (bool*)0xB4E3E8;
+unsigned char* const					CVehicleModelInfo::ms_currentCol = (unsigned char*)0xB4E3F0;
+CRGBA* const							CVehicleModelInfo::ms_vehicleColourTable = (CRGBA*)0xB4E480;
+
 CDynamicStore<CPedModelInfoVCS>			CModelInfo::ms_pedModelStore;
 CDynamicStore<CAtomicModelInfo>			CModelInfo::ms_atomicModelStore;
 CDynamicStore<CDamageAtomicModelInfo>	CModelInfo::ms_damageAtomicModelStore;
@@ -216,6 +223,93 @@ void CPedModelInfo::DeleteRwObject()
 	HitColModel = nullptr;
 }
 
+RpMaterial* CVehicleModelInfo::SetEditableMaterialsCB(RpMaterial* pMaterial, void* pData)
+{
+	std::pair<void*,int>**	pMaterialStack = reinterpret_cast<std::pair<void*,int>**>(pData);
+
+	if ( RpMaterialGetTexture(pMaterial) )
+	{
+		if ( ms_pRemapTexture && RwTextureGetName(RpMaterialGetTexture(pMaterial))[0] == '#' )
+		{
+			*((*pMaterialStack)++) = std::make_pair(&pMaterial->texture, *reinterpret_cast<int*>(&pMaterial->texture));
+			pMaterial->texture = ms_pRemapTexture;
+			return pMaterial;
+		}
+		else if ( RpMaterialGetTexture(pMaterial) == ms_pLightsTexture )
+		{
+			int		nLightToChoose;
+			switch ( *reinterpret_cast<int*>(&pMaterial->color) & 0xFFFFFF )
+			{
+			case 0x00AFFF:
+				nLightToChoose = 0;
+				break;
+			  case 0xC8FF00:
+				nLightToChoose = 1;
+				break;
+			  case 0x00FFB9:
+				nLightToChoose = 2;
+				break;
+			  case 0x003CFF:
+				nLightToChoose = 3;
+				break;
+			  default:
+				nLightToChoose = -1;
+				break;
+			}
+			*((*pMaterialStack)++) = std::make_pair(&pMaterial->color, *reinterpret_cast<int*>(&pMaterial->color));
+
+			pMaterial->color.red = 0xFF;
+			pMaterial->color.green = 0xFF;
+			pMaterial->color.blue = 0xFF;
+
+			if ( nLightToChoose != -1 )
+			{
+				if ( ms_lightsOn[nLightToChoose] )
+				{
+					const RwSurfaceProperties		surfProps = { 16.0f, 0.0, 0.0 };
+
+					*((*pMaterialStack)++) = std::make_pair(&pMaterial->texture, *reinterpret_cast<int*>(&pMaterial->texture));
+
+					*((*pMaterialStack)++) = std::make_pair(&pMaterial->surfaceProps.ambient, *reinterpret_cast<int*>(&pMaterial->surfaceProps.ambient));
+					*((*pMaterialStack)++) = std::make_pair(&pMaterial->surfaceProps.diffuse, *reinterpret_cast<int*>(&pMaterial->surfaceProps.diffuse));
+					*((*pMaterialStack)++) = std::make_pair(&pMaterial->surfaceProps.specular, *reinterpret_cast<int*>(&pMaterial->surfaceProps.specular));
+				
+					pMaterial->texture = ms_pLightsOnTexture;
+					pMaterial->surfaceProps = surfProps;
+				}
+			}
+			return pMaterial;
+		}
+	}
+
+	int		nColourToPaint;
+	switch ( *reinterpret_cast<int*>(&pMaterial->color) & 0xFFFFFF )
+    {
+      case 0x00FF3C:
+        nColourToPaint = ms_currentCol[0];
+        break;
+      case 0xAF00FF:
+        nColourToPaint = ms_currentCol[1];
+        break;
+      case 0xFFFF00:
+        nColourToPaint = ms_currentCol[2];
+        break;
+	  case 0xFF00FF:
+        nColourToPaint = ms_currentCol[3];
+        break;
+	  default:
+		return pMaterial;
+    }
+
+	*((*pMaterialStack)++) = std::make_pair(&pMaterial->color, *reinterpret_cast<int*>(&pMaterial->color));
+
+	pMaterial->color.red = ms_vehicleColourTable[nColourToPaint].r;
+	pMaterial->color.green = ms_vehicleColourTable[nColourToPaint].g;
+	pMaterial->color.blue = ms_vehicleColourTable[nColourToPaint].b;
+
+	return pMaterial;
+}
+
 void CPedModelInfoVCS::LoadPedColours()
 {
 	if ( FILE* hFile = CFileMgr::OpenFile("DATA\\PEDCOLS.DAT", "r") )
@@ -328,25 +422,25 @@ RpAtomic* CPedModelInfoVCS::SetEditableMaterialsCB(RpAtomic* pAtomic, void* pDat
 
 RpMaterial* CPedModelInfoVCS::SetEditableMaterialsCB(RpMaterial* pMaterial, void* pData)
 {
-	int		colorIndexToUse;
+	int		nColourToPaint;
 
 	// TODO: Sort this thing
 	switch ( *reinterpret_cast<int*>(&pMaterial->color) & 0xFFFFFF )
 	{
 	case 0x00FF3C:
-		colorIndexToUse = bLastPedPrimaryColour;
+		nColourToPaint = bLastPedPrimaryColour;
 		break;
 
 	case 0xAF00FF:
-		colorIndexToUse = bLastPedSecondaryColour;
+		nColourToPaint = bLastPedSecondaryColour;
 		break;
 
 	case 0xFFFF00:
-		colorIndexToUse = bLastPedTertiaryColour;
+		nColourToPaint = bLastPedTertiaryColour;
 		break;
 
 	case 0xFF00FF:
-		colorIndexToUse = bLastPedQuaternaryColour;
+		nColourToPaint = bLastPedQuaternaryColour;
 		break;
 
 	default:
@@ -354,11 +448,11 @@ RpMaterial* CPedModelInfoVCS::SetEditableMaterialsCB(RpMaterial* pMaterial, void
 	}
 	std::pair<void*,int>**	pMaterialStack = reinterpret_cast<std::pair<void*,int>**>(pData);
 
-	((*pMaterialStack)++)[0] = std::make_pair(&pMaterial->color, *reinterpret_cast<int*>(&pMaterial->color));
+	*((*pMaterialStack)++) = std::make_pair(&pMaterial->color, *reinterpret_cast<int*>(&pMaterial->color));
 
-	pMaterial->color.red = ms_pedColourTable[colorIndexToUse].r;
-	pMaterial->color.green = ms_pedColourTable[colorIndexToUse].g;
-	pMaterial->color.blue = ms_pedColourTable[colorIndexToUse].b;
+	pMaterial->color.red = ms_pedColourTable[nColourToPaint].r;
+	pMaterial->color.green = ms_pedColourTable[nColourToPaint].g;
+	pMaterial->color.blue = ms_pedColourTable[nColourToPaint].b;
 
 	return pMaterial;
 }

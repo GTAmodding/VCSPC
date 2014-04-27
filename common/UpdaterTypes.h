@@ -4,7 +4,7 @@
 // Filename lies... constants are there too!
 
 // Main updater version
-#define UPDATER_VERSION		4
+#define UPDATER_VERSION		5
 
 // Updater states
 // TODO: Not sure how the updater will react if we ever change these IDs - backwards compatibility may break!

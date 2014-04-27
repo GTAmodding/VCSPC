@@ -2,6 +2,7 @@
 #include "Vehicle.h"
 
 #include "Antennas.h"
+#include "Timer.h"
 
 static RwObject* GetCurrentAtomicObjectCB(RwObject* pObject, void* data)
 {
@@ -62,9 +63,11 @@ void CAutomobile::DebugWheelDisplay()
 	DisplayFrameInfo(m_pCarNode[7], nullptr);
 }
 
-void CHeli::ProcessRotorsAlpha()
+void CHeli::Render()
 {
-	/*double		dRotorsSpeed, dMovingRotorSpeed;
+	double		dRotorsSpeed, dMovingRotorSpeed;
+
+	m_nTimeTillWeNeedThisCar = CTimer::m_snTimeInMilliseconds + 3000;
 
 	if ( m_fRotorSpeed > 0.0 )
 		dRotorsSpeed = min(1.7 * (1.0/0.22) * m_fRotorSpeed, 1.5);
@@ -108,7 +111,9 @@ void CHeli::ProcessRotorsAlpha()
 		RwFrameForAllObjects(m_pCarNode[14], GetCurrentAtomicObjectCB, &pOutAtomic);
 		if ( pOutAtomic )
 			SetComponentAtomicAlpha(pOutAtomic, nMovingRotorAlpha);
-	}*/
+	}
+
+	CEntity::Render();
 }
 
 CColModel* CAutomobile::RenderAntennas()

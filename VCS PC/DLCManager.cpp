@@ -14,6 +14,7 @@ void CDLCManager::Initialise()
 {
 	m_pDLC[DLC_HALLOWEEN] = new CTimedExpansionPack("HALLOWEEN", CDate(30, 10), CDate(3, 11));
 	m_pDLC[DLC_2DFX] = new CExpansionPack("2DFX");
+	m_pDLC[DLC_THANKYOU] = new CPaidExpansionPack("THANKYOU");
 
 	for ( int i = 0; i < NUM_DLC_PACKS; i++ )
 		m_nActiveDLCIndex[i] = -1;
@@ -23,7 +24,6 @@ void CDLCManager::InitialiseWithUpdater()
 {
 	int		nCurrentArrayIndex = 0;
 
-	//if ( m_pDLC[DLC_HALLOWEEN] )
 	for ( int i = 0; i < NUM_DLC_PACKS; ++i )
 	{
 		// Depends on current date
@@ -39,9 +39,9 @@ void CDLCManager::InitialiseWithUpdater()
 
 		// Add this DLC to list if date is within bounds
 #ifdef DEVBUILD
-		if ( bDateInBounds || m_bDebugOverride[i] )
+		if ( !m_pDLC[i]->IsShady() && (bDateInBounds || m_bDebugOverride[i]) )
 #else
-		if ( bDateInBounds )
+		if ( !m_pDLC[i]->IsShady() && bDateInBounds )
 #endif
 			m_nActiveDLCIndex[nCurrentArrayIndex++] = i;
 	}

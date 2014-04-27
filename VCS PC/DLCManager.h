@@ -14,23 +14,35 @@ private:
 	bool					m_bActive, m_bInstalled;
 	const char*				m_pInternalName;
 
+protected:
+	// A special ctor for derived classes
+	CExpansionPack(const char* pName, bool bActive)
+		: m_bActive(bActive), m_bInstalled(false), m_pInternalName(pName)
+	{}
+
 public:
 	virtual bool			DateValid(const CDate& CurrentDate)
 			{ UNREFERENCED_PARAMETER(CurrentDate); return true; }
 	virtual bool			IsTimed()
 			{ return false; }
+	virtual bool			IsShady()
+			{ return false; }
 
 	inline void				Activate(bool bState)
-		{ LogToFile("Pack %s is %s", m_pInternalName, bState ? "ACTIVE" : "INACTIVE"); m_bActive = bState; }
+		{	if ( !IsShady() ) LogToFile("Pack %s is %s", m_pInternalName, bState ? "ACTIVE" : "INACTIVE"); 
+			m_bActive = bState; }
 	inline bool				CheckInstallState(int nIndex) {
 		char		cLevelsPath[MAX_PATH];
 		_snprintf(cLevelsPath, sizeof(cLevelsPath), "dlc\\dlc%d\\content.dat", nIndex);
 		return m_bInstalled = GetFileAttributes(cLevelsPath) != INVALID_FILE_ATTRIBUTES; }
 
+	// Toggle state on current session
 	inline bool				IsEnabled()
 			{ return m_bActive; }
+	// Installation state
 	inline bool				IsInstalled()
 			{ return m_bInstalled; }
+	// Toggle state in dlc.set (might not be in line with m_bActive state!)
 	inline bool				IsActive()
 			{ return CUpdateManager::GetDLCStatus(m_pInternalName, false); }
 	inline const char*		GetName()
@@ -38,14 +50,17 @@ public:
 
 	CExpansionPack(const char* pName)
 		: m_bActive(false), m_bInstalled(false), m_pInternalName(pName)
-	{
-	}
+	{}
 };
 
 class CTimedExpansionPack : public CExpansionPack
 {
 private:
 	const CDate				m_launchDate, m_expirationDate;
+
+private:
+	// Just to make the compiler shut the fuck up
+	CTimedExpansionPack& operator=(const CTimedExpansionPack&) {}
 
 public:
 	virtual bool			DateValid(const CDate& CurrentDate) override
@@ -54,12 +69,21 @@ public:
 			{ return true; }
 
 	CTimedExpansionPack(const char* pName, const CDate& BeginDate, const CDate& EndDate)
-		: CExpansionPack(pName), m_launchDate(BeginDate), m_expirationDate(EndDate)
+		: CExpansionPack(pName, false), m_launchDate(BeginDate), m_expirationDate(EndDate)
 	{}
-
-	// Just to make the compiler shut the fuck up
-	CTimedExpansionPack& operator=(const CTimedExpansionPack&) {}
 };
+
+class CPaidExpansionPack : public CExpansionPack
+{
+public:
+	virtual bool			IsShady()
+			{ return true; }
+
+	CPaidExpansionPack(const char* pName)
+		: CExpansionPack(pName, true)
+	{}
+};
+
 
 class CDLCManager
 {

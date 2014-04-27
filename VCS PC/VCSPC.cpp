@@ -41,6 +41,7 @@
 #include "EntryExitMgr.h"
 #include "Antennas.h"
 #include "ControlsMgr.h"
+#include "VisibilityPlugins.h"
 #include "VCSPC_SDK_Internal.h"
 
 // Regular functions
@@ -144,6 +145,7 @@ void			MultipleTitlePCInject();
 void			InjectPedMapping();
 void			PedDataConstructorInject_Civilian();
 void			PedDataConstructorInject_Cop();
+void			LightsOnFix();
 void			NodeCrashFix();
 void			NodeCrashFix2();
 //void			HUDInitialiseBreak();
@@ -215,7 +217,7 @@ void			ReadCommandlineFile();
 void			LoadGameWithDLCHack();
 void			DLCMenuAction();
 void			VehAudioHook();
-void			RotorsHook();
+//void			RotorsHook();
 void			Language6Action();
 #ifdef INCLUDE_MULTIFONTFILES
 void			MultipleFontsDAT_Inject();
@@ -2114,6 +2116,12 @@ void* __stdcall CorrectedMallocTest(int nSize, int nAlign)
 	return malloc(nProperSize);
 }
 
+RpAtomic* RenderAtomicTest(RpAtomic* atomic)
+{
+	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTIONREF, 0);
+	return AtomicDefaultRenderCallBack(atomic);
+}
+
 __forceinline void Main_Patches()
 {
 	using namespace Memory;
@@ -2711,10 +2719,11 @@ __forceinline void Main_Patches()
 	InjectHook(0x4F77B8, VehAudioHook, PATCH_JUMP);
 	Nop(0x4F77EF, 1);
 
-	// Failed :(
-#ifdef ROTORS_TEST
-	InjectHook(0x6C444B, RotorsHook, PATCH_JUMP);
-#endif
+	// [s]Failed :([/s] Succeeded!
+	//InjectHook(0x732B30, RenderAtomicTest, PATCH_JUMP);
+	//InjectHook(0x6C444B, RotorsHook, PATCH_JUMP);
+	InjectMethod(0x6C4400, CHeli::Render, PATCH_JUMP);
+	InjectHook(0x553318, CVisibilityPlugins::RenderAlphaAtomics);
 
 	// radio IDs
 	Patch<BYTE>(0x489B8D, 9);
@@ -3358,7 +3367,7 @@ __forceinline void Main_Patches()
 	Patch<void*>(0x495F78, func_069C);
 	Patch<void*>(0x495F7C, func_069C);
 
-	Patch<const char*>(0x4111AE, "empire_perma");
+	//Patch<const char*>(0x4111AE, "empire_perma");
 	InjectHook(0x53C215, CEmpireManager::Process);
 
 	// Menu background
@@ -3733,6 +3742,11 @@ __forceinline void Main_Patches()
 	InjectHook(0x5DDBCE, PedDataConstructorInject_Civilian, PATCH_JUMP);
 	InjectHook(0x5DE39E, PedDataConstructorInject_Civilian, PATCH_JUMP);
 	InjectHook(0x5DDD7F, PedDataConstructorInject_Cop, PATCH_JUMP);
+
+	// Fixed vehicle editable materials (by DK)
+	Patch<const void*>(0x4C8415, CVehicleModelInfo::SetEditableMaterialsCB);
+	//InjectHook(0x4C8309, LightsOnFix, PATCH_JUMP);
+	//Nop(0x4C8308, 1);
 
 	// Proper cop models
 	Patch<const void*>(0x40E5CE, &CStreaming::ms_bCopBikeAllowed);
@@ -4615,6 +4629,14 @@ char* ParseCommandlineArgument(char* pArg)
 		if ( !_strnicmp(pArg, "-notimefix", 10) )
 		{
 			bNoTimeFix = true;
+			return pArg;
+		}
+
+		
+		if ( !_strnicmp(pArg, "-nopostfx", 9) )
+		{
+			// TODO: Define this variable properly
+			*(bool*)0xC402CF = true;
 			return pArg;
 		}
 
@@ -5722,6 +5744,15 @@ void __declspec(naked) PedDataConstructorInject_Cop()
 		call	CPedData::Constructor
 		add		esp, 18h
 		retn	4
+	}
+}
+
+void __declspec(naked) LightsOnFix()
+{
+	_asm
+	{
+
+
 	}
 }
 
@@ -7090,7 +7121,7 @@ void __declspec(naked) VehAudioHook()
 	}
 }
 
-void __declspec(naked) RotorsHook()
+/*void __declspec(naked) RotorsHook()
 {
 	_asm
 	{
@@ -7099,7 +7130,7 @@ void __declspec(naked) RotorsHook()
 		mov		ecx, 6C4521h
 		jmp		ecx
 	}
-}
+}*/
 
 void __declspec(naked) Language6Action()
 {

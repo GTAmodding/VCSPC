@@ -88,10 +88,12 @@ struct CVehicleFlags
 
 class NOVMT CVehicle	: public CPhysical
 {
-private:
+protected:
 	BYTE			__pad1[752];
 	CVehicleFlags	m_nVehicleFlags;
-	BYTE			__pad2[220];
+	BYTE			__pad2[160];
+	signed int		m_nTimeTillWeNeedThisCar;
+	BYTE			__pad4[56];
 	CEntity*		pDamagingEntity;
 	BYTE			__pad3[144];
 
@@ -101,13 +103,15 @@ public:
 	CEntity*		GetDamagingEntity()
 						{ return pDamagingEntity; }
 
-	void			SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha);
+	virtual void	Render() override;
+
+	static void		SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha);
 };
 
 class NOVMT CAutomobile : public CVehicle
 {
 public:
-	BYTE		paddd[168];
+	BYTE		paddd[172];
 	RwFrame*	m_pCarNode[20];		// May be wrong?
 	BYTE		padding[432];
 	float		m_fRotorSpeed;
@@ -121,7 +125,13 @@ public:
 class NOVMT CHeli : public CAutomobile
 {
 public:
-	void			ProcessRotorsAlpha();
+	virtual void		Render() override;
+};
+
+class NOVMT CPlane : public CAutomobile
+{
+public:
+	virtual void		Render() override;
 };
 
 static_assert(sizeof(CVehicle) == 0x5A0, "Wrong size: CVehicle");

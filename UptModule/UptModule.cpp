@@ -868,7 +868,7 @@ void CUpdater::ReadSettingsFile()
 	if ( FILE* hSetFile = _wfopen(strDLCFilePath.c_str(), L"rb") )
 	{
 		unsigned int		nFileVersion;
-		signed short		nIndex = 0;
+		//signed short		nIndex = 0;
 
 		fread(&nFileVersion, 4, 1, hSetFile);
 		if ( nFileVersion == DLC_SETTINGS_FILE_VERSION )
@@ -886,7 +886,7 @@ void CUpdater::ReadSettingsFile()
 				fread(cDLCName, nStringLength, 1, hSetFile);
 				fread(&bDLCState, 1, 1, hSetFile);
 				AddThisDLCToList(cDLCName, bDLCState);
-				++nIndex;
+				//++nIndex;
 			}
 		}
 		else
@@ -904,7 +904,7 @@ void CUpdater::WriteSettingsFile()
 
 	if ( FILE* hSetFile = _wfopen(strDLCFilePath.c_str(), L"wb") )
 	{
-		unsigned int		nFileVersion = DLC_SETTINGS_FILE_VERSION;
+		const unsigned int	nFileVersion = DLC_SETTINGS_FILE_VERSION;
 		//signed short		nIndex = 0;
 
 		fwrite(&nFileVersion, 4, 1, hSetFile);

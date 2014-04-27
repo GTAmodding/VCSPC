@@ -162,9 +162,6 @@
     <ClCompile Include="TxdStore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RW.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Streaming.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -220,6 +217,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="X360Pad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RW.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VisibilityPlugins.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -444,6 +447,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="X360Pad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VisibilityPlugins.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #ifndef __UPDATERCLIENT001
 #define __UPDATERCLIENT001
 
-// Versions which use that interface: 1, 2, 3 (with new methods)
+// Versions which use that interface: 1, 2, 3 (with new methods), 4, 5
 class IUpdaterClient001
 {
 public:

@@ -53,7 +53,7 @@ private:
 		char		name[8];
 		void*		offset;
 	}				tablEntries[200];
-	unsigned int	size;
+	unsigned short	size;
 };
 
 class CText

@@ -102,7 +102,6 @@ public:
 class NOVMT CEntity	: public CPlaceable
 {
 public:
-	/********** BEGIN VTBL **************/
     virtual void	Add_CRect();
     virtual void	Add();
     virtual void	Remove();

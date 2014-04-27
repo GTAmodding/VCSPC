@@ -1,7 +1,7 @@
 #ifndef __DLCSHARED
 #define __DLCSHARED
 
-#define DLC_SETTINGS_FILE_VERSION		1
+#define DLC_SETTINGS_FILE_VERSION		2
 
 // This enum index is used as a DLC directory index, so keep indexes explicit
 enum eExpansionPack
@@ -11,6 +11,9 @@ enum eExpansionPack
 
 	// Project 2dfx
 	DLC_2DFX				= 1,
+
+	// You pay, you get this
+	DLC_THANKYOU			= 2,
 
 	// Keep this untouched
 	NUM_DLC_PACKS

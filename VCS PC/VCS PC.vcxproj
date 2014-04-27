@@ -387,6 +387,7 @@ popd</Command>
     <ClCompile Include="VCSPC_SDK_Internal.cpp" />
     <ClCompile Include="Vehicle.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
+    <ClCompile Include="VisibilityPlugins.cpp" />
     <ClCompile Include="WidescreenSupport.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="X360Pad.cpp" />
@@ -428,6 +429,7 @@ popd</Command>
     <ClInclude Include="Garages.h" />
     <ClInclude Include="GroupedBuildings.h" />
     <ClInclude Include="Hud.h" />
+    <ClInclude Include="LinkList.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="MemoryMgr.h" />
     <ClInclude Include="ModelInfo.h" />
@@ -463,6 +465,7 @@ popd</Command>
     <ClInclude Include="VCSPC_SDK.h" />
     <ClInclude Include="Vehicle.h" />
     <ClInclude Include="VideoPlayer.h" />
+    <ClInclude Include="VisibilityPlugins.h" />
     <ClInclude Include="WidescreenSupport.h" />
     <ClInclude Include="World.h" />
     <ClInclude Include="X360Pad.h" />

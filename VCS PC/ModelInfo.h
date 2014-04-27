@@ -558,6 +558,22 @@ public:
 	}
 };
 
+class CVehicleModelInfo : public CClumpModelInfo
+{
+	// TODO: Document
+
+private:
+	static RwTexture*&				ms_pRemapTexture;
+	static RwTexture*&				ms_pLightsTexture;
+	static RwTexture*&				ms_pLightsOnTexture;
+	static bool* const				ms_lightsOn;
+	static unsigned char* const		ms_currentCol;
+	static CRGBA* const				ms_vehicleColourTable;
+
+public:
+	static RpMaterial*				SetEditableMaterialsCB(RpMaterial* pMaterial, void* pData);
+};
+
 class CPedModelInfoVCS : public CPedModelInfo // VCS PC class extension
 {
 public:
