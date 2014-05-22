@@ -168,7 +168,7 @@ void CRadar::Draw3DRadar(int nX, int nY)
 		memcpy(RwFrameGetMatrix(RwCameraGetFrame(pRadarCam)), &matTemp.matrix, sizeof(RwMatrix));*/
 	}
 
-	RwRGBA		color = { 255, 255, 255, 255 };
+	//RwRGBA		color = { 255, 255, 255, 255 };
 
 	/*RwCameraEndUpdate(Scene);
 	RwCameraClear(pRadarCam, &color, rwCAMERACLEARIMAGE);

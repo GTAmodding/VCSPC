@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "UpdaterWrappers.h"
+
+#include "UptModule.h"
 
 // CUpdaterClient001
 long CUpdaterClient001::Process()
@@ -68,4 +71,15 @@ void CUpdaterClient001::AddThisDLCToList(const char* pName, bool bEnable)
 bool CUpdaterClient001::GetDLCStatus(const char* pName, bool bDefault)
 {
 	return gUpdaterHandle->GetDLCStatus(pName, bDefault);
+}
+
+
+void CDLCClient001::SendSerialCodeRequest(const std::string* request)
+{
+	gUpdaterHandle->SendSerialCodeRequest(request);
+}
+
+void CDLCClient001::RegisterOnFinishedRequestCallback(SerialCodeRequestCallback callback)
+{
+	gUpdaterHandle->RegisterOnFinishedRequestCallback(callback);
 }

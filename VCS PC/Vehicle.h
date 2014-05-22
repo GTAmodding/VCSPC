@@ -105,6 +105,9 @@ public:
 
 	virtual void	Render() override;
 
+	void			SetWindowOpenFlag(unsigned char nWindow);
+	void			ClearWindowOpenFlag(unsigned char nWindow);
+
 	static void		SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha);
 };
 
@@ -120,6 +123,9 @@ public:
 public:
 	CColModel*	RenderAntennas();
 	void		DebugWheelDisplay();
+
+	// Test
+	void		ControlWindows();
 };
 
 class NOVMT CHeli : public CAutomobile

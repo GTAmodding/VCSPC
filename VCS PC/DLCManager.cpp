@@ -2,6 +2,7 @@
 #include "DLCManager.h"
 
 #include "Frontend.h"
+#include "Font.h"
 
 CExpansionPack*			CDLCManager::m_pDLC[NUM_DLC_PACKS];
 int						CDLCManager::m_nActiveDLCIndex[NUM_DLC_PACKS];
@@ -9,6 +10,9 @@ int						CDLCManager::m_nActiveDLCIndex[NUM_DLC_PACKS];
 #ifdef DEVBUILD
 bool					CDLCManager::m_bDebugOverride[NUM_DLC_PACKS];
 #endif
+
+IDLCClient001*			CDLCManager::m_pDLCCLient;
+bool					CDLCManager::m_bContactingTheSite;
 
 void CDLCManager::Initialise()
 {
@@ -45,6 +49,9 @@ void CDLCManager::InitialiseWithUpdater()
 #endif
 			m_nActiveDLCIndex[nCurrentArrayIndex++] = i;
 	}
+
+	m_pDLCCLient = CUpdateManager::GetMeDLCClient();
+	m_pDLCCLient->RegisterOnFinishedRequestCallback(OnFinishedRequest);
 }
 
 void CDLCManager::Terminate()
@@ -102,4 +109,28 @@ void CDLCManager::HandleButtonClick(int nMenuEntry)
 		CUpdateManager::SetDLCStatus(pDLCName, CUpdateManager::GetDLCStatus(pDLCName, false) == false);
 	else
 		FrontEndMenuManager.SwitchToNewScreen(48);
+}
+
+void CDLCManager::ActivateSerial(const std::string* strSerial)
+{
+	// Make a serial code out of the passed array
+	// POSTing requires it to be permanent
+	static std::string		strFullSerial;
+	
+	strFullSerial = strSerial[0] + strSerial[1] + strSerial[2] + strSerial[3];
+	strFullSerial.shrink_to_fit();
+
+	m_pDLCCLient->SendSerialCodeRequest(&strFullSerial);
+	m_bContactingTheSite = true;
+}
+
+void CDLCManager::Process()
+{
+
+}
+
+void CDLCManager::OnFinishedRequest(const std::string& strOut)
+{
+
+	m_bContactingTheSite = false;
 }

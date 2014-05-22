@@ -97,6 +97,7 @@ public:
 };
 
 CWanted* FindPlayerWanted(signed int nPlayerID);
+CVehicle* FindPlayerVehicle(signed int nPlayerID, bool bUnk);
 
 static_assert(sizeof(CPlayerInfo) == 0x190, "Wrong size: CPlayerInfo");
 

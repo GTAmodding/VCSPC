@@ -59,10 +59,11 @@
 //#define MAKE_CONSOLE
 //#define DUMP_MENUS
 //#define V_RADAR_TEST
-#define ROTORS_TEST
 //#define DEBUG_GETMODELINFO_WRAPPER
 //#define FANCY_FRONTEND_CONTROLLERS_TEST
 #define SHOW_FOV_FANCY_RHYME
+//#define CONTROLLABLE_WINDOWS_TEST
+//#define MULTITHREADING_TEST
 
 //#define NEW_SHADOWS_TEST
 
@@ -92,6 +93,8 @@
 #define	PlayerStatsInteger	((int*)0xB78E20)
 #define	PlayerStatsFloat	((float*)0xB79380)
 
+// Retrieving RGB from RwRGBA
+#define RwRGBAGetRGB(a) (*(DWORD*)&(a) & 0xFFFFFF)
 
 // Some handy funcs
 void			LogToFile(const char* str, ...);
@@ -154,7 +157,6 @@ extern char*				StyledText_7;
 extern char*				Garage_MessageIDString;
 extern void*				scmBlock;
 extern DWORD*				CPopulation__allRandomPedThisType;
-extern DWORD*				unkLastBreathCheck;
 extern DWORD*				PlayerEnexEntryStage;
 extern DWORD*				activeInterior;
 extern DWORD*				memoryAvailable;

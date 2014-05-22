@@ -8,6 +8,7 @@
 #include "Stats.h"
 #include "VideoPlayer.h"
 #include "Text.h"
+#include "ControlsMgr.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -17,6 +18,9 @@ float				CMenuManager::m_fStatsScrollPos;
 int					CMenuManager::m_nFocusedDLC = -1;
 int					CMenuManager::m_nLastFocusedDLC = -1;
 bool				CMenuManager::m_bLastDLCState[NUM_DLC_PACKS];
+std::string			CMenuManager::m_strSerialCode[4];
+bool				CMenuManager::m_bSerialFull;
+
 //short			CMenuManager::nColourMenuEntries;
 MenuItem		CMenuManager::ms_pMenus[] = {
 	// Stats
@@ -371,6 +375,12 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		1, "FEE_IXX", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 45, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 44, 0, 16, 3, 0, 0 },
+
+	// DLC activation
+	{ "FEH_DLC", 44, 0,
+		1, "FEE_KEY", ACTION_NONE, 0, 0, 0, 0, 0, 0,
+		ACTION_ACTIVATE_SERIAL, "FEE_ACT", ACTION_SERIAL, 0, 0, 78, 3, 1, 0,
+		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
 };
 
 static inline const char* GetTitlePCByLanguage()
@@ -379,8 +389,8 @@ static inline const char* GetTitlePCByLanguage()
 	return cTitlePCNames[FrontEndMenuManager.GetLanguage()];
 }
 
-WRAPPER void CMenuManager::ShowFullscreenMessage(const char* pMessage, bool bUnk1, bool bUnk2)
-	{ WRAPARG(pMessage); WRAPARG(bUnk1); WRAPARG(bUnk2); EAXJMP(0x579330); }
+WRAPPER void CMenuManager::MessageScreen(const char* pMessage, bool bUnk1, bool bUnk2) { WRAPARG(pMessage); WRAPARG(bUnk1); WRAPARG(bUnk2); EAXJMP(0x579330); }
+WRAPPER void CMenuManager::SmallMessageScreen(const char* pMessage) { WRAPARG(pMessage); EAXJMP(0x574010); }
 WRAPPER void CMenuManager::SwitchToNewScreen(signed char bScreen) { WRAPARG(bScreen); EAXJMP(0x573680); }
 
 void CMenuManager::DrawBackEnd()
@@ -859,6 +869,39 @@ void CMenuManager::PrintDLCScreen()
 	}
 }
 
+void CMenuManager::PrintActivationScreen()
+{
+	if ( !CDLCManager::IsContactingWebsite() )
+	{
+		float		fInitialPos = -210.0f;
+
+		CFont::SetProportional(false);
+		CFont::SetColor(CRGBA(255, 255, 255, 255));
+		CFont::SetDropShadowPosition(1);
+		CFont::SetDropColor(CRGBA(0, 0, 0, 255));
+		CFont::SetScale(_width(0.65f), _height(1.0f));
+		CFont::SetFontStyle(FONT_PagerFont);
+		CFont::SetOrientation(ALIGN_Center);
+
+		for ( int i = 0; i < 4; i++, fInitialPos += 115.0f )
+		{
+			CSprite2d::DrawRect(CRect(_xmiddle(fInitialPos), _ymiddle(15.0f), _xmiddle(fInitialPos + 75.0f), _ymiddle(-15.0f)), CRGBA(0, 0, 0, 255));
+			CSprite2d::DrawRect(CRect(_xmiddle(fInitialPos+1.0f), _ymiddle(14.0f), _xmiddle(fInitialPos + 74.0f), _ymiddle(-14.0f)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 255));
+	
+			if ( i != 3 )
+				CFont::PrintString(_xmiddle(fInitialPos + 95.0f), _ymiddle(-9.0f), "-");
+
+			CFont::PrintString(_xmiddle(fInitialPos + 37.5f), _ymiddle(-9.0f), m_strSerialCode[i].c_str());
+		}
+
+		CFont::SetProportional(true);
+	}
+	else
+	{
+		SmallMessageScreen("LOADCOL");
+	}
+}
+
 void CMenuManager::ReadFrontendTextures()
 {
 	static const char* const	frontend1TexNames[] = {
@@ -985,6 +1028,152 @@ void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 	if ( bScreen == 48 )
 		_snprintf(MenuEntriesList[48].entryList[0].entry, sizeof(MenuEntriesList->entryList->entry), "FEE_I%02d", m_nFocusedDLC);
 
+	// Clear serial code buffer
+	if ( bLastScreen == 49 )
+		ClearSerialsBuffer();
+
+	if ( bScreen == 49 )
+	{
+		// Check for key's presence in the clipboard
+		LookIntoClipboardForSerial();	}
+}
+
+void CMenuManager::LookIntoClipboardForSerial()
+{
+	if ( OpenClipboard(nullptr) )
+	{
+		if ( HANDLE hText = GetClipboardData(CF_TEXT) )
+		{
+			const char*	pText = static_cast<char*>(GlobalLock(hText));
+			bool		bAllValid = true;
+
+			// Iterate through this text
+			while ( *pText == ' ' )
+				++pText;
+
+			// 1st field
+			for ( int i = 0; i < 4; i++ )
+			{
+				for ( int j = 0; j < 4; j++ )
+				{
+					if ( ValidSerialCharacter(*pText) )
+					{
+						m_strSerialCode[i] += *pText++;
+					}
+					else
+					{
+						bAllValid = false;
+						break;
+					}	
+				}
+
+				if ( !bAllValid )
+					break;
+
+				for ( auto it = m_strSerialCode[i].begin(); it != m_strSerialCode[i].end(); it++ )
+					*it = toupper(*it);
+
+				if ( i != 3 )
+				{
+					// Filter out spaces and look for -
+					while ( *pText == ' ' )
+						++pText;
+
+					if ( *pText++ != '-' )
+					{
+						bAllValid = false;
+						break;
+					}
+
+					while ( *pText == ' ' )
+						++pText;
+				}
+			}
+
+			GlobalUnlock(hText);
+
+			if ( !bAllValid )
+				ClearSerialsBuffer();
+		}
+
+		CloseClipboard();
+	}
+
+}
+
+void CMenuManager::UserInputVCS()
+{
+	if ( CDLCManager::IsContactingWebsite() )
+		return;
+
+	// Call SA UserInput
+	((void(__thiscall*)(CMenuManager*))0x57FD70)(this);
+}
+
+void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* pDown)
+{
+	// Call SA AdditionalOptionInput
+	((void(__thiscall*)(CMenuManager*,unsigned char*,unsigned char*))0x5773D0)(this, pUp, pDown);
+
+	if ( bCurrentScreen == 33 )
+	{
+		if ( ControlsManager.GetIsKeyboardKeyJustDown(rsEND) )
+			SwitchToNewScreen(49);  
+	}
+
+	if ( bCurrentScreen == 49 )
+	{
+		// Listen for Ctrl + V
+		if ( (ControlsManager.GetIsKeyboardKeyDown(rsLCTRL) || ControlsManager.GetIsKeyboardKeyDown(rsRCTRL))
+			 && ControlsManager.GetIsKeyboardKeyJustDown(static_cast<RsKeyCodes>(0x56)) )
+		{
+			ClearSerialsBuffer();
+			LookIntoClipboardForSerial();
+		}
+	}
+}
+
+void CMenuManager::TypingKeyboardInput(wchar_t wKey)
+{
+	// DLC activation screen input
+	if ( bCurrentScreen == 49 )
+	{
+		// Add the char if it's valid
+		if ( ValidSerialCharacter(wKey) )
+		{
+			int i = 0;
+			while ( m_strSerialCode[i].length() >= 4 )
+			{
+				if ( ++i == 4 )
+					return;		// Serial's full
+			}
+			m_strSerialCode[i] += wKey;
+
+			// Filled an entire field?
+			if ( m_strSerialCode[i].length() >= 4 )
+			{
+				// Uppercase it
+				for ( auto it = m_strSerialCode[i].begin(); it != m_strSerialCode[i].end(); it++ )
+					*it = toupper(*it);
+
+				if ( i == 3 )
+					m_bSerialFull = true;
+			}
+		}
+		else if ( wKey == '\x8' ) // Backspace
+		{
+			int i = 4;
+
+			m_bSerialFull = false;
+			while ( m_strSerialCode[--i].empty() )
+			{
+				if ( !i )
+					return;		// Serial's empty
+			}
+
+			m_strSerialCode[i].pop_back();
+		}
+	}
 }
 
 const char* CMenuManager::ProcessDLCSlot(int nSlotID)
@@ -1145,6 +1334,8 @@ float CMenuManager::GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition)
 	}
 }*/
 
+
+// TODO: CLoadingScreen
 static unsigned char		bDrawingStyle;
 
 void LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID)

@@ -39,6 +39,9 @@
     <ClInclude Include="UpdaterWrappers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\updater_interfaces\IDLCClient001.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UptModule.cpp">

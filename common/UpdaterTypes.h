@@ -16,7 +16,10 @@
 #define UPTMODULESTATE_ALL_READY	4
 #define UPTMODULESTATE_INSTALLING	5
 
-typedef void (CALLBACK *UptMessageCallback)(const wchar_t* pMessage);
+typedef void (CALLBACK *UptMessageCallback)(const wchar_t*);
+typedef void (CALLBACK *SerialCodeRequestCallback)(const std::string&);
+
 typedef IUpdaterClient* (*GetUptModuleFn)(const char* pName);
+typedef IDLCClient* (*GetDLCFn)(const char* pName);
 
 #endif

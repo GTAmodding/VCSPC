@@ -5,9 +5,6 @@
 #include "Pools.h"
 #include "PcSave.h"
 
-// Static variables
-CPedData* CPedData::pPedData = new CPedData[140];
-
 // Wrappers
 WRAPPER void CPed::GiveWeapon(int WeaponType, int WeaponAmmo, bool bFlag) { WRAPARG(WeaponType); WRAPARG(WeaponAmmo); WRAPARG(bFlag); EAXJMP(0x5E6080); }
 WRAPPER void CPed::GetBonePosition(RwV3d& vecOut, unsigned int nBone, bool bFlag) { WRAPARG(vecOut); WRAPARG(nBone); WRAPARG(bFlag); EAXJMP(0x5E4280); }
@@ -27,9 +24,9 @@ long double CPed::GetCrosshairSize()
 
 void CPed::Remap()
 {
-	CPedData*	pTempPedData = &CPedData::pPedData[CPools::GetPedPool()->GetIndex(this)];
+	CPedData*	pTempPedData = CPools::GetPedPoolAux()->GetAtPointer(this);//&CPedData::pPedData[CPools::GetPedPool()->GetIndex(this)];
 	CPedModelInfoVCS::SetPedColour(pTempPedData->m_color1, pTempPedData->m_color2, pTempPedData->m_color3, pTempPedData->m_color4);
-	CPedModelInfoVCS::SetEditableMaterials(m_pRwObject);
+	CPedModelInfoVCS::SetEditableMaterials(reinterpret_cast<RpClump*>(m_pRwObject));
 }
 
 bool CPed::Save()
@@ -45,12 +42,12 @@ bool CPed::Load()
 }
 
 
-CPed* CPedData::Constructor(CPed* pPed, WORD model)
+CPed* CPedData::Initialise(CPed* pPed, short model)
 {
-	if ( model == 0xFFFF )
-		model = pPed->ModelIndex();
+	if ( model == -1 )
+		model = pPed->GetModelIndex();
 
-	CPedData*	pTempData = &pPedData[CPools::GetPedPool()->GetIndex(pPed)];
+	CPedData*	pTempData = CPools::GetPedPoolAux()->GetAtPointer(pPed);//&pPedData[CPools::GetPedPool()->GetIndex(pPed)];
 	CPedModelInfoVCS* pModelInfo = (CPedModelInfoVCS*)CModelInfo::ms_modelInfoPtrs[model];
 	if ( pModelInfo )
 		pModelInfo->GetRandomPedColour(pTempData->m_color1, pTempData->m_color2, pTempData->m_color3, pTempData->m_color4);

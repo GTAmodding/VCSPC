@@ -5,7 +5,7 @@
 #define LCID_PRIMARY_LANG(a)	((a) & 0x3FF)
 #define LCID_SUBLANG(a)			(((a) >> 10) & 0x3F)
 
-enum eLanguages
+enum
 {
 	LANGUAGE_English,
 	LANGUAGE_German,

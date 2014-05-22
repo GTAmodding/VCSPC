@@ -21,10 +21,7 @@ CDynamicStore<CTimeModelInfo>			CModelInfo::ms_timeModelStore;
 CModelInfoDrawDistStorage				CModelInfo::ms_drawDistStorage;
 
 CRGBA									CPedModelInfoVCS::ms_pedColourTable[NUM_PED_COLOURS];
-BYTE									CPedModelInfoVCS::bLastPedPrimaryColour;
-BYTE									CPedModelInfoVCS::bLastPedSecondaryColour;
-BYTE									CPedModelInfoVCS::bLastPedTertiaryColour;
-BYTE									CPedModelInfoVCS::bLastPedQuaternaryColour;
+unsigned char							CPedModelInfoVCS::ms_currentCol[4];
 
 float&									ms_lodDistScale = *(float*)0x8CD800;
 
@@ -51,9 +48,12 @@ WRAPPER RpAtomic* CDamageAtomicModelInfo::CreateInstance() { EAXJMP(0x4C4960); }
 
 WRAPPER void CPedModelInfo::SetClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x4C7340); }
 
-void CColModel::operator delete(void* mem)
+WRAPPER RpAtomic* CVehicleModelInfo::SetEditableMaterialsCB(RpAtomic* pMaterial, void* pData) { WRAPARG(pMaterial); WRAPARG(pData); EAXJMP(0x4C83E0); }
+WRAPPER void CVehicleModelInfo::ResetEditableMaterials() { EAXJMP(0x4C8460); }
+
+void CColModel::operator delete(void* ptr)
 {
-	CPools::GetColModelPool()->Delete(reinterpret_cast<CColModel*>(mem));
+	CPools::GetColModelPool()->Delete(static_cast<CColModel*>(ptr));
 }
 
 void CModelInfoDrawDistStorage::AddToList(int nIndex, CBaseModelInfo* pModelInfo)
@@ -223,6 +223,14 @@ void CPedModelInfo::DeleteRwObject()
 	HitColModel = nullptr;
 }
 
+void CVehicleModelInfo::SetVehicleColour(unsigned char primaryColour, unsigned char secondaryColour, unsigned char tertiaryColour, unsigned char quaternaryColour)
+{
+	ms_currentCol[0] = primaryColour;
+	ms_currentCol[1] = secondaryColour;
+	ms_currentCol[2] = tertiaryColour;
+	ms_currentCol[3] = quaternaryColour;
+}
+
 RpMaterial* CVehicleModelInfo::SetEditableMaterialsCB(RpMaterial* pMaterial, void* pData)
 {
 	std::pair<void*,int>**	pMaterialStack = reinterpret_cast<std::pair<void*,int>**>(pData);
@@ -238,7 +246,7 @@ RpMaterial* CVehicleModelInfo::SetEditableMaterialsCB(RpMaterial* pMaterial, voi
 		else if ( RpMaterialGetTexture(pMaterial) == ms_pLightsTexture )
 		{
 			int		nLightToChoose;
-			switch ( *reinterpret_cast<int*>(&pMaterial->color) & 0xFFFFFF )
+			switch ( RwRGBAGetRGB(pMaterial->color) )
 			{
 			case 0x00AFFF:
 				nLightToChoose = 0;
@@ -283,7 +291,7 @@ RpMaterial* CVehicleModelInfo::SetEditableMaterialsCB(RpMaterial* pMaterial, voi
 	}
 
 	int		nColourToPaint;
-	switch ( *reinterpret_cast<int*>(&pMaterial->color) & 0xFFFFFF )
+	switch ( RwRGBAGetRGB(pMaterial->color) )
     {
       case 0x00FF3C:
         nColourToPaint = ms_currentCol[0];
@@ -400,15 +408,16 @@ void CPedModelInfoVCS::LoadPedColours()
 
 void CPedModelInfoVCS::SetPedColour(unsigned char primaryColour, unsigned char secondaryColour, unsigned char tertiaryColour, unsigned char quaternaryColour)
 {
-	bLastPedPrimaryColour = primaryColour;
-	bLastPedSecondaryColour = secondaryColour;
-	bLastPedTertiaryColour = tertiaryColour;
-	bLastPedQuaternaryColour = quaternaryColour;
+	ms_currentCol[0] = primaryColour;
+	ms_currentCol[1] = secondaryColour;
+	ms_currentCol[2] = tertiaryColour;
+	ms_currentCol[3] = quaternaryColour;
 }
 
 void CPedModelInfoVCS::SetEditableMaterials(RpClump* pClump)
 {
-	std::pair<void*,int>*	pData = materialRestoreData;
+	auto*	pData = materialRestoreData;
+
 	RpClumpForAllAtomics(pClump, SetEditableMaterialsCB, &pData);
 	pData->first = nullptr;
 }
@@ -424,25 +433,20 @@ RpMaterial* CPedModelInfoVCS::SetEditableMaterialsCB(RpMaterial* pMaterial, void
 {
 	int		nColourToPaint;
 
-	// TODO: Sort this thing
-	switch ( *reinterpret_cast<int*>(&pMaterial->color) & 0xFFFFFF )
+	switch ( RwRGBAGetRGB(pMaterial->color) )
 	{
 	case 0x00FF3C:
-		nColourToPaint = bLastPedPrimaryColour;
+		nColourToPaint = ms_currentCol[0];
 		break;
-
 	case 0xAF00FF:
-		nColourToPaint = bLastPedSecondaryColour;
+		nColourToPaint = ms_currentCol[1];
 		break;
-
 	case 0xFFFF00:
-		nColourToPaint = bLastPedTertiaryColour;
+		nColourToPaint = ms_currentCol[2];
 		break;
-
 	case 0xFF00FF:
-		nColourToPaint = bLastPedQuaternaryColour;
+		nColourToPaint = ms_currentCol[3];
 		break;
-
 	default:
 		return pMaterial;
 	}

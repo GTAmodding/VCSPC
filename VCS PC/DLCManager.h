@@ -92,6 +92,9 @@ private:
 	static CExpansionPack*			m_pDLC[NUM_DLC_PACKS];
 	static int						m_nActiveDLCIndex[NUM_DLC_PACKS];
 
+	static IDLCClient001*			m_pDLCCLient;
+	static bool						m_bContactingTheSite;
+
 #ifdef DEVBUILD
 	static bool						m_bDebugOverride[NUM_DLC_PACKS];
 #endif
@@ -103,12 +106,18 @@ public:
 			{ return NUM_DLC_PACKS > nIndex ? m_nActiveDLCIndex[nIndex] : -1; }
 	static inline bool				AnyDLCsAvailable()
 			{ return GetActiveDLCWithIndex(0) != -1; }
+	static inline bool				IsContactingWebsite()
+			{ return m_bContactingTheSite; }
 
+	static void						Process();
 	static void						Initialise();
 	static void						InitialiseWithUpdater();
 	static void						Terminate();
 	static void						LoadLevelFiles();
 	static void						HandleButtonClick(int nMenuEntry);
+	static void						ActivateSerial(const std::string* strSerial);
+
+	static void CALLBACK			OnFinishedRequest(const std::string& strOut);
 
 #ifdef DEVBUILD
 	static inline void				ToggleDebugOverride(eExpansionPack eDLC)

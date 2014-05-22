@@ -16,7 +16,7 @@ void CAntenna::Update(const CVector& vecUp, const CVector& vecPos)
 	for ( int i = 2; i < NUM_ANTENNA_VERTS; ++i )
 	{
 		CVector         vecTempVec1 = m_vecPos[i] + m_vecForce[i] + vecSpringConstant;
-		CVector         vecNewDelta = (vecTempVec1 - m_vecPos[i-1]).Normalize() * m_fNodeLength;
+		CVector         vecNewDelta = (vecTempVec1 - m_vecPos[i-1]).Normalise() * m_fNodeLength;
 		CVector			vecDelta = m_vecPos[i-1] - m_vecPos[i-2];
 		
         CVector         vecNewPos = (vecDelta + m_vecPos[i-1] + vecNewDelta + m_vecPos[i-1]) * 0.5f;

@@ -42,10 +42,12 @@
 #include "Antennas.h"
 #include "ControlsMgr.h"
 #include "VisibilityPlugins.h"
+#include "Object.h"
 #include "VCSPC_SDK_Internal.h"
 
 // Regular functions
 //LONG CALLBACK	ExecHandle(EXCEPTION_POINTERS* ep);
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,LPARAM lParam);
 void			CollectPCInfo();
 void			DetermineGameVer();
 void			DefineVariables();
@@ -216,6 +218,7 @@ void			CommandlineEventHack();
 void			ReadCommandlineFile();
 void			LoadGameWithDLCHack();
 void			DLCMenuAction();
+void			ActivateSerialAction();
 void			VehAudioHook();
 //void			RotorsHook();
 void			Language6Action();
@@ -324,7 +327,6 @@ SCRIPT_VAR*					scriptParams;
 SCRIPT_VAR*					scriptLocals;
 void*						scmBlock;
 DWORD*						CPopulation__allRandomPedThisType;
-DWORD*						unkLastBreathCheck;
 DWORD*						PlayerEnexEntryStage;
 DWORD*						activeInterior;
 DWORD*						memoryAvailable;
@@ -372,6 +374,8 @@ RwTexture** const			gpCoronaTexture = (RwTexture**)0xC3E000;
 RwCamera*&					Scene = *(RwCamera**)0xC1703C;
 DWORD*						gameState;
 void**						rwengine = (void**)0xC97B24;
+
+CControllerConfigManager&	ControlsManager = *(CControllerConfigManager*)0xB70198;
 
 void						(*replacedTXDLoadFunc)();
 void						(*replacedTXDReleaseFunc)();
@@ -479,7 +483,7 @@ const BYTE					PCMenuActionsTable[] = {
 									33, 33, 33, 33, 5, 33, 33, 6,
 									7, 8, 9, 10, 11, 12, 13, 14, 15,
 									16, 17, 18, 19, 20, 21, 22, 23,
-									24, 25, 26, 27, 28, 29, 33, 33, 30, 31, 32, 34, 35, 36 };
+									24, 25, 26, 27, 28, 29, 33, 33, 30, 31, 32, 34, 35, 36, 37 };
 
 const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57D397, (void*)0x57D2FA, (void*)0x57D322,
@@ -493,7 +497,8 @@ const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57D386, (void*)0x57CF9B, (void*)0x57D268,
 									(void*)0x57CF5B, (void*)0x57CE6D, (void*)0x57CE9A,
 									(void*)0x57D21F, (void*)0x57CF1B, (void*)0x57CF3B,
-									(void*)0x57D447, Language6Action, UpdaterMenuAction, DLCMenuAction };
+									(void*)0x57D447, Language6Action, UpdaterMenuAction,
+									DLCMenuAction, ActivateSerialAction };
 
 const int					iRadioTracks[NUM_RADIOSTATIONS][31] = {
 				{ AA_OFFSET+1, AA_OFFSET+4, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922 },
@@ -587,7 +592,6 @@ void OnGameTermination()
 {
 	CUpdateManager::InstallIfNeeded();
 
-	delete[] CPedData::pPedData;
 	CUpdateManager::Terminate();
 	CDLCManager::Terminate();
 	//CPNGArchive::Shutdown();
@@ -608,11 +612,25 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 
 	LogToFile("Emergency key thread created");
 
-	while ( !(GetAsyncKeyState(VK_PAUSE) & 0x8000) )
+	while ( !(GetKeyState(VK_PAUSE) & 0x8000) )
 	{
 		Sleep(250);
+
+#ifdef MULTITHREADING_TEST
+		static bool		bInitThread  = false;
+
+		if ( !bInitThread )
+		{
+			if ( GetKeyState(VK_F2) & 0x8000 )
+			{
+				CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)0x53E9AC, nullptr, 0, nullptr);
+				bInitThread = true;
+			}
+		}
+#endif
+
 #ifdef DEVBUILD
-		if ( GetAsyncKeyState(VK_F9) & 0x8000 )
+		if ( GetKeyState(VK_F9) & 0x8000 )
 		{
 			if ( !bKeyState )
 			{
@@ -627,7 +645,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 				bKeyState = false;
 		}
 
-		if ( GetAsyncKeyState(VK_OEM_4) & 0x8000 )
+		if ( GetKeyState(VK_OEM_4) & 0x8000 )
 		{
 			fCurrentFOV -= 1.0f;
 			if ( fCurrentFOV < 15.0f )
@@ -638,7 +656,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 			Memory::Patch<float>(0x522F7A, fCurrentFOV);
 		}
 
-		if ( GetAsyncKeyState(VK_OEM_6) & 0x8000 )
+		if ( GetKeyState(VK_OEM_6) & 0x8000 )
 		{
 			fCurrentFOV += 1.0f;
 			if ( fCurrentFOV > 170.0f )
@@ -893,7 +911,6 @@ __forceinline void DefineVariables()
 	scriptLocals = (SCRIPT_VAR*)0xA48960;
 	scmBlock = (void*)0xA49960;
 	CPopulation__allRandomPedThisType = (DWORD*)0x8D2534;
-	unkLastBreathCheck = (DWORD*)0xBAA3FC;
 	PlayerEnexEntryStage = (DWORD*)0x96A7CC;
 	activeInterior = (DWORD*)0xB72914;
 	memoryAvailable = (DWORD*)0x8A5A80;
@@ -2190,9 +2207,9 @@ __forceinline void Main_Patches()
 #endif
 
 #ifdef NO_AUDIO
-	patch(0x507750, 0xC3, 1);
+	Patch<BYTE>(0x507750, 0xC3);
 	//patch(0x4DD4A0, 0x0CC2, 4);
-	//patch(0x4D9870, 0xC3, 1);
+	//Patch<BYTE>(0x4D9870, 0xC3);
 #endif
 
 #ifdef TRACE_COLOUR_STUFF
@@ -2269,6 +2286,12 @@ __forceinline void Main_Patches()
 	//Patch<const void*>(0x7065CC, &fFrustumSize);
 #endif
 
+#ifdef MULTITHREADING_TEST
+	Patch<DWORD>(0x53E9A3, 0x8C4835E);
+	Patch<BYTE>(0x53E9A7, 0xC3);
+	InjectHook(0x53EC09, 0x53E9AC, PATCH_JUMP);
+#endif
+
 #ifndef DONT_FIX_STREAMING
 	InjectHook(0x4076EC, NodeCrashFix2, PATCH_JUMP);
 #endif
@@ -2284,13 +2307,15 @@ __forceinline void Main_Patches()
 	// Fixes a crash when game is launched for the second time and first instance has no created window yet
 	InjectHook(0x74872D, IsAlreadyRunning);
 
+	Patch<const void*>(0x7486C1, WindowProc);
+
 	// CConfiscatedWeapons injectors
 	InjectHook(0x442D06, CGameLogic__Update_Wasted);
 	InjectHook(0x442D2F, CGameLogic__Update_Busted);
 
 	// DOUBLE_RWHEELS SA bug fix
 	Patch<WORD>(0x4C9290, 0xE281);
-	Patch<DWORD>(0x4C9292, 0xFFFDFFFC);
+	Patch<DWORD>(0x4C9292, ~(rwMATRIXTYPEMASK|rwMATRIXINTERNALIDENTITY));
 
 	// Bumped up shadows quality
 	Memory::Patch<BYTE>(0x706825, 8);
@@ -2308,16 +2333,16 @@ __forceinline void Main_Patches()
 	InjectHook(0x44BF1B, GarageCapacityB, PATCH_JUMP);
 
 	// Stronger AA
-	/*patch(0x57D0E1, MAX_AA + 1, 1);
+	/*Patch<BYTE>(0x57D0E1, MAX_AA + 1);
 	patch(0x57D120, MAX_AA + 1, 4);*/
 
 	// VCPD Cheetah & Vice Squad
 	/*patch(0x461319, 0x50, 4); // switch 80 cases
-	patch(0x46195F, 3, 1);
+	Patch<BYTE>(0x46195F, 3);
 	patch(0x461908, &AssignViceSquadToVehicle, 4);*/
 	Patch<BYTE>(0x6D23EB, 0);
 	/*patch(0x40B707, (DWORD)&ViceSquadCheckInjectA - 0x40B70B, 4);
-	patch(0x421981, 0xE9, 1);
+	Patch<BYTE>(0x421981, 0xE9);
 	patch(0x421982, (DWORD)&ViceSquadCheckInjectC - 0x421986, 4);*/
 
 	// 6ATV driving on water
@@ -2333,7 +2358,7 @@ __forceinline void Main_Patches()
 	// DB peds counter fix
 	Patch<BYTE>(0x43DDD8, 0xFE);
 	InjectHook(0x43DDDC, DriveByKillFix, PATCH_JUMP);
-	//patch(0x43DDDD, 0xFA, 1);
+	//Patch<BYTE>(0x43DDDD, 0xFA);
 
 	// Looking left/right blocked with RC Bandit
 	InjectHook(0x52780D, LookLeftRightHack, PATCH_JUMP);
@@ -2346,7 +2371,7 @@ __forceinline void Main_Patches()
 
 
 	// 0394 bugfix
-//	patch(0x4842DA, 0, 1);
+//	Patch<BYTE>(0x4842DA, 0);
 
 	// 0351 - 0355 & 037A opcodes
 	Patch<DWORD>(0x4836E8, 0x47474747);
@@ -2593,9 +2618,9 @@ __forceinline void Main_Patches()
 		dwFunc = (*(DWORD*)0x44CDA1) + 0x44CDA5 + 0x56;
 	else
 		dwFunc = 0x44CDE8;*/
-	//patch(0x44CDEF, 8, 1);
+	//Patch<BYTE>(0x44CDEF, 8);
 	//call(0x44CDE8, &OnscreenCounterColour, PATCH_JUMP);
-	//patch(0x44CE40, 0x10EB, 2);
+	//Patch<WORD>(0x44CE40, 0x10EB);
 	//call(0x44CE52, &TwoNumberCounterColour, PATCH_JUMP);
 
 	/*dwFunc = *(BYTE*)0x44CC20;
@@ -2603,9 +2628,9 @@ __forceinline void Main_Patches()
 	{
 		dwFunc = (*(DWORD*)0x44CC21) + 0x44CC25 + 0x66;
 		//Nop(dwFunc, 17);
-		patch(dwFunc, 0x0FEB, 2);
+		Patch<WORD>(dwFunc, 0x0FEB);
 		dwFunc += 17;
-		patch(dwFunc, 0x68, 1);
+		Patch<BYTE>(dwFunc, 0x68);
 		++dwFunc;
 	}
 	else
@@ -2651,15 +2676,15 @@ __forceinline void Main_Patches()
  	Patch<BYTE>(0x585CCB, MARKER_SET_COLOR_B);
 	Patch<BYTE>(0x585CCD, MARKER_SET_COLOR_G);
 	Patch<BYTE>(0x585CCF, MARKER_SET_COLOR_R);
-	/*patch(0x70CD0B, 0xB4, 1);
-	patch(0x70CD0D, 0x82, 1);
-	patch(0x70CD0F, 0xED, 1);
-	patch(0x70CD58, 0xB4, 1);
-	patch(0x70CD5A, 0x82, 1);
-	patch(0x70CD5C, 0xED, 1);
-	patch(0x70CDAB, 0xB4, 1);
-	patch(0x70CDAD, 0x82, 1);
-	patch(0x70CDAF, 0xED, 1);*/
+	/*Patch<BYTE>(0x70CD0B, 0xB4);
+	Patch<BYTE>(0x70CD0D, 0x82);
+	Patch<BYTE>(0x70CD0F, 0xED);
+	Patch<BYTE>(0x70CD58, 0xB4);
+	Patch<BYTE>(0x70CD5A, 0x82);
+	Patch<BYTE>(0x70CD5C, 0xED);
+	Patch<BYTE>(0x70CDAB, 0xB4);
+	Patch<BYTE>(0x70CDAD, 0x82);
+	Patch<BYTE>(0x70CDAF, 0xED);*/
 
 	// Growing/shrinking 3DMarkers
 	Patch<float>(0x440F26, 0.0f);
@@ -2900,13 +2925,13 @@ __forceinline void Main_Patches()
 	Nop(0x4668F4, 2);
 
 	// Fullscreen message menu blue
-	patch(0x574056, 0x6AFF, 2);
-	patch(0x574058, MENU_INACTIVE_B, 1);
-	patch(0x574059, 0x6A, 1);
-	patch(0x57405A, MENU_INACTIVE_G, 1);
-	patch(0x57405B, 0x6A, 1);
-	patch(0x57405C, MENU_INACTIVE_R, 1);
-	patch(0x57405D, 0x1C244C8D, 4);
+	Patch<WORD>(0x574056, 0x6AFF);
+	Patch<BYTE>(0x574058, MENU_INACTIVE_B);
+	Patch<BYTE>(0x574059, 0x6A);
+	Patch<BYTE>(0x57405A, MENU_INACTIVE_G);
+	Patch<BYTE>(0x57405B, 0x6A);
+	Patch<BYTE>(0x57405C, MENU_INACTIVE_R);
+	Patch<DWORD>(0x57405D, 0x1C244C8D);
 	InjectHook(0x574061, 0x7170C0);
 
 	// Own language switch
@@ -2965,7 +2990,7 @@ __forceinline void Main_Patches()
 	Nop(0x574673, 5);
 	Nop(0x5746A0, 5);
 	Nop(0x5746CE, 5);
-	patch(0x573088, 0xCB8B, 2);
+	Patch<WORD>(0x573088, 0xCB8B);
 	InjectHook(0x572ED8, 0x57308A, PATCH_JUMP);
 	InjectMethod(0x57308A, CMenuManager::ReadFrontendTextures, PATCH_NOTHING);
 
@@ -3002,7 +3027,7 @@ __forceinline void Main_Patches()
 	InjectHook(0x5D1598, CEntryExitManager::Save);
 	InjectMethod(0x5D4640, CPed::Load, PATCH_JUMP);
 	InjectMethod(0x5D5730, CPed::Save, PATCH_JUMP);
-	InjectHook(0x579434, 0x53D840, PATCH_CALL);
+	//InjectHook(0x579434, 0x53D840, PATCH_CALL);
 	Patch<WORD>(0x5D334F, 0x08EB);
 	Patch<void*>(0x5D327E, &dwDummy);
 	Nop(0x5D0887, 2);
@@ -3021,16 +3046,16 @@ __forceinline void Main_Patches()
 	Nop(0x5D1960, 5);
 	Nop(0x5D1988, 5);
 	Nop(0x5D19A4, 5);
-	patch(0x579439, 0x90000CC2, 4);
+	//Patch<DWORD>(0x579439, 0x90000CC2);
 	InjectHook(0x53C71F, LoadGameFailedMessage_Inject, PATCH_JUMP);
 
 	// Save Fallback system
 //	patch(0x5D18AC, 0x150, 4);
-//	patch(0x5D14AD, 0x0C, 1);
-//	patch(0x5D1C19, 0x05EB, 2);
-	patch(0x5D18E0, 0x1C, 1);
-	patch(0x5D1C12, 0xB8, 1);
-	patch(0x5D1C13, SAVE_FALLBACK_BLOCK0_VERSION, 4);
+//	Patch<BYTE>(0x5D14AD, 0x0C);
+//	Patch<WORD>(0x5D1C19, 0x05EB);
+	Patch<BYTE>(0x5D18E0, 0x1C);
+	Patch<BYTE>(0x5D1C12, 0xB8);
+	Patch<DWORD>(0x5D1C13, SAVE_FALLBACK_BLOCK0_VERSION);
 	InjectHook(0x6191E9, SaveFallback_FallbackPreBeta3Names, PATCH_JUMP);
 	InjectHook(0x5D188E, SaveFallback_InjectOnLoad, PATCH_JUMP);
 	InjectHook(0x5D149D, SaveFallback_InjectOnSave, PATCH_JUMP);
@@ -3044,9 +3069,9 @@ __forceinline void Main_Patches()
 	Nop(0x5D1EA9, 2);
 
 	// Frame Limiter
-	patch(0x53E923, 0x42EB56, 4);
-	patch(0x748D81, 0x1B0, 2);
-	patch(0x748D98, 0xC030, 2);
+	Patch<DWORD>(0x53E923, 0x42EB56);
+	Patch<WORD>(0x748D81, 0x1B0);
+	Patch<WORD>(0x748D98, 0xC030);
 	InjectHook(0x748D83, MaxosFrameLimitHack, PATCH_JUMP);
 	InjectHook(0x748D9A, MaxosFrameLimitHack, PATCH_JUMP);
 
@@ -3062,7 +3087,7 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x53E1EC, 0xEB);
 
 	// HJ
-//	patch(0x55AC70, sizeof(HJ_Stats_Jumptable) / sizeof(void*) - 1, 1);
+//	Patch<BYTE>(0x55AC70, sizeof(HJ_Stats_Jumptable) / sizeof(void*) - 1);
 //	patch(0x55AC7A, &HJ_Stats_Jumptable, 4);
 
 	// RefFix
@@ -3113,15 +3138,15 @@ __forceinline void Main_Patches()
 	patch(0x4C6396, NUM_PED_MODELS, 4);
 #endif*/
 
-	//patch(0x4C67E3, sizeof(CPedModelInfoVCS), 1);
-	//patch(0x4C639B, sizeof(CPedModelInfoVCS), 1);
-	//patch(0x4C6536, sizeof(CPedModelInfoVCS), 1);
-	//patch(0x4C67AA, sizeof(CPedModelInfoVCS), 1);
+	//Patch<BYTE>(0x4C67E3, sizeof(CPedModelInfoVCS));
+	//Patch<BYTE>(0x4C639B, sizeof(CPedModelInfoVCS));
+	//Patch<BYTE>(0x4C6536, sizeof(CPedModelInfoVCS));
+	//Patch<BYTE>(0x4C67AA, sizeof(CPedModelInfoVCS));
 
-	patch(0x84BCF0, 0xC3, 1);
-	patch(0x8562B0, 0xC3, 1);
+	Patch<BYTE>(0x84BCF0, 0xC3);
+	Patch<BYTE>(0x8562B0, 0xC3);
 
-	patch(0x4C6517, 0x22EB, 2);
+	Patch<WORD>(0x4C6517, 0x22EB);
 	Nop(0x4C6857, 7);
 
 	InjectHook(0x5B74A7, CModelInfo::AddPedModel);
@@ -3142,13 +3167,13 @@ __forceinline void Main_Patches()
 	patch(0x4C6416, &CModelInfo::ms_damageAtomicModelStore.m_Objects, 4);
 	patch(0x4C665D, &CModelInfo::ms_damageAtomicModelStore.m_Objects, 4);
 
-	//patch(0x4C5D1C, NUM_CLUMP_MODELS, 1);
-	//patch(0x4C5866, NUM_CLUMP_MODELS, 1);*/
+	//Patch<BYTE>(0x4C5D1C, NUM_CLUMP_MODELS);
+	//Patch<BYTE>(0x4C5866, NUM_CLUMP_MODELS);*/
 
 	Patch<BYTE>(0x84BC10, 0xC3);
 	Patch<BYTE>(0x856240, 0xC3);
 
-	patch(0x4C64C8, 0x22EB, 2);
+	Patch<WORD>(0x4C64C8, 0x22EB);
 	Nop(0x4C684B, 7);
 
 	//call(0x5B3D8E, &CModelInfo::AddDamageAtomicModel, PATCH_NOTHING);
@@ -3160,10 +3185,10 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x6A80CA, &fRhinoHitStrength);
 
 	// SF weather
-	patch(0x72A640, 0xE9, 1);
-	patch(0x72A641, 0xE3, 4);
-	patch(0x72A731, 0xC3, 1);
-	patch(0x705065, 0xEB, 1);
+	Patch<BYTE>(0x72A640, 0xE9);
+	Patch<DWORD>(0x72A641, 0xE3);
+	Patch<BYTE>(0x72A731, 0xC3);
+	Patch<BYTE>(0x705065, 0xEB);
 
 	// Force metric system
 	InjectHook(0x56D220, UseMetricSystem, PATCH_JUMP);
@@ -3172,53 +3197,53 @@ __forceinline void Main_Patches()
 	InjectMethod(0x579538, CMenuManager::DrawRadioStationIcons, PATCH_NOTHING);
 	/*patch(0x574702, 91, 4);
 	patch(0x57470D, 10, 4);
-	patch(0x57480A, 11, 1);
+	Patch<BYTE>(0x57480A, 11);
 	patch(0x574889, 0x8120C283, 4);*/
 
-	patch(0x57A2BD, 4, 1);
+	Patch<BYTE>(0x57A2BD, 4);
 
 	// 12H Clock menu options
 	InjectHook(0x577086, Clock_SwitchInject, PATCH_JUMP);
 	InjectHook(0x579E6A, Clock_StringInject);
 
 	// Pink menu header
-	patch(0x5795F3, 11, 1);
-	patch(0x57F6C6, 11, 1);
+	Patch<BYTE>(0x5795F3, 11);
+	Patch<BYTE>(0x57F6C6, 11);
 
 	// active menu entry RGB
-	patch(0x579A63, MENU_ACTIVE_B, 4);
-	patch(0x579A68, MENU_ACTIVE_G, 4);
-	patch(0x579A6D, MENU_ACTIVE_R, 4);
+	Patch<DWORD>(0x579A63, MENU_ACTIVE_B);
+	Patch<DWORD>(0x579A68, MENU_ACTIVE_G);
+	Patch<DWORD>(0x579A6D, MENU_ACTIVE_R);
 	/*patch(0x5768D3, MENU_ACTIVE_B, 4);
 	patch(0x5768D8, MENU_ACTIVE_G, 4);
 	patch(0x5768DD, MENU_ACTIVE_R, 4);*/
-	patch(0x57615D, MENU_ACTIVE_B, 4);
-	patch(0x576162, MENU_ACTIVE_G, 4);
-	patch(0x576167, MENU_ACTIVE_R, 4);
+	Patch<DWORD>(0x57615D, MENU_ACTIVE_B);
+	Patch<DWORD>(0x576162, MENU_ACTIVE_G);
+	Patch<DWORD>(0x576167, MENU_ACTIVE_R);
 
 	// inactive menu entry RGB
-	/*patch(0x576913, MENU_INACTIVE_B, 1);
-	patch(0x576915, MENU_INACTIVE_G, 1);
-	patch(0x576917, MENU_INACTIVE_R, 1);*/
-	patch(0x579767, MENU_INACTIVE_B, 1);
-	patch(0x579769, MENU_INACTIVE_G, 1);
-	patch(0x57976B, MENU_INACTIVE_R, 1);
-	/*patch(0x579A88, MENU_INACTIVE_B, 1);
-	patch(0x579A8A, MENU_INACTIVE_G, 1);
-	patch(0x579A8C, MENU_INACTIVE_R, 1);*/
-	patch(0x57FD08, MENU_INACTIVE_B, 1);
-	patch(0x57FD0A, MENU_INACTIVE_G, 1);
-	patch(0x57FD0C, MENU_INACTIVE_R, 1);
-	patch(0x579F2E, MENU_LOCKED_B, 1);
-	patch(0x579F30, MENU_LOCKED_G, 1);
-	patch(0x579F32, MENU_LOCKED_R, 1);
+	/*Patch<BYTE>(0x576913, MENU_INACTIVE_B);
+	Patch<BYTE>(0x576915, MENU_INACTIVE_G);
+	Patch<BYTE>(0x576917, MENU_INACTIVE_R);*/
+	Patch<BYTE>(0x579767, MENU_INACTIVE_B);
+	Patch<BYTE>(0x579769, MENU_INACTIVE_G);
+	Patch<BYTE>(0x57976B, MENU_INACTIVE_R);
+	/*Patch<BYTE>(0x579A88, MENU_INACTIVE_B);
+	Patch<BYTE>(0x579A8A, MENU_INACTIVE_G);
+	Patch<BYTE>(0x579A8C, MENU_INACTIVE_R);*/
+	Patch<BYTE>(0x57FD08, MENU_INACTIVE_B);
+	Patch<BYTE>(0x57FD0A, MENU_INACTIVE_G);
+	Patch<BYTE>(0x57FD0C, MENU_INACTIVE_R);
+	Patch<BYTE>(0x579F2E, MENU_LOCKED_B);
+	Patch<BYTE>(0x579F30, MENU_LOCKED_G);
+	Patch<BYTE>(0x579F32, MENU_LOCKED_R);
 	InjectHook(0x579A87, MenuEntryColourHack, PATCH_JUMP);
 
 
 	// Custom Tracks slider
-	patch(0x57BD50, 0xB4, 1);
-	patch(0x57BD56, 0x82, 1);
-	patch(0x57BD58, 0xED, 1);
+	Patch<BYTE>(0x57BD50, 0xB4);
+	Patch<BYTE>(0x57BD56, 0x82);
+	Patch<BYTE>(0x57BD58, 0xED);
 	patch(0x57BCA0, &CMenuManager::ms_nRubberSlider, 4);
 	patch(0x57BCB0, &CMenuManager::ms_nRubberSlider, 4);
 	patch(0x57BD9A, &CMenuManager::ms_nRubberSlider, 4);
@@ -3232,44 +3257,44 @@ __forceinline void Main_Patches()
 	patch(0x57BE10, MENU_INACTIVE_R, 4);
 
 	// Fixed menu fonts
-	patch(0x579929, FONT_Eurostile, 1);
-	patch(0x5799AD, FONT_Eurostile, 1);
-	//patch(0x5799AD, FONT_PagerFont, 1);
-	patch(0x57A20B, FONT_Eurostile, 1);
-	patch(0x57E280, FONT_Eurostile, 1);
-	patch(0x57FCC3, FONT_Eurostile, 1);
-	patch(0x5760F7, FONT_Eurostile, 1);
-	patch(0x57FA41, FONT_Eurostile/*FONT_RageItalic*/, 1);
+	Patch<BYTE>(0x579929, FONT_Eurostile);
+	Patch<BYTE>(0x5799AD, FONT_Eurostile);
+	//Patch<BYTE>(0x5799AD, FONT_PagerFont);
+	Patch<BYTE>(0x57A20B, FONT_Eurostile);
+	Patch<BYTE>(0x57E280, FONT_Eurostile);
+	Patch<BYTE>(0x57FCC3, FONT_Eurostile);
+	Patch<BYTE>(0x5760F7, FONT_Eurostile);
+	Patch<BYTE>(0x57FA41, FONT_Eurostile/*FONT_RageItalic*/);
 
 	// Smaller outline
-	patch(0x579A24, 1, 1);
-	patch(0x579739, 1, 1);
-	patch(0x575F21, 1, 1);
+	Patch<BYTE>(0x579A24, 1);
+	Patch<BYTE>(0x579739, 1);
+	Patch<BYTE>(0x575F21, 1);
 
-	patch(0x575F7C, 0x402444DB, 4);
-	patch(0x575F81, 0xC1, 1);
-	patch(0x576096, 0, 4);
+	Patch<DWORD>(0x575F7C, 0x402444DB);
+	Patch<BYTE>(0x575F81, 0xC1);
+	Patch<DWORD>(0x576096, 0);
 	InjectHook(0x575F22, 0x719570);
-	patch(0x575F28, ALIGN_Left, 1);
-	patch(0x575F58, &fMapZonePosX, 4);
-	patch(0x575F66, &WidescreenSupport::fMapZonePosX2, 4);
-	patchf(0x575E6E, 1280.0);
+	Patch<BYTE>(0x575F28, ALIGN_Left);
+	Patch<const void*>(0x575F58, &fMapZonePosX);
+	Patch<const void*>(0x575F66, &WidescreenSupport::fMapZonePosX2);
+	Patch<float>(0x575E6E, 1280.0);
 
-	patch(0x5795E9, 2, 1);
+	Patch<BYTE>(0x5795E9, 2);
 	InjectHook(0x5795EA, 0x719570);
 
 	// ONE intro splash (FINALLY)
-	patch(0x748EF8, 0x748AC6, 4);
+	Patch<DWORD>(0x748EF8, 0x748AC6);
 //	call(0x748ABB, &DeleteSecondSplash, PATCH_JUMP);
 //	call(0x748AED, &RestoreSecondSplash, PATCH_NOTHING);
-	patch(0x748AE6, 0x14, 1);
+	Patch<BYTE>(0x748AE6, 0x14);
 
 	// Outro splash
 	InjectMethod(0x57BA5F, CMenuManager::DrawOutroSplash, PATCH_NOTHING);
 
 	// Stats Menu
 	InjectMethod(0x57954A, CMenuManager::PrintStats, PATCH_NOTHING);
-	patch(0x577370, &StatsMenuActionHack, 4);
+	Patch<const void*>(0x577370, &StatsMenuActionHack);
 
 	// Brightness
 	Patch<float>(0x573B8A, 96.0 / 512.0);
@@ -3304,19 +3329,19 @@ __forceinline void Main_Patches()
 
 	// BINK video player
 	InjectHook(0x748AFA, VideoPlayerCreate1, PATCH_JUMP);
-	patch(0x748F04, &VideoPlayerCreate2, 4);
-	patch(0x748F0C, &VideoPlayerRelease, 4);
+	Patch<const void*>(0x748F04, &VideoPlayerCreate2);
+	Patch<const void*>(0x748F0C, &VideoPlayerRelease);
 //	InjectHook(0x748BC9, VideoPlayerCreate2, PATCH_JUMP);
 	InjectHook(0x748BB9, VideoPlayerPlayNextFrame);
 	InjectHook(0x7480D6, VideoPlayerProc, PATCH_JUMP);
 
 	// Disable re-initialization of DirectInput mouse device by the game
-	patch(0x576CCC, 0xEB, 1);
-	patch(0x576EBA, 0xEB, 1);
-	patch(0x576F8A, 0xEB, 1);
+	Patch<BYTE>(0x576CCC, 0xEB);
+	Patch<BYTE>(0x576EBA, 0xEB);
+	Patch<BYTE>(0x576F8A, 0xEB);
 
 	// Make sure DirectInput mouse device is set non-exclusive (may not be needed?)
-	patch(0x7469A0, 0x909000B0, 4);
+	Patch<DWORD>(0x7469A0, 0x909000B0);
 
 	// Commandline arguments
 	Patch<const void*>(0x619C40, &CommandlineEventHack);
@@ -3352,6 +3377,10 @@ __forceinline void Main_Patches()
 	InjectHook(0x4048E0, VehiclePoolGetAt, PATCH_JUMP);
 	InjectHook(0x404910, PedPoolGetAt, PATCH_JUMP);
 
+	// Children & custom pools
+	InjectHook(0x5BF85B, CPools::Initialise);
+	InjectHook(0x53CA5C, CPools::ShutDown);
+
 	// Empire Buildings
 	Patch<void*>(0x495F38, func_069C);
 	Patch<void*>(0x495F3C, func_069C);
@@ -3371,16 +3400,16 @@ __forceinline void Main_Patches()
 	InjectHook(0x53C215, CEmpireManager::Process);
 
 	// Menu background
-	patch(0x57B764, 0x36EBC030, 4);
+	Patch<DWORD>(0x57B764, 0x36EBC030);
 	InjectHook(0x57B7A1, 0x57B9F4, PATCH_JUMP);
-	patch(0x57B9F4, 0xCE8B, 2);
+	Patch<WORD>(0x57B9F4, 0xCE8B);
 	InjectMethod(0x57B9F6, CMenuManager::DrawBackEnd, PATCH_CALL);
-	patch(0x57B9FB, 0x05EB, 2);
+	Patch<WORD>(0x57B9FB, 0x05EB);
 
 	// More centered stuff in menu, sliders
 	InjectHook(0x57A218, MenuEntriesAlignHack, PATCH_JUMP);
 	InjectHook(0x57A3B1, MenuEntriesPositionHack_Inject, PATCH_JUMP);
-	//patch(0x57A219, ALIGN_Left, 1);
+	//Patch<BYTE>(0x57A219, ALIGN_Left);
 	//patch(0x57A3DF, &fMenuTextsPosX, 4);
 	//patch(0x57A3ED, &fMenuTextsPosX2, 4);
 
@@ -3406,37 +3435,37 @@ __forceinline void Main_Patches()
 	Patch<float>(0x57AC59, MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57AE5A, MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57B088, MENU_SLIDER_HEIGHT);
-	patch(0x57A88F, &WidescreenSupport::fMenuSliderPosX, 4);
-	patch(0x57AA83, &WidescreenSupport::fMenuSliderPosX, 4);
-	patch(0x57ACC0, &WidescreenSupport::fMenuSliderPosX, 4);
-	patch(0x57AEB2, &WidescreenSupport::fMenuSliderPosX, 4);
-	patch(0x57B0E6, &WidescreenSupport::fMenuSliderPosX, 4);
-	patch(0x57A86A, &WidescreenSupport::fMenuSliderPosY4, 4);
-	patch(0x57AC9B, &WidescreenSupport::fMenuSliderPosY2, 4);
-	patch(0x57AE90, &WidescreenSupport::fMenuSliderPosY4, 4);
-	patch(0x57B0C1, &WidescreenSupport::fMenuSliderPosY2, 4);
-	patch(0x57AA5E, &WidescreenSupport::fMenuSliderPosY3, 4);
-	patch(0x57A7EC, &fMenuSliderWidth, 4);
-	patch(0x57A9E6, &fMenuSliderWidth, 4);
-	patch(0x57AC14, &fMenuSliderWidth, 4);
-	patch(0x57AE1E, &fMenuSliderWidth, 4);
-	patch(0x57B04C, &fMenuSliderWidth, 4);
-	patch(0x57A809, &WidescreenSupport::fMenuSliderWidth, 4);
-	patch(0x57AA00, &WidescreenSupport::fMenuSliderWidth, 4);
-	patch(0x57AC31, &WidescreenSupport::fMenuSliderWidth, 4);
-	patch(0x57AE38, &WidescreenSupport::fMenuSliderWidth, 4);
-	patch(0x57B066, &WidescreenSupport::fMenuSliderWidth, 4);
-	patch(0x57A84F, &WidescreenSupport::fMenuSliderHeight2, 4);
-	patch(0x57AA43, &WidescreenSupport::fMenuSliderHeight2, 4);
-	patch(0x57AC7D, &WidescreenSupport::fMenuSliderHeight2, 4);
-	patch(0x57AE78, &WidescreenSupport::fMenuSliderHeight2, 4);
-	patch(0x57B0A9, &WidescreenSupport::fMenuSliderHeight2, 4);
-	patch(0x57A813, &WidescreenSupport::f100, 4);
-	patch(0x57AA0A, &WidescreenSupport::f100, 4);
-	patch(0x57AC3B, &WidescreenSupport::f100, 4);
-	patch(0x57AE42, &WidescreenSupport::f100, 4);
-	patch(0x57B070, &WidescreenSupport::f100, 4);
-//	patch(0x57A878, 0xEB, 1);
+	Patch<const void*>(0x57A88F, &WidescreenSupport::fMenuSliderPosX);
+	Patch<const void*>(0x57AA83, &WidescreenSupport::fMenuSliderPosX);
+	Patch<const void*>(0x57ACC0, &WidescreenSupport::fMenuSliderPosX);
+	Patch<const void*>(0x57AEB2, &WidescreenSupport::fMenuSliderPosX);
+	Patch<const void*>(0x57B0E6, &WidescreenSupport::fMenuSliderPosX);
+	Patch<const void*>(0x57A86A, &WidescreenSupport::fMenuSliderPosY4);
+	Patch<const void*>(0x57AC9B, &WidescreenSupport::fMenuSliderPosY2);
+	Patch<const void*>(0x57AE90, &WidescreenSupport::fMenuSliderPosY4);
+	Patch<const void*>(0x57B0C1, &WidescreenSupport::fMenuSliderPosY2);
+	Patch<const void*>(0x57AA5E, &WidescreenSupport::fMenuSliderPosY3);
+	Patch<const void*>(0x57A7EC, &fMenuSliderWidth);
+	Patch<const void*>(0x57A9E6, &fMenuSliderWidth);
+	Patch<const void*>(0x57AC14, &fMenuSliderWidth);
+	Patch<const void*>(0x57AE1E, &fMenuSliderWidth);
+	Patch<const void*>(0x57B04C, &fMenuSliderWidth);
+	Patch<const void*>(0x57A809, &WidescreenSupport::fMenuSliderWidth);
+	Patch<const void*>(0x57AA00, &WidescreenSupport::fMenuSliderWidth);
+	Patch<const void*>(0x57AC31, &WidescreenSupport::fMenuSliderWidth);
+	Patch<const void*>(0x57AE38, &WidescreenSupport::fMenuSliderWidth);
+	Patch<const void*>(0x57B066, &WidescreenSupport::fMenuSliderWidth);
+	Patch<const void*>(0x57A84F, &WidescreenSupport::fMenuSliderHeight2);
+	Patch<const void*>(0x57AA43, &WidescreenSupport::fMenuSliderHeight2);
+	Patch<const void*>(0x57AC7D, &WidescreenSupport::fMenuSliderHeight2);
+	Patch<const void*>(0x57AE78, &WidescreenSupport::fMenuSliderHeight2);
+	Patch<const void*>(0x57B0A9, &WidescreenSupport::fMenuSliderHeight2);
+	Patch<const void*>(0x57A813, &WidescreenSupport::f100);
+	Patch<const void*>(0x57AA0A, &WidescreenSupport::f100);
+	Patch<const void*>(0x57AC3B, &WidescreenSupport::f100);
+	Patch<const void*>(0x57AE42, &WidescreenSupport::f100);
+	Patch<const void*>(0x57B070, &WidescreenSupport::f100);
+//	Patch<BYTE>(0x57A878, 0xEB);
 
 	// Proper widescreen support
 	patch(0x579667, &WidescreenSupport::f40, 4);
@@ -3515,7 +3544,7 @@ __forceinline void Main_Patches()
 	InjectHook(0x579DE9, Widescreen_StringInject);
 //	InjectHook(0x58C0BB, Widescreen_TextDrawsFix, PATCH_CALL);
 	InjectHook(0x58C1EC, Widescreen_TextDrawsFix2, PATCH_JUMP);
-	patch(0x58BB8D, 0x05EB, 2);
+	Patch<WORD>(0x58BB8D, 0x05EB);
 	Nop(0x50AD79, 6);
 	Nop(0x58C3CD, 1);
 //	Nop(0x714846, 1);
@@ -3524,45 +3553,45 @@ __forceinline void Main_Patches()
 //	Nop(0x58C0C0, 1);
 
 	// 64 radar tiles
-	dwFunc = *(DWORD*)0x584C98;
-	patch(0x584C98, dwFunc - 0x10, 4);
-	patch(0x584C9F, 7, 4);
-	patch(0x584CAB, 56, 4);
-	patch(0x584CDF, dwFunc - 0x10, 4);
-	patch(0x584CEB, 56, 4);
-	patch(0x584D0D, 8, 1);
-	patch(0x584D11, 32, 1);
-	patch(0x584D14, 64, 4);
-	patch(0x584D24, dwFunc - 0x0C, 4);
-	patch(0x5858DA, &fRadarTileDimensions, 4);
-	patch(0x5858F9, &fRadarTileDimensions, 4);
-	patch(0x586894, &fRadarTileDimensions, 4);
-	patch(0x5868A3, &fRadarTileDimensions, 4);
-	patch(0x586362, &fRadarTileDimensions, 4);
-	patch(0x586370, &fRadarTileDimensions, 4);
-	patch(0x585907, &fRadarTileDimensions2, 4);
-	patch(0x5868CC, &fRadarTileDimensions2, 4);
-	patch(0x588037, 64, 4);
-	patch(0x586142, 7, 1);
-	patch(0x586157, 7, 1);
-	patch(0x586174, 0x2D, 1);
-	patch(0x586344, 8, 4);
-	patch(0x584B60, 7, 1);
-	patch(0x584B64, 7, 1);
-	patch(0x584B74, 7, 1);
-	patch(0x584BBA, 7, 1);
-	patch(0x584BC7, 7, 1);
-	patch(0x58652F, 7, 1);
-	patch(0x586542, 7, 1);
-	patch(0x584BCC, 0x00, 1);
-	patch(0x586553, 0x00, 1);
-	patch(0x584B7D, 0x09, 1);
-	patch(0x584D9A, -4, 1);
-	patch(0x584DA2, 3, 4);
-	patch(0x586433, 0x8D * HUD_TRANSPARENCY / 0xFF, 4);
-	patch(0x586438, 0xE0, 4);
-	patch(0x58643D, 0xAE, 4);
-	patch(0x586442, 0x7F, 1);
+	DWORD dwOldSlots = *(DWORD*)0x584C98;
+	Patch<DWORD>(0x584C98, dwOldSlots - 0x10);
+	Patch<DWORD>(0x584C9F, 7);
+	Patch<DWORD>(0x584CAB, 56);
+	Patch<DWORD>(0x584CDF, dwOldSlots - 0x10);
+	Patch<DWORD>(0x584CEB, 56);
+	Patch<BYTE>(0x584D0D, 8);
+	Patch<BYTE>(0x584D11, 32);
+	Patch<DWORD>(0x584D14, 64);
+	Patch<DWORD>(0x584D24, dwOldSlots - 0x0C);
+	Patch<const void*>(0x5858DA, &fRadarTileDimensions);
+	Patch<const void*>(0x5858F9, &fRadarTileDimensions);
+	Patch<const void*>(0x586894, &fRadarTileDimensions);
+	Patch<const void*>(0x5868A3, &fRadarTileDimensions);
+	Patch<const void*>(0x586362, &fRadarTileDimensions);
+	Patch<const void*>(0x586370, &fRadarTileDimensions);
+	Patch<const void*>(0x585907, &fRadarTileDimensions2);
+	Patch<const void*>(0x5868CC, &fRadarTileDimensions2);
+	Patch<DWORD>(0x588037, 64);
+	Patch<BYTE>(0x586142, 7);
+	Patch<BYTE>(0x586157, 7);
+	Patch<BYTE>(0x586174, 0x2D);
+	Patch<DWORD>(0x586344, 8);
+	Patch<BYTE>(0x584B60, 7);
+	Patch<BYTE>(0x584B64, 7);
+	Patch<BYTE>(0x584B74, 7);
+	Patch<BYTE>(0x584BBA, 7);
+	Patch<BYTE>(0x584BC7, 7);
+	Patch<BYTE>(0x58652F, 7);
+	Patch<BYTE>(0x586542, 7);
+	Patch<BYTE>(0x584BCC, 0x00);
+	Patch<BYTE>(0x586553, 0x00);
+	Patch<BYTE>(0x584B7D, 0x09);
+	Patch<signed char>(0x584D9A, -4);
+	Patch<DWORD>(0x584DA2, 3);
+	Patch<DWORD>(0x586433, 0x8D * HUD_TRANSPARENCY / 0xFF);
+	Patch<DWORD>(0x586438, 0xE0);
+	Patch<DWORD>(0x58643D, 0xAE);
+	Patch<BYTE>(0x586442, 0x7F);
 	Patch<DWORD>(0x58647C, HUD_TRANSPARENCY);
 	Patch<DWORD>(0x5864BD, HUD_TRANSPARENCY);
 	Patch<DWORD>(0x58A789, HUD_TRANSPARENCY);
@@ -3577,25 +3606,34 @@ __forceinline void Main_Patches()
 	// Temp? Map screen
 	Patch<float>(0x578825, 2000.0);
 	Patch<float>(0x57883D, -2000.0);
-	patch(0x57882B, &fRadarTileDimensions, 4);
-	patch(0x578856, &fRadarTileDimensions, 4);
-	patch(0x578843, &fMinusRadarTileDimensions, 4);
-	patch(0x578869, &fMinusRadarTileDimensions, 4);
+	Patch<const void*>(0x57882B, &fRadarTileDimensions);
+	Patch<const void*>(0x578856, &fRadarTileDimensions);
+	Patch<const void*>(0x578843, &fMinusRadarTileDimensions);
+	Patch<const void*>(0x578869, &fMinusRadarTileDimensions);
 	InjectHook(0x5754C0, TempRadarFixFunc, PATCH_JUMP);
 	InjectHook(0x5756E0, TempRadarFixFunc2);
-	patch(0x5754B9, 0x02B3, 2);
+	Patch<WORD>(0x5754B9, 0x02B3);
 
 	// Infinite sea at 8.0
 	Patch<float>(0x6E873F, 8.0);
 
 	// Unhidden map
 	patch(0x572130, 0xC301B0, 4);
-	patch(0x5759F4, 0xE990, 2);
+	Patch<WORD>(0x5759F4, 0xE990);
 
 	// Stats.html
-	Patch<const char*>(0x57DE43, "<title>Grand Theft Auto Vice City Stories Stats</title><meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\" />\n");
-	Patch<const char*>(0x57DE59, "<table width=\"580\" align=\"center\" border=\"0\" cellpadding=\"5\" cellspacing=\"0\">\n");
-	Patch<const char*>(0x57DE90, "<strong><font color=\"#FFFFFF\">GRAND THEFT AUTO VICE CITY STORIES ");
+	Patch<DWORD>(0x573E6C, 0x015D818A);
+	Patch<DWORD>(0x573E70, 0xC0840000);
+	Patch<WORD>(0x573E74, 0x6374);
+	InjectHook(0x57B4A1, 0x573E6C);
+	InjectHook(0x57B544, 0x573E6C);
+	InjectHook(0x580078, 0x573E6C);
+	//Patch<const char*>(0x57DE43, "<title>Grand Theft Auto Vice City Stories Stats</title><meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\" />\n");
+	//Patch<const char*>(0x57DE59, "<table width=\"580\" align=\"center\" border=\"0\" cellpadding=\"5\" cellspacing=\"0\">\n");
+	//Patch<const char*>(0x57DE90, "<strong><font color=\"#FFFFFF\">GRAND THEFT AUTO VICE CITY STORIES ");
+	
+	// TEMPORARY CUT
+	Nop(0x5773EB, 6);
 	/*charptr(0x57DEBC, L"%s</font></strong><br><font\n");
 	charptr(0x57E05E, L"%s");
 	charptr(0x57DF03, L"<td height=\"40\" colspan=\"2\"> <p><font color=\"#F0000C\" size=\"2\" face=\"Arial, Helvetica, sans-serif\"><strong><font color=\"#F0000C\" size=\"1\">%s: \n");
@@ -3616,6 +3654,9 @@ __forceinline void Main_Patches()
 	call(0x57DDE0, dwFunc, PATCH_JUMP);*/
 
 	Patch<DWORD>(0x5759C5, offsetof(CMenuManager, textures[15]));
+
+	InjectMethod(0x58008D, CMenuManager::AdditionalOptionInputVCS, PATCH_NOTHING);
+	InjectMethod(0x57B457, CMenuManager::UserInputVCS, PATCH_NOTHING);
 
 	// No arrow.txd
 	Patch<DWORD>(0x57A511, 0xDBE9);
@@ -3673,20 +3714,20 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x58FC2C, 0xEB);
 
 	// FPS meter & gridref stuff
-	patch(0x58FD0E, 0xE8, 1);
+	Patch<BYTE>(0x58FD0E, 0xE8);
 	InjectHook(0x58FD13, CHud::DrawPermanentTexts, PATCH_JUMP);
 //	call(0x58FD18, &CHud::DrawDevLogos, PATCH_JUMP);
 	//call(0x58FD18, &CGridref::Draw, PATCH_JUMP);
 
 	// Bar
-	patch(0x590376, 11, 1);
-	patch(0x590389, 11, 1);
-	patch(0x5903A1, 11, 1);
-	patch(0x5903CA, &LoadingBarPosX, 4);
-	patch(0x5903E8, &LoadingBarPosY, 4);
-	patch(0x5903F6, &LoadingBarWidth, 4);
-	patch(0x590405, &LoadingBarHeight, 4);
-	patch(0x590478, 2, 1);
+	Patch<BYTE>(0x590376, 11);
+	Patch<BYTE>(0x590389, 11);
+	Patch<BYTE>(0x5903A1, 11);
+	Patch<const void*>(0x5903CA, &LoadingBarPosX);
+	Patch<const void*>(0x5903E8, &LoadingBarPosY);
+	Patch<const void*>(0x5903F6, &LoadingBarWidth);
+	Patch<const void*>(0x590405, &LoadingBarHeight);
+	Patch<BYTE>(0x590478, 2);
 	//patch(0x590D2B, 93, 4);
 	//patch(0x590D68, 93, 4);
 	InjectHook(0x590480, CHud::DrawSquareBar);
@@ -3743,10 +3784,13 @@ __forceinline void Main_Patches()
 	InjectHook(0x5DE39E, PedDataConstructorInject_Civilian, PATCH_JUMP);
 	InjectHook(0x5DDD7F, PedDataConstructorInject_Cop, PATCH_JUMP);
 
-	// Fixed vehicle editable materials (by DK)
-	Patch<const void*>(0x4C8415, CVehicleModelInfo::SetEditableMaterialsCB);
+	// Fixed vehicle editable materials (by _DK)
+	Patch<const void*>(0x4C8415, static_cast<RpMaterial*(*)(RpMaterial*, void*)>(CVehicleModelInfo::SetEditableMaterialsCB));
 	//InjectHook(0x4C8309, LightsOnFix, PATCH_JUMP);
 	//Nop(0x4C8308, 1);
+
+	// Flying components have proper colour
+	InjectMethod(0x59F180, CObject::Render, PATCH_JUMP);
 
 	// Proper cop models
 	Patch<const void*>(0x40E5CE, &CStreaming::ms_bCopBikeAllowed);
@@ -3759,58 +3803,58 @@ __forceinline void Main_Patches()
 	patch(0x440603, &dwFakeIntID, 4);
 	patch(0x44069A, &dwFakeIntID, 4);
 	patch(0x4406D3, &dwFakeIntID, 4);*/
-//	patch(0x4406DF, 0xAE, 1);
-//	patch(0x, 0xD230, 2);
-//	patch(0x748E69, 0xEB, 1);
+//	Patch<BYTE>(0x4406DF, 0xAE);
+//	Patch<WORD>(0x, 0xD230);
+//	Patch<BYTE>(0x748E69, 0xEB);
 	//call(0x748E6B, &TempExitFix, PATCH_NOTHING); // Temporary fix
 	InjectHook(0x4083C0, CdStreamClearNames, PATCH_JUMP);
-	patch(0x53BB60, NUM_IMG_FILES, 1);
-	patch(0x406B75, NUM_STREAMS, 4);
-	patch(0x406815, NUM_STREAMS, 1);
+	Patch<BYTE>(0x53BB60, NUM_IMG_FILES);
+	Patch<DWORD>(0x406B75, NUM_STREAMS);
+	Patch<BYTE>(0x406815, NUM_STREAMS);
 	Patch<DWORD>(0x5B8E55, 21000);
 	Patch<DWORD>(0x5B8EB0, 21000);
-	patch(0x5B8E6A, 0x8000000, 4);
-	patch(0x408408, 0x90C35E5F, 4);
-	patch(0x5B619C, 8, 1);
+	Patch<DWORD>(0x5B8E6A, 0x8000000);
+	Patch<DWORD>(0x408408, 0x90C35E5F);
+	Patch<BYTE>(0x5B619C, 8);
 	InjectHook(0x5B61B0, IMGEncryptionFindOut, PATCH_JUMP);
 	InjectHook(0x5B8E1B, static_cast<void(*)()>(CStreaming::LoadCdDirectory));
 	InjectHook(0x5B61E6, IMGEncryptionDo, PATCH_JUMP);
-	patch(0x407614, &CStreaming::ms_cdImages, 4);
+	Patch<const void*>(0x407614, &CStreaming::ms_cdImages);
 //	patch(0x5B82FD, &CStreaming::ms_cdImages, 4);
-	patch(0x407622, &CStreaming::ms_cdImages[NUM_IMG_FILES+1], 4);
+	Patch<const void*>(0x407622, &CStreaming::ms_cdImages[NUM_IMG_FILES+1]);
 //	patch(0x5B8303, &CStreaming::ms_cdImages[NUM_IMG_FILES+1], 4);
-	patch(0x40763A, &CStreaming::ms_cdImages->cName, 4);
+	Patch<const void*>(0x40763A, &CStreaming::ms_cdImages->cName);
 //	patch(0x5B82F1, &CStreaming::ms_cdImages->cName, 4);
-	patch(0x407656, &CStreaming::ms_cdImages->hHandle, 4);
-	patch(0x4075B8, &CStreaming::ms_cdImages->hHandle, 4);
-	patch(0x408FDC, &CStreaming::ms_cdImages->hHandle, 4);
-	patch(0x409D5A, &CStreaming::ms_cdImages->hHandle, 4);
-	patch(0x40A0B7, &CStreaming::ms_cdImages->hHandle, 4);
-	patch(0x40CC54, &CStreaming::ms_cdImages->hHandle, 4);
-	patch(0x40CCC7, &CStreaming::ms_cdImages->hHandle, 4);
-	patch(0x407663, &CStreaming::ms_cdImages->bNotPlayerIMG, 4);
-	patch(0x4066D6, gStreamFiles, 4);
-	patch(0x4066ED, gStreamFiles, 4);
-	patch(0x4067B7, gStreamFiles, 4);
-	patch(0x40686A, gStreamFiles, 4);
-	patch(0x406A48, gStreamFiles, 4);
-	patch(0x406B7C, gStreamFiles, 4);
-	patch(0x4067C6, &gStreamFiles[1], 4);
-	patch(0x4067D1, &gStreamFiles[2], 4);
-	patch(0x4067DC, &gStreamFiles[3], 4);
-	patch(0x4067E7, &gStreamFiles[4], 4);
-	patch(0x4067F2, &gStreamFiles[5], 4);
-	patch(0x4067FD, &gStreamFiles[6], 4);
-	patch(0x406808, &gStreamFiles[7], 4);
-	patch(0x4066C7, gStreamNames, 4);
-	patch(0x406882, gStreamNames, 4);
-	patch(0x406B81, gStreamNames, 4);
-	patch(0x406B98, &gStreamNames[NUM_STREAMS+1], 4);
+	Patch<const void*>(0x407656, &CStreaming::ms_cdImages->hHandle);
+	Patch<const void*>(0x4075B8, &CStreaming::ms_cdImages->hHandle);
+	Patch<const void*>(0x408FDC, &CStreaming::ms_cdImages->hHandle);
+	Patch<const void*>(0x409D5A, &CStreaming::ms_cdImages->hHandle);
+	Patch<const void*>(0x40A0B7, &CStreaming::ms_cdImages->hHandle);
+	Patch<const void*>(0x40CC54, &CStreaming::ms_cdImages->hHandle);
+	Patch<const void*>(0x40CCC7, &CStreaming::ms_cdImages->hHandle);
+	Patch<const void*>(0x407663, &CStreaming::ms_cdImages->bNotPlayerIMG);
+	Patch<const void*>(0x4066D6, gStreamFiles);
+	Patch<const void*>(0x4066ED, gStreamFiles);
+	Patch<const void*>(0x4067B7, gStreamFiles);
+	Patch<const void*>(0x40686A, gStreamFiles);
+	Patch<const void*>(0x406A48, gStreamFiles);
+	Patch<const void*>(0x406B7C, gStreamFiles);
+	Patch<const void*>(0x4067C6, &gStreamFiles[1]);
+	Patch<const void*>(0x4067D1, &gStreamFiles[2]);
+	Patch<const void*>(0x4067DC, &gStreamFiles[3]);
+	Patch<const void*>(0x4067E7, &gStreamFiles[4]);
+	Patch<const void*>(0x4067F2, &gStreamFiles[5]);
+	Patch<const void*>(0x4067FD, &gStreamFiles[6]);
+	Patch<const void*>(0x406808, &gStreamFiles[7]);
+	Patch<const void*>(0x4066C7, gStreamNames);
+	Patch<const void*>(0x406882, gStreamNames);
+	Patch<const void*>(0x406B81, gStreamNames);
+	Patch<const void*>(0x406B98, &gStreamNames[NUM_STREAMS+1]);
 	Patch<const char*>(0x406C2B, "ANIM\\ANIM.IMG");
 //	Nop(0x43E65D, 2);
 //	Nop(0x43E669, 2);
 #ifdef INCLUDE_STREAMING_TEXT
-	call(0x40E120, &CStreaming::MakeSpaceFor, PATCH_JUMP);
+	InjectHook(0x40E120, CStreaming::MakeSpaceFor, PATCH_JUMP);
 #endif
 
 	/*To change when increasing streaming upper limit:
@@ -3936,17 +3980,17 @@ __forceinline void Main_Patches()
 	InjectMethod(0x57FE6B, CMenuManager::GetTextYPos, PATCH_NOTHING);
 	InjectMethod(0x57FEAB, CMenuManager::GetTextYPosNextItem, PATCH_NOTHING);
 	// TODO: Needs memcpy and proper multibyte NOPs
-	patch(0x57FE53, 0x388C8D90, 4);
-	patch(0x57FE92, 0x3A8C8D90, 4);
-	patch(0x57FE62, 0x0C89, 2);
-	patch(0x57FE64, 0x24, 1);
+	Patch<DWORD>(0x57FE53, 0x388C8D90);
+	Patch<DWORD>(0x57FE92, 0x3A8C8D90);
+	Patch<WORD>(0x57FE62, 0x0C89);
+	Patch<BYTE>(0x57FE64, 0x24);
 	Nop(0x57FE5B, 4);
 	Nop(0x57FE65, 6);
 	Nop(0x57FE9A, 7);
 	Nop(0x57FEA2, 9);
 
 	// No "To stop Carl..." message
-	patch(0x63E8DF, 0xEB, 1);
+	Patch<BYTE>(0x63E8DF, 0xEB);
 
 	// Good Citizen Bonus
 	InjectHook(0x68EBDD, GoodCitizenBonusFlag, PATCH_JUMP);
@@ -3956,7 +4000,7 @@ __forceinline void Main_Patches()
 	//InjectHook(0x704E8A, [](float fShake){ CamShakeNoPos(&TheCamera, fShake * 0.025f); });
 
 	// No Heat Haze
-	patch(0x72C1B7, 0xEB, 1);
+	Patch<BYTE>(0x72C1B7, 0xEB);
 
 	// arrow.dff as marker
 	Patch<const float*>(0x725636, C3DMarkers::GetPosZMult());
@@ -4053,7 +4097,7 @@ __forceinline void Main_Patches()
 	blurStages[0].objectsLooped = 2;*/
 
 	// No csplay loading
-//	patch(0x4D5E93, 0, 1);
+//	Patch<BYTE>(0x4D5E93, 0);
 
 	// Radar blip names
 	InjectHook(0x5BA2CA, CRadar::LoadTextures);
@@ -4554,7 +4598,7 @@ void LoadGameFailedMessage(unsigned char bMessageIndex)
 	{
 		MessageLoop();
 		CPad::UpdatePads();
-		FrontEndMenuManager.ShowFullscreenMessage(pMessage, true, false);
+		FrontEndMenuManager.MessageScreen(pMessage, true, false);
 
 		if ( ( currKeyState->enter && !prevKeyState->enter ) || ( currKeyState->extenter && !prevKeyState->extenter )
 			|| CPad::GetPad(0)->CrossJustDown() )
@@ -4703,6 +4747,18 @@ BOOL IsAlreadyRunning()
 
 	InjectDelayedPatches();
 	return FALSE;
+}
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch ( uMsg )
+	{
+	case WM_CHAR:
+		FrontEndMenuManager.TypingKeyboardInput(wParam);
+		return 0;
+	default:
+		return ((LRESULT(CALLBACK*)(HWND,UINT,WPARAM,LPARAM))0x747EB0)(hwnd, uMsg, wParam, lParam);
+	}
 }
 
 void SaveLanguageHack(FILE* stream, const char* ptr, size_t len)
@@ -5729,7 +5785,7 @@ void __declspec(naked) PedDataConstructorInject_Civilian()
 		mov		edx, [esp+8]
 		push	edx
 		push	eax
-		call	CPedData::Constructor
+		call	CPedData::Initialise
 		add		esp, 8
 		retn	8
 	}
@@ -5741,7 +5797,7 @@ void __declspec(naked) PedDataConstructorInject_Cop()
 	{
 		push	0FFFFh
 		push	eax
-		call	CPedData::Constructor
+		call	CPedData::Initialise
 		add		esp, 18h
 		retn	4
 	}
@@ -6942,6 +6998,14 @@ UpdaterMenuDrawHack_GoAhead:
 		jmp		ecx
 
 UpdaterMenuDrawHack_GoAhead2:
+		cmp		eax, 49
+		jnz		UpdaterMenuDrawHack_GoAhead3
+		mov		ecx, ebp
+		call	CMenuManager::PrintActivationScreen
+		mov		ecx, 57954Fh
+		jmp		ecx
+
+UpdaterMenuDrawHack_GoAhead3:
 		sub     eax, 2
 		jz		UpdaterMenuDrawHack_DrawBrief
 		mov		ecx, 57952Bh
@@ -6981,6 +7045,21 @@ UpdaterTextSwap_NotUpdaterText:
 		retn
 
 UpdaterTextSwap_NotDLCText:
+		cmp		cl, ACTION_SERIAL
+		jnz		UpdaterTextSwap_NotSerial
+		mov		cl, CMenuManager::m_bSerialFull
+		test	cl, cl
+		jnz		UpdaterTextSwap_DontColour
+		push	0FF000000h + (MENU_LOCKED_B<<16) + (MENU_LOCKED_G<<8) + MENU_LOCKED_R
+		call	CFont::SetColor
+		add		esp, 4
+
+UpdaterTextSwap_DontColour:
+		mov		ecx, [TheText]
+		push	579D72h
+		retn
+
+UpdaterTextSwap_NotSerial:
 		cmp		cl, ACTION_JOYMOUSE
 		mov		ecx, [TheText]
 		push	579D58h
@@ -7098,6 +7177,21 @@ void __declspec(naked) DLCMenuAction()
 	{
 		push	[esi]CMenuManager.currentMenuEntry
 		call	CDLCManager::HandleButtonClick
+		add		esp, 4
+		pop     edi
+		pop		esi
+		mov		al, bl
+		pop		ebx
+		retn	8
+	}
+}
+
+void __declspec(naked) ActivateSerialAction()
+{
+	_asm
+	{
+		push	offset CMenuManager::m_strSerialCode
+		call	CDLCManager::ActivateSerial
 		add		esp, 4
 		pop     edi
 		pop		esi

@@ -70,6 +70,7 @@ public:
 	{}
 
 	inline CPNGArchive(const char* pFilePath)
+		: m_bSetDir(false)
 		{ OpenArchive(pFilePath); }
 
 	inline ~CPNGArchive()

@@ -326,6 +326,7 @@ popd</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Clock.cpp" />
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="ColAccel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</ExcludedFromBuild>
@@ -433,6 +434,7 @@ popd</Command>
     <ClInclude Include="Maths.h" />
     <ClInclude Include="MemoryMgr.h" />
     <ClInclude Include="ModelInfo.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="Pad.h" />
     <ClInclude Include="Ped.h" />
     <ClInclude Include="PlayerInfo.h" />

@@ -15,7 +15,7 @@ void CGarages::PrintMessages()
 		CFont::SetScale(_width(0.6f), _height(1.1f));
 		CFont::SetProportional(true);
 		CFont::SetBackground(0, 0);
-		CFont::SetCentreSize(_width(500.0f));
+		CFont::SetCentreSize(_width(RsGlobal.MaximumWidth - 140.0f/*500.0f*/));
 		CFont::SetOrientation(ALIGN_Center);
 		CFont::SetFontStyle(FONT_Eurostile);
 		CFont::SetColor(CRGBA(BaseColors[3]));
@@ -26,17 +26,17 @@ void CGarages::PrintMessages()
 		if ( garages->MessageNumber2 < 0 )
 		{
 			if ( garages->MessageNumber1 < 0 )
-				CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _y(275.0f), TheText.Get(garages->MessageIDString));
+				CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _ymiddle(50.0f), TheText.Get(garages->MessageIDString));
 			else
 			{
 				CMessages::InsertNumberInString(TheText.Get(garages->MessageIDString), garages->MessageNumber1, -1, -1, -1, -1, -1, tmpString);
-				CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _y(275.0f), tmpString);
+				CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _ymiddle(50.0f), tmpString);
 			}
 		}
 		else
 		{
 			CMessages::InsertNumberInString(TheText.Get(garages->MessageIDString), garages->MessageNumber1, garages->MessageNumber2, -1, -1, -1, -1, tmpString);
-			CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _y(275.0f), tmpString);
+			CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _ymiddle(50.0f), tmpString);
 		}
 	}
 }

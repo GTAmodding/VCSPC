@@ -123,6 +123,7 @@ public:
 
 public:
 	inline bool			CrossJustDown() { return NewState.CROSS && !OldState.CROSS; }
+	inline bool			RightShockJustDown() { return NewState.RIGHTSHOCK && !OldState.RIGHTSHOCK; }
 
 	CControllerState	ReconcileTwoControllersInput(const CControllerState& rDevice1, const CControllerState& rDevice2);
 

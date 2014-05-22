@@ -1,20 +1,29 @@
 #include "StdAfx.h"
+#include "UptModule.h"
+
+#include "UpdaterWrappers.h"
+#include "CCRC32.H"
+#include "..\common\DLCShared.h"
 
 CUpdater*			gUpdaterHandle;
 static HANDLE		hCRCEvent, hMainEvent, hTerminatingEvent;
 
 // Teh factory
 // UpdaterLoader API calls it now
-extern "C" IUpdaterClient* CreateUpdaterInstance(const char* pName)
+extern "C" void* CreateUpdaterInstance(const char* pName)
 {
 	// DO make sure these names match macroes inside Updater.h!
-	if ( !strncmp(pName, "UPTMODULE_INTERFACE_CLIENT001", 30) )
+	if ( !strncmp(pName, UPDATER_INTERFACE_CLIENT001, sizeof(DLC_INTERFACE_CLIENT001)) )
 	{
-		CUpdaterClient001*		pClient = new CUpdaterClient001;
-		return (IUpdaterClient*)pClient;
+		return new CUpdaterClient001;
 	}
 
-	// Something has gone wrong..
+	if ( !strncmp(pName, DLC_INTERFACE_CLIENT001, sizeof(DLC_INTERFACE_CLIENT001)) )
+	{
+		return new CDLCClient001;
+	}
+
+	// Something has gone wrong...
 	return nullptr;
 }
 
@@ -182,10 +191,10 @@ void CUpdater::EchoMessage(const wchar_t* pMessage)
 
 void CUpdater::ConnectToFTP()
 {
-	if ( !pCurlHandle )
+	if ( !pCurlUpdaterHandle )
 	{
-		pCurlHandle = curl_easy_init();
-		curl_easy_setopt(pCurlHandle, CURLOPT_WRITEFUNCTION, WriteData);
+		pCurlUpdaterHandle = curl_easy_init();
+		curl_easy_setopt(pCurlUpdaterHandle, CURLOPT_WRITEFUNCTION, WriteData);
 	}
 	if ( !pCurlMulti )
 		pCurlMulti = curl_multi_init();
@@ -193,19 +202,26 @@ void CUpdater::ConnectToFTP()
 
 void CUpdater::DisconnectFromFTP()
 {
-	if ( pCurlHandle )
+	if ( pCurlUpdaterHandle )
 	{
 		if ( pCurlMulti )
-			curl_multi_remove_handle(pCurlMulti, pCurlHandle);
-		curl_easy_cleanup(pCurlHandle);
-		pCurlHandle = nullptr;
+			curl_multi_remove_handle(pCurlMulti, pCurlUpdaterHandle);
+		curl_easy_cleanup(pCurlUpdaterHandle);
+		pCurlUpdaterHandle = nullptr;
+	}
 
-		if ( pCurlMulti )
+	if ( pCurlMulti )
+	{
+		int nActiveTransfers;
+		curl_multi_perform(pCurlMulti, &nActiveTransfers);
+
+		if ( !nActiveTransfers )
 		{
 			curl_multi_cleanup(pCurlMulti);
 			pCurlMulti = nullptr;
 		}
 	}
+
 	if ( bDownloadingStatus != 3 && hDownloadedFile )
 	{
 		fclose(hDownloadedFile);
@@ -292,9 +308,9 @@ void CUpdater::SetFileToDownload(const wchar_t* pFileName, bool bReadWriteAccess
 				*it = '/';
 		}
 
-		curl_easy_setopt(pCurlHandle, CURLOPT_WRITEDATA, hTheFile);
-		curl_easy_setopt(pCurlHandle, CURLOPT_URL, strCurlPath.c_str());
-		curl_multi_add_handle(pCurlMulti, pCurlHandle);
+		curl_easy_setopt(pCurlUpdaterHandle, CURLOPT_WRITEDATA, hTheFile);
+		curl_easy_setopt(pCurlUpdaterHandle, CURLOPT_URL, strCurlPath.c_str());
+		curl_multi_add_handle(pCurlMulti, pCurlUpdaterHandle);
 
 		hDownloadedFile = hTheFile;
 		bDownloadingStatus = 1;
@@ -331,104 +347,118 @@ void CUpdater::DownloadFile()
 	bDownloadingStatus = 2;
 }
 
+void CUpdater::ProcessUpdaterMessage(CURLMsg* pMultiMsg, long& nStatus)
+{
+	if ( pMultiMsg->msg == CURLMSG_DONE )
+	{
+		CURLcode	errorCode = pMultiMsg->data.result;
+
+		curl_multi_remove_handle(pCurlMulti, pMultiMsg->easy_handle);
+
+		if ( errorCode == CURLE_OK )
+		{
+			if ( bDownloadingStatus == 3 )
+			{
+				// Check for updates
+				DisconnectFromFTP();
+				wNumberOfFiles = 0;
+				bDownloadingStatus = 4;
+			}
+			else
+				DownloadNextFile(nStatus, false);
+		}
+		else
+		{
+			if ( bDownloadingStatus == 3 )
+			{
+				EchoMessage(L"Update service is unavailable right now");
+				DisconnectFromFTP();
+				bCheckingForUpdates = false;
+				bDownloadingInProgress = false;
+				bUpdateServiceOff = true;
+				bDownloadingStatus = 0;
+				nStatus = UPTMODULESTATE_IDLE;
+			}
+			else
+			{
+				wchar_t		wcError[256];
+
+				_snwprintf(wcError, 256, L"An error occured when downloading file %s, skipping...", szCurrentFile.c_str());
+				EchoMessage(wcError);
+				DownloadNextFile(nStatus, true);
+			}
+		}
+	}
+}
+
+void CUpdater::ProcessDLCMessage(CURLMsg* pMultiMsg)
+{
+	if ( pMultiMsg->msg == CURLMSG_DONE )
+	{
+		CURLcode	errorCode = pMultiMsg->data.result;
+
+		curl_multi_remove_handle(pCurlMulti, pMultiMsg->easy_handle);
+
+		if ( errorCode == CURLE_OK )
+			OnFinishFunction(strReturnedData);
+	}
+}
+
 long CUpdater::Process()
 {
 	long	nStatus;
 	if ( bCheckingForUpdates )
 		nStatus = UPTMODULESTATE_CHECKING;
+	else if ( bFilesReadyToInstall )
+		nStatus = UPTMODULESTATE_NEW_UPDATES;
+	else if ( bDownloadingInProgress )
+		nStatus = UPTMODULESTATE_DOWNLOADING;
+	else if ( bAllReady )
+		nStatus = UPTMODULESTATE_ALL_READY;
+	else if ( bMoveFilesNow )
+		nStatus = UPTMODULESTATE_INSTALLING;
 	else
+		nStatus = UPTMODULESTATE_IDLE;
+
+	// Process transfers and messages
+	if ( pCurlMulti )
 	{
-		if ( bFilesReadyToInstall )
-			nStatus = UPTMODULESTATE_NEW_UPDATES;
-		else
+		int			nActiveTransfers;
+		CURLMcode	nPerformMessage = curl_multi_perform(pCurlMulti, &nActiveTransfers);
+
+		if ( nPerformMessage == CURLM_OK )
 		{
-			if ( bDownloadingInProgress )
-				nStatus = UPTMODULESTATE_DOWNLOADING;
-			else
+			int			nMessagesPending = 1;
+
+			while ( nMessagesPending )
 			{
-				if ( bAllReady )
-					nStatus = UPTMODULESTATE_ALL_READY;
-				else
-				{
-					if ( bMoveFilesNow )
-						nStatus = UPTMODULESTATE_INSTALLING;
-					else
-						nStatus = UPTMODULESTATE_IDLE;
-				}
-			}
-		}
-	}
-	if ( bDownloadingStatus > 1 )
-	{
-		if ( bDownloadingStatus != 4 )
-		{
-			int		nActiveTransfers;
-			int		nPerformMessage = curl_multi_perform(pCurlMulti, &nActiveTransfers);
-			if ( nPerformMessage == CURLM_OK )
-			{
-				// Process messages
-				int			nMessagesPending;
 				CURLMsg*	pCurlMultiMessage = curl_multi_info_read(pCurlMulti, &nMessagesPending);
 
 				if ( pCurlMultiMessage )
 				{
-					if ( pCurlMultiMessage->msg == CURLMSG_DONE )
-					{
-						CURLcode	errorCode = pCurlMultiMessage->data.result;
-						/*if ( pCurlMultiMessage->msg != CURLMSG_DONE )
-						{*/
-
-						curl_multi_remove_handle(pCurlMulti, pCurlHandle);
-
-						if ( errorCode == CURLE_OK )
-						{
-							if ( bDownloadingStatus == 3 )
-							{
-								// Check for updates
-								DisconnectFromFTP();
-								wNumberOfFiles = 0;
-								bDownloadingStatus = 4;
-							}
-							else
-								DownloadNextFile(nStatus, false);
-						}
-						else
-						{
-							if ( bDownloadingStatus == 3 )
-							{
-								EchoMessage(L"Update service is unavailable right now");
-								DisconnectFromFTP();
-								bCheckingForUpdates = false;
-								bDownloadingInProgress = false;
-								bUpdateServiceOff = true;
-								bDownloadingStatus = 0;
-								nStatus = UPTMODULESTATE_IDLE;
-							}
-							else
-							{
-								wchar_t		wcError[256];
-
-								_snwprintf(wcError, 256, L"An error occured when downloading file %s, skipping...", szCurrentFile.c_str());
-								EchoMessage(wcError);
-								DownloadNextFile(nStatus, true);
-							}
-						}
-					}
+					if ( pCurlMultiMessage->easy_handle == pCurlUpdaterHandle )
+						ProcessUpdaterMessage(pCurlMultiMessage, nStatus);
+					else if ( pCurlMultiMessage->easy_handle == pDLCCurl )
+						ProcessDLCMessage(pCurlMultiMessage);
 				}
-			}
-			else
-			{
-				wchar_t		wcError[128];
-				_snwprintf(wcError, 128, L"An error occured while downloading the updates: error code %d", nPerformMessage);
-				EchoMessage(wcError);
-				DisconnectFromFTP();
-				bCheckingForUpdates = false;
-				bDownloadingInProgress = false;
-				bDownloadingStatus = 0;
-				nStatus = UPTMODULESTATE_IDLE;
 			}
 		}
 		else
+		{
+			wchar_t		wcError[128];
+			_snwprintf(wcError, 128, L"Multi interface has encountered an error: error code %d", nPerformMessage);
+			EchoMessage(wcError);
+			DisconnectFromFTP();
+			bCheckingForUpdates = false;
+			bDownloadingInProgress = false;
+			bDownloadingStatus = 0;
+			nStatus = UPTMODULESTATE_IDLE;
+		}
+	}
+
+	if ( bDownloadingStatus > 1 )
+	{
+		if ( bDownloadingStatus == 4 )
 		{
 			// Parse hashmap one entry by tick
 			bool	bIHaveFinished = false;
@@ -868,7 +898,6 @@ void CUpdater::ReadSettingsFile()
 	if ( FILE* hSetFile = _wfopen(strDLCFilePath.c_str(), L"rb") )
 	{
 		unsigned int		nFileVersion;
-		//signed short		nIndex = 0;
 
 		fread(&nFileVersion, 4, 1, hSetFile);
 		if ( nFileVersion == DLC_SETTINGS_FILE_VERSION )
@@ -886,7 +915,6 @@ void CUpdater::ReadSettingsFile()
 				fread(cDLCName, nStringLength, 1, hSetFile);
 				fread(&bDLCState, 1, 1, hSetFile);
 				AddThisDLCToList(cDLCName, bDLCState);
-				//++nIndex;
 			}
 		}
 		else
@@ -905,23 +933,10 @@ void CUpdater::WriteSettingsFile()
 	if ( FILE* hSetFile = _wfopen(strDLCFilePath.c_str(), L"wb") )
 	{
 		const unsigned int	nFileVersion = DLC_SETTINGS_FILE_VERSION;
-		//signed short		nIndex = 0;
 
 		fwrite(&nFileVersion, 4, 1, hSetFile);
 		for ( auto it = m_DLCsMap.cbegin(); it != m_DLCsMap.cend(); it++ )
 		{
-			/*bool	bInstalled;
-			if ( nIndex == it->first )
-			{
-				// This DLC is marked as active
-				bInstalled = true;
-				it++;
-			}
-			else
-				bInstalled = false;*/
-
-			/*fwrite(it->second.c_str(), 32, 1, hSetFile);
-			fwrite(&bInstalled, 1, 1, hSetFile);*/
 			BYTE		nStringSize = static_cast<BYTE>(it->first.size());
 			fwrite(&nStringSize, 1, 1, hSetFile);
 			fwrite(it->first.c_str(), nStringSize, 1, hSetFile);
@@ -929,4 +944,40 @@ void CUpdater::WriteSettingsFile()
 		}
 		fclose(hSetFile);
 	}
+}
+
+static size_t ReceiveDataFromPHP(char* ptr, size_t size, size_t nmemb, void* userdata)
+{
+	static_cast<std::string*>(userdata)->append(ptr, size*nmemb);
+	return size*nmemb;
+}
+
+void CUpdater::SendSerialCodeRequest(const std::string* request)
+{
+	if ( !pCurlUpdaterHandle )
+	{
+		pDLCCurl = curl_easy_init();
+		curl_easy_setopt(pDLCCurl, CURLOPT_WRITEFUNCTION, ReceiveDataFromPHP);
+		curl_easy_setopt(pDLCCurl, CURLOPT_WRITEDATA, &strReturnedData);
+		curl_easy_setopt(pDLCCurl, CURLOPT_POST, 1);
+
+		curl_easy_setopt(pDLCCurl, CURLOPT_URL, "http://vcspcedition.com/1FBB417D15BE1.php");
+		curl_easy_setopt(pDLCCurl, CURLOPT_POSTFIELDS, request->c_str());
+		curl_easy_setopt(pDLCCurl, CURLOPT_POSTFIELDSIZE, request->length());
+	}
+
+	if ( !pCurlMulti )
+		pCurlMulti = curl_multi_init();
+
+	strReturnedData.clear();
+
+	// Start instantly
+	int		nActiveTransfers;
+	curl_multi_add_handle(pCurlMulti, pDLCCurl);
+	curl_multi_perform(pCurlMulti, &nActiveTransfers);
+}
+
+void CUpdater::RegisterOnFinishedRequestCallback(SerialCodeRequestCallback callback)
+{
+	OnFinishFunction = callback;
 }

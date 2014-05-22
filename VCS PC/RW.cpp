@@ -43,6 +43,7 @@ WRAPPER RwFrame* RwFrameUpdateObjects(RwFrame* frame) { WRAPARG(frame); EAXJMP(0
 WRAPPER RwFrame* RwFrameOrthoNormalize(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F1170); }
 
 WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
+WRAPPER void DefinedState2d() { EAXJMP(0x734750); }
 
 RwCamera* RwCameraBeginUpdate(RwCamera* camera)
 {

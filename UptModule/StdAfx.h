@@ -12,13 +12,3 @@
 #include <windows.h>
 #include <shlwapi.h>
 #include <shellapi.h>
-
-#include "..\common\Date.h"
-#include "..\common\Updater.h"
-#include "..\common\DLCShared.h"
-#include "UptModule.h"
-#include "UpdaterWrappers.h"
-#include "CCRC32.H"
-
-// Global variables
-extern CUpdater*			gUpdaterHandle;

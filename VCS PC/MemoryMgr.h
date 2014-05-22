@@ -99,9 +99,6 @@ namespace MemoryVP
 
 // Old code, remove asap
 #define patch(a, v, s) _patch((void*)(a), (DWORD)(v), (s))
-#define patchf(a, v) _patch((void*)(a), (float)(v))
-#define nop(a, v) _nop((void*)(a), (v))
-#define charptr(a, v) _charptr((void*)(a), (const char*)(v))
 
 __declspec(deprecated) inline void _patch(void* pAddress, DWORD data, DWORD iSize)
 {
@@ -114,37 +111,6 @@ __declspec(deprecated) inline void _patch(void* pAddress, DWORD data, DWORD iSiz
 		case 4: *(DWORD*)pAddress = (DWORD)data;
 			break;
 	}
-}
-
-__declspec(deprecated) inline void _patch(void* pAddress, float data)
-{
-	*(float*)pAddress = data;
-}
-
-__declspec(deprecated) inline void _nop(void* pAddress, DWORD size)
-{
-	DWORD dwAddress = (DWORD)pAddress;
-	if ( size % 2 )
-	{
-		*(BYTE*)pAddress = 0x90;
-		dwAddress++;
-	}
-	if ( size - ( size % 2 ) )
-	{
-		DWORD sizeCopy = size - ( size % 2 );
-		do
-		{
-			*(WORD*)dwAddress = 0xFF8B;
-			dwAddress += 2;
-			sizeCopy -= 2;
-		}
-		while ( sizeCopy );
-	}
-}
-
-__declspec(deprecated) inline void _charptr(void* pAddress, const char* pChar)
-{
-    *(DWORD*)pAddress = (DWORD)pChar;
 }
 
 #endif

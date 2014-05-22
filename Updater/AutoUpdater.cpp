@@ -1,5 +1,11 @@
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
+#define WIN32_LEAN_AND_MEAN
+#define _CRT_SECURE_NO_WARNINGS
+
+#define WINVER 0x0501
+#define _WIN32_WINNT 0x0501
+
 #include <Windows.h>
 #include <CommCtrl.h>
 #include <Wincodec.h>

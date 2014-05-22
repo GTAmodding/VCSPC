@@ -3,6 +3,11 @@
 
 #include "Antennas.h"
 #include "Timer.h"
+#include "PlayerInfo.h"
+#include "Pad.h"
+
+WRAPPER void CVehicle::SetWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D3080); }
+WRAPPER void CVehicle::ClearWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D30B0); }
 
 static RwObject* GetCurrentAtomicObjectCB(RwObject* pObject, void* data)
 {
@@ -63,6 +68,27 @@ void CAutomobile::DebugWheelDisplay()
 	DisplayFrameInfo(m_pCarNode[7], nullptr);
 }
 
+void CAutomobile::ControlWindows()
+{
+	if ( CPad::GetPad(0)->RightShockJustDown() )
+	{
+		static bool		bWindowsOpen = false;
+
+		if ( !bWindowsOpen )
+		{
+			SetWindowOpenFlag(8);
+			SetWindowOpenFlag(10);
+		}
+		else
+		{
+			ClearWindowOpenFlag(8);
+			ClearWindowOpenFlag(10);
+		}
+
+		bWindowsOpen = bWindowsOpen == false;
+	}
+}
+
 void CHeli::Render()
 {
 	double		dRotorsSpeed, dMovingRotorSpeed;
@@ -78,8 +104,8 @@ void CHeli::Render()
 	if ( dMovingRotorSpeed < 0.0 )
 		dMovingRotorSpeed = 0.0;
 
-	int			nStaticRotorAlpha = min((1.5-dRotorsSpeed) * 255.0, 255);
-	int			nMovingRotorAlpha = min(dMovingRotorSpeed * 150.0, 150);
+	int			nStaticRotorAlpha = min(static_cast<int>((1.5-dRotorsSpeed) * 255.0), 255);
+	int			nMovingRotorAlpha = min(static_cast<int>(dMovingRotorSpeed * 150.0), 150);
 
 	if ( m_pCarNode[11] )
 	{
@@ -146,6 +172,11 @@ CColModel* CAutomobile::RenderAntennas()
 			CAntennas::RegisterOne(reinterpret_cast<unsigned int>(this) + 2, (*pCoords->GetAt() - (*pCoords->GetUp() * 0.5f)).Normalize(), *pCoords * CVector(0.0f, -1.1f, 0.68f), 0.75f, 0.9f);
 		}
 	}*/
+
+#ifdef CONTROLLABLE_WINDOWS_TEST
+	if ( this == FindPlayerVehicle(-1, false) )
+		ControlWindows();
+#endif
 
 	return ((CColModel*(__thiscall*)(CEntity*))0x535300)(this);
 }

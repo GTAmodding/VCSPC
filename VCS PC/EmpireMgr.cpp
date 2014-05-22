@@ -3,6 +3,7 @@
 
 #include "ModelInfo.h"
 #include "World.h"
+#include "Pools.h"
 
 CEmpire			CEmpireManager::m_empire[NUM_EMPIRES];
 tEmpireType		CEmpireManager::m_empireType[NUM_EMPIRE_TYPES];
@@ -162,6 +163,17 @@ void CEmpireManager::Process()
 				//m_empire[i].Place();
 		}
 	}*/
+}
+
+void* CEmpireBuildingData::operator new(size_t size)
+{
+	UNREFERENCED_PARAMETER(size);
+	return CPools::GetEmpireBuildingDataPool()->New();
+}
+
+void CEmpireBuildingData::operator delete(void* ptr)
+{
+	CPools::GetEmpireBuildingDataPool()->Delete(static_cast<CEmpireBuildingData*>(ptr));
 }
 
 void CEmpireBuildingData::AddEntry(unsigned short nTypeID, char nSubgroup, unsigned char nIndex, const CSimpleTransform& vecPos)

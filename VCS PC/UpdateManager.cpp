@@ -72,6 +72,8 @@ void CUpdateManager::Process()
 	if ( pUptModuleInterface )
 		nInterfaceStatus = pUptModuleInterface->Process();
 
+	//CDLCManager::Process();
+
 	if ( bForceUpdate == 1 )
 	{
 		pUptModuleInterface->PerformUpdateCheck();
@@ -397,4 +399,11 @@ void CALLBACK CUpdateManager::EchoMessage(const wchar_t* pMessage)
 		++nActiveMessages;
 
 	wcstombs(pMessages[nActiveMessages-1], pMessage, MAX_PATH);
+}
+
+IDLCClient001* CUpdateManager::GetMeDLCClient()
+{
+	GetDLCFn interfaceFactory = (GetDLCFn)GetProcAddress(hUptModuleLibrary, "CreateUpdaterInstance");
+
+	return interfaceFactory ? (IDLCClient001*)interfaceFactory(DLC_INTERFACE_CLIENT001) : nullptr;
 }

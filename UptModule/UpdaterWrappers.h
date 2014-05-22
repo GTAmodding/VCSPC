@@ -1,6 +1,8 @@
 #ifndef __UPDATERWRAPPERS
 #define __UPDATERWRAPPERS
 
+#include "..\common\Updater.h"
+
 // Interfaces' implementations
 class CUpdaterClient001 : public IUpdaterClient001
 {
@@ -22,6 +24,14 @@ public:
 
 	virtual void			AddThisDLCToList(const char* pName, bool bEnable) override;
 	virtual bool			GetDLCStatus(const char* pName, bool bDefault) override;
+};
+
+class CDLCClient001 : public IDLCClient001
+{
+	virtual					~CDLCClient001() { };
+
+	virtual void			SendSerialCodeRequest(const std::string* request) override;
+	virtual void			RegisterOnFinishedRequestCallback(SerialCodeRequestCallback callback) override;
 };
 
 #endif

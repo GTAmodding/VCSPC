@@ -62,6 +62,8 @@ public:
 	static const char*			FetchMessage(long nIndex);
 	static void					EchoMessage(const char* pMessage);
 	static void CALLBACK		EchoMessage(const wchar_t* pMessage);
+
+	static IDLCClient001*		GetMeDLCClient();
 };
 
 #endif

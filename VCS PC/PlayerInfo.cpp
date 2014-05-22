@@ -7,6 +7,8 @@
 WRAPPER void CPlayerInfo::KillPlayer() { EAXJMP(0x56E580); }
 WRAPPER void CPlayerInfo::ArrestPlayer() { EAXJMP(0x56E5D0); }
 
+WRAPPER CVehicle* FindPlayerVehicle(signed int nPlayerID, bool bUnk) { WRAPARG(nPlayerID); WRAPARG(bUnk); EAXJMP(0x56E0D0); }
+
 CWanted* FindPlayerWanted(signed int nPlayerID)
 {
 	if ( nPlayerID < 0 )

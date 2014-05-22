@@ -148,6 +148,7 @@ copy /y "$(OutDir)$(ProjectName).dll" "D:\gry\gtavcs zzcool n updater\updater\Up
   <ItemGroup>
     <ClInclude Include="..\common\Updater.h" />
     <ClInclude Include="..\common\UpdaterTypes.h" />
+    <ClInclude Include="..\common\updater_interfaces\IDLCClient001.h" />
     <ClInclude Include="..\common\updater_interfaces\IUpdaterClient001.h" />
     <ClInclude Include="CCRC32.H" />
     <ClInclude Include="StdAfx.h" />

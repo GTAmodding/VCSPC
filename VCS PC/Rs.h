@@ -58,12 +58,83 @@ enum RsEventStatus
     rsEVENTNOTPROCESSED
 };
 
+enum RsKeyCodes
+{
+	rsESC = 1000,
+
+	rsF1,
+	rsF2,
+	rsF3,
+	rsF4,
+	rsF5,
+	rsF6,
+	rsF7,
+	rsF8,
+	rsF9,
+	rsF10,
+	rsF11,
+	rsF12,
+
+	rsINS,
+	rsDEL,
+	rsHOME,
+	rsEND,
+	rsPGUP,
+	rsPGDN,
+
+	rsUP,
+	rsDOWN,
+	rsLEFT,
+	rsRIGHT,
+
+	rsPADINS,
+	rsPADDEL,
+	rsPADHOME,
+	rsPADEND,
+	rsPADPGUP,
+	rsPADPGDN,
+
+	rsPADUP,
+	rsPADDOWN,
+	rsPADLEFT,
+	rsPADRIGHT,
+
+	rsNUMLOCK,
+	rsDIVIDE,
+	rsTIMES,
+	rsMINUS,
+	rsPLUS,
+	rsPADENTER,
+	rsPAD5,
+
+	rsPAD11, rsPAD22,	// ??
+
+	rsBACKSP,
+	rsTAB,
+	rsCAPSLK,
+	rsENTER,
+	rsLSHIFT,
+	rsRSHIFT,
+	rsSHIFT,
+	rsLCTRL,
+	rsRCTRL,
+	rsLALT,
+	rsRALT,
+	rsLWIN,
+	rsRWIN,
+	rsAPPS,
+
+	rsNULL
+};
+typedef enum RsKeyCodes RsKeyCodes;
+
 RsEventStatus	RsEventHandler(RsEvent eventID, void* param);
 RwChar*			RsPathnameCreate(const RwChar* srcBuffer);
 void			RsPathnameDestroy(RwChar* buffer);
 BOOL			RsCameraBeginUpdate(RwCamera* pCamera);
 
 void			DoRWStuffEndOfFrame();
+void			DefinedState2d();
 
 extern RsGlobalType&		RsGlobal;
 extern const DWORD			RsGlobalFrameLimits[5];

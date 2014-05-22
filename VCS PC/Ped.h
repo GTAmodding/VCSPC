@@ -309,15 +309,13 @@ private:
 	BYTE				m_color4;
 
 public:
-	static CPedData*	pPedData;
-
 	CPedData()
 		: m_color1(0), m_color2(0), m_color3(0), m_color4(0)
 	{}
 
 	void				SetColours(BYTE a, BYTE b, BYTE c, BYTE d)
 							{ m_color1 = a; m_color2 = b; m_color3 = c; m_color4 = d; };
-	static CPed*		Constructor(CPed* pPed, WORD model);
+	static CPed*		Initialise(CPed* pPed, short model);
 };
 
 static_assert(sizeof(CPed) == 0x79C, "Wrong size: CPed");

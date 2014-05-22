@@ -1,6 +1,9 @@
 #ifndef __UPTMODULE
 #define __UPTMODULE
 
+#include "..\common\Date.h"
+#include "..\common\Updater.h"
+
 #define LOGIN_DATA				"ftp://ronly:vcspc6912@modbase.pl"
 
 #ifdef DEVBUILD
@@ -51,7 +54,7 @@ private:
 	WORD										wNumberOfFiles;
 	WORD										wCurrentReadFile;
 	CURLM*										pCurlMulti;
-	CURL*										pCurlHandle;
+	CURL*										pCurlUpdaterHandle;
 	FILE*										hDownloadedFile;
 	std::wstring								szFullGamePath;
 	std::wstring								szFullCachePath;
@@ -62,6 +65,11 @@ private:
 	DLCEntry*									m_DLCsByIndex;
 
 	UptMessageCallback							MessageFunction;
+
+	// DLC handling part
+	CURL*										pDLCCurl;
+	std::string									strReturnedData;
+	SerialCodeRequestCallback					OnFinishFunction;
 
 private:
 	void				EchoMessage(const char* pMessage);
@@ -74,6 +82,7 @@ private:
 	void				DownloadNextFile(long& nStatus, bool bPopCurrentFile);
 	void				MoveFiles(std::wstring& dirName);
 	void				ReadSettingsFile();
+	void				ProcessUpdaterMessage(CURLMsg* pMultiMsg, long& nStatus);
 
 	inline void			CleanupFilesList()
 		{ filesList.clear(); }
@@ -85,7 +94,7 @@ public:
 	CUpdater()
 		:	bInitialized(false), bCheckingForUpdates(false), bFilesReadyToInstall(false), bDownloadingInProgress(false),
 			bAllReady(false), bUpdaterMustUpdate(false), bMoveFilesNow(false), bUpdateServiceOff(false), bDownloadingStatus(0), nUpdateResult(0),
-			dwTotalDownloadSize(0), dwDownloadedData(0), pCurlMulti(nullptr), pCurlHandle(nullptr),
+			dwTotalDownloadSize(0), dwDownloadedData(0), pCurlMulti(nullptr), pCurlUpdaterHandle(nullptr),
 			hDownloadedFile(nullptr), m_DLCsByIndex(nullptr), MessageFunction(nullptr)
 	{
 	}
@@ -120,6 +129,13 @@ public:
 			{ return !bUpdateServiceOff; }
 	inline void		AddProgress(unsigned long nProgress)
 			{ dwDownloadedData += nProgress; if ( dwDownloadedData > dwTotalDownloadSize ) dwDownloadedData = dwTotalDownloadSize; }
+
+	// DLC handling part
+	void			SendSerialCodeRequest(const std::string* request);
+	void			RegisterOnFinishedRequestCallback(SerialCodeRequestCallback callback);
+	void			ProcessDLCMessage(CURLMsg* pMultiMsg);
 };
+
+extern CUpdater*			gUpdaterHandle;
 
 #endif

@@ -5,7 +5,7 @@
 class IUpdaterClient001
 {
 public:
-	virtual					~IUpdaterClient001() { };
+	virtual					~IUpdaterClient001() {};
 
 	virtual long			Process()=0;
 	virtual void			ConnectToFTP()=0;

@@ -38,8 +38,10 @@ public:
 		{ return sqrt(x * x + y * y + z * z); }
 	inline float	MagnitudeSqr()
 		{ return x * x + y * y + z * z; }
-	inline CVector&	Normalize()
+	inline CVector&	Normalise()
 		{ float	fInvLen = 1.0f / Magnitude(); x *= fInvLen; y *= fInvLen; z *= fInvLen; return *this; }
+	inline float	NormaliseAndMag()
+		{ float fLen = Magnitude(); float fInvLen = 1.0f / fLen; x *= fInvLen; y *= fInvLen; z *= fInvLen; return fLen; }
 
 	friend inline float DotProduct(const CVector& vec1, const CVector& vec2)
 		{ return vec1.x * vec2.x + vec1.x * vec2.y + vec1.z * vec2.z; }

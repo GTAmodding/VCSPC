@@ -27,7 +27,6 @@ public:
 		: r(in.r), g(in.g), b(in.b), a(alpha)
 	{}
 
-
 	inline CRGBA(BYTE red, BYTE green, BYTE blue, BYTE alpha = 255)
 		: r(red), g(green), b(blue), a(alpha)
 	{}
@@ -125,7 +124,7 @@ public:
     virtual void	FlagToDestroyWhenNextProcessed();
 
 //private:
-	RpClump*		m_pRwObject;						// 0x18
+	RwObject*		m_pRwObject;						// 0x18
 
     /********** BEGIN CFLAGS (0x1C) **************/
     unsigned long	bUsesCollision : 1;				// does entity use collision

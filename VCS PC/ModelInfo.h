@@ -353,7 +353,7 @@ public:
 		((void(__thiscall*)(CColModel*))0x40F700)(this);
 	}
 
-	void operator delete(void* mem);
+	void operator delete(void* ptr);
 };
 
 class C2dEffect
@@ -571,6 +571,13 @@ private:
 	static CRGBA* const				ms_vehicleColourTable;
 
 public:
+	static inline void				SetRemap(RwTexture* pTex)
+		{ ms_pRemapTexture = pTex; }
+
+	static RpAtomic*				SetEditableMaterialsCB(RpAtomic* pMaterial, void* pData);
+	static void						ResetEditableMaterials();
+
+	static void						SetVehicleColour(unsigned char primaryColour, unsigned char secondaryColour, unsigned char tertiaryColour, unsigned char quaternaryColour);
 	static RpMaterial*				SetEditableMaterialsCB(RpMaterial* pMaterial, void* pData);
 };
 
@@ -585,7 +592,7 @@ public:
 	unsigned char			m_bLastColourChoice;
 
 	static CRGBA			ms_pedColourTable[NUM_PED_COLOURS];
-	static unsigned char	bLastPedPrimaryColour, bLastPedSecondaryColour, bLastPedTertiaryColour, bLastPedQuaternaryColour;
+	static unsigned char	ms_currentCol[4];
 
 public:
 	static void				LoadPedColours();

@@ -30,11 +30,17 @@ private:
 	std::map<unsigned int,CSimpleTransform>				m_buildingData;
 
 public:
-	void				AddEntry(unsigned short nTypeID, char nSubgroup, unsigned char nIndex, const CSimpleTransform& vecPos);
-	int					GetNumEntriesOfType(unsigned short nType);
-	int					GetNumEntriesOfType(unsigned short nType, char nSubgroup);
-	CSimpleTransform&	GetData(unsigned short nType, unsigned char nIndex);
-	CSimpleTransform&	GetData(unsigned short nType, char nSubgroup, unsigned char nIndex);
+	void*						operator new(size_t size);
+	void						operator delete(void* ptr);
+
+	CEmpireBuildingData()
+	{}
+
+	void						AddEntry(unsigned short nTypeID, char nSubgroup, unsigned char nIndex, const CSimpleTransform& vecPos);
+	int							GetNumEntriesOfType(unsigned short nType);
+	int							GetNumEntriesOfType(unsigned short nType, char nSubgroup);
+	CSimpleTransform&			GetData(unsigned short nType, unsigned char nIndex);
+	CSimpleTransform&			GetData(unsigned short nType, char nSubgroup, unsigned char nIndex);
 
 	void						ReduceContainerSize();
 };

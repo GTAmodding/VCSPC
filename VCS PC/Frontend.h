@@ -69,6 +69,7 @@ enum eMenuActions
 	ACTION_TOGGLE_LANGUAGE_6	= 66,
 	ACTION_UPDATER_BUTTON,
 	ACTION_TOGGLE_DLC,
+	ACTION_ACTIVATE_SERIAL,
 
 	NUM_MENU_ACTIONS
 };
@@ -93,7 +94,8 @@ enum eMenuSpecialFlags
 	ACTION_STANDARD,
 	ACTION_CLICKORARROWS,
 	ACTION_UPDATER,
-	ACTION_DLC
+	ACTION_DLC,
+	ACTION_SERIAL
 };
 
 // For right column hack
@@ -164,6 +166,9 @@ private:
 	static int			ms_nRubberSlider;
 	static bool			m_bLastDLCState[NUM_DLC_PACKS];
 
+	static std::string	m_strSerialCode[4];
+	static bool			m_bSerialFull;
+
 public:
 	static MenuItem		ms_pMenus[];
 
@@ -186,7 +191,20 @@ public:
 	inline void		SetKeyboardLayout(BYTE lang)
 						{ textLanguage = lang; };
 
-	void			ShowFullscreenMessage(const char* pMessage, bool bUnk1, bool bUnk2);
+	static inline void	ClearSerialsBuffer()
+	{	m_bSerialFull = false;
+		for ( int i = 0; i < 4; ++i )
+			m_strSerialCode[i].clear();
+	}
+
+	static inline bool	ValidSerialCharacter(wchar_t wKey)
+	{ return (wKey >= '0' && wKey <= '9') || (wKey >= 'A' && wKey <= 'F') || (wKey >= 'a' && wKey <= 'f'); }
+
+	static void		LookIntoClipboardForSerial();
+
+
+	void			MessageScreen(const char* pMessage, bool bUnk1, bool bUnk2);
+	void			SmallMessageScreen(const char* pMessage);
 	void			SwitchToNewScreen(signed char bScreen);
 
 	void			DrawBackEnd();
@@ -199,9 +217,13 @@ public:
 	void			PrintStats();
 	void			PrintUpdaterScreen();
 	void			PrintDLCScreen();
+	void			PrintActivationScreen();
 	void			ReadFrontendTextures();
 	void			SwitchToNewScreenVCS(signed char bScreen);
+	void			AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* pDown);
+	void			UserInputVCS();
 
+	void			TypingKeyboardInput(wchar_t wKey);
 	const char*		ProcessDLCSlot(int nSlotID);
 	float			GetTextYPos(const MenuItem::MenuEntry& pPosition);
 
