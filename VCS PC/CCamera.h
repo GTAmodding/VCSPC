@@ -4,6 +4,8 @@
 #include "General.h"
 #include "CCam.h"
 
+#define CAMERA_FOV_REGULAR		55.0f
+
 enum eCamMode 
 { 
     MODE_NONE = 0, 

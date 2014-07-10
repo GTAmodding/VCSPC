@@ -253,3 +253,18 @@ void CRadar::Render3D(void*, void*, int nVerts)
 	RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, indices, nVerts);
 	RwIm3DEnd();
 }
+
+static void __declspec(naked)	BlipAlphaHook()
+{
+	_asm
+	{
+		movzx		edi, [esp+30h-24h]
+		push		edi
+		push		586F39h
+		retn
+	}
+}
+
+static StaticPatcher	Patcher([](){ 
+						//Memory::InjectHook(0x586F34, BlipAlphaHook, PATCH_JUMP); 
+									});

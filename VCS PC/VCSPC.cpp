@@ -704,6 +704,10 @@ extern "C" __declspec(dllexport) BOOL OnGameLaunch()
 	PatchMenus();
 	AnimationStylesPatching();
 	UserFiles();
+
+	// Automatic patches
+	StaticPatcher::Apply();
+
 	CreateThread(NULL, 0, ProcessEmergencyKey, 0, 0, 0);
 
 	// DLC initialisation
@@ -3415,7 +3419,7 @@ __forceinline void Main_Patches()
 	Patch<void*>(0x495F78, func_069C);
 	Patch<void*>(0x495F7C, func_069C);
 
-	//Patch<const char*>(0x4111AE, "empire_perma");
+	Patch<const char*>(0x4111AE, "empire_perma");
 	InjectHook(0x53C215, CEmpireManager::Process);
 
 	// Menu background
@@ -4043,16 +4047,6 @@ __forceinline void Main_Patches()
 	Patch<float>(0x585E4D, 1.5f);	// Peds
 	Patch<float>(0x585F8E, 1.0f);	// Objects
 
-	// Coronas stored in a vector
-	CCoronas::Inject();
-
-	// Antennas
-	CAntennas::Inject();
-	InjectMethod(0x6AAB8B, CAutomobile::RenderAntennas, PATCH_NOTHING);
-
-	// Own pad
-	CPad::Inject();
-
 	// Own BaseColors::BaseColors
 	// TODO: Come up with something nicer?
 	InjectMethod(0x84F1F5, CRGBA::BaseColors__Constructor, PATCH_NOTHING);
@@ -4441,7 +4435,7 @@ void InjectDelayedPatches()
 	CUpdateManager::Init();
 //	CDLCManager::InitialiseWithUpdater();
 
-	SpeechInject();
+	//SpeechInject();
 
 #ifdef MAKE_CONSOLE
 	if ( AllocConsole() )

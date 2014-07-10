@@ -41,9 +41,6 @@ BOOL RsCameraBeginUpdate(RwCamera* pCamera)
 
 void CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio)
 {
-	float	foo = fViewWindow;
-	float	faa = fAspectRatio;
-
 	if ( !camera )
 		return;
 

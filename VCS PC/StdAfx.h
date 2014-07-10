@@ -142,6 +142,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 
 #include "CCRC32.h"
 #include "MemoryMgr.h"
+#include "StaticPatcher.h"
 #include "Maths.h"
 #include "Rs.h"
 #include "WidescreenSupport.h"

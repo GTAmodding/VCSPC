@@ -307,3 +307,7 @@ void CCoronas::Inject()
 	Memory::InjectHook(0x6FAAD9, CCoronas::Init, PATCH_JUMP);
 	Memory::InjectHook(0x53C13B, CCoronas::Update);
 }
+
+static StaticPatcher	Patcher([](){ 
+						CCoronas::Inject();
+									});

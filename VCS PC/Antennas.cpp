@@ -3,6 +3,7 @@
 
 #include "Timer.h"
 #include "Font.h"
+#include "Vehicle.h"
 
 CAntenna		CAntennas::aAntennas[NUM_ANTENNAS];
 
@@ -160,3 +161,8 @@ void CAntennas::Inject()
 	// Replaces a nullsub CMovingThings::Render()
 	Memory::InjectHook(0x53E184, Render);
 }
+
+static StaticPatcher	Patcher([](){ 
+						CAntennas::Inject();
+						InjectMethod(0x6AAB8B, CAutomobile::RenderAntennas, PATCH_NOTHING);
+									});

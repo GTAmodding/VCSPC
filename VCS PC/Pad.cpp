@@ -8,6 +8,9 @@ static CPad* const	Pads = (CPad*)0xB73458;
 
 static CX360Pad*	pXboxPad = nullptr;
 
+static StaticPatcher	Patcher([](){ 
+						CPad::Inject(); });
+
 WRAPPER void CPad::UpdatePads() { EAXJMP(0x541DD0); }
 
 static void CapturePad(int nPadID)
