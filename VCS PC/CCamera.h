@@ -276,6 +276,7 @@ public:
 
 	inline bool					GetFading() { return m_bFading; };
 	
+	void						DrawBordersForWideScreen();
 	void						GetScreenRect(CRect& rect);
 	int							GetFadeStage();
 	int							GetLookDirection();

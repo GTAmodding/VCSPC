@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include "TxdStore.h"
 
+
+CPool<CTxdEntry>*&		CTxdStore::ms_pTxdPool = *(CPool<CTxdEntry>**)0xC8800C;
+
 WRAPPER void CTxdStore::PushCurrentTxd() { EAXJMP(0x7316A0); }
 WRAPPER void CTxdStore::PopCurrentTxd() { EAXJMP(0x7316B0); }
 WRAPPER int CTxdStore::FindTxdSlot(const char* name) { WRAPARG(name); EAXJMP(0x731850); }

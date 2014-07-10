@@ -7,11 +7,15 @@
 #include "EntryExitMgr.h"
 #include "Audio.h"
 #include "GroupedBuildings.h"
+#include "TxdStore.h"
 
-tFileLoaderList*		CFileLoader::m_pImagesList;
+tFileLoaderList_IMG*	CFileLoader::m_pImagesList;
 tFileLoaderList*		CFileLoader::m_pObjectsList;
 tFileLoaderList*		CFileLoader::m_pScenesList;
 tFileLoaderList*		CFileLoader::m_pCollisionsList;
+
+tFileLoaderList*		CFileLoader::m_pCarcolsList;
+tFileLoaderList*		CFileLoader::m_pVehAudioList;
 
 char					CFileLoader::m_cParticlesPath[64] = "MODELS\\PARTICLE.TXD";
 char					CFileLoader::m_cPedgrpPath[64] = "DATA\\PEDGRP.DAT";
@@ -19,6 +23,8 @@ char					CFileLoader::m_cPopcyclePath[64] = "DATA\\POPCYCLE.DAT";
 char					CFileLoader::m_cTimecycPath[64] = "DATA\\TIMECYC.DAT";
 char					CFileLoader::m_cFrontendPath[64] = "\0";
 char					CFileLoader::m_cP2dfxPath[64];
+
+unsigned char			CFileLoader::m_bCurrentEncryptionType;
 
 // Wrappers
 WRAPPER void CFileLoader::LoadObjectTypes(const char* pFileName) { WRAPARG(pFileName); EAXJMP(0x5B8400); }
@@ -205,6 +211,28 @@ void CFileLoader::LoadEntryExit(const char* pLine)
 	}
 }
 
+int CFileLoader::LoadWeaponObject(const char* pLine)
+{
+	int		nObjID = -1;
+	float	fDrawDist;
+	char	modelName[24], texName[24], animName[16];
+
+	sscanf(pLine, "%d %s %s %s %f", &nObjID, modelName, texName, animName, &fDrawDist);
+
+	CWeaponModelInfo*	pModelInfo = CModelInfo::AddWeaponModel(nObjID);
+
+	pModelInfo->ulHashKey = CKeyGen::GetUppercaseKey(modelName);
+	pModelInfo->fLodDistanceUnscaled = fDrawDist;
+
+	pModelInfo->SetTexDictionary(texName);
+	//CTxdStore::GetPool()->GetAtIndex(pModelInfo->usTextureDictionary)->SetParent(CTxdStore::GetTxdSlot("weapshare"));
+
+	pModelInfo->SetAnimFile(animName);
+	pModelInfo->SetColModel(&CTempColModels::ms_colModelWeapon, false);
+
+	return nObjID;
+}
+
 /*std::map<int, std::string>	TempMap;
 
 void LogName(int nIndex, const char* pName)
@@ -261,7 +289,7 @@ void CFileLoader::LoadLevels()
 	// IMG
 	for ( auto it = m_pImagesList->cbegin(); it != m_pImagesList->cend(); it++ )
 	{
-		CdStreamAddImage(it->c_str(), true);
+		CdStreamAddImage(it->first.c_str(), true, it->second);
 	}
 
 	// IDE
@@ -283,6 +311,7 @@ void CFileLoader::LoadLevels()
 
 	// Wraps some calls
 	CEmpireManager::Initialise();
+	CStreaming::Init();
 	InitPostIDEStuff();
 	CPedModelInfoVCS::LoadPedColours();
 	CAEVehicleAudioEntity::LoadVehicleAudioSettings();
@@ -318,6 +347,8 @@ void CFileLoader::LoadLevels()
 	}
 
 	EndLevelLists();
+	EndCarcols();
+	EndVehAudio();
 	RwTexDictionarySetCurrent(pPushedDictionary);
 	InitPostLoadLevelStuff();
 
@@ -338,7 +369,7 @@ bool CFileLoader::ParseLevelFile(const char* pFileName, char* pDLCName)
 			if ( pLine[0] && pLine[0] != '#' )
 			{
 				if ( !_strnicmp(pLine, "IMG", 3) )
-					m_pImagesList->push_back(TranslatePath(pLine+4, pDLCName));
+					m_pImagesList->push_back(make_pair(TranslatePath(pLine+4, pDLCName), m_bCurrentEncryptionType));
 				else if ( !_strnicmp(pLine, "IDE", 3) )
 					m_pObjectsList->push_back(TranslatePath(pLine+4, pDLCName));
 				else if ( !_strnicmp(pLine, "COLFILE", 7) )
@@ -361,6 +392,10 @@ bool CFileLoader::ParseLevelFile(const char* pFileName, char* pDLCName)
 					strncpy(m_cFrontendPath, TranslatePath(pLine+9, pDLCName).c_str(), 64);
 				else if ( !_strnicmp(pLine, "P2DFX", 5) )
 					strncpy(m_cP2dfxPath, TranslatePath(pLine+6, pDLCName).c_str(), 64);
+				else if ( !_strnicmp(pLine, "CARCOLS", 7) )
+					BeginCarcols(), m_pCarcolsList->push_back(TranslatePath(pLine+8, pDLCName));
+				else if ( !_strnicmp(pLine, "VEHAUDIO", 8) )
+					BeginVehAudio(), m_pVehAudioList->push_back(TranslatePath(pLine+9, pDLCName));
 			}
 		}
 		CFileMgr::CloseFile(hFile);

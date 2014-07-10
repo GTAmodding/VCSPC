@@ -144,6 +144,31 @@ static bool IsWindowsVistaOrHigher()
 	return osvi.dwMajorVersion >= 6;
 }
 
+static unsigned long long GetMachineID()
+{
+	DWORD					dwSize = MAC_ADDRESS_BUFFER_SIZE;
+	IP_ADAPTER_ADDRESSES*	pAddresses = static_cast<IP_ADAPTER_ADDRESSES*>(malloc(MAC_ADDRESS_BUFFER_SIZE));
+	unsigned long			nID = 0xFFFFFFFF;
+	
+	if ( GetAdaptersAddresses(AF_UNSPEC, GAA_FLAG_SKIP_UNICAST|GAA_FLAG_SKIP_ANYCAST|GAA_FLAG_SKIP_MULTICAST|GAA_FLAG_SKIP_DNS_SERVER|GAA_FLAG_SKIP_FRIENDLY_NAME,
+							nullptr, pAddresses, &dwSize) == ERROR_SUCCESS )
+	{
+		std::basic_string<BYTE>		strAddressArray;
+		CCRC32						HashHelper;
+
+		// Poll all MAC addresses and hash them
+		while ( pAddresses )
+		{
+			strAddressArray.append(pAddresses->PhysicalAddress, pAddresses->PhysicalAddressLength);
+			pAddresses = pAddresses->Next;
+		}
+	
+		nID = HashHelper.FullCRC(strAddressArray.data(), strAddressArray.length());
+	}
+	free(pAddresses);
+	return nID;
+}
+
 DWORD WINAPI HashingThread(LPVOID lpParam)
 {
 	CCRC32				HashHelper;
@@ -904,9 +929,9 @@ void CUpdater::ReadSettingsFile()
 		{
 			for ( ;; )
 			{
-				char		cDLCName[32];
-				bool		bDLCState;
-				BYTE		nStringLength;
+				char			cDLCName[32];
+				bool			bDLCState;
+				BYTE			nStringLength;
 
 				if ( fread(&nStringLength, 1, 1, hSetFile) != 1 )
 					break;
@@ -914,6 +939,19 @@ void CUpdater::ReadSettingsFile()
 				memset(cDLCName, 0, 32);
 				fread(cDLCName, nStringLength, 1, hSetFile);
 				fread(&bDLCState, 1, 1, hSetFile);
+
+				// Is special?
+				if ( m_DLCsMap[cDLCName].second )
+				{
+					// Perform extra auth
+					unsigned long	nHash;
+					unsigned long	nMachineID = GetMachineID() ^ *(DWORD*)cDLCName;
+
+					fread(&nHash, 4, 1, hSetFile);
+
+					bDLCState = nHash == nMachineID;
+				}
+
 				AddThisDLCToList(cDLCName, bDLCState);
 			}
 		}
@@ -940,7 +978,17 @@ void CUpdater::WriteSettingsFile()
 			BYTE		nStringSize = static_cast<BYTE>(it->first.size());
 			fwrite(&nStringSize, 1, 1, hSetFile);
 			fwrite(it->first.c_str(), nStringSize, 1, hSetFile);
-			fwrite(&it->second, 1, 1, hSetFile);
+
+			fwrite(&it->second.first, 1, 1, hSetFile);
+
+			// Is special?
+			if ( it->second.second )
+			{
+				// Add extra auth
+				unsigned long	nMachineID = it->second.first ? GetMachineID() ^ *(DWORD*)it->first.c_str() : 0xFFFFFFFF;
+
+				fwrite(&nMachineID, 4, 1, hSetFile);
+			}
 		}
 		fclose(hSetFile);
 	}
@@ -952,18 +1000,23 @@ static size_t ReceiveDataFromPHP(char* ptr, size_t size, size_t nmemb, void* use
 	return size*nmemb;
 }
 
-void CUpdater::SendSerialCodeRequest(const std::string* request)
+void CUpdater::SendSerialCodeRequest(const std::string& request)
 {
 	if ( !pCurlUpdaterHandle )
 	{
+		// Make a full POST request
+		static std::string		strFullRequest;
+
+		strFullRequest = "srk=" + request + "&mac=" + std::to_string(GetMachineID());
+
 		pDLCCurl = curl_easy_init();
 		curl_easy_setopt(pDLCCurl, CURLOPT_WRITEFUNCTION, ReceiveDataFromPHP);
 		curl_easy_setopt(pDLCCurl, CURLOPT_WRITEDATA, &strReturnedData);
 		curl_easy_setopt(pDLCCurl, CURLOPT_POST, 1);
 
 		curl_easy_setopt(pDLCCurl, CURLOPT_URL, "http://vcspcedition.com/1FBB417D15BE1.php");
-		curl_easy_setopt(pDLCCurl, CURLOPT_POSTFIELDS, request->c_str());
-		curl_easy_setopt(pDLCCurl, CURLOPT_POSTFIELDSIZE, request->length());
+		curl_easy_setopt(pDLCCurl, CURLOPT_POSTFIELDS, strFullRequest.c_str());
+		curl_easy_setopt(pDLCCurl, CURLOPT_POSTFIELDSIZE, strFullRequest.length());
 	}
 
 	if ( !pCurlMulti )

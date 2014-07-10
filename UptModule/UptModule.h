@@ -13,6 +13,12 @@
 #define HASHMAP_NAME			L"HASH_MAP"
 #endif
 
+#define MAC_ADDRESS_BUFFER_SIZE				15000
+
+// DLC messages
+#define DLC_MESSAGE_FAIL			"fail"
+#define DLC_MESSAGE_UNLOCKED		"unlocked"
+
 typedef std::pair<std::wstring,unsigned long>		HashPair;
 
 // TODO: Try to organise it better
@@ -61,7 +67,7 @@ private:
 	std::wstring								szCurrentFile;
 	std::list<std::wstring>						filesList;
 	std::list<std::wstring>::const_iterator		listIt;
-	std::map<std::string,bool>					m_DLCsMap;
+	std::map<std::string,std::pair<bool, bool>>	m_DLCsMap;
 	DLCEntry*									m_DLCsByIndex;
 
 	UptMessageCallback							MessageFunction;
@@ -89,7 +95,7 @@ private:
 	inline bool			CheckThisDLC(signed short nIndex)
 		{	std::string&	pName = m_DLCsByIndex[nIndex].m_strName;
 			CDate			CurrentDate = GetCurrentDate();
-			return m_DLCsMap.count(pName) != 0 ? (m_DLCsMap[pName] && ( m_DLCsByIndex[nIndex].m_launchDate == static_cast<CDate>(0) || (m_DLCsByIndex[nIndex].m_launchDate <= CurrentDate && m_DLCsByIndex[nIndex].m_expirationDate > CurrentDate) )) : false; }
+			return m_DLCsMap.count(pName) != 0 ? (m_DLCsMap[pName].first && ( m_DLCsByIndex[nIndex].m_launchDate == static_cast<CDate>(0) || (m_DLCsByIndex[nIndex].m_launchDate <= CurrentDate && m_DLCsByIndex[nIndex].m_expirationDate > CurrentDate) )) : false; }
 public:
 	CUpdater()
 		:	bInitialized(false), bCheckingForUpdates(false), bFilesReadyToInstall(false), bDownloadingInProgress(false),
@@ -118,9 +124,11 @@ public:
 	void			WriteSettingsFile();
 
 	inline void		AddThisDLCToList(const char* pName, bool bEnable)
-			{ m_DLCsMap[pName] = bEnable; }
+		{ m_DLCsMap[pName].first = bEnable; }
+	inline void		SetThisDLCAsVerySpecial(const char* pName)
+		{ m_DLCsMap[pName].second = true; }
 	inline bool		GetDLCStatus(const char* pName, bool bDefault)
-			{ if ( m_DLCsMap.count(pName) == 0 ) m_DLCsMap[pName] = bDefault; return m_DLCsMap[pName]; }
+		{ if ( m_DLCsMap.count(pName) == 0 ) m_DLCsMap[pName].first = bDefault; return m_DLCsMap[pName].first; }
 	inline float	GetProgress()
 			{ return dwTotalDownloadSize ? (static_cast<float>(dwDownloadedData) * 100.0f) / dwTotalDownloadSize : 0.0f; }
 	inline bool		UpdatesAvailable()
@@ -131,7 +139,7 @@ public:
 			{ dwDownloadedData += nProgress; if ( dwDownloadedData > dwTotalDownloadSize ) dwDownloadedData = dwTotalDownloadSize; }
 
 	// DLC handling part
-	void			SendSerialCodeRequest(const std::string* request);
+	void			SendSerialCodeRequest(const std::string& request);
 	void			RegisterOnFinishedRequestCallback(SerialCodeRequestCallback callback);
 	void			ProcessDLCMessage(CURLMsg* pMultiMsg);
 };

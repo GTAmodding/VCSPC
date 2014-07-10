@@ -6,7 +6,7 @@ class IDLCClient001
 public:
 	virtual					~IDLCClient001() {};
 	
-	virtual void			SendSerialCodeRequest(const std::string* request)=0;
+	virtual void			SendSerialCodeRequest(const std::string& request)=0;
 	virtual void			RegisterOnFinishedRequestCallback(SerialCodeRequestCallback callback)=0;
 };
 

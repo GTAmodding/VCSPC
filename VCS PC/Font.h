@@ -94,6 +94,7 @@ public:
 	static void				PrintString(float posX, float posY, const char* pText);
 	static void				PrintStringFromBottom(float posX, float posY, const char* pText);
 	static void				SetWrapx(float fWrap);
+	static void				InitPerFrame();
 
 	static void				Initialise();
 	static void				Shutdown();

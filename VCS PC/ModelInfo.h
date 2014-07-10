@@ -376,6 +376,12 @@ public:
 	{}
 };
 
+class CTempColModels
+{
+public:
+	static CColModel&				ms_colModelWeapon;
+};
+
 class CAtomicModelInfo;
 class CDamageAtomicModelInfo;
 class CLodAtomicModelInfo;
@@ -449,6 +455,7 @@ public:
 	inline unsigned int		GetHash() { return ulHashKey; }
 	inline short			GetTextureDict() { return usTextureDictionary; }
 
+	void					SetColModel(CColModel* pModel, bool bInitPaired);
 	void					RecalcDrawDistance(float fOldDist);
 	void					SetTexDictionary(const char* pDict);
 	void					AddRef();
@@ -526,6 +533,11 @@ public:
 	{}
 };
 
+class CWeaponModelInfo : public CClumpModelInfo
+{
+	int						WeaponInfo;
+};
+
 class CPedModelInfo : public CClumpModelInfo
 {
 public:
@@ -570,6 +582,11 @@ private:
 	static unsigned char* const		ms_currentCol;
 	static CRGBA* const				ms_vehicleColourTable;
 
+	static const char*&				ms_pCurrentCarcolsFile;
+
+public:
+	static void						LoadVehicleColours();
+
 public:
 	static inline void				SetRemap(RwTexture* pTex)
 		{ ms_pRemapTexture = pTex; }
@@ -579,6 +596,7 @@ public:
 
 	static void						SetVehicleColour(unsigned char primaryColour, unsigned char secondaryColour, unsigned char tertiaryColour, unsigned char quaternaryColour);
 	static RpMaterial*				SetEditableMaterialsCB(RpMaterial* pMaterial, void* pData);
+	static void						LoadAllVehicleColours();
 };
 
 class CPedModelInfoVCS : public CPedModelInfo // VCS PC class extension
@@ -636,7 +654,7 @@ public:
 class CModelInfo
 {
 public:
-	static CBaseModelInfo**								ms_modelInfoPtrs;
+	static CBaseModelInfo** const						ms_modelInfoPtrs;
 
 #if NUM_VEHICLES > 212
 	ModelCarsData*		ModelCarsMalloc;
@@ -662,7 +680,10 @@ public:
 	static CPedModelInfoVCS*							AddPedModel(int nModelID);
 	static CDamageAtomicModelInfo*						AddDamageAtomicModel(int nModelID);
 	static CTimeModelInfo*								AddTimeModel(int nModelID);
+	static CWeaponModelInfo*							AddWeaponModel(int nModelID);
 	static void											ShutDown();
+
+	static void											Inject();
 };
 
 extern std::pair<void*,int>* const materialRestoreData;

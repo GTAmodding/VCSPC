@@ -60,10 +60,7 @@ void CDLCManager::Terminate()
 		CProject2dfx::Shutdown();
 
 	for ( int i = 0; i < NUM_DLC_PACKS; i++ )
-	{
-		if ( m_pDLC[i] )
-			delete m_pDLC[i];
-	}
+		delete m_pDLC[i];
 }
 
 void CDLCManager::LoadLevelFiles()
@@ -80,6 +77,9 @@ void CDLCManager::LoadLevelFiles()
 				char		cDLCName[32];
 				_snprintf(cLevelsPath, sizeof(cLevelsPath), "dlc\\dlc%d\\content.dat", i);
 
+				if ( i == DLC_THANKYOU )
+					CFileLoader::SetEncryptionType(1);
+				
 				if ( !CFileLoader::ParseLevelFile(cLevelsPath, cDLCName) )
 					m_pDLC[i]->Activate(false);
 				else
@@ -87,6 +87,9 @@ void CDLCManager::LoadLevelFiles()
 					if ( _strnicmp(cDLCName, m_pDLC[i]->GetName(), sizeof(cDLCName)) )
 						m_pDLC[i]->Activate(false);
 				}
+
+				if ( i == DLC_THANKYOU )
+					CFileLoader::SetEncryptionType(0);
 			}
 		}
 	}
@@ -114,13 +117,12 @@ void CDLCManager::HandleButtonClick(int nMenuEntry)
 void CDLCManager::ActivateSerial(const std::string* strSerial)
 {
 	// Make a serial code out of the passed array
-	// POSTing requires it to be permanent
-	static std::string		strFullSerial;
+	std::string			strFullSerial;
 	
-	strFullSerial = strSerial[0] + strSerial[1] + strSerial[2] + strSerial[3];
-	strFullSerial.shrink_to_fit();
+	for ( int i = 0; i < SERIAL_CODES_LENGTH; i++ )
+		strFullSerial += strSerial[i];
 
-	m_pDLCCLient->SendSerialCodeRequest(&strFullSerial);
+	m_pDLCCLient->SendSerialCodeRequest(strFullSerial);
 	m_bContactingTheSite = true;
 }
 
@@ -131,6 +133,40 @@ void CDLCManager::Process()
 
 void CDLCManager::OnFinishedRequest(const std::string& strOut)
 {
+	if ( strOut.find("fail") == 0 )
+	{
+		FrontEndMenuManager.RegisterDLCMessage("FEE_WRK");
+		FrontEndMenuManager.SwitchToScreenAfterMessage(45);
+	}
+	else if ( strOut.find("unlocked") == 0 )
+	{
+		std::string		strDLCName = strOut.substr(9);
+
+		// Find DLC by name
+		for ( int i = 0; i < NUM_DLC_PACKS; i++ )
+		{
+			if ( strDLCName == m_pDLC[i]->GetName() )
+			{
+				if ( !m_pDLC[i]->IsActive() )
+				{
+					static char		cUnlockGXTName[8];
+
+					_snprintf(cUnlockGXTName, sizeof(cUnlockGXTName), "FEE_U%02d", i);
+					CUpdateManager::SetDLCStatus(m_pDLC[i]->GetName(), true);
+					FrontEndMenuManager.RegisterDLCMessage(cUnlockGXTName);
+					FrontEndMenuManager.SwitchToScreenAfterMessage(44);
+
+					CUpdateManager::ForceUpdate();
+				}
+				else
+				{
+					FrontEndMenuManager.RegisterDLCMessage("FEE_ALA");
+					FrontEndMenuManager.SwitchToScreenAfterMessage(45);
+				}
+				break;
+			}
+		}
+	}
 
 	m_bContactingTheSite = false;
 }

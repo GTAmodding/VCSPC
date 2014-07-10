@@ -12,6 +12,8 @@
 [Rr]elease/
 [Nn]ormal/
 [Nn]ightly/
+[Dd]ev [Bb]uild/
+[Rr]elease [Cc]andidate/
 output/
 symbols/
 x64/
@@ -188,3 +190,5 @@ Desktop.ini
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+dependencies/tools/lastrev.txt
+buildnumber.h

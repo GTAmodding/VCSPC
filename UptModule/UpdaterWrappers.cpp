@@ -73,8 +73,12 @@ bool CUpdaterClient001::GetDLCStatus(const char* pName, bool bDefault)
 	return gUpdaterHandle->GetDLCStatus(pName, bDefault);
 }
 
+void CUpdaterClient001::SetThisDLCAsVerySpecial(const char* pName)
+{
+	gUpdaterHandle->SetThisDLCAsVerySpecial(pName);
+}
 
-void CDLCClient001::SendSerialCodeRequest(const std::string* request)
+void CDLCClient001::SendSerialCodeRequest(const std::string& request)
 {
 	gUpdaterHandle->SendSerialCodeRequest(request);
 }

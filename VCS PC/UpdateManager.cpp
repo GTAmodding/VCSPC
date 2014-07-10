@@ -33,6 +33,10 @@ void CUpdateManager::Init()
 		if ( interfaceFactory )
 		{
 			pUptModuleInterface = (IUpdaterClient001*)interfaceFactory(UPDATER_INTERFACE_CLIENT001);
+
+			// Needs to be called VERY early
+			CUpdateManager::SetThisDLCAsVerySpecial(CDLCManager::GetDLC(DLC_THANKYOU)->GetName());
+
 			pUptModuleInterface->Initialize();
 			pUptModuleInterface->RegisterMessageCallback(EchoMessage);
 

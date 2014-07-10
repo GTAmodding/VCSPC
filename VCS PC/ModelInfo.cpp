@@ -3,9 +3,12 @@
 
 #include "Pools.h"
 #include "TxdStore.h"
+#include "Streaming.h"
 
 // Static variables
-CBaseModelInfo**						CModelInfo::ms_modelInfoPtrs = (CBaseModelInfo**)0xA9B0C8;
+CColModel&								CTempColModels::ms_colModelWeapon = *(CColModel*)0x968FD0;
+
+CBaseModelInfo** const					CModelInfo::ms_modelInfoPtrs = (CBaseModelInfo**)0xA9B0C8;
 
 RwTexture*&								CVehicleModelInfo::ms_pRemapTexture = *(RwTexture**)0xB4E47C;
 RwTexture*&								CVehicleModelInfo::ms_pLightsTexture = *(RwTexture**)0xB4E68C;
@@ -13,6 +16,7 @@ RwTexture*&								CVehicleModelInfo::ms_pLightsOnTexture = *(RwTexture**)0xB4E6
 bool* const								CVehicleModelInfo::ms_lightsOn = (bool*)0xB4E3E8;
 unsigned char* const					CVehicleModelInfo::ms_currentCol = (unsigned char*)0xB4E3F0;
 CRGBA* const							CVehicleModelInfo::ms_vehicleColourTable = (CRGBA*)0xB4E480;
+const char*&							CVehicleModelInfo::ms_pCurrentCarcolsFile = *(const char**)0x5B68A1;
 
 CDynamicStore<CPedModelInfoVCS>			CModelInfo::ms_pedModelStore;
 CDynamicStore<CAtomicModelInfo>			CModelInfo::ms_atomicModelStore;
@@ -27,9 +31,11 @@ float&									ms_lodDistScale = *(float*)0x8CD800;
 
 // Wrappers
 WRAPPER CBaseModelInfo* CModelInfo::GetModelInfo(const char* pName, int* pOutID) { WRAPARG(pName); WRAPARG(pOutID); EAXJMP(0x4C5940); }
+WRAPPER CWeaponModelInfo* CModelInfo::AddWeaponModel(int nModelID) { WRAPARG(nModelID); EAXJMP(0x4C6710); }
 
 WRAPPER void CBaseModelInfo::Init() { EAXJMP(0x4C4B10); }
 WRAPPER void CBaseModelInfo::Shutdown() { EAXJMP(0x4C4D50); }
+WRAPPER void CBaseModelInfo::SetColModel(CColModel* pModel, bool bInitPaired) { WRAPARG(pModel); WRAPARG(bInitPaired);  EAXJMP(0x4C4BC0); }
 
 WRAPPER void CClumpModelInfo::DeleteRwObject() { EAXJMP(0x4C4E70); }
 WRAPPER RpAtomic* CClumpModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C5110); }
@@ -49,7 +55,15 @@ WRAPPER RpAtomic* CDamageAtomicModelInfo::CreateInstance() { EAXJMP(0x4C4960); }
 WRAPPER void CPedModelInfo::SetClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x4C7340); }
 
 WRAPPER RpAtomic* CVehicleModelInfo::SetEditableMaterialsCB(RpAtomic* pMaterial, void* pData) { WRAPARG(pMaterial); WRAPARG(pData); EAXJMP(0x4C83E0); }
-WRAPPER void CVehicleModelInfo::ResetEditableMaterials() { EAXJMP(0x4C8460); }
+WRAPPER void CVehicleModelInfo::LoadVehicleColours() { EAXJMP(0x5B6890); }
+
+static void TXDLoadOverride(signed int nIndex, const char* pName)
+{
+	UNREFERENCED_PARAMETER(pName);
+
+	CStreaming::RequestModel(nIndex + 20000, 26);
+	CStreaming::LoadAllRequestedModels(true);
+}
 
 void CColModel::operator delete(void* ptr)
 {
@@ -166,14 +180,64 @@ void CModelInfo::ShutDown()
 	ms_drawDistStorage.Shutdown();
 }
 
+void CModelInfo::Inject()
+{
+	Memory::InjectHook(0x5B8F17, CVehicleModelInfo::LoadAllVehicleColours);
+
+	// GTA IV vehshare
+	Memory::Patch<const char*>(0x5B6F3D, "vehshare");
+	Memory::Patch<const char*>(0x5B6F58, "vehshare");
+	Memory::Patch<const char*>(0x5B8F36, "vehshare");
+	Memory::Patch<const char*>(0x5B8F4A, "vehshare");
+	Memory::Patch<const char*>(0x5D5BC8, "vehshare");
+	Memory::Patch<const char*>(0x6FD503, "vehshare");
+	Memory::Patch<const char*>(0x6FD781, "vehshare");
+	Memory::InjectHook(0x5B8F5E, TXDLoadOverride);
+	Memory::Patch<BYTE>(0x4C75A0, 0xC3);
+	Memory::Patch<BYTE>(0x4C75C0, 0xC3);
+
+	// Fixed vehicle editable materials (by _DK)
+	Memory::Patch<const void*>(0x4C8415, static_cast<RpMaterial*(*)(RpMaterial*, void*)>(CVehicleModelInfo::SetEditableMaterialsCB));
+
+	Memory::Patch<BYTE>(0x84BCF0, 0xC3);
+	Memory::Patch<BYTE>(0x8562B0, 0xC3);
+
+	Memory::Patch<WORD>(0x4C6517, 0x22EB);
+	Memory::Nop(0x4C6857, 7);
+
+	Memory::InjectHook(0x5B74A7, AddPedModel);
+	Memory::InjectHook(0x5B3F32, AddTimeModel);
+
+	Memory::Patch<BYTE>(0x4C491B, offsetof(CDamageAtomicModelInfo, pAtomic2));
+	Memory::Patch<BYTE>(0x4C496E, offsetof(CDamageAtomicModelInfo, pAtomic2));
+	Memory::Patch<BYTE>(0x4C48D8, offsetof(CDamageAtomicModelInfo, pAtomic2));
+
+	/*patch(0x4C640B, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
+	patch(0x4C6428, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
+	patch(0x4C6651, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
+	patch(0x4C6662, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
+	patch(0x4C682F, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
+	//patch(0x84BC11, &CModelInfo::ms_damageAtomicModelStore, 4);
+	//patch(c, &CModelInfo::ms_damageAtomicModelStore, 4);
+
+	patch(0x4C6416, &CModelInfo::ms_damageAtomicModelStore.m_Objects, 4);
+	patch(0x4C665D, &CModelInfo::ms_damageAtomicModelStore.m_Objects, 4);
+
+	//Patch<BYTE>(0x4C5D1C, NUM_CLUMP_MODELS);
+	//Patch<BYTE>(0x4C5866, NUM_CLUMP_MODELS);*/
+
+	Memory::Patch<BYTE>(0x84BC10, 0xC3);
+	Memory::Patch<BYTE>(0x856240, 0xC3);
+
+	Memory::Patch<WORD>(0x4C64C8, 0x22EB);
+	Memory::Nop(0x4C684B, 7);
+
+	Memory::InjectHook(0x4C6616, CModelInfo::ShutDown, PATCH_JUMP);
+}
+
 void CBaseModelInfo::SetTexDictionary(const char* pDict)
 {
-	int		nSlot = CTxdStore::FindTxdSlot(pDict);
-
-	if ( nSlot == -1 )
-		usTextureDictionary = CTxdStore::AddTxdSlot(pDict);
-	else
-		usTextureDictionary = nSlot;
+	usTextureDictionary = CTxdStore::GetTxdSlot(pDict);
 }
 
 void CBaseModelInfo::AddRef()
@@ -316,6 +380,26 @@ RpMaterial* CVehicleModelInfo::SetEditableMaterialsCB(RpMaterial* pMaterial, voi
 	pMaterial->color.blue = ms_vehicleColourTable[nColourToPaint].b;
 
 	return pMaterial;
+}
+
+void CVehicleModelInfo::LoadAllVehicleColours()
+{
+	LoadVehicleColours();
+
+	if ( auto* pColours = CFileLoader::GetCarcolsList() )
+	{
+		for ( auto it = pColours->cbegin(); it != pColours->cend(); it++ )
+		{
+			ms_pCurrentCarcolsFile = it->c_str();
+			LoadVehicleColours();
+		}
+	}
+}
+
+void CVehicleModelInfo::ResetEditableMaterials()
+{
+	for ( auto* i = materialRestoreData; i->first; i++ )
+		*static_cast<int*>(i->first) = i->second;
 }
 
 void CPedModelInfoVCS::LoadPedColours()

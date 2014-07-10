@@ -45,6 +45,9 @@ public:
 	static inline void			SetDLCStatus(const char* pName, bool bStatus)
 		{ pUptModuleInterface->AddThisDLCToList(pName, bStatus); }
 
+	static inline void			SetThisDLCAsVerySpecial(const char* pName)
+		{ pUptModuleInterface->SetThisDLCAsVerySpecial(pName); }
+
 #ifdef DEVBUILD
 	static inline void			DisableAutoCheck()
 		{ bDisableAutoCheck = true; }

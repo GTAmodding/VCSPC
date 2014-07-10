@@ -10,7 +10,7 @@ CStreamingInfo* const	CStreaming::ms_aInfoForModel = (CStreamingInfo*)0x8E4CC0;
 CdImage					CStreaming::ms_cdImages[NUM_IMG_FILES];
 bool					CStreaming::ms_bCopBikeAllowed;
 
-WRAPPER int CdStreamAddImage(const char* pName, bool bStandardIMG) { WRAPARG(pName); WRAPARG(bStandardIMG); EAXJMP(0x407610); }
+WRAPPER int CdStreamAddImage(const char* pName, bool bStandardIMG, unsigned char bEncryptionType) { WRAPARG(pName); WRAPARG(bStandardIMG); WRAPARG(bEncryptionType); EAXJMP(0x407610); }
 WRAPPER void InitModelIndices() { EAXJMP(0x5B57C0); }
 WRAPPER void CStreaming::RequestModel(int nIndex, int nPriority) { WRAPARG(nIndex); WRAPARG(nPriority); EAXJMP(0x4087E0); }
 WRAPPER void CStreaming::SetModelIsDeletable(int nIndex) { WRAPARG(nIndex); EAXJMP(0x409C10); }
@@ -19,6 +19,7 @@ WRAPPER void CStreaming::LoadAllRequestedModels(bool bPriorityOnly) { WRAPARG(bP
 WRAPPER int CStreaming::RandomizeTaxiDriverIDByTown() { EAXJMP(0x407D50); }
 WRAPPER bool CStreaming::RemoveLeastUsedModel(unsigned int nUnknown) { WRAPARG(nUnknown); EAXJMP(0x40CFD0); }
 WRAPPER void CStreaming::DeleteRwObjectsBehindCamera(int nMemUsed) { WRAPARG(nMemUsed); EAXJMP(0x40D7C0); }
+WRAPPER void CStreaming::Init() { EAXJMP(0x5B8AD0); }
 
 WRAPPER void CStreaming::LoadCdDirectory(const char* pArchiveName, int nArchiveIndex, CBlowFish* pEncryption) { WRAPARG(pArchiveName); WRAPARG(nArchiveIndex); WRAPARG(pEncryption); EAXJMP(0x5B6170); }
 
@@ -205,18 +206,21 @@ void CStreaming::LoadCdDirectory()
 {
 	if ( ms_cdImages[0].cName[0] )
 	{
-		unsigned char	encKey[24] = {	0x81, 0x45, 0x26, 0xFA, 0xDA, 0x7C, 0x6C, 0x11,
-										0x86, 0x93, 0xCC, 0x90, 0x2B, 0xB7, 0xE2, 0x32,
-										0x10, 0x0F, 0x56, 0x9B, 0x02, 0x8A, 0x6C, 0x5F };
-		CBlowFish	blowFish(encKey, 24);
-		int			nIndex = 0;
 
-		for ( int i = 0; i < NUM_IMG_FILES && ms_cdImages[i].cName[0]; ++i, ++nIndex )
+		for ( int i = 0; i < NUM_IMG_FILES && ms_cdImages[i].cName[0]; ++i )
 		{
+			unsigned char	encKey[2][24] = {	{	0x81, 0x45, 0x26, 0xFA, 0xDA, 0x7C, 0x6C, 0x11,
+												0x86, 0x93, 0xCC, 0x90, 0x2B, 0xB7, 0xE2, 0x32,
+												0x10, 0x0F, 0x56, 0x9B, 0x02, 0x8A, 0x6C, 0x5F },
+											{	124, 216, 71, 196, 191, 42, 230, 227, 164, 92,
+												149, 92, 214, 126, 96, 45, 11, 97, 63, 217, 62,
+												171, 41, 221 } 
+										} ;
+			CBlowFish	blowFish(encKey[ms_cdImages[i].bEncryptionType], 24);
 			if ( ms_cdImages[i].bNotPlayerIMG )
 			{
-				blowFish.ResetChain();
-				LoadCdDirectory(ms_cdImages[i].cName, nIndex, &blowFish);
+				//blowFish.ResetChain();
+				LoadCdDirectory(ms_cdImages[i].cName, i, &blowFish);
 			}
 		}
 	}

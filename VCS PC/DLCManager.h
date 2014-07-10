@@ -8,6 +8,10 @@
 // DLC headers
 #include "Project2dfx.h"
 
+// Serial code macros
+#define SERIAL_CODES_LENGTH			3
+#define SERIAL_CODES_ONE_WINDOW		4
+
 class CExpansionPack
 {
 private:

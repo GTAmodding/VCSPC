@@ -22,7 +22,8 @@ public:
 };
 
 // Now uses multiple lists
-typedef std::vector<const std::string>	tFileLoaderList;
+typedef std::vector<const std::string>							tFileLoaderList;
+typedef std::vector<std::pair<const std::string,unsigned char>>	tFileLoaderList_IMG;
 
 // Thought they could fall into the same file...
 class CFileLoader
@@ -30,10 +31,13 @@ class CFileLoader
 private:
 	// Custom loading method, so DLCs work well
 	// Not sure how it affects the loading speed
-	static tFileLoaderList*		m_pImagesList;
+	static tFileLoaderList_IMG*	m_pImagesList;
 	static tFileLoaderList*		m_pObjectsList;
 	static tFileLoaderList*		m_pScenesList;
 	static tFileLoaderList*		m_pCollisionsList;
+
+	static tFileLoaderList*		m_pCarcolsList;
+	static tFileLoaderList*		m_pVehAudioList;
 
 	// Path overloads for DLC support
 	static char					m_cParticlesPath[64];
@@ -43,18 +47,27 @@ private:
 	static char					m_cFrontendPath[64];
 	static char					m_cP2dfxPath[64];
 
+	static unsigned char		m_bCurrentEncryptionType;
+
 private:
 	static inline void			BeginLevelLists()
-		{	if ( !m_pImagesList ) m_pImagesList = new tFileLoaderList;
+		{	if ( !m_pImagesList ) m_pImagesList = new tFileLoaderList_IMG;
 			if ( !m_pObjectsList )  m_pObjectsList = new tFileLoaderList;
 			if ( !m_pScenesList )  m_pScenesList = new tFileLoaderList;
 			if ( !m_pCollisionsList )  m_pCollisionsList = new tFileLoaderList; }
-
 	static inline void			EndLevelLists()
 		{	delete m_pImagesList;
 			delete m_pObjectsList;
 			delete m_pScenesList;
 			delete m_pCollisionsList; }
+	static inline void			BeginCarcols()
+		{	if ( !m_pCarcolsList ) m_pCarcolsList = new tFileLoaderList; }
+	static inline void			EndCarcols()
+		{	delete m_pCarcolsList; }
+	static inline void			BeginVehAudio()
+		{	if ( !m_pVehAudioList ) m_pVehAudioList = new tFileLoaderList; }
+	static inline void			EndVehAudio()
+		{	delete m_pVehAudioList; }
 
 public:
 	static inline char*			GetParticlesPath()
@@ -69,6 +82,13 @@ public:
 		{ return m_cFrontendPath; }
 	static inline char*			GetP2dfxPath()
 		{ return m_cP2dfxPath; }
+	static inline tFileLoaderList*	GetCarcolsList()
+		{ return m_pCarcolsList; }
+	static inline tFileLoaderList*	GetVehAudioList()
+		{ return m_pVehAudioList; }
+
+	static inline void			SetEncryptionType(unsigned char bType)
+		{ m_bCurrentEncryptionType = bType; }
 	
 	// Translates a path with device classes
 	static std::string			TranslatePath(const char* pFileName, const char* pDLCName);
@@ -77,9 +97,9 @@ public:
 	static void					LoadScene(const char* pFileName);
 	static void					LoadCollisionFile(const char* pFileName, unsigned char bUnk);
 
-
 	static void					LoadEntryExit(const char* pLine);
 	static int					LoadObject(const char* pLine);
+	static int					LoadWeaponObject(const char* pLine);
 	static const char*			LoadLine(FILE* hFile);
 	static void					LoadLevels();
 	static bool					ParseLevelFile(const char* pFileName, char* pDLCName);

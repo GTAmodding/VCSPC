@@ -2,13 +2,13 @@
 #define __LINKLIST__
 
 template <class T>
-class CLink 
+class CLink
 {
 public:
 	inline void Insert(CLink<T>* pAttach) {
 		pAttach->m_pNext = m_pNext;
 		m_pNext->m_pPrev = pAttach;
-		
+
 		pAttach->m_pPrev = this;
 		m_pNext = pAttach;
 	}

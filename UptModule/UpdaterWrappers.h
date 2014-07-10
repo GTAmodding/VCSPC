@@ -24,13 +24,15 @@ public:
 
 	virtual void			AddThisDLCToList(const char* pName, bool bEnable) override;
 	virtual bool			GetDLCStatus(const char* pName, bool bDefault) override;
+
+	virtual void			SetThisDLCAsVerySpecial(const char* pName) override;
 };
 
 class CDLCClient001 : public IDLCClient001
 {
 	virtual					~CDLCClient001() { };
 
-	virtual void			SendSerialCodeRequest(const std::string* request) override;
+	virtual void			SendSerialCodeRequest(const std::string& request) override;
 	virtual void			RegisterOnFinishedRequestCallback(SerialCodeRequestCallback callback) override;
 };
 

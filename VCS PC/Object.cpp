@@ -18,6 +18,7 @@ void CObject::Render()
 		CVehicleModelInfo::SetVehicleColour(m_nCarColor[0], m_nCarColor[1], m_nCarColor[2], m_nCarColor[3]);
 
 		CVehicleModelInfo::SetEditableMaterialsCB(reinterpret_cast<RpAtomic*>(m_pRwObject), &pData);
+		pData->first = nullptr;
 
 		bCallRestore = true;
 	}

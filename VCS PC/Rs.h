@@ -135,6 +135,7 @@ BOOL			RsCameraBeginUpdate(RwCamera* pCamera);
 
 void			DoRWStuffEndOfFrame();
 void			DefinedState2d();
+void			CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio);
 
 extern RsGlobalType&		RsGlobal;
 extern const DWORD			RsGlobalFrameLimits[5];

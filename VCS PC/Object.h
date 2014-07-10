@@ -6,8 +6,8 @@ class NOVMT CObject : public CPhysical
 public:
 	void*				m_pObjectList;
 	unsigned char		m_nObjectType;
-	__int8 field_13D;
-	__int16 field_13E;
+	__int8				field_13D;
+	__int16				field_13E;
 	bool				bObjectFlag0 : 1;
 	bool				bObjectFlag1 : 1;
 	bool				bObjectFlag2 : 1;

@@ -114,7 +114,7 @@ if "%COMPUTERNAME%" == "ADRIAN-PC" (
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
-      <AdditionalDependencies>comctl32.lib;gdiplus.lib;..\Debug\UptModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;gdiplus.lib;..\Dev Build\UptModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>@echo off

@@ -22,7 +22,9 @@ public:
 
 	// Added in version 3
 	virtual void			AddThisDLCToList(const char* pName, bool bEnable)=0;
-	virtual bool			GetDLCStatus(const char* pName, bool bDefault)=0;			
+	virtual bool			GetDLCStatus(const char* pName, bool bDefault)=0;	
+
+	virtual void			SetThisDLCAsVerySpecial(const char* pName)=0;
 };
 
 #endif

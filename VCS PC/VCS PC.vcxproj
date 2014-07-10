@@ -45,7 +45,7 @@
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -360,6 +360,7 @@ popd</Command>
     <ClCompile Include="RW.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="CShadows.cpp" />
+    <ClCompile Include="SpeechRecognition.cpp" />
     <ClCompile Include="Stats.cpp" />
     <ClCompile Include="Messages.cpp" />
     <ClCompile Include="Radar.cpp" />
@@ -445,6 +446,7 @@ popd</Command>
     <ClInclude Include="Replay.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="CShadows.h" />
+    <ClInclude Include="SpeechRecognition.h" />
     <ClInclude Include="Stats.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="Streaming.h" />

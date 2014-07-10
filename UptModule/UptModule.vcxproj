@@ -71,7 +71,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
-      <AdditionalDependencies>ws2_32.lib;wldap32.lib;Shlwapi.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wldap32.lib;Shlwapi.lib;libcurl.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -96,7 +96,7 @@ copy /y "$(OutDir)$(ProjectName).dll" "D:\gry\gtavcs zzcool n updater\updater\Up
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
-      <AdditionalDependencies>ws2_32.lib;wldap32.lib;Shlwapi.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wldap32.lib;Shlwapi.lib;libcurl.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -128,7 +128,7 @@ copy /y "$(OutDir)$(ProjectName).dll" "D:\gry\gtavcs zzcool n updater\updater\Up
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
-      <AdditionalDependencies>ws2_32.lib;wldap32.lib;Shlwapi.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wldap32.lib;Shlwapi.lib;libcurl.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>

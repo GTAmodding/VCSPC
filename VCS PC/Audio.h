@@ -69,10 +69,13 @@ private:
 	BYTE					pad[128];
 	tVehicleAudioSettings	AudioSettings;
 
+private:
+	// VCS PC class extension
+	static void				LoadVehicleAudioSettings(const char* pFilename);
+
 public:
 	void					GetVehicleAudioSettings(short nModelID);
 
-	// VCS PC class extension
 	static void				LoadVehicleAudioSettings();
 };
 

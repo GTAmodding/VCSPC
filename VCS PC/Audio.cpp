@@ -45,7 +45,18 @@ void CAEVehicleAudioEntity::GetVehicleAudioSettings(short nModelID)
 
 void CAEVehicleAudioEntity::LoadVehicleAudioSettings()
 {
-	if ( FILE* hFile = CFileMgr::OpenFile("DATA\\VEHAUDIOSETS.DAT", "r") )
+	LoadVehicleAudioSettings("DATA\\VEHAUDIOSETS.DAT");
+
+	if ( auto* pAudioSets = CFileLoader::GetVehAudioList() )
+	{
+		for ( auto it = pAudioSets->cbegin(); it != pAudioSets->cend(); it++ )
+			LoadVehicleAudioSettings(it->c_str());
+	}
+}
+
+void CAEVehicleAudioEntity::LoadVehicleAudioSettings(const char* pFilename)
+{
+	if ( FILE* hFile = CFileMgr::OpenFile(pFilename, "r") )
 	{
 		while ( const char* pLine = CFileLoader::LoadLine(hFile) )
 		{

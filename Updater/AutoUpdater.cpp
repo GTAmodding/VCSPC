@@ -429,6 +429,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 void InitUptModule()
 {
 	gUpdaterThread = CreateThread(nullptr, 0, UpdaterThread, nullptr, 0, nullptr);
+	gUpdater->SetThisDLCAsVerySpecial("THANKYOU");
 	gUpdater->Initialize();
 	gUpdater->RegisterMessageCallback(EchoMessage);
 }

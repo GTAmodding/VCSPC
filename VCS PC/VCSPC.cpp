@@ -71,6 +71,7 @@ void			CdStreamClearNames();
 void			ParseCommandlineFile();
 char*			ParseCommandlineArgument(char* pArg);
 BOOL			IsAlreadyRunning();
+void			TXDLoadOverride(signed int nIndex, const char* pName);
 void			SaveLanguageHack(FILE* stream, const char* ptr, size_t len);
 void			LoadLanguageHack(FILE* stream, void* buf, size_t len);
 CVehicle*		__fastcall VehiclePoolGetAt(CVehiclePool* pThis, int unused, int nIdentifier);
@@ -588,6 +589,8 @@ BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
     return TRUE;
 }
 
+#include "SpeechRecognition.h"
+
 void OnGameTermination()
 {
 	CUpdateManager::InstallIfNeeded();
@@ -595,6 +598,7 @@ void OnGameTermination()
 	CUpdateManager::Terminate();
 	CDLCManager::Terminate();
 	//CPNGArchive::Shutdown();
+	//SpeechDeinit();
 	LogToFile("Logging ended\n");
 
 	// WORKAROUND
@@ -1916,6 +1920,36 @@ CBaseModelInfo* GetModelInfoWrapper(const char* pName, int* pID)
 
 #endif
 
+#ifdef RWERRORSET_HOOK
+
+#include <d3d9.h>
+
+#define gDevice (*(IDirect3DDevice9 **)0xC97C28)
+
+RwError* RwErrorSetHook(RwError* code)
+{
+	return code;
+}
+
+WRAPPER RpAtomic* AtomicDefaultRenderCallBack_Hook(RpAtomic* atomic)
+{
+	_asm
+	{
+		push	esi
+		mov		esi, [esp+8]
+		mov		eax, 0x7491C5
+		jmp		eax
+	}
+}
+
+RpAtomic* AtomicDefaultRenderCallBack_Wireframe(RpAtomic* atomic)
+{
+	gDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	return AtomicDefaultRenderCallBack_Hook(atomic);
+}
+
+#endif
+
 /*RpAtomic* myfunc(RpAtomic* pAtomic, float alpha)
 {
 	BYTE bAlpha = alpha;
@@ -2139,6 +2173,8 @@ RpAtomic* RenderAtomicTest(RpAtomic* atomic)
 	return AtomicDefaultRenderCallBack(atomic);
 }
 
+#include "SpeechRecognition.h"
+
 __forceinline void Main_Patches()
 {
 	using namespace Memory;
@@ -2300,6 +2336,16 @@ __forceinline void Main_Patches()
 	InjectHook(0x5B6B1B, GetModelInfoWrapper);
 	InjectHook(0x5B6CA5, GetModelInfoWrapper);
 #endif
+
+#ifdef NO_REPLAY_TEXT
+	Nop(0x53E28E, 5);
+#endif
+
+#ifdef RWERRORSET_HOOK
+	InjectHook(0x808820, RwErrorSetHook, PATCH_JUMP);
+	//InjectHook(0x7491C0, AtomicDefaultRenderCallBack_Wireframe, PATCH_JUMP);
+#endif
+
 	InjectHook(0x748EDA, OnGameTermination);
 
 	CAECustomBankLoader::Patch();
@@ -2350,6 +2396,9 @@ __forceinline void Main_Patches()
 
 	// plr.dff
 	Patch(0x4668F9, "plr");
+
+	// No player skin stuff
+	Nop(0x5BA1FA, 5);
 
 	// CDarkel stuff
 	InjectHook(0x47E2E6, CDarkel::StartFrenzyVCS);
@@ -3015,6 +3064,7 @@ __forceinline void Main_Patches()
 	Patch<WORD>(0x573830, 0xCE8B);
 	Patch<BYTE>(0x573832, 0x5E);
 	InjectMethod(0x573833, CMenuManager::SwitchToNewScreenVCS, PATCH_JUMP);
+	InjectMethod(0x579330, CMenuManager::MessageScreen, PATCH_JUMP);
 
 	static DWORD	dwDummy;
 	// Savegame compatibility
@@ -3143,43 +3193,11 @@ __forceinline void Main_Patches()
 	//Patch<BYTE>(0x4C6536, sizeof(CPedModelInfoVCS));
 	//Patch<BYTE>(0x4C67AA, sizeof(CPedModelInfoVCS));
 
-	Patch<BYTE>(0x84BCF0, 0xC3);
-	Patch<BYTE>(0x8562B0, 0xC3);
-
-	Patch<WORD>(0x4C6517, 0x22EB);
-	Nop(0x4C6857, 7);
-
-	InjectHook(0x5B74A7, CModelInfo::AddPedModel);
-	InjectHook(0x5B3F32, CModelInfo::AddTimeModel);
-
-	Patch<BYTE>(0x4C491B, offsetof(CDamageAtomicModelInfo, pAtomic2));
-	Patch<BYTE>(0x4C496E, offsetof(CDamageAtomicModelInfo, pAtomic2));
-	Patch<BYTE>(0x4C48D8, offsetof(CDamageAtomicModelInfo, pAtomic2));
-
-	/*patch(0x4C640B, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
-	patch(0x4C6428, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
-	patch(0x4C6651, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
-	patch(0x4C6662, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
-	patch(0x4C682F, &CModelInfo::ms_damageAtomicModelStore.m_NumObjects, 4);
-	//patch(0x84BC11, &CModelInfo::ms_damageAtomicModelStore, 4);
-	//patch(c, &CModelInfo::ms_damageAtomicModelStore, 4);
-
-	patch(0x4C6416, &CModelInfo::ms_damageAtomicModelStore.m_Objects, 4);
-	patch(0x4C665D, &CModelInfo::ms_damageAtomicModelStore.m_Objects, 4);
-
-	//Patch<BYTE>(0x4C5D1C, NUM_CLUMP_MODELS);
-	//Patch<BYTE>(0x4C5866, NUM_CLUMP_MODELS);*/
-
-	Patch<BYTE>(0x84BC10, 0xC3);
-	Patch<BYTE>(0x856240, 0xC3);
-
-	Patch<WORD>(0x4C64C8, 0x22EB);
-	Nop(0x4C684B, 7);
+	// Modelinfo patches
+	CModelInfo::Inject();
 
 	//call(0x5B3D8E, &CModelInfo::AddDamageAtomicModel, PATCH_NOTHING);
 	InjectHook(0x5B85DD, CFileLoader::LoadObject);
-
-	InjectHook(0x4C6616, CModelInfo::ShutDown, PATCH_JUMP);
 
 	// Old style Rhino
 	Patch<const void*>(0x6A80CA, &fRhinoHitStrength);
@@ -3360,6 +3378,7 @@ __forceinline void Main_Patches()
 	InjectHook(0x53BC9B, CFileLoader::ParseLevelFile, PATCH_CALL);
 	InjectHook(0x53BCA0, CFileLoader::LoadLevels, PATCH_CALL);
 	InjectHook(0x5B8980, CFileLoader::LoadEntryExit);
+	InjectHook(0x5B8634, CFileLoader::LoadWeaponObject);
 	Patch<BYTE>(0x5B9299, 0xC3);
 	Nop(0x5B931E, 3);
 	Nop(0x5BCFEC, 5);
@@ -3532,9 +3551,9 @@ __forceinline void Main_Patches()
 	InjectHook(0x746341, WidescreenSupportRecalculateHack3, PATCH_CALL);
 	InjectHook(0x6FF420, WidescreenSupport::SetAspectRatio, PATCH_JUMP);
 //	InjectHook(0x6FF410, WidescreenSupport::SetFieldOfView, PATCH_JUMP);
-	InjectHook(0x72FCF9, WidescreenFOVHack, PATCH_JUMP);
+	//InjectHook(0x72FCF9, WidescreenFOVHack, PATCH_JUMP);
 	InjectHook(0x514D63, WidescreenFOVHack2, PATCH_CALL);
-	InjectHook(0x514878, WidescreenBordersHack);
+	//InjectHook(0x514878, WidescreenBordersHack);
 	InjectHook(0x51499E, AimpointCalc, PATCH_JUMP);
 	InjectHook(0x5BC8FF, CameraInitHack, PATCH_JUMP);
 	InjectHook(0x58C3C8, WidescreenTextPositionHack, PATCH_CALL);
@@ -3544,6 +3563,8 @@ __forceinline void Main_Patches()
 	InjectHook(0x579DE9, Widescreen_StringInject);
 //	InjectHook(0x58C0BB, Widescreen_TextDrawsFix, PATCH_CALL);
 	InjectHook(0x58C1EC, Widescreen_TextDrawsFix2, PATCH_JUMP);
+	InjectHook(0x72FC70, CameraSize, PATCH_JUMP);
+	InjectMethod(0x514860, CCamera::DrawBordersForWideScreen, PATCH_JUMP);
 	Patch<WORD>(0x58BB8D, 0x05EB);
 	Nop(0x50AD79, 6);
 	Nop(0x58C3CD, 1);
@@ -3784,11 +3805,6 @@ __forceinline void Main_Patches()
 	InjectHook(0x5DE39E, PedDataConstructorInject_Civilian, PATCH_JUMP);
 	InjectHook(0x5DDD7F, PedDataConstructorInject_Cop, PATCH_JUMP);
 
-	// Fixed vehicle editable materials (by _DK)
-	Patch<const void*>(0x4C8415, static_cast<RpMaterial*(*)(RpMaterial*, void*)>(CVehicleModelInfo::SetEditableMaterialsCB));
-	//InjectHook(0x4C8309, LightsOnFix, PATCH_JUMP);
-	//Nop(0x4C8308, 1);
-
 	// Flying components have proper colour
 	InjectMethod(0x59F180, CObject::Render, PATCH_JUMP);
 
@@ -3816,6 +3832,11 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x5B8E6A, 0x8000000);
 	Patch<DWORD>(0x408408, 0x90C35E5F);
 	Patch<BYTE>(0x5B619C, 8);
+	Patch<DWORD>(0x407667, 0x1824448A);
+	Patch<WORD>(0x40766B, 0x8688);
+	Patch<const void*>(0x40766D, &CStreaming::ms_cdImages->bEncryptionType);
+	Patch<DWORD>(0x407671, 0xC78B5B5E);
+	Patch<WORD>(0x407675, 0xC35F);
 	InjectHook(0x5B61B0, IMGEncryptionFindOut, PATCH_JUMP);
 	InjectHook(0x5B8E1B, static_cast<void(*)()>(CStreaming::LoadCdDirectory));
 	InjectHook(0x5B61E6, IMGEncryptionDo, PATCH_JUMP);
@@ -3851,6 +3872,7 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x406B81, gStreamNames);
 	Patch<const void*>(0x406B98, &gStreamNames[NUM_STREAMS+1]);
 	Patch<const char*>(0x406C2B, "ANIM\\ANIM.IMG");
+	Nop(0x5B927D, 5);
 //	Nop(0x43E65D, 2);
 //	Nop(0x43E669, 2);
 #ifdef INCLUDE_STREAMING_TEXT
@@ -4386,14 +4408,14 @@ __forceinline void UserFiles()
 	Patch<const char*>(0x4F330C, "vcs_ufiles.dat");
 	Patch<const char*>(0x4F4A62, "vcs_ufiles.dat");
 
-#if defined INCLUDE_WINDOW_NAME
+#ifdef INCLUDE_WINDOW_NAME
 	Patch<const char*>(0x619608, "GTA: Vice City Stories");
 #endif
 
 	Patch<BYTE>(0x74503A, 0x9);
 	Patch<const char*>(0x74503F, "\\GTA Vice City Stories User Files");
 
-#if DEVBUILD
+#ifdef DEVBUILD
 	Patch<const char*>(0x57C672, "gta_vcsd.set");
 	Patch<const char*>(0x57C902, "gta_vcsd.set");
 	//Patch<const char*>(0x7489A0, "gta_vcsd.set");
@@ -4418,6 +4440,8 @@ void InjectDelayedPatches()
 
 	CUpdateManager::Init();
 //	CDLCManager::InitialiseWithUpdater();
+
+	SpeechInject();
 
 #ifdef MAKE_CONSOLE
 	if ( AllocConsole() )
@@ -7190,9 +7214,14 @@ void __declspec(naked) ActivateSerialAction()
 {
 	_asm
 	{
+		mov		al, CMenuManager::m_bSerialFull
+		test	al, al
+		jz		ActivateSerialAction_DontActivate
 		push	offset CMenuManager::m_strSerialCode
 		call	CDLCManager::ActivateSerial
 		add		esp, 4
+
+ActivateSerialAction_DontActivate:
 		pop     edi
 		pop		esi
 		mov		al, bl

@@ -9,6 +9,7 @@
 #include "VideoPlayer.h"
 #include "Text.h"
 #include "ControlsMgr.h"
+#include "Audio.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -18,8 +19,11 @@ float				CMenuManager::m_fStatsScrollPos;
 int					CMenuManager::m_nFocusedDLC = -1;
 int					CMenuManager::m_nLastFocusedDLC = -1;
 bool				CMenuManager::m_bLastDLCState[NUM_DLC_PACKS];
-std::string			CMenuManager::m_strSerialCode[4];
+std::string			CMenuManager::m_strSerialCode[SERIAL_CODES_LENGTH];
 bool				CMenuManager::m_bSerialFull;
+const char*			CMenuManager::m_pDLCMessage;
+signed int			CMenuManager::m_nDLCMessageTimer = 0;
+signed char			CMenuManager::m_nSwitchToThisAfterMessage = -1;
 
 //short			CMenuManager::nColourMenuEntries;
 MenuItem		CMenuManager::ms_pMenus[] = {
@@ -377,7 +381,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		57, "FEM_YES", ACTION_STANDARD, 44, 0, 16, 3, 0, 0 },
 
 	// DLC activation
-	{ "FEH_DLC", 44, 0,
+	{ "FEH_DLC", 45, 0,
 		1, "FEE_KEY", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		ACTION_ACTIVATE_SERIAL, "FEE_ACT", ACTION_SERIAL, 0, 0, 78, 3, 1, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
@@ -389,7 +393,6 @@ static inline const char* GetTitlePCByLanguage()
 	return cTitlePCNames[FrontEndMenuManager.GetLanguage()];
 }
 
-WRAPPER void CMenuManager::MessageScreen(const char* pMessage, bool bUnk1, bool bUnk2) { WRAPARG(pMessage); WRAPARG(bUnk1); WRAPARG(bUnk2); EAXJMP(0x579330); }
 WRAPPER void CMenuManager::SmallMessageScreen(const char* pMessage) { WRAPARG(pMessage); EAXJMP(0x574010); }
 WRAPPER void CMenuManager::SwitchToNewScreen(signed char bScreen) { WRAPARG(bScreen); EAXJMP(0x573680); }
 
@@ -871,34 +874,37 @@ void CMenuManager::PrintDLCScreen()
 
 void CMenuManager::PrintActivationScreen()
 {
-	if ( !CDLCManager::IsContactingWebsite() )
-	{
-		float		fInitialPos = -210.0f;
-
-		CFont::SetProportional(false);
-		CFont::SetColor(CRGBA(255, 255, 255, 255));
-		CFont::SetDropShadowPosition(1);
-		CFont::SetDropColor(CRGBA(0, 0, 0, 255));
-		CFont::SetScale(_width(0.65f), _height(1.0f));
-		CFont::SetFontStyle(FONT_PagerFont);
-		CFont::SetOrientation(ALIGN_Center);
-
-		for ( int i = 0; i < 4; i++, fInitialPos += 115.0f )
-		{
-			CSprite2d::DrawRect(CRect(_xmiddle(fInitialPos), _ymiddle(15.0f), _xmiddle(fInitialPos + 75.0f), _ymiddle(-15.0f)), CRGBA(0, 0, 0, 255));
-			CSprite2d::DrawRect(CRect(_xmiddle(fInitialPos+1.0f), _ymiddle(14.0f), _xmiddle(fInitialPos + 74.0f), _ymiddle(-14.0f)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 255));
-	
-			if ( i != 3 )
-				CFont::PrintString(_xmiddle(fInitialPos + 95.0f), _ymiddle(-9.0f), "-");
-
-			CFont::PrintString(_xmiddle(fInitialPos + 37.5f), _ymiddle(-9.0f), m_strSerialCode[i].c_str());
-		}
-
-		CFont::SetProportional(true);
-	}
+	if ( m_nDLCMessageTimer > CTimer::m_snTimeInMillisecondsPauseMode )
+		SmallMessageScreen(m_pDLCMessage);
 	else
 	{
-		SmallMessageScreen("LOADCOL");
+		if ( !CDLCManager::IsContactingWebsite() )
+		{
+			float		fInitialPos = -(SERIAL_CODES_LENGTH*115.0f - 40.0f)/2.0f;
+
+			CFont::SetProportional(false);
+			CFont::SetColor(CRGBA(255, 255, 255, 255));
+			CFont::SetDropShadowPosition(1);
+			CFont::SetDropColor(CRGBA(0, 0, 0, 255));
+			CFont::SetScale(_width(0.65f), _height(1.0f));
+			CFont::SetFontStyle(FONT_PagerFont);
+			CFont::SetOrientation(ALIGN_Center);
+
+			for ( int i = 0; i < SERIAL_CODES_LENGTH; i++, fInitialPos += 115.0f )
+			{
+				CSprite2d::DrawRect(CRect(_xmiddle(fInitialPos), _ymiddle(15.0f), _xmiddle(fInitialPos + 75.0f), _ymiddle(-15.0f)), CRGBA(0, 0, 0, 255));
+				CSprite2d::DrawRect(CRect(_xmiddle(fInitialPos+1.0f), _ymiddle(14.0f), _xmiddle(fInitialPos + 74.0f), _ymiddle(-14.0f)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 255));
+	
+				if ( i != SERIAL_CODES_LENGTH-1 )
+					CFont::PrintString(_xmiddle(fInitialPos + 95.0f), _ymiddle(-9.0f), "-");
+
+				CFont::PrintString(_xmiddle(fInitialPos + 37.5f), _ymiddle(-9.0f), m_strSerialCode[i].c_str());
+			}
+
+			CFont::SetProportional(true);
+		}
+		else
+			SmallMessageScreen("LOADCOL");
 	}
 }
 
@@ -972,29 +978,23 @@ void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 {
 	if ( !bScreen )
 		m_fStatsScrollPos = -120.0f;
-	else
+	else if ( bScreen == 45 )
 	{
-		if ( bScreen == 45 )
+		if ( CDLCManager::AnyDLCsAvailable() )
 		{
-			if ( CDLCManager::AnyDLCsAvailable() )
-			{
-				currentMenuEntry = 2;
+			currentMenuEntry = 2;
 
-				for ( int i = 0; i < NUM_DLC_PACKS; i++ )
-					m_bLastDLCState[i] = CDLCManager::GetDLC(i)->IsActive();
-			}
-			else
-			{
-				bCurrentScreen = 46;
-				currentMenuEntry = 1;
-			}
+			for ( int i = 0; i < NUM_DLC_PACKS; i++ )
+				m_bLastDLCState[i] = CDLCManager::GetDLC(i)->IsActive();
 		}
 		else
 		{
-			if ( bScreen == 46 )
-				currentMenuEntry = 1;
+			bCurrentScreen = 46;
+			currentMenuEntry = 1;
 		}
 	}
+	else if ( bScreen == 46 )
+		currentMenuEntry = 1;
 
 	// Unload BINK and check DLC state
 	if ( bLastScreen == 45 )
@@ -1035,7 +1035,14 @@ void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 	if ( bScreen == 49 )
 	{
 		// Check for key's presence in the clipboard
-		LookIntoClipboardForSerial();	}
+		LookIntoClipboardForSerial();
+	}
+}
+
+void CMenuManager::RegisterDLCMessage(const char* pMessage)
+{
+	m_pDLCMessage = pMessage;
+	m_nDLCMessageTimer = CTimer::m_snTimeInMillisecondsPauseMode + 5000;
 }
 
 void CMenuManager::LookIntoClipboardForSerial()
@@ -1052,9 +1059,9 @@ void CMenuManager::LookIntoClipboardForSerial()
 				++pText;
 
 			// 1st field
-			for ( int i = 0; i < 4; i++ )
+			for ( int i = 0; i < SERIAL_CODES_LENGTH; i++ )
 			{
-				for ( int j = 0; j < 4; j++ )
+				for ( int j = 0; j < SERIAL_CODES_ONE_WINDOW; j++ )
 				{
 					if ( ValidSerialCharacter(*pText) )
 					{
@@ -1073,7 +1080,7 @@ void CMenuManager::LookIntoClipboardForSerial()
 				for ( auto it = m_strSerialCode[i].begin(); it != m_strSerialCode[i].end(); it++ )
 					*it = toupper(*it);
 
-				if ( i != 3 )
+				if ( i != SERIAL_CODES_LENGTH-1 )
 				{
 					// Filter out spaces and look for -
 					while ( *pText == ' ' )
@@ -1094,6 +1101,8 @@ void CMenuManager::LookIntoClipboardForSerial()
 
 			if ( !bAllValid )
 				ClearSerialsBuffer();
+			else
+				m_bSerialFull = true;
 		}
 
 		CloseClipboard();
@@ -1106,8 +1115,41 @@ void CMenuManager::UserInputVCS()
 	if ( CDLCManager::IsContactingWebsite() )
 		return;
 
+	if ( m_nDLCMessageTimer > CTimer::m_snTimeInMillisecondsPauseMode )
+		return;
+	else if ( m_nSwitchToThisAfterMessage != -1 )
+	{
+		SwitchToNewScreen(m_nSwitchToThisAfterMessage);
+		m_nSwitchToThisAfterMessage = -1;
+	}
+
 	// Call SA UserInput
 	((void(__thiscall*)(CMenuManager*))0x57FD70)(this);
+}
+
+void CMenuManager::MessageScreen(const char* pMessage, bool bFullscreen, bool bWithinFrame)
+{
+	if ( !bWithinFrame )
+	{
+		if ( !RsCameraBeginUpdate(Scene) )
+			return;
+	}
+
+	CSprite2d::InitPerFrame();
+	CFont::InitPerFrame();
+	DefinedState2d();
+
+	if ( bFullscreen )
+	{
+		RwRGBA		colour = { 0, 0, 0, 255 };
+		RwCameraClear(Scene, &colour, rwCAMERACLEARIMAGE);
+	}
+
+	SmallMessageScreen(pMessage);
+	CFont::RenderFontBuffer();
+
+	if ( !bWithinFrame )
+		DoRWStuffEndOfFrame();
 }
 
 void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* pDown)
@@ -1115,10 +1157,13 @@ void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* p
 	// Call SA AdditionalOptionInput
 	((void(__thiscall*)(CMenuManager*,unsigned char*,unsigned char*))0x5773D0)(this, pUp, pDown);
 
-	if ( bCurrentScreen == 33 )
+	if ( bCurrentScreen == 45 || bCurrentScreen == 46 )
 	{
 		if ( ControlsManager.GetIsKeyboardKeyJustDown(rsEND) )
+		{
+			AudioEngine.ReportFrontendAudioEvent(1, 0.0f, 1.0f);
 			SwitchToNewScreen(49);  
+		}
 	}
 
 	if ( bCurrentScreen == 49 )
@@ -1142,27 +1187,27 @@ void CMenuManager::TypingKeyboardInput(wchar_t wKey)
 		if ( ValidSerialCharacter(wKey) )
 		{
 			int i = 0;
-			while ( m_strSerialCode[i].length() >= 4 )
+			while ( m_strSerialCode[i].length() >= SERIAL_CODES_ONE_WINDOW )
 			{
-				if ( ++i == 4 )
+				if ( ++i == SERIAL_CODES_LENGTH )
 					return;		// Serial's full
 			}
 			m_strSerialCode[i] += wKey;
 
 			// Filled an entire field?
-			if ( m_strSerialCode[i].length() >= 4 )
+			if ( m_strSerialCode[i].length() >= SERIAL_CODES_ONE_WINDOW )
 			{
 				// Uppercase it
 				for ( auto it = m_strSerialCode[i].begin(); it != m_strSerialCode[i].end(); it++ )
 					*it = toupper(*it);
 
-				if ( i == 3 )
+				if ( i == SERIAL_CODES_LENGTH-1 )
 					m_bSerialFull = true;
 			}
 		}
 		else if ( wKey == '\x8' ) // Backspace
 		{
-			int i = 4;
+			int i = SERIAL_CODES_LENGTH;
 
 			m_bSerialFull = false;
 			while ( m_strSerialCode[--i].empty() )
@@ -1224,116 +1269,6 @@ float CMenuManager::GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition)
 
 	return _ymiddle(pPosition.posY + 26);
 }
-
-/*void CMenuManager::ToggleTrails(bool bEnable)
-{
-	static bool		bGotColormodAddresses = false;
-	static DWORD	colormodAddresses[5];
-	if ( !bGotColormodAddresses )
-	{
-		colormodAddresses[0] = *((DWORD*)0x7F86C5);
-		colormodAddresses[1] = *((DWORD*)0x7F9711);
-		colormodAddresses[2] = *((DWORD*)0x7F9789);
-		colormodAddresses[3] = *((DWORD*)0x7F9A17);
-		colormodAddresses[4] = *((DWORD*)0x704D1F);
-		bGotColormodAddresses = true;
-	}
-
-	if ( bEnable )
-	{
-		patch(0x7F86C4, 0xE8, 1);
-		patch(0x7F86C5, colormodAddresses[0], 4);
-		nop(0x7F86C9, 4);
-
-		patch(0x7F9710, 0xE8, 1);
-		patch(0x7F9711, colormodAddresses[1], 4);
-		nop(0x7F9715, 6);
-
-		patch(0x7F9788, 0xE8, 1);
-		patch(0x7F9789, colormodAddresses[2], 4);
-		nop(0x7F978D, 6);
-
-		patch(0x7F9A16, 0xE8, 1);
-		patch(0x7F9A17, colormodAddresses[3], 4);
-		nop(0x7F9A1B, 6);
-
-		patch(0x704D1F, colormodAddresses[4], 4);
-		nop(0x704D0B, 9);
-	}
-	else
-	{
-		patch(0x7F86C4, 0x68, 1);
-		patch(0x7F86C5, 0x00C9C040, 4);
-		patch(0x7F86C9, 0x4051FF50, 4);
-
-		patch(0x7F9710, 0x68, 1);
-		patch(0x7F9711, 0x00C9C040, 4);
-		patch(0x7F9715, 0xFF108B50, 4);
-		patch(0x7F9719, 0x4052, 2);
-
-		patch(0x7F9788, 0x68, 1);
-		patch(0x7F9789, 0x00C9C040, 4);
-		patch(0x7F978D, 0xFF108B50, 4);
-		patch(0x7F9791, 0x4052, 2);
-
-		patch(0x7F9A16, 0x68, 1);
-		patch(0x7F9A17, 0x00C9C040, 4);
-		patch(0x7F9A1B, 0xFF108B50, 4);
-		patch(0x7F9A1F, 0x4052, 2);
-
-		patch(0x704D1F, 0xFFFFE92D, 4);
-		patch(0x704D0B, 0x8D518CA0, 4);
-		patch(0x704D0F, 0x74C08400, 4);
-		patch(0x704D13, 0x12, 1);
-	}
-}*/
-
-
-/*void CMenuManager::SaveStatsHTML()
-{
-	wchar_t		dateBuf[12];
-	SYSTEMTIME	SystemTime;
-
-	CStreaming::ChangeDirectoryToUserDir();
-	GetLocalTime(&SystemTime);
-	swprintf(dateBuf, L"%d/%d/%d", SystemTime.wDay, SystemTime.wMonth, SystemTime.wYear % 100);
-
-	char*	MissionName;
-	if ( latestMissionName[0] )
-		MissionName = latestMissionName;
-	else
-		MissionName = "ITBEG";
-
-	if ( FILE*	hFile = fopen("stats.html", "w") )
-	{
-		BYTE	UTF8Header[] = { 0xEF, 0xBB, 0xBF };
-		fwrite(UTF8Header, 3, 1, hFile);
-
-		char	multiByteBuf[512];
-
-		fprintf(hFile, "<title>Grand Theft Auto Vice City Stories Stats</title><meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\" />\n");
-		fprintf(hFile, "<body bgcolor=\"#000000\" leftmargin=\"10\" topmargin=\"10\" marginwidth=\"10\" marginheight=\"10\">\n");
-		fprintf(hFile, "<table width=\"560\" align=\"center\" border=\"0\" cellpadding=\"5\" cellspacing=\"0\">\n");
-		fprintf(hFile, "<tr align=\"center\" valign=\"top\"> \n");
-		fprintf(hFile, "<td height=\"59\" colspan=\"2\" bgcolor=\"#000000\"><div align=\"center\"><font color=\"#FFFFFF\" size=\"5\" face=\"Arial, \n");
-		fprintf(hFile, "Helvetica, sans-serif\">-------------------------------------------------------------------</font><font \n");
-		fprintf(hFile, "size=\"5\" face=\"Arial, Helvetica, sans-serif\"><br>\n");
-		fprintf(hFile, "<strong><font color=\"#FFFFFF\">GRAND THEFT AUTO VICE CITY STORIES ");
-		wcstombs(multiByteBuf, L"Śtątystykię!", 512);
-//		fputs(, hFile);
-		fprintf(hFile, "%s</font></strong><br /><font\n", multiByteBuf wcsupr(CStats::SACharsToASCII(TheText.Get("FEH_STA"), 0)));
-/*		fprintf(hFile, "color=\"#FFFFFF\">-------------------------------------------------------------------</font></font></div></td> </tr>\n");
-		fprintf(hFile, "<tr align=\"center\" valign=\"top\" bgcolor=\"#000000\">     <td height=\"22\" colspan=\"2\">&nbsp;</td>  </tr>\n");
-		fprintf(hFile, "<tr align=\"center\" valign=\"top\" bgcolor=\"#000000\"> \n");
-//		fwprintf(hFile, L"<td height=\"40\" colspan=\"2\"> <p><font color=\"#F0000C\" size=\"2\" face=\"Arial, Helvetica, sans-serif\"><strong><font color=\"#F0000C\" size=\"1\">%s: \n", CStats::SACharsToASCII(TheText.Get("FES_DAT"), 0));
-//		fwprintf(hFile, L"%s</font><br>        %s: </strong>", dateBuf, CStats::SACharsToASCII(TheText.Get("FES_CMI"), 0));
-
-
-		fclose(hFile);
-
-	}
-}*/
-
 
 // TODO: CLoadingScreen
 static unsigned char		bDrawingStyle;

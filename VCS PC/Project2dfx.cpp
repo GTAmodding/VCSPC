@@ -11,7 +11,7 @@ std::vector<const CLamppostInfo>*				CProject2dfx::m_pLampposts = nullptr;
 std::map<unsigned int, const CLamppostInfo>*	CProject2dfx::m_pFileContent;
 bool											CProject2dfx::m_bCatchLamppostsNow = false;
 
-static inline unsigned int	PackKey(unsigned short nModel, unsigned short nIndex)
+static inline unsigned int PackKey(unsigned short nModel, unsigned short nIndex)
 {
 	return nModel << 16 | nIndex;
 }

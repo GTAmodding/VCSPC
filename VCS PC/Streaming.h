@@ -20,12 +20,16 @@ enum StreamingModelStatus
 
 struct CdImage
 {
-	char		cName[40];
-	bool		bNotPlayerIMG;
-	HANDLE		hHandle;
+	char			cName[40];
+	bool			bNotPlayerIMG;
+
+	// VCS PC class extension
+	unsigned char	bEncryptionType;
+
+	HANDLE			hHandle;
 };
 
-int		CdStreamAddImage(const char* pName, bool bStandardIMG);
+int		CdStreamAddImage(const char* pName, bool bStandardIMG, unsigned char bEncryptionType);
 
 void	InitModelIndices();
 
@@ -58,6 +62,7 @@ public:
 	static int		RandomizeTaxiDriverIDByTown();
 	static bool		RemoveLeastUsedModel(unsigned int nUnknown);
 	static void		DeleteRwObjectsBehindCamera(int nMemUsed);
+	static void		Init();
 
 	static void		SetModelTxdIsDeletable(int nIndex);
 	static void		StreamCopModels(int nTownID);

@@ -3,6 +3,7 @@
 
 #include "Frontend.h"
 #include "Rs.h"
+#include "CCamera.h"
 
 int& WidescreenSupport::nCTRubberSlider = CMenuManager::ms_nRubberSlider = 640/2;
 int& WidescreenSupport::nCTRubberSliderMinPos = *(int*)0x57BCBD;
@@ -192,6 +193,8 @@ float WidescreenSupport::GetTextPosition()
 
 unsigned char WidescreenSupport::GetTextBoxPos()
 {
+	if ( TheCamera.bDontTouchFOVInWidescreen )
+		return 0;
 	/*float			fScreenRatio = *ScreenAspectRatio;
 	long double		dBorderProportionsFix = ((-216964.5/50000.0) * fScreenRatio * fScreenRatio) + ((1210981.5/100000.0) * fScreenRatio) - (826714.5/100000.0);
 	long double		dTextBoxPos = (-144.0 * fScreenRatio) + 256.0;

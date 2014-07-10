@@ -166,8 +166,11 @@ private:
 	static int			ms_nRubberSlider;
 	static bool			m_bLastDLCState[NUM_DLC_PACKS];
 
-	static std::string	m_strSerialCode[4];
+	static std::string	m_strSerialCode[SERIAL_CODES_LENGTH];
 	static bool			m_bSerialFull;
+	static const char*	m_pDLCMessage;
+	static signed int	m_nDLCMessageTimer;
+	static signed char	m_nSwitchToThisAfterMessage;
 
 public:
 	static MenuItem		ms_pMenus[];
@@ -193,17 +196,20 @@ public:
 
 	static inline void	ClearSerialsBuffer()
 	{	m_bSerialFull = false;
-		for ( int i = 0; i < 4; ++i )
+		for ( int i = 0; i < SERIAL_CODES_LENGTH; ++i )
 			m_strSerialCode[i].clear();
 	}
 
 	static inline bool	ValidSerialCharacter(wchar_t wKey)
-	{ return (wKey >= '0' && wKey <= '9') || (wKey >= 'A' && wKey <= 'F') || (wKey >= 'a' && wKey <= 'f'); }
+	{ return (wKey >= '0' && wKey <= '9') || (wKey >= 'A' && wKey <= 'Z') || (wKey >= 'a' && wKey <= 'z'); }
 
+	static inline void	SwitchToScreenAfterMessage(signed char nScreen)
+	{ m_nSwitchToThisAfterMessage = nScreen; }
+
+	static void		RegisterDLCMessage(const char* pMessage);
 	static void		LookIntoClipboardForSerial();
 
 
-	void			MessageScreen(const char* pMessage, bool bUnk1, bool bUnk2);
 	void			SmallMessageScreen(const char* pMessage);
 	void			SwitchToNewScreen(signed char bScreen);
 
@@ -222,6 +228,7 @@ public:
 	void			SwitchToNewScreenVCS(signed char bScreen);
 	void			AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* pDown);
 	void			UserInputVCS();
+	void			MessageScreen(const char* pMessage, bool bFullscreen, bool bWithinFrame);
 
 	void			TypingKeyboardInput(wchar_t wKey);
 	const char*		ProcessDLCSlot(int nSlotID);
