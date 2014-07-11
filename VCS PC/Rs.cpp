@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Rs.h"
 
-#include "CCamera.h"
+#include "Camera.h"
 
 const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 

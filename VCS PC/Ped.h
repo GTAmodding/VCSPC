@@ -3,7 +3,7 @@
 			
 #include "CWanted.h"
 #include "General.h"
-#include "CPedIntelligence.h"
+#include "PedIntelligence.h"
 #include "CWeaponInfo.h"
 
 class CEntryExit;
@@ -257,6 +257,11 @@ public:
 	BYTE				__pad64[12];
 
 public:
+	inline bool			Save_Stub()
+		{ return CPed::Save(); }
+	inline bool			Load_Stub()
+		{ return CPed::Load(); }
+
 	virtual bool		Save();
 	virtual bool		Load();
 

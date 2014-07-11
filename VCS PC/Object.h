@@ -69,6 +69,9 @@ public:
 
 public:
 	virtual void		Render() override;
+
+	inline void			Render_Stub()
+			{ CObject::Render(); }
 };
 
 static_assert(sizeof(CObject) == 0x17C, "Wrong size: CObject");

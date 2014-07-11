@@ -131,12 +131,18 @@ public:
 class NOVMT CHeli : public CAutomobile
 {
 public:
+	inline void			Render_Stub()
+		{ CHeli::Render(); }
+
 	virtual void		Render() override;
 };
 
 class NOVMT CPlane : public CAutomobile
 {
 public:
+	inline void			Render_Stub()
+		{ CPlane::Render(); }
+
 	virtual void		Render() override;
 };
 

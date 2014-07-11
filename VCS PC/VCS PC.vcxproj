@@ -96,7 +96,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <PreprocessorDefinitions>DEVBUILD;DEBUG;_DEBUG;_INCLUDE_BETA_CODE;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEVBUILD;DEBUG;_DEBUG;_INCLUDE_BETA_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -314,11 +314,11 @@ popd</Command>
     <ClCompile Include="BlowFish.cpp" />
     <ClCompile Include="Building.cpp" />
     <ClCompile Include="Audio.cpp" />
-    <ClCompile Include="CCamera.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CConfiscatedWeapons.cpp" />
     <ClCompile Include="CCRC32.Cpp" />
     <ClCompile Include="CDraw.cpp" />
-    <ClCompile Include="CGangWeapons.cpp" />
+    <ClCompile Include="Gangs.cpp" />
     <ClCompile Include="CGridref.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">true</ExcludedFromBuild>
@@ -343,7 +343,6 @@ popd</Command>
     <ClCompile Include="FileMgr.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Frontend.cpp" />
-    <ClCompile Include="CPedIntelligence.cpp" />
     <ClCompile Include="CutsceneManager.cpp" />
     <ClCompile Include="Garages.cpp" />
     <ClCompile Include="General.cpp" />
@@ -352,6 +351,7 @@ popd</Command>
     <ClCompile Include="ModelInfo.cpp" />
     <ClCompile Include="Pad.cpp" />
     <ClCompile Include="Ped.cpp" />
+    <ClCompile Include="PedIntelligence.cpp" />
     <ClCompile Include="PlayerInfo.cpp" />
     <ClCompile Include="PNGArchive.cpp" />
     <ClCompile Include="Pools.cpp" />
@@ -359,7 +359,7 @@ popd</Command>
     <ClCompile Include="Replay.cpp" />
     <ClCompile Include="RW.cpp" />
     <ClCompile Include="Script.cpp" />
-    <ClCompile Include="CShadows.cpp" />
+    <ClCompile Include="Shadows.cpp" />
     <ClCompile Include="SpeechRecognition.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -412,8 +412,7 @@ popd</Command>
     <ClInclude Include="BankLoader.h" />
     <ClInclude Include="Building.h" />
     <ClInclude Include="Audio.h" />
-    <ClInclude Include="CCam.h" />
-    <ClInclude Include="CCamera.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="CConfiscatedWeapons.h" />
     <ClInclude Include="CCRC32.H" />
     <ClInclude Include="Clock.h" />
@@ -421,7 +420,7 @@ popd</Command>
     <ClInclude Include="ControlsMgr.h" />
     <ClInclude Include="Coronas.h" />
     <ClInclude Include="CutsceneManager.h" />
-    <ClInclude Include="CGangWeapons.h" />
+    <ClInclude Include="Gangs.h" />
     <ClInclude Include="CGridref.h" />
     <ClInclude Include="Darkel.h" />
     <ClInclude Include="DLCManager.h" />
@@ -430,7 +429,6 @@ popd</Command>
     <ClInclude Include="FileMgr.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Frontend.h" />
-    <ClInclude Include="CPedIntelligence.h" />
     <ClInclude Include="Garages.h" />
     <ClInclude Include="GroupedBuildings.h" />
     <ClInclude Include="Hud.h" />
@@ -441,6 +439,7 @@ popd</Command>
     <ClInclude Include="Object.h" />
     <ClInclude Include="Pad.h" />
     <ClInclude Include="Ped.h" />
+    <ClInclude Include="PedIntelligence.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="PNGArchive.h" />
     <ClInclude Include="Pools.h" />
@@ -448,7 +447,7 @@ popd</Command>
     <ClInclude Include="Queue.h" />
     <ClInclude Include="Replay.h" />
     <ClInclude Include="Script.h" />
-    <ClInclude Include="CShadows.h" />
+    <ClInclude Include="Shadows.h" />
     <ClInclude Include="SpeechRecognition.h" />
     <ClInclude Include="StaticPatcher.h" />
     <ClInclude Include="Stats.h" />

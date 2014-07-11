@@ -164,5 +164,5 @@ void CAntennas::Inject()
 
 static StaticPatcher	Patcher([](){ 
 						CAntennas::Inject();
-						InjectMethod(0x6AAB8B, CAutomobile::RenderAntennas, PATCH_NOTHING);
+						Memory::InjectHook(0x6AAB8B, &CAutomobile::RenderAntennas);
 									});

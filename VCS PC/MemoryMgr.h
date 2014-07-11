@@ -10,12 +10,6 @@
 #define NOVMT __declspec(novtable)
 #define SETVMT(a) *((DWORD_PTR*)this) = (DWORD_PTR)a
 
-// A macro used to inject method pointers
-#define InjectMethod(address, hook, nType) { void* __funcPtr; { _asm mov eax, offset hook _asm mov __funcPtr, eax } \
-											Memory::InjectHook(address, __funcPtr, nType); }
-#define InjectMethodVP(address, hook, nType) { void* __funcPtr; { _asm mov eax, offset hook _asm mov __funcPtr, eax } \
-											MemoryVP::InjectHook(address, __funcPtr, nType); }
-
 enum
 {
 	PATCH_CALL,
@@ -37,6 +31,13 @@ namespace Memory
 	template<typename AT, typename HT>
 	inline void		InjectHook(AT address, HT hook, unsigned int nType=PATCH_NOTHING)
 	{
+		DWORD		dwHook;
+		_asm
+		{
+			mov		eax, hook
+			mov		dwHook, eax
+		}
+
 		switch ( nType )
 		{
 		case PATCH_JUMP:
@@ -46,7 +47,8 @@ namespace Memory
 			*(BYTE*)address = 0xE8;
 			break;
 		}
-		*(DWORD*)((DWORD)address + 1) = (DWORD)hook - (DWORD)address - 5;
+
+		*(DWORD*)((DWORD)address + 1) = dwHook - (DWORD)address - 5;
 	}
 };
 
@@ -89,7 +91,14 @@ namespace MemoryVP
 			VirtualProtect((void*)((DWORD)address + 1), 4, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
 			break;
 		}
-		*(DWORD*)((DWORD)address + 1) = (DWORD)hook - (DWORD)address - 5;
+		DWORD		dwHook;
+		_asm
+		{
+			mov		eax, hook
+			mov		dwHook, eax
+		}
+
+		*(DWORD*)((DWORD)address + 1) = (DWORD)dwHook - (DWORD)address - 5;
 		if ( nType == PATCH_NOTHING )
 			VirtualProtect((void*)((DWORD)address + 1), 4, dwProtect[0], &dwProtect[1]);
 		else

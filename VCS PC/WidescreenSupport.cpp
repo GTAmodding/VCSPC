@@ -3,7 +3,7 @@
 
 #include "Frontend.h"
 #include "Rs.h"
-#include "CCamera.h"
+#include "Camera.h"
 
 int& WidescreenSupport::nCTRubberSlider = CMenuManager::ms_nRubberSlider = 640/2;
 int& WidescreenSupport::nCTRubberSliderMinPos = *(int*)0x57BCBD;

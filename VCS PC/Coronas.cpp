@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "Coronas.h"
 
-#include "CCamera.h"
+#include "Camera.h"
 #include "Timer.h"
 
 std::map<unsigned int,CCoronasLinkedListNode*>	CCoronas::UsedMap;

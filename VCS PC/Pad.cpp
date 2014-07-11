@@ -274,8 +274,8 @@ void CPad::Inject()
 	using namespace Memory;
 
 #ifdef DEVBUILD
-	InjectHook(0x541DDE, CapturePad);
-	InjectMethod(0x53F530, ReconcileTwoControllersInput, PATCH_JUMP);
+	InjectHook(0x541DDE, &CapturePad);
+	InjectHook(0x53F530, &ReconcileTwoControllersInput, PATCH_JUMP);
 
 	Nop(0x748813, 5);
 #endif

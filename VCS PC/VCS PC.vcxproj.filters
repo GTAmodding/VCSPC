@@ -33,9 +33,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CCamera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CConfiscatedWeapons.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,9 +40,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CGridref.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CPedIntelligence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CWanted.cpp">
@@ -60,13 +54,7 @@
     <ClCompile Include="Rs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CGangWeapons.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StdAfx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CShadows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CCRC32.Cpp">
@@ -234,14 +222,20 @@
     <ClCompile Include="StaticPatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gangs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PedIntelligence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shadows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CCam.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CConfiscatedWeapons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -249,9 +243,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CGridref.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPedIntelligence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CWanted.h">
@@ -267,12 +258,6 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="Rs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CGangWeapons.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CShadows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General.h">
@@ -471,6 +456,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StaticPatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gangs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PedIntelligence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shadows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

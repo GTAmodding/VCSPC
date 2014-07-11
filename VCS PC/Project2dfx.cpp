@@ -4,7 +4,7 @@
 #include "Coronas.h"
 #include "ModelInfo.h"
 #include "Pools.h"
-#include "CCamera.h"
+#include "Camera.h"
 #include "Clock.h"
 
 std::vector<const CLamppostInfo>*				CProject2dfx::m_pLampposts = nullptr;

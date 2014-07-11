@@ -5,7 +5,7 @@
 #include "Vehicle.h"
 #include "CConfiscatedWeapons.h"
 #include "Text.h"
-#include "CCamera.h"
+#include "Camera.h"
 #include "Radar.h"
 #include "UserDisplay.h"
 #include "Streaming.h"

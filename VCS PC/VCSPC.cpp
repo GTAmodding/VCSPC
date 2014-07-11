@@ -11,7 +11,7 @@
 #include "General.h"
 #include "Building.h"
 #include "Script.h"
-#include "CCamera.h"
+#include "Camera.h"
 #include "Text.h"
 #include "Hud.h"
 #include "Frontend.h"
@@ -19,8 +19,6 @@
 #include "CutsceneManager.h"
 #include "UserDisplay.h"
 #include "3DMarkers.h"
-#include "CShadows.h"
-#include "CGangWeapons.h"
 #include "Font.h"
 #include "FileMgr.h"
 #include "Stats.h"
@@ -367,7 +365,6 @@ CKeyState*					activeKeyState;
 CKeyState*					currKeyState;
 CKeyState*					prevKeyState;
 //CSprite2d*					texFonts;
-CGangWeapons*				gangWeapons;
 CRunningScript**			pActiveScripts;
 CRunningScript*				ScriptsArray;
 RwIm2DVertex* const			aSpriteVertices = (RwIm2DVertex*)0xC80468;
@@ -562,7 +559,7 @@ const BYTE					ScriptCheckpointsColours_IndirectTable[] = { 0, 1, 0, 2, 2, 2, 2,
 
 
 BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
-	static unsigned char		cDebuggerNames[][14] = { 
+	static unsigned char		cDebuggerNames[][14] = {
 		{ 'C'^0x56, 'h'^0x56, 'e'^0x56, 'a'^0x56, 't'^0x56, ' '^0x56, 'E'^0x56, 'n'^0x56, 'g'^0x56, 'i'^0x56, 'n'^0x56, 'e'^0x56, '\0'^0x56, '\0'^0xAC },
 		{ 'O'^0x56, 'l'^0x56, 'l'^0x56, 'y'^0x56, 'D'^0x56, 'b'^0x56, 'g'^0x56, '\0'^0x56, '\0'^0xFF, '\0'^0x52, '\0'^0x12, '\0', '\0'^0x05, '\0'^0xCC },
 		{ 'I'^0x56, 'D'^0x56, 'A'^0x56, '\0'^0x56, '\0'^0x12, '\0'^0x55, '\0'^0xAD, '\0'^0x99, '\0'^0x76, '\0'^0x43, '\0'^0xDB, '\0'^0xA0, '\0'^0x87, '\0'^0x1F } };
@@ -579,7 +576,7 @@ BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
 		}
 		bDecrypted = true;
 	}
-	
+
 	char			cBuffer[16];
 
     GetWindowText(hwnd, cBuffer, sizeof(cBuffer));
@@ -672,7 +669,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 		}
 #endif
 
-#if !defined DEVBUILD && !defined COMPILE_RC 
+#if !defined DEVBUILD && !defined COMPILE_RC
 		if ( IsDebuggerPresent() )
 			break;
 
@@ -951,7 +948,6 @@ __forceinline void DefineVariables()
 	currKeyState = (CKeyState*)0xB73190;
 	prevKeyState = (CKeyState*)0xB72F20;
 //	texFonts = (CSprite2d*)0xC71AD0;
-	gangWeapons = (CGangWeapons*)0xC091F0;
 	pActiveScripts = (CRunningScript**)0xA8B42C;
 	ScriptsArray = (CRunningScript*)0xA8B430;
 	gameState = (DWORD*)0xC8D4C0;
@@ -1634,23 +1630,23 @@ DWORD WINAPI DoInternetConnectionTests(LPVOID lpParam)
 	char code[128];
 
 	switch (ep->ExceptionRecord->ExceptionCode)
-	{  
-		case EXCEPTION_ACCESS_VIOLATION:  
+	{
+		case EXCEPTION_ACCESS_VIOLATION:
 			sprintf(code, "0x%x (EXCEPTION_ACCESS_VIOLATION)\r\n", ep->ExceptionRecord->ExceptionCode);
 			break;
-		case EXCEPTION_ILLEGAL_INSTRUCTION:  
+		case EXCEPTION_ILLEGAL_INSTRUCTION:
 			sprintf(code, "0x%x (EXCEPTION_ILLEGAL_INSTRUCTION)\r\n", ep->ExceptionRecord->ExceptionCode);
 			break;
-		case EXCEPTION_INT_DIVIDE_BY_ZERO: 
+		case EXCEPTION_INT_DIVIDE_BY_ZERO:
 			sprintf(code, "0x%x (EXCEPTION_INT_DIVIDE_BY_ZERO)\r\n", ep->ExceptionRecord->ExceptionCode);
 			break;
-		case EXCEPTION_INT_OVERFLOW:  
+		case EXCEPTION_INT_OVERFLOW:
 			sprintf(code, "0x%x (EXCEPTION_INT_OVERFLOW)\r\n", ep->ExceptionRecord->ExceptionCode);
 			break;
-		case EXCEPTION_FLT_UNDERFLOW: 
+		case EXCEPTION_FLT_UNDERFLOW:
 			sprintf(code, "0x%x (EXCEPTION_FLT_UNDERFLOW)\r\n", ep->ExceptionRecord->ExceptionCode);
 			break;
-		case EXCEPTION_FLT_INEXACT_RESULT: 
+		case EXCEPTION_FLT_INEXACT_RESULT:
 			sprintf(code, "0x%x (EXCEPTION_FLT_INEXACT_RESULT)\r\n", ep->ExceptionRecord->ExceptionCode);
 			break;
 		default:
@@ -1776,7 +1772,7 @@ DWORD WINAPI DoInternetConnectionTests(LPVOID lpParam)
 		MessageBox(NULL, errorCode, "GTA: Vice City Stories", MB_ICONERROR | MB_OK );
 		HWND HWNDDD = FindWindow(0, "");
 		SetForegroundWindow(HWNDDD);
- 
+
 		ExitProcess(0);
         return 0;
 }*/
@@ -1855,7 +1851,7 @@ RpClump* RenderVid(CEntity* ent)
 				}
 			}
 		}
-		
+
 	}
 	return ent->m_pRwObject;
 }
@@ -2047,7 +2043,7 @@ struct CShadowCamera
 			m_pCamera->farPlane * -0.5 * pCamFrame->modelling.at.z + vector->z);*/
 		//Helper.SetTranslateOnly(538.648, -1065.9757, 11.0);
 
-		
+
 
 		//CVector		vecToSun(pMat->pos - CTimeCycle::m_VectorToSun[CTimeCycle::m_CurrentStoredValue]);
 /*		CVector		vecToSun = -CTimeCycle::m_VectorToSun[CTimeCycle::m_CurrentStoredValue];
@@ -2085,7 +2081,7 @@ struct CShadowCamera
 
 		// pos
 /*		CCoronas::RegisterCorona(111111112, nullptr, 255, 255, 0, 255, vecPos, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
-	
+
 		// right
 		CCoronas::RegisterCorona(111111112 + 1, nullptr, 255, 0, 0, 255, vecRight, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
 
@@ -2127,7 +2123,7 @@ RwV3d* CheckRenderingSrc(RwV3d* pointsOut, const RwSphere* pointsIn, RwInt32 num
 	pSphere = pointsIn;
 
 	//auto*		pVec = RwV3dTransformPoints(pointsOut, &vecIn, numPoints, matrix);
-	
+
 	return pointsOut;
 }
 
@@ -2151,7 +2147,7 @@ float* RescaleHook(float* pointsOut, const RwV3d* pointsIn, RwInt32 numPoints, c
 	//pSphere = pointsIn;
 
 	//auto*		pVec = RwV3dTransformPoints(pointsOut, &vecIn, numPoints, matrix);
-	
+
 	return pointsOut;
 }
 
@@ -2189,12 +2185,12 @@ __forceinline void Main_Patches()
 	// TEMPORARY WORKAROUND FOR A CRASH
 	Patch<BYTE>(0x6195E0, 0xC3);
 
-	//InjectHook(0x4A9CA0, CorrectedMallocTest, PATCH_JUMP);
+	//InjectHook(0x4A9CA0, &CorrectedMallocTest, PATCH_JUMP);
 	// Fixes a heap corruption by R*
 	Nop(0x5C25D3, 5);
 
 #ifdef INCLUDE_SQUARE_RADAR
-	InjectHook(0x5832F0, SquareRadar, PATCH_JUMP);
+	InjectHook(0x5832F0, &SquareRadar, PATCH_JUMP);
 	Patch<float>(0x585719, 0.0);
 	Patch<float>(0x585721, 0.0);
 	Patch<float>(0x585729, 0.0);
@@ -2206,44 +2202,44 @@ __forceinline void Main_Patches()
 #endif
 
 #ifdef INCLUDE_TRIANGLE_RADAR
-	InjectHook(0x5832F0, TriangleRadar, PATCH_JUMP);
-	InjectHook(0x585850, TriangleRadarMask, PATCH_JUMP);
+	InjectHook(0x5832F0, &TriangleRadar, PATCH_JUMP);
+	InjectHook(0x585850, &TriangleRadarMask, PATCH_JUMP);
 	Patch<DWORD>(0x58581B, 2);
 	Patch<BYTE>(0x585895, 3);
 	Patch<BYTE>(0x58589C, 3);
 #endif
 
 #ifdef V_RADAR_TEST
-	InjectHook(0x58696E, Draw3DRadarHook, PATCH_JUMP);
-	InjectHook(0x586408, RadarTransformHook);
-	InjectHook(0x5864EB, CRadar::Set3DVerts);
-	InjectHook(0x586500, CRadar::Render3D);
+	InjectHook(0x58696E, &Draw3DRadarHook, PATCH_JUMP);
+	InjectHook(0x586408, &RadarTransformHook);
+	InjectHook(0x5864EB, &CRadar::Set3DVerts);
+	InjectHook(0x586500, &CRadar::Render3D);
 #endif
 
 #ifdef INCLUDE_COOL_BINK_SCREEN
-	InjectHook(0x534310, RenderHook, PATCH_JUMP);
-	InjectHook(0x60D77E, PlayerVid, PATCH_JUMP);
+	InjectHook(0x534310, &RenderHook, PATCH_JUMP);
+	InjectHook(0x60D77E, &PlayerVid, PATCH_JUMP);
 #endif
 
 #ifdef INCLUDE_AUDIO_DEBUG
-	InjectHook(0x506EA0, GetDamnStack, PATCH_JUMP);
+	InjectHook(0x506EA0, &GetDamnStack, PATCH_JUMP);
 #endif
 
 #ifdef EXTRA_ASH_LOGGING
-	InjectHook(0x552CD0, GetTreeNodeFuncStuff, PATCH_JUMP);
-	InjectHook(0x5BD17E, GetPedgrp, PATCH_JUMP);
+	InjectHook(0x552CD0, &GetTreeNodeFuncStuff, PATCH_JUMP);
+	InjectHook(0x5BD17E, &GetPedgrp, PATCH_JUMP);
 #endif
 
 #ifdef TRACE_D3D_MARKER
-	InjectHook(0x725120, TraceMarker, PATCH_JUMP);
+	InjectHook(0x725120, &TraceMarker, PATCH_JUMP);
 #endif
 
 #ifdef EXTRA_WINDOWMODE_CHECKING
-	InjectHook(0x7F5F70, TraceD3DStuff, PATCH_JUMP);
+	InjectHook(0x7F5F70, &TraceD3DStuff, PATCH_JUMP);
 #endif
 
 #ifdef TRACE_PROJECTILES
-	InjectHook(0x737C80, TraceProjectiles, PATCH_JUMP);
+	InjectHook(0x737C80, &TraceProjectiles, PATCH_JUMP);
 #endif
 
 #ifdef NO_AUDIO
@@ -2253,46 +2249,46 @@ __forceinline void Main_Patches()
 #endif
 
 #ifdef TRACE_COLOUR_STUFF
-	InjectHook(0x4C8379, TraceMaterials, PATCH_JUMP);
+	InjectHook(0x4C8379, &TraceMaterials, PATCH_JUMP);
 #endif
 
 #ifdef TRACE_STREAMING
-	InjectHook(0x4087E0, TraceStreaming_Requestmodel, PATCH_JUMP);
+	InjectHook(0x4087E0, &TraceStreaming_Requestmodel, PATCH_JUMP);
 #endif
 
 #ifdef TRACE_CTEXT
-	InjectHook(0x6A01A0, TraceCText_Load, PATCH_JUMP);
-	InjectHook(0x5BD76A, TraceInterface);
+	InjectHook(0x6A01A0, &TraceCText_Load, PATCH_JUMP);
+	InjectHook(0x5BD76A, &TraceInterface);
 #endif
 
 #ifdef TRACE_UPCASE
-	InjectHook(0x7192C0, TraceUpcase, PATCH_JUMP);
+	InjectHook(0x7192C0, &TraceUpcase, PATCH_JUMP);
 #endif
 
 #ifdef TRACE_NODES_STREAMS
-	InjectHook(0x4076EC, TraceNodes, PATCH_JUMP);
+	InjectHook(0x4076EC, &TraceNodes, PATCH_JUMP);
 #endif
 
 #ifdef TRACE_FUCKING_TEXTURES
-//	InjectHook(0x5B6449, TraceTXDLoads);
-	InjectHook(0x731CCB, TraceTXDLoads2, PATCH_JUMP);
+//	InjectHook(0x5B6449, &TraceTXDLoads);
+	InjectHook(0x731CCB, &TraceTXDLoads2, PATCH_JUMP);
 #endif
 
-	//InjectHook(0x748813, LoadNewWindowIcon);
+	//InjectHook(0x748813, &LoadNewWindowIcon);
 	// SAORS connection
 	//patch(0x868A5C, &saors, 4);
 
 #ifdef ADD_UNFINISHED_WINDOWED_MODE
 	// Windowed mode
-	InjectHook(0x745C46, InjectWindowedMode, PATCH_JUMP);
+	InjectHook(0x745C46, &InjectWindowedMode, PATCH_JUMP);
 #endif
 
 #ifdef TRACE_STREAMS
-	InjectHook(0x4D86F8, TraceStreamPointers, PATCH_JUMP);
+	InjectHook(0x4D86F8, &TraceStreamPointers, PATCH_JUMP);
 #endif
 
 #ifdef TRACE_STREAMING2
-	InjectHook(0x40CB83, TraceStreamingRequests, PATCH_JUMP);
+	InjectHook(0x40CB83, &TraceStreamingRequests, PATCH_JUMP);
 #endif
 /*#if DEBUG
 	// Resolution selection box
@@ -2318,10 +2314,10 @@ __forceinline void Main_Patches()
 	//Patch<BYTE>(0x707E53, 0x90);
 	Patch<const void*>(0x707E14, &FakeSunValues);
 	Patch<const void*>(0x707E1B, &FakeSunValues);
-	InjectHook(0x70663A, CheckRenderingSrc);
-	//InjectHook(0x706573, RescaleHook);
-	InjectMethod(0x70664C, CShadowCamera::SetCenter, PATCH_NOTHING);
-	InjectMethod(0x705981, CShadowCamera::Rescale, PATCH_NOTHING);
+	InjectHook(0x70663A, &CheckRenderingSrc);
+	//InjectHook(0x706573, &RescaleHook);
+	InjectHook(0x70664C, &CShadowCamera::SetCenter, PATCH_NOTHING);
+	InjectHook(0x705981, &CShadowCamera::Rescale, PATCH_NOTHING);
 	//static const float		fFrustumSize = 2.0f;
 	//Patch<const void*>(0x7065CC, &fFrustumSize);
 #endif
@@ -2329,16 +2325,16 @@ __forceinline void Main_Patches()
 #ifdef MULTITHREADING_TEST
 	Patch<DWORD>(0x53E9A3, 0x8C4835E);
 	Patch<BYTE>(0x53E9A7, 0xC3);
-	InjectHook(0x53EC09, 0x53E9AC, PATCH_JUMP);
+	InjectHook(0x53EC09, &0x53E9AC, PATCH_JUMP);
 #endif
 
 #ifndef DONT_FIX_STREAMING
-	InjectHook(0x4076EC, NodeCrashFix2, PATCH_JUMP);
+	InjectHook(0x4076EC, &NodeCrashFix2, PATCH_JUMP);
 #endif
 
 #ifdef DEBUG_GETMODELINFO_WRAPPER
-	InjectHook(0x5B6B1B, GetModelInfoWrapper);
-	InjectHook(0x5B6CA5, GetModelInfoWrapper);
+	InjectHook(0x5B6B1B, &GetModelInfoWrapper);
+	InjectHook(0x5B6CA5, &GetModelInfoWrapper);
 #endif
 
 #ifdef NO_REPLAY_TEXT
@@ -2346,26 +2342,26 @@ __forceinline void Main_Patches()
 #endif
 
 #ifdef RWERRORSET_HOOK
-	InjectHook(0x808820, RwErrorSetHook, PATCH_JUMP);
-	//InjectHook(0x7491C0, AtomicDefaultRenderCallBack_Wireframe, PATCH_JUMP);
+	InjectHook(0x808820, &RwErrorSetHook, PATCH_JUMP);
+	//InjectHook(0x7491C0, &AtomicDefaultRenderCallBack_Wireframe, PATCH_JUMP);
 #endif
 
-	InjectHook(0x748EDA, OnGameTermination);
+	InjectHook(0x748EDA, &OnGameTermination);
 
 	CAECustomBankLoader::Patch();
 
 	// Fixes a crash when game is launched for the second time and first instance has no created window yet
-	InjectHook(0x74872D, IsAlreadyRunning);
+	InjectHook(0x74872D, &IsAlreadyRunning);
 
 	Patch<const void*>(0x7486C1, WindowProc);
 
 	// CConfiscatedWeapons injectors
-	InjectHook(0x442D06, CGameLogic__Update_Wasted);
-	InjectHook(0x442D2F, CGameLogic__Update_Busted);
+	InjectHook(0x442D06, &CGameLogic__Update_Wasted);
+	InjectHook(0x442D2F, &CGameLogic__Update_Busted);
 
 	// DOUBLE_RWHEELS SA bug fix
 	Patch<WORD>(0x4C9290, 0xE281);
-	Patch<DWORD>(0x4C9292, ~(rwMATRIXTYPEMASK|rwMATRIXINTERNALIDENTITY));
+	Patch<int>(0x4C9292, ~(rwMATRIXTYPEMASK|rwMATRIXINTERNALIDENTITY));
 
 	// Bumped up shadows quality
 	Memory::Patch<BYTE>(0x706825, 8);
@@ -2379,8 +2375,8 @@ __forceinline void Main_Patches()
 	Nop(0x5F12CA + 4, 1);
 
 	// Garages capacity tweak
-	InjectHook(0x44BD8D, GarageCapacityA, PATCH_JUMP);
-	InjectHook(0x44BF1B, GarageCapacityB, PATCH_JUMP);
+	InjectHook(0x44BD8D, &GarageCapacityA, PATCH_JUMP);
+	InjectHook(0x44BF1B, &GarageCapacityB, PATCH_JUMP);
 
 	// Stronger AA
 	/*Patch<BYTE>(0x57D0E1, MAX_AA + 1);
@@ -2396,7 +2392,7 @@ __forceinline void Main_Patches()
 	patch(0x421982, (DWORD)&ViceSquadCheckInjectC - 0x421986, 4);*/
 
 	// 6ATV driving on water
-	InjectHook(0x6AAB76, ATVPreRenderHack, PATCH_JUMP);
+	InjectHook(0x6AAB76, &ATVPreRenderHack, PATCH_JUMP);
 
 	// plr.dff
 	Patch(0x4668F9, "plr");
@@ -2405,16 +2401,16 @@ __forceinline void Main_Patches()
 	Nop(0x5BA1FA, 5);
 
 	// CDarkel stuff
-	InjectHook(0x47E2E6, CDarkel::StartFrenzyVCS);
-	InjectHook(0x53E51D, CDarkel::DrawMessages);
+	InjectHook(0x47E2E6, &CDarkel::StartFrenzyVCS);
+	InjectHook(0x53E51D, &CDarkel::DrawMessages);
 
 	// DB peds counter fix
 	Patch<BYTE>(0x43DDD8, 0xFE);
-	InjectHook(0x43DDDC, DriveByKillFix, PATCH_JUMP);
+	InjectHook(0x43DDDC, &DriveByKillFix, PATCH_JUMP);
 	//Patch<BYTE>(0x43DDDD, 0xFA);
 
 	// Looking left/right blocked with RC Bandit
-	InjectHook(0x52780D, LookLeftRightHack, PATCH_JUMP);
+	InjectHook(0x52780D, &LookLeftRightHack, PATCH_JUMP);
 
 	// No beep in rampages
 	Patch<float>(0x43DE26, 0.0f);
@@ -2444,7 +2440,7 @@ __forceinline void Main_Patches()
 	Patch<WORD>(0x48DDE0, 0x41);
 	Patch<WORD>(0x48DDED, 0x4141);
 	Patch<void*>(0x48DE38, func_052E);
-	
+
 	// 06BA, 06CB, 06CC opcodes
 	Patch<void*>(0x498F68, func_06BA);
 	Patch<void*>(0x498FAC, func_06BA);
@@ -2472,13 +2468,13 @@ __forceinline void Main_Patches()
 	Patch<SCRIPT_VAR*>(0x48AE2A, &scriptParams[3]);
 
 	// SCM functions
-	InjectMethod(0x468D82, CRunningScript::Init, PATCH_NOTHING);
+	InjectHook(0x468D82, &CRunningScript::Init, PATCH_NOTHING);
 	//call(0x468D50, &ZeroScriptsCounter, PATCH_JUMP);
 //	call(0x5D4FC2, &CScriptFunction::SaveAllFunctions, PATCH_JUMP);
 //	call(0x5D539D, &LoadFunctionBreak, PATCH_JUMP);
 
 	// RIGHTSHOCK keypress fix
-	InjectHook(0x52FA3C, RightShockKeyHack, PATCH_JUMP);
+	InjectHook(0x52FA3C, &RightShockKeyHack, PATCH_JUMP);
 
 	// 02FD as lowpriority text
 	InjectHook(0x480B08, 0x69E360);
@@ -2487,8 +2483,8 @@ __forceinline void Main_Patches()
 	// VCS HUD
 	if ( !IVHudPresent() )
 	{
-		InjectHook(0x58FBD6, CHud::DrawHUD);
-		InjectHook(0x58FBDB, CHud::DrawWanted);
+		InjectHook(0x58FBD6, &CHud::DrawHUD);
+		InjectHook(0x58FBDB, &CHud::DrawWanted);
 		Patch<const void*>(0x58D896, &fWeaponIconHeight);
 		Patch<const void*>(0x58D94D, &fWeaponIconHeight);
 		Patch<const void*>(0x58D8CB, &fWeaponIconWidth);
@@ -2497,7 +2493,7 @@ __forceinline void Main_Patches()
 
 		/*Patch<WORD>(0x58DF18, 0xE990);
 		Patch<BYTE>(0x58DE23, 0xEB);
-		InjectHook(0x588B60, CHud::GetYPosBasedOnHealth, PATCH_JUMP);
+		InjectHook(0x588B60, &CHud::GetYPosBasedOnHealth, PATCH_JUMP);
 		Patch<BYTE>(0x58DD41, 0);
 		Nop(0x58DE84, 6);
 		Nop(0x58DE9F, 6);
@@ -2552,23 +2548,23 @@ __forceinline void Main_Patches()
 		Patch<const void*>(0x58A913, &fRadarPosY);
 		Patch<const void*>(0x58A9C7, &fRadarPosY);
 	}
-	InjectHook(0x5BD76F, CHud::Initialise);
-	InjectHook(0x53BD51, CHud::ReInitialise);
-	InjectHook(0x53CA84, CHud::ReInitialise);
-	InjectHook(0x53BBA2, CHud::Shutdown);
-	InjectHook(0x4E9EF8, RadioNameInject, PATCH_JUMP);
-	InjectHook(0x588B44, CHud::GetRidOfAllCustomHUDMessages, PATCH_JUMP);
-	//InjectHook(0x588A4B, HUDInitialiseBreak, PATCH_JUMP);
-	InjectHook(0x588F50, CHud::SetVehicleName, PATCH_JUMP);
-	InjectHook(0x588BB0, CHud::SetZoneName, PATCH_JUMP);
-	InjectHook(0x58D542, CHud::DrawAreaName);
-	InjectHook(0x58FBE9, CHud::DrawVehicleName);
-	InjectHook(0x58FD01, CHud::DrawBigMessage);
-	InjectHook(0x58D56F, CHud::DrawBigMessage);
-	InjectHook(0x53E522, CGarages::PrintMessages);
-	InjectHook(0x58C83E, BigMessage1Inject, PATCH_JUMP);
-	InjectHook(0x58D3D9, BigMessage2Inject, PATCH_JUMP);
-	InjectHook(0x58CB9C, BigMessage3Inject, PATCH_JUMP);
+	InjectHook(0x5BD76F, &CHud::Initialise);
+	InjectHook(0x53BD51, &CHud::ReInitialise);
+	InjectHook(0x53CA84, &CHud::ReInitialise);
+	InjectHook(0x53BBA2, &CHud::Shutdown);
+	InjectHook(0x4E9EF8, &RadioNameInject, PATCH_JUMP);
+	InjectHook(0x588B44, &CHud::GetRidOfAllCustomHUDMessages, PATCH_JUMP);
+	//InjectHook(0x588A4B, &HUDInitialiseBreak, PATCH_JUMP);
+	InjectHook(0x588F50, &CHud::SetVehicleName, PATCH_JUMP);
+	InjectHook(0x588BB0, &CHud::SetZoneName, PATCH_JUMP);
+	InjectHook(0x58D542, &CHud::DrawAreaName);
+	InjectHook(0x58FBE9, &CHud::DrawVehicleName);
+	InjectHook(0x58FD01, &CHud::DrawBigMessage);
+	InjectHook(0x58D56F, &CHud::DrawBigMessage);
+	InjectHook(0x53E522, &CGarages::PrintMessages);
+	InjectHook(0x58C83E, &BigMessage1Inject, PATCH_JUMP);
+	InjectHook(0x58D3D9, &BigMessage2Inject, PATCH_JUMP);
+	InjectHook(0x58CB9C, &BigMessage3Inject, PATCH_JUMP);
 	Patch<void*>(0x58C278, &CHud::CarNameStage);
 	Patch<void*>(0x58C286, &CHud::CarNameStage);
 	Patch<void*>(0x58CAB5, &CHud::CarNameStage);
@@ -2603,32 +2599,32 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x58C4CE, &fSubtitlesHeight);
 
 	// User display
-	InjectHook(0x588B50, CHud::HelpMessageShown, PATCH_JUMP);
-	InjectHook(0x571F07, CUserDisplay::Init, PATCH_JUMP);
-	InjectHook(0x53C08B, CUserDisplay::Process);
+	InjectHook(0x588B50, &CHud::HelpMessageShown, PATCH_JUMP);
+	InjectHook(0x571F07, &CUserDisplay::Init, PATCH_JUMP);
+	InjectHook(0x53C08B, &CUserDisplay::Process);
 
-	InjectMethod(0x53E50E, COnscreenTimer::ProcessForDisplay, PATCH_NOTHING);
-	InjectMethod(0x5720AF, COnscreenTimer::Process, PATCH_NOTHING);
-	InjectMethod(0x47C2AC, COnscreenTimer::AddClock, PATCH_NOTHING);
-	InjectMethod(0x47C2C3, COnscreenTimer::AddClock, PATCH_NOTHING);
-	InjectMethod(0x484CA7, COnscreenTimer::AddClock, PATCH_NOTHING);
-	InjectMethod(0x484CFC, COnscreenTimer::AddCounter, PATCH_NOTHING);
-	InjectMethod(0x48C57D, COnscreenTimer::AddCounter, PATCH_NOTHING);
-	InjectMethod(0x47C2E2, COnscreenTimer::ClearClock, PATCH_NOTHING);
-	InjectMethod(0x47C301, COnscreenTimer::ClearCounter, PATCH_NOTHING);
-	InjectMethod(0x48EEB6, COnscreenTimer::SetFlashing, PATCH_NOTHING);
-	InjectMethod(0x48EECD, COnscreenTimer::SetFlashing, PATCH_NOTHING);
-	InjectMethod(0x4720AF, COnscreenTimer::SetSoundOnTime, PATCH_NOTHING);
-	InjectHook(0x58FBEE, CHud::DrawOnscreenTimer, PATCH_NOTHING);
+	InjectHook(0x53E50E, &COnscreenTimer::ProcessForDisplay, PATCH_NOTHING);
+	InjectHook(0x5720AF, &COnscreenTimer::Process, PATCH_NOTHING);
+	InjectHook(0x47C2AC, &COnscreenTimer::AddClock, PATCH_NOTHING);
+	InjectHook(0x47C2C3, &COnscreenTimer::AddClock, PATCH_NOTHING);
+	InjectHook(0x484CA7, &COnscreenTimer::AddClock, PATCH_NOTHING);
+	InjectHook(0x484CFC, &COnscreenTimer::AddCounter, PATCH_NOTHING);
+	InjectHook(0x48C57D, &COnscreenTimer::AddCounter, PATCH_NOTHING);
+	InjectHook(0x47C2E2, &COnscreenTimer::ClearClock, PATCH_NOTHING);
+	InjectHook(0x47C301, &COnscreenTimer::ClearCounter, PATCH_NOTHING);
+	InjectHook(0x48EEB6, &COnscreenTimer::SetFlashing, PATCH_NOTHING);
+	InjectHook(0x48EECD, &COnscreenTimer::SetFlashing, PATCH_NOTHING);
+	InjectHook(0x4720AF, &COnscreenTimer::SetSoundOnTime, PATCH_NOTHING);
+	InjectHook(0x58FBEE, &CHud::DrawOnscreenTimer, PATCH_NOTHING);
 
-	InjectHook(0x47C286, RunningScriptPointerParamWrapper);
-	InjectHook(0x47C2D4, RunningScriptPointerParamWrapper);
-	InjectHook(0x47C2F3, RunningScriptPointerParamWrapper);
-	InjectHook(0x484C59, RunningScriptPointerParamWrapper);
-	InjectHook(0x484CB5, RunningScriptPointerParamWrapper);
-	InjectHook(0x48C531, RunningScriptPointerParamWrapper);
-	InjectHook(0x48EE92, RunningScriptPointerParamWrapper);
-	InjectHook(0x472090, RunningScriptPointerParamWrapper);
+	InjectHook(0x47C286, &RunningScriptPointerParamWrapper);
+	InjectHook(0x47C2D4, &RunningScriptPointerParamWrapper);
+	InjectHook(0x47C2F3, &RunningScriptPointerParamWrapper);
+	InjectHook(0x484C59, &RunningScriptPointerParamWrapper);
+	InjectHook(0x484CB5, &RunningScriptPointerParamWrapper);
+	InjectHook(0x48C531, &RunningScriptPointerParamWrapper);
+	InjectHook(0x48EE92, &RunningScriptPointerParamWrapper);
+	InjectHook(0x472090, &RunningScriptPointerParamWrapper);
 
 	Patch<void*>(0x53E50A, &CUserDisplay::OnscnTimer);
 	Patch<void*>(0x5720AB, &CUserDisplay::OnscnTimer);
@@ -2741,18 +2737,17 @@ __forceinline void Main_Patches()
 
 	// Growing/shrinking 3DMarkers
 	Patch<float>(0x440F26, 0.0f);
-	InjectHook(0x72576B, C3DMarkerSizeHack, PATCH_CALL);
+	InjectHook(0x72576B, &C3DMarkerSizeHack, PATCH_CALL);
 	Nop(0x725770, 1);
 
 	// New style of markers
-	InjectHook(0x725BA0, C3DMarkers::PlaceMarkerSet, PATCH_JUMP);
-	InjectHook(0x70CCB0, CShadows::RenderIndicatorShadow, PATCH_JUMP);
+	InjectHook(0x725BA0, &C3DMarkers::PlaceMarkerSet, PATCH_JUMP);
 
 	// Enex markers RGB
-	InjectHook(0x440F38, EnexMarkersColorBreak, PATCH_JUMP);
+	InjectHook(0x440F38, &EnexMarkersColorBreak, PATCH_JUMP);
 
 	// Font scale fix
-	InjectHook(0x7193A0, CFont::SetScaleLang, PATCH_JUMP);
+	InjectHook(0x7193A0, &CFont::SetScaleLang, PATCH_JUMP);
 
 	// Own textures loading
 /*#if DEBUG
@@ -2761,26 +2756,23 @@ __forceinline void Main_Patches()
 #endif*/
 
 	// Zebra Cab stuff
-	InjectHook(0x4912D6, func_0602, PATCH_JUMP);
+	InjectHook(0x4912D6, &func_0602, PATCH_JUMP);
 	Patch<DWORD>(0x6AB35C, 0xC5);
 	Patch<const void*>(0x6AB369, CAutomobile__PreRenderCoronasTable);
-	InjectHook(0x6B19AC, ZebraCabNitro, PATCH_JUMP);
-	InjectHook(0x56F938, ZebraCabCPlayerStuff, PATCH_JUMP);
-	InjectHook(0x610384, func_610310, PATCH_JUMP);
-	InjectHook(0x6B4AE9, func_6B4800, PATCH_JUMP);
-	InjectHook(0x6D1AC6, func_6D1AA0, PATCH_JUMP);
-	InjectHook(0x40B646, CStreaming::RequestSpecialDriverModel);
-	InjectHook(0x613A43, CStreaming::GetSpecialDriverModelID);
-	InjectHook(0x40813E, CStreaming::ReleaseSpecialDriverModel);
+	InjectHook(0x6B19AC, &ZebraCabNitro, PATCH_JUMP);
+	InjectHook(0x56F938, &ZebraCabCPlayerStuff, PATCH_JUMP);
+	InjectHook(0x610384, &func_610310, PATCH_JUMP);
+	InjectHook(0x6B4AE9, &func_6B4800, PATCH_JUMP);
+	InjectHook(0x6D1AC6, &func_6D1AA0, PATCH_JUMP);
+	InjectHook(0x40B646, &CStreaming::RequestSpecialDriverModel);
+	InjectHook(0x613A43, &CStreaming::GetSpecialDriverModelID);
+	InjectHook(0x40813E, &CStreaming::ReleaseSpecialDriverModel);
 
 	// Quad dual lights
 	Nop(0x6ABCAB, 2);
 
 	// In car killed peds counter
-	InjectHook(0x4B93D4, InCarKilledCounterBreak, PATCH_JUMP);
-
-	// Gang weapons
-	InjectHook(0x5DE680, CGangWeapons::Init, PATCH_JUMP);
+	InjectHook(0x4B93D4, &InCarKilledCounterBreak, PATCH_JUMP);
 
 	// No gang gestures
 	Patch<BYTE>(0x6601D7, 0xEB);
@@ -2794,14 +2786,15 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x4F7827, &audioGearboxSoundTable);
 
 	// Car sounds DAT file
-	InjectHook(0x4F77B8, VehAudioHook, PATCH_JUMP);
+	InjectHook(0x4F77B8, &VehAudioHook, PATCH_JUMP);
 	Nop(0x4F77EF, 1);
 
 	// [s]Failed :([/s] Succeeded!
-	//InjectHook(0x732B30, RenderAtomicTest, PATCH_JUMP);
-	//InjectHook(0x6C444B, RotorsHook, PATCH_JUMP);
-	InjectMethod(0x6C4400, CHeli::Render, PATCH_JUMP);
-	InjectHook(0x553318, CVisibilityPlugins::RenderAlphaAtomics);
+	//InjectHook(0x732B30, &RenderAtomicTest, PATCH_JUMP);
+	//InjectHook(0x6C444B, &RotorsHook, PATCH_JUMP);
+	//InjectHook(0x6C4400, &CHeli::Render, PATCH_JUMP);
+	Patch(0x8716C8, &CHeli::Render_Stub);
+	InjectHook(0x553318, &CVisibilityPlugins::RenderAlphaAtomics);
 
 	// radio IDs
 	Patch<BYTE>(0x489B8D, 9);
@@ -2888,8 +2881,8 @@ __forceinline void Main_Patches()
 //	Patch<BYTE>(0x4EA276, 0xEB);
 
 	// Proper radio
-	InjectHook(0x4EA670, NoRadioCommercialsHack, PATCH_JUMP);
-	InjectMethod(0x4EA270, CAERadioTrackManager::GetNextTrackByStation, PATCH_JUMP);
+	InjectHook(0x4EA670, &NoRadioCommercialsHack, PATCH_JUMP);
+	InjectHook(0x4EA270, &CAERadioTrackManager::GetNextTrackByStation, PATCH_JUMP);
 	Patch<const void*>(0x4EA6F1, &iRadioTracks);
 	Patch<const void*>(0x4EA7A9, &iRadioTracks);
 
@@ -2956,10 +2949,10 @@ __forceinline void Main_Patches()
 	Nop(0x5D3F08, 5);
 	Nop(0x5D4108, 5);
 
-	InjectHook(0x4E81F3, CAERadioTrackManager::ResetExtra, PATCH_JUMP);
-	InjectHook(0x5B962B, RadioResetWrapper, PATCH_JUMP);
-	InjectHook(0x5D40DA, SaveRadios, PATCH_JUMP);
-	InjectHook(0x5D42DA, LoadRadios, PATCH_JUMP);
+	InjectHook(0x4E81F3, &CAERadioTrackManager::ResetExtra, PATCH_JUMP);
+	InjectHook(0x5B962B, &RadioResetWrapper, PATCH_JUMP);
+	InjectHook(0x5D40DA, &SaveRadios, PATCH_JUMP);
+	InjectHook(0x5D42DA, &LoadRadios, PATCH_JUMP);
 
 	Patch<BYTE>(0x4842CD, sizeof(iBeatsStreams)/sizeof(short) - 3);
 
@@ -2970,7 +2963,7 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x5B9530, 0x90045D88);
 
 	// Cutscene data
-	InjectHook(0x5B10C0, SetCutsceneModelHack, PATCH_JUMP);
+	InjectHook(0x5B10C0, &SetCutsceneModelHack, PATCH_JUMP);
 	Patch<const void*>(0x5AFA51, &cutsceneStreams);
 	Patch<const void*>(0x5AFA5A, cutsceneStreams);
 //	charptr(0x5B10C1, "csplr");
@@ -3022,30 +3015,30 @@ __forceinline void Main_Patches()
 	Patch<void*>(0x71972E, &CFont::Size->bUnpropValue);
 	Patch<void*>(0x7197DF, &CFont::Size->bUnpropValue);
 	Patch<void*>(0x719AAF, &CFont::Size->bUnpropValue);
-	InjectHook(0x7192C0, CFont::FindSubFontCharacter, PATCH_JUMP);
+	InjectHook(0x7192C0, &CFont::FindSubFontCharacter, PATCH_JUMP);
 	//call(0x5BA6BD, &LoadFontsHack, PATCH_JUMP);
 	//call(0x7189B2, &ReleaseFontsHack, PATCH_JUMP);
-	InjectHook(0x719490, CFont::SetFontStyle, PATCH_JUMP);
-	InjectHook(0x5BD76A, CFont::Initialise);
-	InjectHook(0x53BBA7, CFont::Shutdown);
+	InjectHook(0x719490, &CFont::SetFontStyle, PATCH_JUMP);
+	InjectHook(0x5BD76A, &CFont::Initialise);
+	InjectHook(0x53BBA7, &CFont::Shutdown);
 	Nop(0x718B64, 6);
 	//call(0x7196DB, &CFont::FindSubFontCharacter, PATCH_NOTHING);
 	//call(0x719770, &CFont::FindSubFontCharacter, PATCH_NOTHING);
 	//call(0x7199C3, &CFont::FindSubFontCharacter, PATCH_NOTHING);
 
 	// Language regional settings
-	InjectHook(0x74747E, InitialiseLanguage);
+	InjectHook(0x74747E, &InitialiseLanguage);
 
 	// SPTA support
-	InjectHook(0x5900B0, LoadSplashes, PATCH_JUMP);
-	InjectHook(0x58FF60, LoadingScreen, PATCH_JUMP);
+	InjectHook(0x5900B0, &LoadSplashes, PATCH_JUMP);
+	InjectHook(0x58FF60, &LoadingScreen, PATCH_JUMP);
 
 	Nop(0x574673, 5);
 	Nop(0x5746A0, 5);
 	Nop(0x5746CE, 5);
 	Patch<WORD>(0x573088, 0xCB8B);
 	InjectHook(0x572ED8, 0x57308A, PATCH_JUMP);
-	InjectMethod(0x57308A, CMenuManager::ReadFrontendTextures, PATCH_NOTHING);
+	InjectHook(0x57308A, &CMenuManager::ReadFrontendTextures);
 
 	/*_asm
 	{
@@ -3056,32 +3049,32 @@ __forceinline void Main_Patches()
 
 
 	// Autoupdater
-	InjectHook(0x53E77C, CUpdateManager::Process);
-	InjectHook(0x53BF4E, UpdaterProcessHack);
-	InjectHook(0x579526, UpdaterMenuDrawHack, PATCH_JUMP);
-	InjectHook(0x579D50, UpdaterTextSwap, PATCH_JUMP);
-//	InjectHook(0x576E13, MenuToggleHack, PATCH_JUMP
-//	InjectHook(0x573680, SetToNewMenuHack, PATCH_JUMP);
+	InjectHook(0x53E77C, &CUpdateManager::Process);
+	InjectHook(0x53BF4E, &UpdaterProcessHack);
+	InjectHook(0x579526, &UpdaterMenuDrawHack, PATCH_JUMP);
+	InjectHook(0x579D50, &UpdaterTextSwap, PATCH_JUMP);
+//	InjectHook(0x576E13, &MenuToggleHack, PATCH_JUMP
+//	InjectHook(0x573680, &SetToNewMenuHack, PATCH_JUMP);
 	Patch<const void*>(0x57CD84, PCMenuActionsTable);
 	Patch<const void*>(0x57CD8B, PCMenuActionsAddresses);
 	Patch<BYTE>(0x57CD74, NUM_MENU_ACTIONS-7);
 	Patch<WORD>(0x573830, 0xCE8B);
 	Patch<BYTE>(0x573832, 0x5E);
-	InjectMethod(0x573833, CMenuManager::SwitchToNewScreenVCS, PATCH_JUMP);
-	InjectMethod(0x579330, CMenuManager::MessageScreen, PATCH_JUMP);
+	InjectHook(0x573833, &CMenuManager::SwitchToNewScreenVCS, PATCH_JUMP);
+	InjectHook(0x579330, &CMenuManager::MessageScreen, PATCH_JUMP);
 
 	static DWORD	dwDummy;
 	// Savegame compatibility
 //	call(0x5D0F50, &C_PcSave::MakeTimestamp, PATCH_JUMP);
 //	call(0x5D18EB, &TimestampSignatureHack, PATCH_JUMP);
-	InjectHook(0x5D14D5, CTheScripts::SaveAllScripts);
-	InjectHook(0x5D18F0, CTheScripts::LoadAllScripts);
-	InjectHook(0x464BC0, CTheScripts::ZeroMissionVars, PATCH_JUMP);
-	InjectHook(0x5D19C0, CEntryExitManager::Load);
-	InjectHook(0x5D1598, CEntryExitManager::Save);
-	InjectMethod(0x5D4640, CPed::Load, PATCH_JUMP);
-	InjectMethod(0x5D5730, CPed::Save, PATCH_JUMP);
-	//InjectHook(0x579434, 0x53D840, PATCH_CALL);
+	InjectHook(0x5D14D5, &CTheScripts::SaveAllScripts);
+	InjectHook(0x5D18F0, &CTheScripts::LoadAllScripts);
+	InjectHook(0x464BC0, &CTheScripts::ZeroMissionVars, PATCH_JUMP);
+	InjectHook(0x5D19C0, &CEntryExitManager::Load);
+	InjectHook(0x5D1598, &CEntryExitManager::Save);
+	InjectHook(0x5D4640, &CPed::Load_Stub, PATCH_JUMP);
+	InjectHook(0x5D5730, &CPed::Save_Stub, PATCH_JUMP);
+	//InjectHook(0x579434, &0x53D840, PATCH_CALL);
 	Patch<WORD>(0x5D334F, 0x08EB);
 	Patch<void*>(0x5D327E, &dwDummy);
 	Nop(0x5D0887, 2);
@@ -3101,7 +3094,7 @@ __forceinline void Main_Patches()
 	Nop(0x5D1988, 5);
 	Nop(0x5D19A4, 5);
 	//Patch<DWORD>(0x579439, 0x90000CC2);
-	InjectHook(0x53C71F, LoadGameFailedMessage_Inject, PATCH_JUMP);
+	InjectHook(0x53C71F, &LoadGameFailedMessage_Inject, PATCH_JUMP);
 
 	// Save Fallback system
 //	patch(0x5D18AC, 0x150, 4);
@@ -3110,15 +3103,15 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x5D18E0, 0x1C);
 	Patch<BYTE>(0x5D1C12, 0xB8);
 	Patch<DWORD>(0x5D1C13, SAVE_FALLBACK_BLOCK0_VERSION);
-	InjectHook(0x6191E9, SaveFallback_FallbackPreBeta3Names, PATCH_JUMP);
-	InjectHook(0x5D188E, SaveFallback_InjectOnLoad, PATCH_JUMP);
-	InjectHook(0x5D149D, SaveFallback_InjectOnSave, PATCH_JUMP);
-	InjectHook(0x5D18E1, SaveFallback_WrapAroundFirstBlock, PATCH_JUMP);
+	InjectHook(0x6191E9, &SaveFallback_FallbackPreBeta3Names, PATCH_JUMP);
+	InjectHook(0x5D188E, &SaveFallback_InjectOnLoad, PATCH_JUMP);
+	InjectHook(0x5D149D, &SaveFallback_InjectOnSave, PATCH_JUMP);
+	InjectHook(0x5D18E1, &SaveFallback_WrapAroundFirstBlock, PATCH_JUMP);
 	// This CRT needs to be replaced
-	InjectHook(0x6191D1, CFileMgr::OpenFile);
-	InjectHook(0x6191E4, CFileMgr::Seek);
-	InjectHook(0x6191F7, CFileMgr::Read);
-	InjectHook(0x61923C, CFileMgr::CloseFile);
+	InjectHook(0x6191D1, &CFileMgr::OpenFile);
+	InjectHook(0x6191E4, &CFileMgr::Seek);
+	InjectHook(0x6191F7, &CFileMgr::Read);
+	InjectHook(0x61923C, &CFileMgr::CloseFile);
 	Nop(0x5D18D8, 5);
 	Nop(0x5D1EA9, 2);
 
@@ -3126,15 +3119,15 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x53E923, 0x42EB56);
 	Patch<WORD>(0x748D81, 0x1B0);
 	Patch<WORD>(0x748D98, 0xC030);
-	InjectHook(0x748D83, MaxosFrameLimitHack, PATCH_JUMP);
-	InjectHook(0x748D9A, MaxosFrameLimitHack, PATCH_JUMP);
+	InjectHook(0x748D83, &MaxosFrameLimitHack, PATCH_JUMP);
+	InjectHook(0x748D9A, &MaxosFrameLimitHack, PATCH_JUMP);
 
-	InjectHook(0x57CECA, FrameLimit_SwitchInject, PATCH_JUMP);
-	InjectHook(0x579EF3, FrameLimit_StringInject);
-	InjectHook(0x57CD05, FrameLimit_SetFPS, PATCH_JUMP);
+	InjectHook(0x57CECA, &FrameLimit_SwitchInject, PATCH_JUMP);
+	InjectHook(0x579EF3, &FrameLimit_StringInject);
+	InjectHook(0x57CD05, &FrameLimit_SetFPS, PATCH_JUMP);
 	/*call(0x573BB8, &FrameLimit_SetFPS2, PATCH_CALL);
 	Nop(0x573BBD, 1);*/
-	InjectHook(0x573BF0, FrameLimit_SetFPS2, PATCH_JUMP);
+	InjectHook(0x573BF0, &FrameLimit_SetFPS2, PATCH_JUMP);
 	Nop(0x573BB8, 3);
 
 	// No green blip
@@ -3201,7 +3194,7 @@ __forceinline void Main_Patches()
 	CModelInfo::Inject();
 
 	//call(0x5B3D8E, &CModelInfo::AddDamageAtomicModel, PATCH_NOTHING);
-	InjectHook(0x5B85DD, CFileLoader::LoadObject);
+	InjectHook(0x5B85DD, &CFileLoader::LoadObject);
 
 	// Old style Rhino
 	Patch<const void*>(0x6A80CA, &fRhinoHitStrength);
@@ -3213,10 +3206,10 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x705065, 0xEB);
 
 	// Force metric system
-	InjectHook(0x56D220, UseMetricSystem, PATCH_JUMP);
+	InjectHook(0x56D220, &UseMetricSystem, PATCH_JUMP);
 
 	// Radio icons tweaks
-	InjectMethod(0x579538, CMenuManager::DrawRadioStationIcons, PATCH_NOTHING);
+	InjectHook(0x579538, &CMenuManager::DrawRadioStationIcons, PATCH_NOTHING);
 	/*patch(0x574702, 91, 4);
 	patch(0x57470D, 10, 4);
 	Patch<BYTE>(0x57480A, 11);
@@ -3225,8 +3218,8 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x57A2BD, 4);
 
 	// 12H Clock menu options
-	InjectHook(0x577086, Clock_SwitchInject, PATCH_JUMP);
-	InjectHook(0x579E6A, Clock_StringInject);
+	InjectHook(0x577086, &Clock_SwitchInject, PATCH_JUMP);
+	InjectHook(0x579E6A, &Clock_StringInject);
 
 	// Pink menu header
 	Patch<BYTE>(0x5795F3, 11);
@@ -3259,7 +3252,7 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x579F2E, MENU_LOCKED_B);
 	Patch<BYTE>(0x579F30, MENU_LOCKED_G);
 	Patch<BYTE>(0x579F32, MENU_LOCKED_R);
-	InjectHook(0x579A87, MenuEntryColourHack, PATCH_JUMP);
+	InjectHook(0x579A87, &MenuEntryColourHack, PATCH_JUMP);
 
 
 	// Custom Tracks slider
@@ -3312,10 +3305,10 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x748AE6, 0x14);
 
 	// Outro splash
-	InjectMethod(0x57BA5F, CMenuManager::DrawOutroSplash, PATCH_NOTHING);
+	InjectHook(0x57BA5F, &CMenuManager::DrawOutroSplash, PATCH_NOTHING);
 
 	// Stats Menu
-	InjectMethod(0x57954A, CMenuManager::PrintStats, PATCH_NOTHING);
+	InjectHook(0x57954A, &CMenuManager::PrintStats, PATCH_NOTHING);
 	Patch<const void*>(0x577370, &StatsMenuActionHack);
 
 	// Brightness
@@ -3327,7 +3320,7 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x5734BC, &fBrightnessMax);
 
 	// Tweaked draw distance
-	InjectHook(0x5735C8, DrawDistanceRecalc);
+	InjectHook(0x5735C8, &DrawDistanceRecalc);
 
 	// Widescreen
 	Patch<DWORD>(0x745B71, 0x9090687D);
@@ -3350,12 +3343,12 @@ __forceinline void Main_Patches()
 	Patch<const char*>(0x7463C8, aNoDesktopMode);
 
 	// BINK video player
-	InjectHook(0x748AFA, VideoPlayerCreate1, PATCH_JUMP);
+	InjectHook(0x748AFA, &VideoPlayerCreate1, PATCH_JUMP);
 	Patch<const void*>(0x748F04, &VideoPlayerCreate2);
 	Patch<const void*>(0x748F0C, &VideoPlayerRelease);
-//	InjectHook(0x748BC9, VideoPlayerCreate2, PATCH_JUMP);
-	InjectHook(0x748BB9, VideoPlayerPlayNextFrame);
-	InjectHook(0x7480D6, VideoPlayerProc, PATCH_JUMP);
+//	InjectHook(0x748BC9, &VideoPlayerCreate2, PATCH_JUMP);
+	InjectHook(0x748BB9, &VideoPlayerPlayNextFrame);
+	InjectHook(0x7480D6, &VideoPlayerProc, PATCH_JUMP);
 
 	// Disable re-initialization of DirectInput mouse device by the game
 	Patch<BYTE>(0x576CCC, 0xEB);
@@ -3367,7 +3360,7 @@ __forceinline void Main_Patches()
 
 	// Commandline arguments
 	Patch<const void*>(0x619C40, &CommandlineEventHack);
-	InjectHook(0x7488FB, ReadCommandlineFile, PATCH_JUMP);
+	InjectHook(0x7488FB, &ReadCommandlineFile, PATCH_JUMP);
 
 	// DLC support
 	Patch<const char*>(0x5BF8B2, CFileLoader::GetParticlesPath());
@@ -3377,12 +3370,12 @@ __forceinline void Main_Patches()
 
 	//Nop(0x53BC8B, 5);
 	//call(0x53BC95, &CDLCManager::LoadLevelFiles, PATCH_CALL);
-	InjectHook(0x748C3F, LoadGameWithDLCHack);
-	InjectHook(0x53BC95, CFileLoader::ParseLevelFile, PATCH_CALL);
-	InjectHook(0x53BC9B, CFileLoader::ParseLevelFile, PATCH_CALL);
-	InjectHook(0x53BCA0, CFileLoader::LoadLevels, PATCH_CALL);
-	InjectHook(0x5B8980, CFileLoader::LoadEntryExit);
-	InjectHook(0x5B8634, CFileLoader::LoadWeaponObject);
+	InjectHook(0x748C3F, &LoadGameWithDLCHack);
+	InjectHook(0x53BC95, &CFileLoader::ParseLevelFile, PATCH_CALL);
+	InjectHook(0x53BC9B, &CFileLoader::ParseLevelFile, PATCH_CALL);
+	InjectHook(0x53BCA0, &CFileLoader::LoadLevels, PATCH_CALL);
+	InjectHook(0x5B8980, &CFileLoader::LoadEntryExit);
+	InjectHook(0x5B8634, &CFileLoader::LoadWeaponObject);
 	Patch<BYTE>(0x5B9299, 0xC3);
 	Nop(0x5B931E, 3);
 	Nop(0x5BCFEC, 5);
@@ -3393,16 +3386,16 @@ __forceinline void Main_Patches()
 	Nop(0x5BBAEA, 5);
 
 	// ColAccel
-	//InjectHook(0x53BC8B, CColAccel::startCache);
+	//InjectHook(0x53BC8B, &CColAccel::startCache);
 	//Patch<WORD>(0x5B2BA1, 0x30EB);
 
 	// Pools fixes
-	InjectHook(0x4048E0, VehiclePoolGetAt, PATCH_JUMP);
-	InjectHook(0x404910, PedPoolGetAt, PATCH_JUMP);
+	InjectHook(0x4048E0, &VehiclePoolGetAt, PATCH_JUMP);
+	InjectHook(0x404910, &PedPoolGetAt, PATCH_JUMP);
 
 	// Children & custom pools
-	InjectHook(0x5BF85B, CPools::Initialise);
-	InjectHook(0x53CA5C, CPools::ShutDown);
+	InjectHook(0x5BF85B, &CPools::Initialise);
+	InjectHook(0x53CA5C, &CPools::ShutDown);
 
 	// Empire Buildings
 	Patch<void*>(0x495F38, func_069C);
@@ -3420,24 +3413,24 @@ __forceinline void Main_Patches()
 	Patch<void*>(0x495F7C, func_069C);
 
 	Patch<const char*>(0x4111AE, "empire_perma");
-	InjectHook(0x53C215, CEmpireManager::Process);
+	InjectHook(0x53C215, &CEmpireManager::Process);
 
 	// Menu background
 	Patch<DWORD>(0x57B764, 0x36EBC030);
 	InjectHook(0x57B7A1, 0x57B9F4, PATCH_JUMP);
 	Patch<WORD>(0x57B9F4, 0xCE8B);
-	InjectMethod(0x57B9F6, CMenuManager::DrawBackEnd, PATCH_CALL);
+	InjectHook(0x57B9F6, &CMenuManager::DrawBackEnd, PATCH_CALL);
 	Patch<WORD>(0x57B9FB, 0x05EB);
 
 	// More centered stuff in menu, sliders
-	InjectHook(0x57A218, MenuEntriesAlignHack, PATCH_JUMP);
-	InjectHook(0x57A3B1, MenuEntriesPositionHack_Inject, PATCH_JUMP);
+	InjectHook(0x57A218, &MenuEntriesAlignHack, PATCH_JUMP);
+	InjectHook(0x57A3B1, &MenuEntriesPositionHack_Inject, PATCH_JUMP);
 	//Patch<BYTE>(0x57A219, ALIGN_Left);
 	//patch(0x57A3DF, &fMenuTextsPosX, 4);
 	//patch(0x57A3ED, &fMenuTextsPosX2, 4);
 
 	// -//- related to sliders
-	InjectMethod(0x576860, CMenuManager::DisplaySlider, PATCH_JUMP);
+	InjectHook(0x576860, &CMenuManager::DisplaySlider, PATCH_JUMP);
 	/*patchf(0x57A881, 640.0 - MENU_TEXT_POSITION_RCOLUMN);
 	patchf(0x57AA75, 640.0 - MENU_TEXT_POSITION_RCOLUMN);
 	patchf(0x57ACB2, 640.0 - MENU_TEXT_POSITION_RCOLUMN);
@@ -3502,8 +3495,8 @@ __forceinline void Main_Patches()
 	patch(0x57A370, &WidescreenSupport::f0pt7, 4);
 	patch(0x57403F, &WidescreenSupport::fMenuMessageWidth, 4);
 	patch(0x5740BE, &WidescreenSupport::f0pt56, 4);
-	patch(0x574112, &WidescreenSupport::f95, 4); 
-	patch(0x574145, &WidescreenSupport::f95, 4); 
+	patch(0x574112, &WidescreenSupport::f95, 4);
+	patch(0x574145, &WidescreenSupport::f95, 4);
 	patch(0x5763C2, &WidescreenSupport::f0pt49, 4);
 	patch(0x5764D0, &WidescreenSupport::f70, 4);
 	patch(0x5765C2, &WidescreenSupport::f50, 4);
@@ -3545,30 +3538,30 @@ __forceinline void Main_Patches()
 	/*patch(0x58C0DE, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C12D, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C144, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);*/
-	InjectHook(0x57E3A5, HelperPosXHack);
-	InjectHook(0x57A186/*0x57A1BA*//*0x57A1C1*/, MenuEntriesLeftColumnHack, PATCH_JUMP);
+	InjectHook(0x57E3A5, &HelperPosXHack);
+	InjectHook(0x57A186/*0x57A1BA*//*0x57A1C1*/, &MenuEntriesLeftColumnHack, PATCH_JUMP);
 	//call(0x57A190, &MenuEntriesLeftColumnHack2, PATCH_JUMP);
-	InjectHook(0x579BBF, MenuEntriesPlaceSave, PATCH_JUMP);
-	InjectHook(0x579C7F, MenuEntriesPlaceSave2, PATCH_JUMP);
-	InjectHook(0x72FD75, WidescreenSupportRecalculateHack, PATCH_JUMP);
-	InjectHook(0x745C99, WidescreenSupportRecalculateHack2, PATCH_JUMP);
-	InjectHook(0x746341, WidescreenSupportRecalculateHack3, PATCH_CALL);
-	InjectHook(0x6FF420, WidescreenSupport::SetAspectRatio, PATCH_JUMP);
-//	InjectHook(0x6FF410, WidescreenSupport::SetFieldOfView, PATCH_JUMP);
-	//InjectHook(0x72FCF9, WidescreenFOVHack, PATCH_JUMP);
-	InjectHook(0x514D63, WidescreenFOVHack2, PATCH_CALL);
-	//InjectHook(0x514878, WidescreenBordersHack);
-	InjectHook(0x51499E, AimpointCalc, PATCH_JUMP);
-	InjectHook(0x5BC8FF, CameraInitHack, PATCH_JUMP);
-	InjectHook(0x58C3C8, WidescreenTextPositionHack, PATCH_CALL);
-	InjectHook(0x58BB88, WidescreenSupport::GetTextBoxPos, PATCH_CALL);
-//	InjectHook(0x714841, WidescreenSkyWidthHack, PATCH_CALL);
-	InjectHook(0x57706E, Widescreen_SwitchInject, PATCH_JUMP);
-	InjectHook(0x579DE9, Widescreen_StringInject);
-//	InjectHook(0x58C0BB, Widescreen_TextDrawsFix, PATCH_CALL);
-	InjectHook(0x58C1EC, Widescreen_TextDrawsFix2, PATCH_JUMP);
-	InjectHook(0x72FC70, CameraSize, PATCH_JUMP);
-	InjectMethod(0x514860, CCamera::DrawBordersForWideScreen, PATCH_JUMP);
+	InjectHook(0x579BBF, &MenuEntriesPlaceSave, PATCH_JUMP);
+	InjectHook(0x579C7F, &MenuEntriesPlaceSave2, PATCH_JUMP);
+	InjectHook(0x72FD75, &WidescreenSupportRecalculateHack, PATCH_JUMP);
+	InjectHook(0x745C99, &WidescreenSupportRecalculateHack2, PATCH_JUMP);
+	InjectHook(0x746341, &WidescreenSupportRecalculateHack3, PATCH_CALL);
+	InjectHook(0x6FF420, &WidescreenSupport::SetAspectRatio, PATCH_JUMP);
+//	InjectHook(0x6FF410, &WidescreenSupport::SetFieldOfView, PATCH_JUMP);
+	//InjectHook(0x72FCF9, &WidescreenFOVHack, PATCH_JUMP);
+	InjectHook(0x514D63, &WidescreenFOVHack2, PATCH_CALL);
+	//InjectHook(0x514878, &WidescreenBordersHack);
+	InjectHook(0x51499E, &AimpointCalc, PATCH_JUMP);
+	InjectHook(0x5BC8FF, &CameraInitHack, PATCH_JUMP);
+	InjectHook(0x58C3C8, &WidescreenTextPositionHack, PATCH_CALL);
+	InjectHook(0x58BB88, &WidescreenSupport::GetTextBoxPos, PATCH_CALL);
+//	InjectHook(0x714841, &WidescreenSkyWidthHack, PATCH_CALL);
+	InjectHook(0x57706E, &Widescreen_SwitchInject, PATCH_JUMP);
+	InjectHook(0x579DE9, &Widescreen_StringInject);
+//	InjectHook(0x58C0BB, &Widescreen_TextDrawsFix, PATCH_CALL);
+	InjectHook(0x58C1EC, &Widescreen_TextDrawsFix2, PATCH_JUMP);
+	InjectHook(0x72FC70, &CameraSize, PATCH_JUMP);
+	InjectHook(0x514860, &CCamera::DrawBordersForWideScreen, PATCH_JUMP);
 	Patch<WORD>(0x58BB8D, 0x05EB);
 	Nop(0x50AD79, 6);
 	Nop(0x58C3CD, 1);
@@ -3623,9 +3616,9 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x58A88F, HUD_TRANSPARENCY);
 	Patch<DWORD>(0x58A8D9, HUD_TRANSPARENCY);
 	Patch<DWORD>(0x58A98F, HUD_TRANSPARENCY);
-	InjectHook(0x58641A/*0x58645D*/, OpaqueRadarHack, PATCH_JUMP);
+	InjectHook(0x58641A/*0x58645D*/, &OpaqueRadarHack, PATCH_JUMP);
 #ifndef V_RADAR_TEST
-	InjectHook(0x586500, OpaqueRadarHack2);
+	InjectHook(0x586500, &OpaqueRadarHack2);
 #endif
 
 	// Temp? Map screen
@@ -3635,8 +3628,8 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x578856, &fRadarTileDimensions);
 	Patch<const void*>(0x578843, &fMinusRadarTileDimensions);
 	Patch<const void*>(0x578869, &fMinusRadarTileDimensions);
-	InjectHook(0x5754C0, TempRadarFixFunc, PATCH_JUMP);
-	InjectHook(0x5756E0, TempRadarFixFunc2);
+	InjectHook(0x5754C0, &TempRadarFixFunc, PATCH_JUMP);
+	InjectHook(0x5756E0, &TempRadarFixFunc2);
 	Patch<WORD>(0x5754B9, 0x02B3);
 
 	// Infinite sea at 8.0
@@ -3656,7 +3649,7 @@ __forceinline void Main_Patches()
 	//Patch<const char*>(0x57DE43, "<title>Grand Theft Auto Vice City Stories Stats</title><meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\" />\n");
 	//Patch<const char*>(0x57DE59, "<table width=\"580\" align=\"center\" border=\"0\" cellpadding=\"5\" cellspacing=\"0\">\n");
 	//Patch<const char*>(0x57DE90, "<strong><font color=\"#FFFFFF\">GRAND THEFT AUTO VICE CITY STORIES ");
-	
+
 	// TEMPORARY CUT
 	Nop(0x5773EB, 6);
 	/*charptr(0x57DEBC, L"%s</font></strong><br><font\n");
@@ -3680,8 +3673,8 @@ __forceinline void Main_Patches()
 
 	Patch<DWORD>(0x5759C5, offsetof(CMenuManager, textures[15]));
 
-	InjectMethod(0x58008D, CMenuManager::AdditionalOptionInputVCS, PATCH_NOTHING);
-	InjectMethod(0x57B457, CMenuManager::UserInputVCS, PATCH_NOTHING);
+	InjectHook(0x58008D, &CMenuManager::AdditionalOptionInputVCS, PATCH_NOTHING);
+	InjectHook(0x57B457, &CMenuManager::UserInputVCS, PATCH_NOTHING);
 
 	// No arrow.txd
 	Patch<DWORD>(0x57A511, 0xDBE9);
@@ -3697,23 +3690,23 @@ __forceinline void Main_Patches()
 #endif
 	Patch<const char*>(0x7489A0, "controls.set");
 	//Patch<WORD>(0x57C6A7, 0x09EB);
-	InjectHook(0x57C7E7, SaveLanguageHack);
-	InjectHook(0x57CABB, LoadLanguageHack);
-	InjectMethod(0x57C6AD, CControllerConfigManager::SaveToFile, PATCH_NOTHING);
-	InjectMethod(0x57C990, CControllerConfigManager::LoadFromFile, PATCH_NOTHING);
+	InjectHook(0x57C7E7, &SaveLanguageHack);
+	InjectHook(0x57CABB, &LoadLanguageHack);
+	InjectHook(0x57C6AD, &CControllerConfigManager::SaveToFile, PATCH_NOTHING);
+	InjectHook(0x57C990, &CControllerConfigManager::LoadFromFile, PATCH_NOTHING);
 	// Upgrading CRT of CControllerConfigManager::SaveSettings and CControllerConfigManager::LoadSettings
-	InjectHook(0x52D220, CFileMgr::Write);
-	InjectHook(0x52D237, CFileMgr::Write);
-	InjectHook(0x530551, CFileMgr::Read);
-	InjectHook(0x530582, CFileMgr::Read);
-	InjectHook(0x5305AA, CFileMgr::Read);
-	InjectHook(0x530605, CFileMgr::Read);
-	InjectHook(0x530575, CFileMgr::Seek);
-	InjectHook(0x5305BF, CFileMgr::Seek);
-	InjectHook(0x5305D7, CFileMgr::Seek);
-	InjectHook(0x5305FC, CFileMgr::Seek);
-	InjectHook(0x7489A4, CFileMgr::OpenFile);
-	InjectHook(0x7489CC, CFileMgr::CloseFile);
+	InjectHook(0x52D220, &CFileMgr::Write);
+	InjectHook(0x52D237, &CFileMgr::Write);
+	InjectHook(0x530551, &CFileMgr::Read);
+	InjectHook(0x530582, &CFileMgr::Read);
+	InjectHook(0x5305AA, &CFileMgr::Read);
+	InjectHook(0x530605, &CFileMgr::Read);
+	InjectHook(0x530575, &CFileMgr::Seek);
+	InjectHook(0x5305BF, &CFileMgr::Seek);
+	InjectHook(0x5305D7, &CFileMgr::Seek);
+	InjectHook(0x5305FC, &CFileMgr::Seek);
+	InjectHook(0x7489A4, &CFileMgr::OpenFile);
+	InjectHook(0x7489CC, &CFileMgr::CloseFile);
 	Nop(0x57C6A7, 1);
 	Nop(0x57C98A, 1);
 	Nop(0x57C997, 6);
@@ -3723,7 +3716,7 @@ __forceinline void Main_Patches()
 //	patch(0x585CD4, 0x40400000, 4); // 3.0
 
 	// Steady crosshair
-	InjectMethod(0x58E26C, CPed::GetCrosshairSize, PATCH_NOTHING);
+	InjectHook(0x58E26C, &CPed::GetCrosshairSize, PATCH_NOTHING);
 
 	// No plane radar stuff
 	InjectHook(0x58A3AA, 0x58A5A8, PATCH_JUMP);
@@ -3731,7 +3724,7 @@ __forceinline void Main_Patches()
 	Nop(0x5880B1, 5);
 
 	// VCS radar colours
-	InjectHook(0x584770, CRadar::GetRadarTraceColour, PATCH_JUMP);
+	InjectHook(0x584770, &CRadar::GetRadarTraceColour, PATCH_JUMP);
 	Patch<DWORD>(0x5838B6, 5);
 	Patch<DWORD>(0x583A17, 0);
 
@@ -3740,7 +3733,7 @@ __forceinline void Main_Patches()
 
 	// FPS meter & gridref stuff
 	Patch<BYTE>(0x58FD0E, 0xE8);
-	InjectHook(0x58FD13, CHud::DrawPermanentTexts, PATCH_JUMP);
+	InjectHook(0x58FD13, &CHud::DrawPermanentTexts, PATCH_JUMP);
 //	call(0x58FD18, &CHud::DrawDevLogos, PATCH_JUMP);
 	//call(0x58FD18, &CGridref::Draw, PATCH_JUMP);
 
@@ -3755,7 +3748,7 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x590478, 2);
 	//patch(0x590D2B, 93, 4);
 	//patch(0x590D68, 93, 4);
-	InjectHook(0x590480, CHud::DrawSquareBar);
+	InjectHook(0x590480, &CHud::DrawSquareBar);
 
 	// One loading music
 	Patch<WORD>(0x5B9B1F, 0xC030);
@@ -3803,20 +3796,17 @@ __forceinline void Main_Patches()
 	Nop(0x5BD606, 5);
 
 	// Ped colors!
-	InjectHook(0x5E7687, InjectPedMapping, PATCH_JUMP);
+	InjectHook(0x5E7687, &InjectPedMapping, PATCH_JUMP);
 	InjectHook(0x5E7975, 0x4C8460, PATCH_JUMP);
-	InjectHook(0x5DDBCE, PedDataConstructorInject_Civilian, PATCH_JUMP);
-	InjectHook(0x5DE39E, PedDataConstructorInject_Civilian, PATCH_JUMP);
-	InjectHook(0x5DDD7F, PedDataConstructorInject_Cop, PATCH_JUMP);
-
-	// Flying components have proper colour
-	InjectMethod(0x59F180, CObject::Render, PATCH_JUMP);
+	InjectHook(0x5DDBCE, &PedDataConstructorInject_Civilian, PATCH_JUMP);
+	InjectHook(0x5DE39E, &PedDataConstructorInject_Civilian, PATCH_JUMP);
+	InjectHook(0x5DDD7F, &PedDataConstructorInject_Cop, PATCH_JUMP);
 
 	// Proper cop models
 	Patch<const void*>(0x40E5CE, &CStreaming::ms_bCopBikeAllowed);
-	InjectHook(0x407C00, CStreaming::ChooseCopModel, PATCH_JUMP);
-	InjectHook(0x407C50, CStreaming::ChooseCopCarModel, PATCH_JUMP);
-	InjectHook(0x40A150, CStreaming::StreamCopModels, PATCH_JUMP);
+	InjectHook(0x407C00, &CStreaming::ChooseCopModel, PATCH_JUMP);
+	InjectHook(0x407C50, &CStreaming::ChooseCopCarModel, PATCH_JUMP);
+	InjectHook(0x40A150, &CStreaming::StreamCopModels, PATCH_JUMP);
 
 	// Streaming tweaks
 	/*static DWORD	dwFakeIntID;
@@ -3827,7 +3817,7 @@ __forceinline void Main_Patches()
 //	Patch<WORD>(0x, 0xD230);
 //	Patch<BYTE>(0x748E69, 0xEB);
 	//call(0x748E6B, &TempExitFix, PATCH_NOTHING); // Temporary fix
-	InjectHook(0x4083C0, CdStreamClearNames, PATCH_JUMP);
+	InjectHook(0x4083C0, &CdStreamClearNames, PATCH_JUMP);
 	Patch<BYTE>(0x53BB60, NUM_IMG_FILES);
 	Patch<DWORD>(0x406B75, NUM_STREAMS);
 	Patch<BYTE>(0x406815, NUM_STREAMS);
@@ -3841,9 +3831,9 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x40766D, &CStreaming::ms_cdImages->bEncryptionType);
 	Patch<DWORD>(0x407671, 0xC78B5B5E);
 	Patch<WORD>(0x407675, 0xC35F);
-	InjectHook(0x5B61B0, IMGEncryptionFindOut, PATCH_JUMP);
-	InjectHook(0x5B8E1B, static_cast<void(*)()>(CStreaming::LoadCdDirectory));
-	InjectHook(0x5B61E6, IMGEncryptionDo, PATCH_JUMP);
+	InjectHook(0x5B61B0, &IMGEncryptionFindOut, PATCH_JUMP);
+	InjectHook(0x5B8E1B, &static_cast<void(*)()>(CStreaming::LoadCdDirectory));
+	InjectHook(0x5B61E6, &IMGEncryptionDo, PATCH_JUMP);
 	Patch<const void*>(0x407614, &CStreaming::ms_cdImages);
 //	patch(0x5B82FD, &CStreaming::ms_cdImages, 4);
 	Patch<const void*>(0x407622, &CStreaming::ms_cdImages[NUM_IMG_FILES+1]);
@@ -3880,7 +3870,7 @@ __forceinline void Main_Patches()
 //	Nop(0x43E65D, 2);
 //	Nop(0x43E669, 2);
 #ifdef INCLUDE_STREAMING_TEXT
-	InjectHook(0x40E120, CStreaming::MakeSpaceFor, PATCH_JUMP);
+	InjectHook(0x40E120, &CStreaming::MakeSpaceFor, PATCH_JUMP);
 #endif
 
 	/*To change when increasing streaming upper limit:
@@ -3889,7 +3879,7 @@ __forceinline void Main_Patches()
 	0x555172 and nearby (NOT SURE)
 	0x555B1C and nearby (NOT SURE)
 	0x71BE74 (NOT SURE)
-	
+
 	Another:
 	0x450A60 and nearby
 	0x554D8D*/
@@ -4003,8 +3993,8 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x57B5D2, NUM_ENTRIES_PER_MENU - 1);
 
 	// Menu mouse hax
-	InjectMethod(0x57FE6B, CMenuManager::GetTextYPos, PATCH_NOTHING);
-	InjectMethod(0x57FEAB, CMenuManager::GetTextYPosNextItem, PATCH_NOTHING);
+	InjectHook(0x57FE6B, &CMenuManager::GetTextYPos, PATCH_NOTHING);
+	InjectHook(0x57FEAB, &CMenuManager::GetTextYPosNextItem, PATCH_NOTHING);
 	// TODO: Needs memcpy and proper multibyte NOPs
 	Patch<DWORD>(0x57FE53, 0x388C8D90);
 	Patch<DWORD>(0x57FE92, 0x3A8C8D90);
@@ -4019,11 +4009,11 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x63E8DF, 0xEB);
 
 	// Good Citizen Bonus
-	InjectHook(0x68EBDD, GoodCitizenBonusFlag, PATCH_JUMP);
+	InjectHook(0x68EBDD, &GoodCitizenBonusFlag, PATCH_JUMP);
 
 	// Blur replaced to cam shake
-	InjectHook(0x704E8A, HighspeedCamShake);
-	//InjectHook(0x704E8A, [](float fShake){ CamShakeNoPos(&TheCamera, fShake * 0.025f); });
+	InjectHook(0x704E8A, &HighspeedCamShake);
+	//InjectHook(0x704E8A, &&[](float fShake){ CamShakeNoPos(&TheCamera, fShake * 0.025f); });
 
 	// No Heat Haze
 	Patch<BYTE>(0x72C1B7, 0xEB);
@@ -4038,7 +4028,7 @@ __forceinline void Main_Patches()
 	Nop(0x72599F, 6);
 	Nop(0x72502B, 6);
 	Nop(0x725647, 2);
-	InjectHook(0x725037, InjectArrowMarker);
+	InjectHook(0x725037, &InjectArrowMarker);
 	Patch<BYTE>(0x726DA6, 5);
 	Patch<DWORD>(0x7232C1, 0xC7C6DC);
 
@@ -4049,7 +4039,7 @@ __forceinline void Main_Patches()
 
 	// Own BaseColors::BaseColors
 	// TODO: Come up with something nicer?
-	InjectMethod(0x84F1F5, CRGBA::BaseColors__Constructor, PATCH_NOTHING);
+	InjectHook(0x84F1F5, &CRGBA::BaseColors__Constructor, PATCH_NOTHING);
 
 	// Weapon sounds
 	// Beretta
@@ -4099,8 +4089,8 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x742A44, 1); // INSTANT_HIT
 
 	// FE_GAME
-	InjectHook(0x4DDAE6, BuySoundCentre, PATCH_JUMP);
-	InjectHook(0x4DDD84, ErrorSoundCentre, PATCH_JUMP);
+	InjectHook(0x4DDAE6, &BuySoundCentre, PATCH_JUMP);
+	InjectHook(0x4DDD84, &ErrorSoundCentre, PATCH_JUMP);
 	Patch<BYTE>(0x4DDAE0, 0x1A);
 	Patch<BYTE>(0x4DDD7E, 0x1A);
 
@@ -4116,7 +4106,7 @@ __forceinline void Main_Patches()
 //	Patch<BYTE>(0x4D5E93, 0);
 
 	// Radar blip names
-	InjectHook(0x5BA2CA, CRadar::LoadTextures);
+	InjectHook(0x5BA2CA, &CRadar::LoadTextures);
 
 	// Global zone name
 	strncpy((char*)0x86506C, "VICE_C", 7);
@@ -4383,7 +4373,7 @@ __forceinline void AnimationStylesPatching()
 	Patch<const char*>(0x8D10F8, "Drive_R_slow");
 
 	// Checks inject
-	InjectHook(0x6099DE, ExtraWeaponAnimationsInject, PATCH_JUMP);
+	InjectHook(0x6099DE, &ExtraWeaponAnimationsInject, PATCH_JUMP);
 	Nop(0x6099A5, 2);
 	Nop(0x609983, 6);
 
@@ -4430,7 +4420,7 @@ void InjectDelayedPatches()
 
 	TheScriptsInitFunc = (void(*)())(*(int*)0x53BDD8 + 0x53BDD7 + 5);
 
-	InjectMethod(0x6A0050, CText::Get, PATCH_JUMP);
+	Memory::InjectHook(0x6A0050, &CText::Get, PATCH_JUMP);
 
 	CUpdateManager::Init();
 //	CDLCManager::InitialiseWithUpdater();
@@ -4694,7 +4684,7 @@ char* ParseCommandlineArgument(char* pArg)
 			return pArg;
 		}
 
-		
+
 		if ( !_strnicmp(pArg, "-nopostfx", 9) )
 		{
 			// TODO: Define this variable properly
@@ -5956,7 +5946,7 @@ SaveFallback_InjectOnLoad_Return:
 void __declspec(naked) SaveFallback_InjectOnSave()
 {
 	_asm
-	{ 
+	{
 		ja		SaveFallback_InjectOnSave_Return
 		push	ebx
 		call	C_PcSave::SaveBlockVersion
@@ -6335,7 +6325,7 @@ WidescreenFOVHack2_DoFOV:
 
 static float CalcFOV()
 {
-	float	TehFOV = ScreenAspectRatio > 1.0f ? *fFOV * ScreenAspectRatio : *fFOV; 
+	float	TehFOV = ScreenAspectRatio > 1.0f ? *fFOV * ScreenAspectRatio : *fFOV;
 	return	TehFOV >= 175.0f ? 175.0f : TehFOV;
 }
 
@@ -6742,7 +6732,7 @@ MaxosFrameLimitHack_LimitFrames:
 			static int			nSyncDiff;
 
 			nSyncDiff = static_cast<int>(fOne - fTwo) - 5;
-		
+
 			if( nSyncDiff > 0 )
  				MsgWaitForMultipleObjects(0, nullptr, FALSE, nSyncDiff, QS_ALLEVENTS);
 		}
@@ -6764,7 +6754,7 @@ void __declspec(naked) FrameLimit_SwitchInject()
 		cmp		al, 4
 		jnl		FrameLimit_SwitchInject_ZeroTheValue
 		inc		al
-		movzx	ecx, al	
+		movzx	ecx, al
 		mov		ecx, RsGlobalFrameLimits[ecx*4]
 		mov		ebx, [RsGlobal]
 		mov		[ebx].frameLimit, ecx
@@ -6868,7 +6858,7 @@ void __declspec(naked) OpaqueRadarHack()
 		test	al, al
 		jmp		ecx
 	}
-	
+
 }
 
 /*void __declspec(naked) LoadFontsHack()
@@ -6907,21 +6897,21 @@ void __declspec(naked) ErrorSoundCentre()
 	_asm
 	{
 		push	1Dh
-		push	ebx  
-		lea		ecx, [esp+70h]  
-		mov		dword ptr [edx+8],eax  
+		push	ebx
+		lea		ecx, [esp+70h]
+		mov		dword ptr [edx+8],eax
 		mov		eax, 4EFE50h
-		call	eax       
-		mov		ecx, dword ptr [esp+0FCh]  
-		lea		edx, [esp+38h]  
-		mov		dword ptr [esp+54h], ecx  
-		mov		edi, 111Bh  
-		push	edx  
-		mov		ecx, 0B62CB0h  
-		mov		word ptr [esp+92h], di 
+		call	eax
+		mov		ecx, dword ptr [esp+0FCh]
+		lea		edx, [esp+38h]
+		mov		dword ptr [esp+54h], ecx
+		mov		edi, 111Bh
+		push	edx
+		mov		ecx, 0B62CB0h
+		mov		word ptr [esp+92h], di
 		mov		eax, 4EFB10h
 		call	eax
-		
+
 		push	ebx
 		push	ebx
 		push	ebx
@@ -6949,21 +6939,21 @@ void __declspec(naked) BuySoundCentre()
 	_asm
 	{
 		push	1Dh
-		push	ebx  
-		lea		ecx, [esp+70h]  
-		mov		dword ptr [edx+8],eax  
+		push	ebx
+		lea		ecx, [esp+70h]
+		mov		dword ptr [edx+8],eax
 		mov		eax, 4EFE50h
-		call	eax       
-		mov		ecx, dword ptr [esp+0FCh]  
-		lea		edx, [esp+38h]  
-		mov		dword ptr [esp+54h], ecx  
-		mov		edi, 111Bh  
-		push	edx  
-		mov		ecx, 0B62CB0h  
-		mov		word ptr [esp+92h], di 
+		call	eax
+		mov		ecx, dword ptr [esp+0FCh]
+		lea		edx, [esp+38h]
+		mov		dword ptr [esp+54h], ecx
+		mov		edi, 111Bh
+		push	edx
+		mov		ecx, 0B62CB0h
+		mov		word ptr [esp+92h], di
 		mov		eax, 4EFB10h
 		call	eax
-		
+
 		push	ebx
 		push	ebx
 		push	ebx

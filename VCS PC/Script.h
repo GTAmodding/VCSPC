@@ -82,10 +82,11 @@ private:
 	signed char				CollectParametersForScriptFunction(signed short numParams);
 	void					StoreParametersFromScriptFunction();
 
-	void					Init();
 	CScriptFunction&		GetExtrasForScript();
 
 public:
+	void					Init();
+
 	void					ProcessVCSCommands(WORD opcode);
 };
 

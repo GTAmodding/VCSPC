@@ -5,7 +5,7 @@
 #include "Timer.h"
 #include "Hud.h"
 #include "Replay.h"
-#include "CCamera.h"
+#include "Camera.h"
 #include "Audio.h"
 
 CPager			CUserDisplay::Pager;

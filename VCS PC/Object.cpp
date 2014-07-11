@@ -30,3 +30,9 @@ void CObject::Render()
 	if ( bCallRestore )
 		CVehicleModelInfo::ResetEditableMaterials();
 }
+
+
+static StaticPatcher	Patcher([](){ 
+						// Flying components have proper colour
+						Memory::InjectHook(0x59F180, &CObject::Render_Stub, PATCH_JUMP);
+						});
