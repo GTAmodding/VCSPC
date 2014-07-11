@@ -5,6 +5,8 @@
 #include "CCam.h"
 
 #define CAMERA_FOV_REGULAR		55.0f
+#define CAMERA_FOV_AIMWEAPON	CAMERA_FOV_REGULAR
+#define CAMERA_FOV_INCAR_MAX	(CAMERA_FOV_REGULAR+30.0f)
 
 enum eCamMode 
 { 

@@ -67,3 +67,29 @@ void CCamera::GetScreenRect(CRect& rect)
 		rect.x2 = RsGlobal.MaximumWidth - (RsGlobal.MaximumWidth / 4) * dScreenHeightWeWannaCut;
 	}
 }
+
+static StaticPatcher	Patcher([](){
+						static const float	fRegularFov = CAMERA_FOV_REGULAR;
+						Memory::Patch<const void*>(0x52C9DB, &fRegularFov);
+						Memory::Patch<const void*>(0x522F3A, &fRegularFov);
+						Memory::Patch<const void*>(0x522F5D, &fRegularFov);
+						Memory::Patch<const void*>(0x521CB7, &fRegularFov);
+						Memory::Patch<const void*>(0x521CC4, &fRegularFov);
+						Memory::Patch<const void*>(0x521CD0, &fRegularFov);
+						Memory::Patch<const void*>(0x521D43, &fRegularFov);
+						Memory::Patch<const void*>(0x521D50, &fRegularFov);
+						Memory::Patch<const void*>(0x521D5C, &fRegularFov);
+						Memory::Patch<const void*>(0x524B76, &fRegularFov);
+						Memory::Patch<const void*>(0x524B9A, &fRegularFov);
+						Memory::Patch<const void*>(0x524BA2, &fRegularFov);
+						Memory::Patch<const void*>(0x524BD3, &fRegularFov);
+
+						static const float	fIncarMaxFov = CAMERA_FOV_INCAR_MAX;
+						Memory::Patch<const void*>(0x524BB4, &fIncarMaxFov);
+
+						Memory::Patch<float>(0x522F7A, CAMERA_FOV_REGULAR);
+						Memory::Patch<float>(0x521632, CAMERA_FOV_REGULAR);
+						Memory::Patch<float>(0x524BE4, CAMERA_FOV_REGULAR);
+
+						Memory::Patch<float>(0x524BC5, CAMERA_FOV_INCAR_MAX);
+									});
