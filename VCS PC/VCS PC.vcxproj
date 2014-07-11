@@ -45,7 +45,7 @@
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -79,7 +79,7 @@
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PreBuildEventUseInBuild>
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</PreBuildEventUseInBuild>
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PreBuildEventUseInBuild>
-    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">false</PreBuildEventUseInBuild>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">true</PreBuildEventUseInBuild>
     <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreLinkEventUseInBuild>
     <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">false</PreLinkEventUseInBuild>
     <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PreLinkEventUseInBuild>
@@ -138,7 +138,7 @@ copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
     <PreBuildEvent>
       <Command>@echo off
 pushd $(SolutionDir)\dependencies\tools\
-call svnrev.cmd
+call gitrev.cmd
 popd</Command>
     </PreBuildEvent>
     <PreLinkEvent>
@@ -193,7 +193,7 @@ copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
     <PreBuildEvent>
       <Command>@echo off
 pushd $(SolutionDir)\dependencies\tools\
-call svnrev.cmd
+call gitrev.cmd
 popd</Command>
     </PreBuildEvent>
     <PreLinkEvent>
@@ -247,7 +247,7 @@ copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\VCSPC.dll"
     <PreBuildEvent>
       <Command>@echo off
 pushd $(SolutionDir)\dependencies\tools\
-call svnrev.cmd
+call gitrev.cmd
 popd</Command>
     </PreBuildEvent>
     <PreLinkEvent>
@@ -300,7 +300,7 @@ copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\VCSPC.dll"
     <PreBuildEvent>
       <Command>@echo off
 pushd $(SolutionDir)\dependencies\tools\
-call svnrev.cmd
+call gitrev.cmd
 popd</Command>
     </PreBuildEvent>
     <PreLinkEvent>
