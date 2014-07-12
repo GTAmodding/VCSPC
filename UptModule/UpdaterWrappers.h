@@ -26,6 +26,10 @@ public:
 	virtual bool			GetDLCStatus(const char* pName, bool bDefault) override;
 
 	virtual void			SetThisDLCAsVerySpecial(const char* pName) override;
+
+	virtual void			SaveSettings(unsigned int nStructVersion, const void* pSettings) override;
+	virtual void*			ReturnSettings(unsigned int nStructVersion, void* pBuf) override;
+	virtual bool			TimeToUpdate(time_t nExtraTime);
 };
 
 class CDLCClient001 : public IDLCClient001

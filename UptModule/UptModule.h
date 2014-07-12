@@ -77,6 +77,9 @@ private:
 	std::string									strReturnedData;
 	SerialCodeRequestCallback					OnFinishFunction;
 
+	// updater.set
+	UpdaterClientData001						savedSetData;
+
 private:
 	void				EchoMessage(const char* pMessage);
 	void				EchoMessage(const wchar_t* pMessage);
@@ -137,6 +140,10 @@ public:
 			{ return !bUpdateServiceOff; }
 	inline void		AddProgress(unsigned long nProgress)
 			{ dwDownloadedData += nProgress; if ( dwDownloadedData > dwTotalDownloadSize ) dwDownloadedData = dwTotalDownloadSize; }
+
+	void			ReceiveSettings(unsigned int nVersion, const void* pSettings);
+	void*			ReturnSettings(unsigned int nVersion, void* pBuf);
+	bool			TimeToUpdate(time_t nExtraTime);
 
 	// DLC handling part
 	void			SendSerialCodeRequest(const std::string& request);

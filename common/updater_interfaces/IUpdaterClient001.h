@@ -1,6 +1,14 @@
 #ifndef __UPDATERCLIENT001
 #define __UPDATERCLIENT001
 
+// updater.set data structure (minus the version
+struct UpdaterClientData001
+{
+	bool					bAutoInstall;
+	unsigned char			bCheckPeriod;
+	time_t					nTimeLastChecked;
+};
+
 // Versions which use that interface: 1, 2, 3 (with new methods), 4, 5
 class IUpdaterClient001
 {
@@ -25,6 +33,10 @@ public:
 	virtual bool			GetDLCStatus(const char* pName, bool bDefault)=0;	
 
 	virtual void			SetThisDLCAsVerySpecial(const char* pName)=0;
+
+	virtual void			SaveSettings(unsigned int nStructVersion, const void* pSettings)=0;
+	virtual void*			ReturnSettings(unsigned int nStructVersion, void* pBuf)=0;
+	virtual bool			TimeToUpdate(time_t nExtraTime)=0;
 };
 
 #endif

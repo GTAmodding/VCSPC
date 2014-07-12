@@ -6,6 +6,9 @@
 // Main updater version
 #define UPDATER_VERSION		5
 
+// updater.set current version
+#define UPDATER_SETTINGS_VERSION		1
+
 // Updater states
 // TODO: Not sure how the updater will react if we ever change these IDs - backwards compatibility may break!
 // Any ideas on a solution?

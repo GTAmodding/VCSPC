@@ -45,15 +45,22 @@ void CAntennas::Update()
 
 void CAntennas::Render()
 {
+	bool		bSetRwYet = false;
+
 	for ( int i = 0; i < NUM_ANTENNAS; ++i )
 	{
 		if ( aAntennas[i].m_bExists )
 		{
-			RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, reinterpret_cast<void*>(TRUE));
-			RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, reinterpret_cast<void*>(TRUE));
-			RwRenderStateSet(rwRENDERSTATESRCBLEND, reinterpret_cast<void*>(rwBLENDSRCALPHA));
-			RwRenderStateSet(rwRENDERSTATEDESTBLEND, reinterpret_cast<void*>(rwBLENDINVSRCALPHA));
-			RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
+			if ( !bSetRwYet )
+			{
+				RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, reinterpret_cast<void*>(TRUE));
+				RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, reinterpret_cast<void*>(TRUE));
+				RwRenderStateSet(rwRENDERSTATESRCBLEND, reinterpret_cast<void*>(rwBLENDSRCALPHA));
+				RwRenderStateSet(rwRENDERSTATEDESTBLEND, reinterpret_cast<void*>(rwBLENDINVSRCALPHA));
+				RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
+
+				bSetRwYet = true;
+			}
 
 			for ( int j = 0; j < NUM_ANTENNA_VERTS-1; ++j )
 			{

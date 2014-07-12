@@ -217,7 +217,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		5, "FEM_NO", ACTION_STANDARD, 36, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 36, 0, 16, 3, 0, 0 },
 
-
+	// Custom Tracks Options
 	{ "FEH_TIT", 3, 4,
 		1, "FEA_SUB", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		63, "FEA_MPM", ACTION_CLICKORARROWS, 26, 0, -34, 2, 0, 0,
@@ -244,7 +244,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		//38, "FEL_SPA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		40, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		41, "FEL_HUN", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		ACTION_TOGGLE_LANGUAGE_6, "FEL_RON", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		MENUACTION_TOGGLE_LANGUAGE_6, "FEL_RON", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 4, 0, 0, 3, 0, 0 },
 
 
@@ -344,25 +344,27 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 	// Game Updates
 	{ "FEH_UPT", 33, 6,
-		ACTION_UPDATER_BUTTON, "FEU_UPC", ACTION_UPDATER, 44, 0, 78, 3, 1, 0,
+		MENUACTION_CHECKING_PERIOD, "FEU_CHP", ACTION_CLICKORARROWS, 44, 0, 90, 2, -1, 0,
+		MENUACTION_AUTOINSTALL_UPDATES, "FEU_AUI", ACTION_CLICKORARROWS, 44, 0, 0, 2, -1, 0,
+		MENUACTION_UPDATER_BUTTON, "FEU_UPC", ACTION_UPDATER, 44, 0, 78, 3, 1, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
 
 	// Downloadable Content
 	{ "FEH_DLC", 33, 5,
 		1, "FEE_HEA", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0,	// Hacky hacky
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 60, -70, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
-		ACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1 },
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 60, -70, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1,
+		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1 },
 
 	// Downloadable Content - no DLCs available
 	{ "FEH_DLC", 33, 5,
@@ -383,7 +385,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	// DLC activation
 	{ "FEH_DLC", 45, 0,
 		1, "FEE_KEY", ACTION_NONE, 0, 0, 0, 0, 0, 0,
-		ACTION_ACTIVATE_SERIAL, "FEE_ACT", ACTION_SERIAL, 0, 0, 78, 3, 1, 0,
+		MENUACTION_ACTIVATE_SERIAL, "FEE_ACT", ACTION_SERIAL, 0, 0, 78, 3, 1, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
 };
 
@@ -638,8 +640,14 @@ float CMenuManager::GetRightColumnPos(MenuVar& sPosY)
 {
 	/*float	fTemp = RsGlobal.MaximumWidth * ( bCurrentScreen == 9 || bCurrentScreen == 10 || bCurrentScreen == 16 ? 40.0 : MENU_TEXT_POSITION_RCOLUMN) / 853.0;
 	return fTemp;*/
-	sPosY.fOut = _ymiddle(sPosY.nIn);
-	return RsGlobal.MaximumWidth * ( bCurrentScreen == 9 || bCurrentScreen == 10 || bCurrentScreen == 16 ? 40.0f : 0.5f * WidescreenSupport::GetScreenWidthMultiplier() - MENU_TEXT_POSITION_RCOLUMN) * WidescreenSupport::GetScreenWidthDivider();
+	if ( bCurrentScreen != 44 )
+	{
+		sPosY.fOut = _ymiddle(sPosY.nIn);
+		return RsGlobal.MaximumWidth * ( bCurrentScreen == 9 || bCurrentScreen == 10 || bCurrentScreen == 16 ? 40.0f : 0.5f * WidescreenSupport::GetScreenWidthMultiplier() - MENU_TEXT_POSITION_RCOLUMN) * WidescreenSupport::GetScreenWidthDivider();
+	}
+
+	sPosY.fOut = _y(sPosY.nIn);
+	return RsGlobal.MaximumWidth * ( 0.5f * WidescreenSupport::GetScreenWidthMultiplier() - MENU_TEXT_POSITION_RCOLUMN) * WidescreenSupport::GetScreenWidthDivider();
 }
 
 void CMenuManager::DrawOutroSplash()
@@ -777,7 +785,7 @@ void CMenuManager::PrintUpdaterScreen()
 	CFont::SetColor(CRGBA(255, 255, 255, 255));
 	CFont::SetOrientation(ALIGN_Left);
 
-	float		fStartingPos = _height(100.0f);
+	float		fStartingPos = _height(155.0f);
 
 	for ( int i = 0; i < NUM_MESSAGES_PER_UPT_SCREEN; ++i )
 	{
@@ -786,7 +794,7 @@ void CMenuManager::PrintUpdaterScreen()
 			if ( pLine[0] )
 			{
 				CFont::PrintString(_xleft(50.0f), fStartingPos, pLine);
-				fStartingPos += _height(39.0f);
+				fStartingPos += _height(17.5f);
 			}
 			else
 				break;
@@ -1078,7 +1086,7 @@ void CMenuManager::LookIntoClipboardForSerial()
 					break;
 
 				for ( auto it = m_strSerialCode[i].begin(); it != m_strSerialCode[i].end(); it++ )
-					*it = toupper(*it);
+					*it = static_cast<char>(toupper(*it));
 
 				if ( i != SERIAL_CODES_LENGTH-1 )
 				{
@@ -1192,14 +1200,14 @@ void CMenuManager::TypingKeyboardInput(wchar_t wKey)
 				if ( ++i == SERIAL_CODES_LENGTH )
 					return;		// Serial's full
 			}
-			m_strSerialCode[i] += wKey;
+			m_strSerialCode[i] += static_cast<char>(wKey);
 
 			// Filled an entire field?
 			if ( m_strSerialCode[i].length() >= SERIAL_CODES_ONE_WINDOW )
 			{
 				// Uppercase it
 				for ( auto it = m_strSerialCode[i].begin(); it != m_strSerialCode[i].end(); it++ )
-					*it = toupper(*it);
+					*it = static_cast<char>(toupper(*it));
 
 				if ( i == SERIAL_CODES_LENGTH-1 )
 					m_bSerialFull = true;
@@ -1243,7 +1251,7 @@ const char* CMenuManager::ProcessDLCSlot(int nSlotID)
 		return nullptr;
 	}
 
-	ms_pMenus[bCurrentScreen].entryList[nSlotID].action = ACTION_TOGGLE_DLC;
+	ms_pMenus[bCurrentScreen].entryList[nSlotID].action = MENUACTION_TOGGLE_DLC;
 	_snprintf(lastDLCName, sizeof(lastDLCName), "FEE_N%02d", nDLC);
 	return lastDLCName;
 }
@@ -1365,3 +1373,115 @@ void LoadingScreen()
 			LoadingSprites[CurrentLoadingSprite].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255));
 	}
 }
+
+static void __declspec(naked) AutoInstallUpdates_RightColumm()
+{
+	_asm
+	{
+		mov		cl, [CUpdateManager::bAutoInstallUpdates]
+		test	cl, cl
+		mov		ecx, [TheText]
+		jz		AutoInstallUpdates_RightColumm_Off
+		push	579FA6h
+		retn
+
+AutoInstallUpdates_RightColumm_Off:
+		push	579F65h
+		retn
+	}
+}
+
+static void __declspec(naked) CheckEvery_RightColumn()
+{
+	static const char		aFem_Ch1[] = "FEU_CH1";
+	static const char		aFem_Ch2[] = "FEU_CH2";
+	static const char		aFem_Ch3[] = "FEU_CH3";
+	static const char		aFem_Ch4[] = "FEU_CH4";
+	_asm
+	{
+		mov		ecx, [TheText]
+		mov		al, [CUpdateManager::bCheckingPeriod]
+		test	al, al
+		jz		CheckEvery_RightColumn_Ch1
+		dec		al
+		jz		CheckEvery_RightColumn_Ch2
+		dec		al
+		jz		CheckEvery_RightColumn_Ch3
+		push	offset aFem_Ch4
+		jmp		CheckEvery_RightColumn_Return
+
+CheckEvery_RightColumn_Ch1:
+		push	offset aFem_Ch1
+		jmp		CheckEvery_RightColumn_Return
+
+CheckEvery_RightColumn_Ch2:
+		push	offset aFem_Ch2
+		jmp		CheckEvery_RightColumn_Return
+
+CheckEvery_RightColumn_Ch3:
+		push	offset aFem_Ch3
+
+CheckEvery_RightColumn_Return:
+		push	57A161h
+		retn
+	}
+}
+
+static void __declspec(naked) UserInputArrowSoundMenus()
+{
+	_asm
+	{
+		jz		UserInputArrowSoundMenus_AllowMenu
+		cmp     al, 39
+		jz		UserInputArrowSoundMenus_AllowMenu
+		cmp		al, 44
+		jnz		UserInputArrowSoundMenus_False
+
+UserInputArrowSoundMenus_AllowMenu:
+		push	5805C0h
+		retn
+
+UserInputArrowSoundMenus_False:
+		push	580600h
+		retn
+	}
+}
+
+
+static StaticPatcher	Patcher([](){
+				static const BYTE			StandardMenusRightColumn_Table[] = {
+								0x00, 0x01, 0x02, 0x1B, 0x1B, 0x1B, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+								0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x0A, 0x0B, 0x0C, 0x1B, 0x0D, 0x0E, 0x0F, 0x10,
+								0x11, 0x12, 0x13, 0x1B, 0x1B, 0x1B, 0x14, 0x1B, 0x15, 0x16, 0x17, 0x1B, 0x1B,
+								0x18, 0x19, 0x1A, 0x1B, 0x1B, 0x1B, 0x1B, 0x1C, 0x1D };
+
+				static const void* const	StandardMenusRightColumn_Addresses[] = {
+								(void*)0x579EF0, (void*)0x579DDE, (void*)0x579DE6,
+								(void*)0x579DB9, (void*)0x579DB1, (void*)0x579DC1,
+								(void*)0x579DD6, (void*)0x579E37, (void*)0x579E67,
+								(void*)0x579DEE, (void*)0x579EAE, (void*)0x579EF8,
+								(void*)0x57A0D3, (void*)0x579F57, (void*)0x579F6F,
+								(void*)0x579F77, (void*)0x579F7F, (void*)0x579F87,
+								(void*)0x579F8F, (void*)0x579F97, (void*)0x57A05A,
+								(void*)0x57A141, (void*)0x579FB0, (void*)0x57A005,
+								(void*)0x579E7A, (void*)0x579F4F, (void*)0x579E6F,
+								(void*)0x57A168, AutoInstallUpdates_RightColumm, CheckEvery_RightColumn };
+
+				Memory::Patch<BYTE>(0x579D9C, sizeof(StandardMenusRightColumn_Table)-1);
+				Memory::Patch<const void*>(0x579DA6, StandardMenusRightColumn_Table);
+				Memory::Patch<const void*>(0x579DAD, StandardMenusRightColumn_Addresses);
+
+				static const BYTE			UserInputArrowSoundMenus_Table[] = {
+								0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01,
+								0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
+								0x00, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+								0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+								0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01,
+								0x00 };
+
+				Memory::Patch<BYTE>(0x5805DC, sizeof(UserInputArrowSoundMenus_Table)-1);
+				Memory::Patch<const void*>(0x5805E2, UserInputArrowSoundMenus_Table);
+
+				Memory::InjectHook(0x5805BA, UserInputArrowSoundMenus, PATCH_JUMP);
+			});
+

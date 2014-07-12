@@ -515,6 +515,8 @@ long CUpdater::Process()
 				}
 				else
 					EchoMessage(L"Your game is up to date");
+
+				savedSetData.nTimeLastChecked = GetCurrentDate();
 			}
 		}
 	}
@@ -917,6 +919,34 @@ void CUpdater::MoveFiles(std::wstring& dirName)
 
 void CUpdater::ReadSettingsFile()
 {
+	std::wstring		strUptFilePath = szFullCachePath;
+	StrPathAppend(strUptFilePath, L"updater.set");
+
+	if ( FILE* hSetFile = _wfopen(strUptFilePath.c_str(), L"rb") )
+	{
+		unsigned int		nFileVersion;
+
+		fread(&nFileVersion, 4, 1, hSetFile);
+		if ( nFileVersion == 1 )
+		{
+			// version 1
+			// Currently no translation needed
+			fread(&savedSetData, sizeof(savedSetData), 1, hSetFile);
+		}
+		else
+		{
+			// TODO: Handle different versions
+		}
+		fclose(hSetFile);
+	}
+	else
+	{
+		// Defaults - auto check on, check per 3 days, never checked yet
+		savedSetData.bAutoInstall = true;
+		savedSetData.bCheckPeriod = 1;
+		savedSetData.nTimeLastChecked = 0;
+	}
+
 	std::wstring		strDLCFilePath = szFullCachePath;
 	StrPathAppend(strDLCFilePath, L"dlc.set");
 
@@ -945,7 +975,7 @@ void CUpdater::ReadSettingsFile()
 				{
 					// Perform extra auth
 					unsigned long	nHash;
-					unsigned long	nMachineID = GetMachineID() ^ *(DWORD*)cDLCName;
+					unsigned long	nMachineID = static_cast<unsigned long>(GetMachineID()) ^ *(DWORD*)cDLCName;
 
 					fread(&nHash, 4, 1, hSetFile);
 
@@ -965,6 +995,19 @@ void CUpdater::ReadSettingsFile()
 
 void CUpdater::WriteSettingsFile()
 {
+	std::wstring		strUptFilePath = szFullCachePath;
+	StrPathAppend(strUptFilePath, L"updater.set");
+
+	if ( FILE* hSetFile = _wfopen(strUptFilePath.c_str(), L"wb") )
+	{
+		const unsigned int	nFileVersion = UPDATER_SETTINGS_VERSION;
+
+		fwrite(&nFileVersion, 4, 1, hSetFile);
+		fwrite(&savedSetData, sizeof(savedSetData), 1, hSetFile);
+
+		fclose(hSetFile);
+	}
+
 	std::wstring		strDLCFilePath = szFullCachePath;
 	StrPathAppend(strDLCFilePath, L"dlc.set");
 
@@ -985,7 +1028,7 @@ void CUpdater::WriteSettingsFile()
 			if ( it->second.second )
 			{
 				// Add extra auth
-				unsigned long	nMachineID = it->second.first ? GetMachineID() ^ *(DWORD*)it->first.c_str() : 0xFFFFFFFF;
+				unsigned long	nMachineID = it->second.first ? static_cast<unsigned long>(GetMachineID()) ^ *(DWORD*)it->first.c_str() : 0xFFFFFFFF;
 
 				fwrite(&nMachineID, 4, 1, hSetFile);
 			}
@@ -1033,4 +1076,42 @@ void CUpdater::SendSerialCodeRequest(const std::string& request)
 void CUpdater::RegisterOnFinishedRequestCallback(SerialCodeRequestCallback callback)
 {
 	OnFinishFunction = callback;
+}
+
+void CUpdater::ReceiveSettings(unsigned int nVersion, const void* pSettings)
+{
+	switch ( nVersion )
+	{
+	case 1:
+		{
+			const UpdaterClientData001*	pData = static_cast<const UpdaterClientData001*>(pSettings);
+
+			// No translation needed
+			savedSetData.bAutoInstall = pData->bAutoInstall;
+			savedSetData.bCheckPeriod = pData->bCheckPeriod;
+			// nTimeLastChecked is owned by UptModule
+			break;
+		}
+	}
+}
+
+void* CUpdater::ReturnSettings(unsigned int nVersion, void* pBuf)
+{
+	switch ( nVersion )
+	{
+	case 1:
+		{
+			UpdaterClientData001* pData = static_cast<UpdaterClientData001*>(pBuf);
+
+			// No translation needed
+			*pData = savedSetData;
+			return pBuf;
+		}
+	}
+	return nullptr;
+}
+
+bool CUpdater::TimeToUpdate(time_t nExtraTime)
+{
+	return GetCurrentDate() > CDate(savedSetData.nTimeLastChecked + nExtraTime).RoundToDay();
 }

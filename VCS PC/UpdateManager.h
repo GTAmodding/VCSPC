@@ -19,6 +19,10 @@ private:
 	static unsigned char		bForceUpdate;
 	static char*				pMessages[NUM_MESSAGES_PER_UPT_SCREEN];
 
+	// Settings
+	static bool					bAutoInstallUpdates;
+	static unsigned char		bCheckingPeriod;
+
 #ifdef DEVBUILD
 	static bool					bDisableAutoCheck;
 #endif
@@ -67,6 +71,9 @@ public:
 	static void CALLBACK		EchoMessage(const wchar_t* pMessage);
 
 	static IDLCClient001*		GetMeDLCClient();
+
+	static void					SaveSettings();
+	static time_t				GetTimeByOption();
 };
 
 #endif

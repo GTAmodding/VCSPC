@@ -18,6 +18,9 @@ bool				CUpdateManager::bSeenUpdaterScreenYet;
 unsigned char		CUpdateManager::bForceUpdate;
 char*				CUpdateManager::pMessages[NUM_MESSAGES_PER_UPT_SCREEN];
 
+bool				CUpdateManager::bAutoInstallUpdates;
+unsigned char		CUpdateManager::bCheckingPeriod;
+
 #ifdef DEVBUILD
 bool				CUpdateManager::bDisableAutoCheck = false;
 #endif
@@ -50,6 +53,15 @@ void CUpdateManager::Init()
 			bForceUpdate = false;
 			nActiveMessages = 0;
 			nInterfaceStatus = nLastInterfaceStatus = UPTMODULESTATE_IDLE;
+
+			// Read settings
+			UpdaterClientData001		UpdaterSetData;
+
+			if ( pUptModuleInterface->ReturnSettings(UPDATER_SETTINGS_VERSION, &UpdaterSetData) )
+			{	
+				bAutoInstallUpdates = UpdaterSetData.bAutoInstall;
+				bCheckingPeriod = UpdaterSetData.bCheckPeriod;
+			}
 		}
 		else
 			pUptModuleInterface = nullptr;
@@ -110,7 +122,29 @@ void CUpdateManager::Process()
 		nLastInterfaceStatus = nInterfaceStatus;
 	}
 
-	static unsigned long	nTempCtr = 0;
+#ifdef DEVBUILD
+	static bool				bCheckedThisSession = bDisableAutoCheck;
+#else
+	static bool				bCheckedThisSession = false;
+#endif
+
+	if ( !bCheckedThisSession )
+	{
+		if ( pUptModuleInterface->TimeToUpdate(GetTimeByOption()) )
+		{
+			if ( nInterfaceStatus == UPTMODULESTATE_IDLE )
+			{
+				pUptModuleInterface->PerformUpdateCheck();
+				if ( bAutoInstallUpdates )
+					bForceUpdate = 2;
+			}
+		}
+
+		bCheckedThisSession = true;
+	}
+
+
+	/*static unsigned long	nTempCtr = 0;
 	static bool				bTemp = false;
 
 #ifdef DEVBUILD
@@ -136,7 +170,7 @@ void CUpdateManager::Process()
 				}
 			}
 		}
-	}
+	}*/
 }
 
 void CUpdateManager::Display()
@@ -410,4 +444,35 @@ IDLCClient001* CUpdateManager::GetMeDLCClient()
 	GetDLCFn interfaceFactory = (GetDLCFn)GetProcAddress(hUptModuleLibrary, "CreateUpdaterInstance");
 
 	return interfaceFactory ? (IDLCClient001*)interfaceFactory(DLC_INTERFACE_CLIENT001) : nullptr;
+}
+
+void CUpdateManager::SaveSettings()
+{
+	UpdaterClientData001		SettingsStruct;
+
+	SettingsStruct.bAutoInstall = bAutoInstallUpdates;
+	SettingsStruct.bCheckPeriod = bCheckingPeriod;
+	SettingsStruct.nTimeLastChecked = 0;
+
+	pUptModuleInterface->SaveSettings(UPDATER_SETTINGS_VERSION, &SettingsStruct);
+}
+
+time_t CUpdateManager::GetTimeByOption()
+{
+	switch ( bCheckingPeriod )
+	{
+	case 0:
+		// 1 day
+		return 60*60*24;
+	case 1:
+		// 3 days
+		return 60*60*24*3;
+	case 2:
+		// 1 week
+		return 60*60*24*7;
+	case 3:
+		// 2 weeks
+		return 60*60*24*14;
+	}
+	return 0;
 }

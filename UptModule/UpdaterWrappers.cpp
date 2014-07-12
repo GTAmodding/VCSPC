@@ -78,6 +78,23 @@ void CUpdaterClient001::SetThisDLCAsVerySpecial(const char* pName)
 	gUpdaterHandle->SetThisDLCAsVerySpecial(pName);
 }
 
+void CUpdaterClient001::SaveSettings(unsigned int nStructVersion, const void* pSettings)
+{
+	gUpdaterHandle->ReceiveSettings(nStructVersion, pSettings);
+	gUpdaterHandle->WriteSettingsFile();
+}
+
+void* CUpdaterClient001::ReturnSettings(unsigned int nStructVersion, void* pBuf)
+{
+	return gUpdaterHandle->ReturnSettings(nStructVersion, pBuf);
+}
+
+bool CUpdaterClient001::TimeToUpdate(time_t nExtraTime)
+{
+	return gUpdaterHandle->TimeToUpdate(nExtraTime);
+}
+
+
 void CDLCClient001::SendSerialCodeRequest(const std::string& request)
 {
 	gUpdaterHandle->SendSerialCodeRequest(request);

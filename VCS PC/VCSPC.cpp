@@ -218,6 +218,8 @@ void			ReadCommandlineFile();
 void			LoadGameWithDLCHack();
 void			DLCMenuAction();
 void			ActivateSerialAction();
+void			AutoInstallUpdatesAction();
+void			CheckEveryAction();
 void			VehAudioHook();
 //void			RotorsHook();
 void			Language6Action();
@@ -481,7 +483,8 @@ const BYTE					PCMenuActionsTable[] = {
 									33, 33, 33, 33, 5, 33, 33, 6,
 									7, 8, 9, 10, 11, 12, 13, 14, 15,
 									16, 17, 18, 19, 20, 21, 22, 23,
-									24, 25, 26, 27, 28, 29, 33, 33, 30, 31, 32, 34, 35, 36, 37 };
+									24, 25, 26, 27, 28, 29, 33, 33,
+									30, 31, 32, 34, 35, 36, 37, 38, 39 };
 
 const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57D397, (void*)0x57D2FA, (void*)0x57D322,
@@ -496,7 +499,8 @@ const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57CF5B, (void*)0x57CE6D, (void*)0x57CE9A,
 									(void*)0x57D21F, (void*)0x57CF1B, (void*)0x57CF3B,
 									(void*)0x57D447, Language6Action, UpdaterMenuAction,
-									DLCMenuAction, ActivateSerialAction };
+									DLCMenuAction, ActivateSerialAction, AutoInstallUpdatesAction,
+									CheckEveryAction };
 
 const int					iRadioTracks[NUM_RADIOSTATIONS][31] = {
 				{ AA_OFFSET+1, AA_OFFSET+4, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922 },
@@ -3057,7 +3061,7 @@ __forceinline void Main_Patches()
 //	InjectHook(0x573680, &SetToNewMenuHack, PATCH_JUMP);
 	Patch<const void*>(0x57CD84, PCMenuActionsTable);
 	Patch<const void*>(0x57CD8B, PCMenuActionsAddresses);
-	Patch<BYTE>(0x57CD74, NUM_MENU_ACTIONS-7);
+	Patch<BYTE>(0x57CD74, sizeof(PCMenuActionsTable)-1);
 	Patch<WORD>(0x573830, 0xCE8B);
 	Patch<BYTE>(0x573832, 0x5E);
 	InjectHook(0x573833, &CMenuManager::SwitchToNewScreenVCS, PATCH_JUMP);
@@ -6122,6 +6126,13 @@ void __declspec(naked) MenuEntryColourHack()
 		jmp		MenuEntryColourHack_ColourNormal
 
 MenuEntryColourHack_CheckMainScreen:
+		cmp		al, 34
+		jnz		MenuEntryColourHack_CheckPauseScreen
+		cmp		ebx, 1
+		jz		MenuEntryColourHack_ColourGuided
+		jmp		MenuEntryColourHack_ColourNormal
+
+MenuEntryColourHack_CheckPauseScreen:
 		cmp		al, 41
 		jnz		MenuEntryColourHack_CheckUpdaterScreen
 		cmp		ebx, 5
@@ -6131,7 +6142,7 @@ MenuEntryColourHack_CheckMainScreen:
 MenuEntryColourHack_CheckUpdaterScreen:
 		cmp		al, 44
 		jnz		MenuEntryColourHack_ColourNormal
-		test	ebx, ebx
+		cmp		ebx, 2
 		jz		MenuEntryColourHack_ColourGuided
 
 MenuEntryColourHack_ColourNormal:
@@ -7207,6 +7218,57 @@ void __declspec(naked) ActivateSerialAction()
 
 ActivateSerialAction_DontActivate:
 		pop     edi
+		pop		esi
+		mov		al, bl
+		pop		ebx
+		retn	8
+	}
+}
+
+void __declspec(naked) AutoInstallUpdatesAction()
+{
+	_asm
+	{
+		mov		al, [CUpdateManager::bAutoInstallUpdates]
+		test	al, al
+		setz	al
+		mov		[CUpdateManager::bAutoInstallUpdates], al
+		call	CUpdateManager::SaveSettings
+		pop		edi
+		pop		esi
+		mov		al, bl
+		pop		ebx
+		retn	8
+	}
+}
+
+void __declspec(naked) CheckEveryAction()
+{
+	_asm
+	{
+		mov		al, [CUpdateManager::bCheckingPeriod]
+		mov		dl, [esp+0Ch+4]
+		cmp		dl, 0
+		jl		CheckEveryAction_Previous
+		inc		al
+		cmp		al, 3
+		jna		CheckEveryAction_Return
+		xor		al, al
+		jmp		CheckEveryAction_Return
+
+CheckEveryAction_Previous:
+		test	al, al
+		jz		CheckEveryAction_ToMax
+		dec		al
+		jmp		CheckEveryAction_Return
+
+CheckEveryAction_ToMax:
+		mov		al, 3
+
+CheckEveryAction_Return:
+		mov		[CUpdateManager::bCheckingPeriod], al
+		call	CUpdateManager::SaveSettings
+		pop		edi
 		pop		esi
 		mov		al, bl
 		pop		ebx
