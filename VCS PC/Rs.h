@@ -128,6 +128,9 @@ enum RsKeyCodes
 };
 typedef enum RsKeyCodes RsKeyCodes;
 
+// R* RW function extensions
+RwTexture*		RwTextureGtaStreamRead(RwStream* stream);
+
 RsEventStatus	RsEventHandler(RsEvent eventID, void* param);
 RwChar*			RsPathnameCreate(const RwChar* srcBuffer);
 void			RsPathnameDestroy(RwChar* buffer);
@@ -139,5 +142,6 @@ void			CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspe
 
 extern RsGlobalType&		RsGlobal;
 extern const DWORD			RsGlobalFrameLimits[5];
+extern bool&				bAnisotSupported;
 
 #endif

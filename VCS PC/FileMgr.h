@@ -15,10 +15,13 @@ public:
 				{ return fgets(str, num, stream) != nullptr; }
 	static inline size_t	Read(FILE* stream, void* buf, size_t len)
 				{ return fread(buf, 1, len, stream); }
-	static inline size_t	Write(FILE* stream, const char* ptr, size_t len)
+	static inline size_t	Write(FILE* stream, const void* ptr, size_t len)
 				{ return fwrite(ptr, 1, len, stream); }
 	static inline bool		Seek(FILE* stream, long pos, int from)
 				{ return fseek(stream, pos, from) != 0; }
+
+	static void				SetDirMyDocuments();
+	static void				SetDir(const char* pDir);
 };
 
 // Now uses multiple lists

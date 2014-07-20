@@ -21,12 +21,15 @@ char					CFileLoader::m_cParticlesPath[64] = "MODELS\\PARTICLE.TXD";
 char					CFileLoader::m_cPedgrpPath[64] = "DATA\\PEDGRP.DAT";
 char					CFileLoader::m_cPopcyclePath[64] = "DATA\\POPCYCLE.DAT";
 char					CFileLoader::m_cTimecycPath[64] = "DATA\\TIMECYC.DAT";
-char					CFileLoader::m_cFrontendPath[64] = "\0";
+char					CFileLoader::m_cFrontendPath[64] = "";
 char					CFileLoader::m_cP2dfxPath[64];
 
 unsigned char			CFileLoader::m_bCurrentEncryptionType;
 
 // Wrappers
+WRAPPER void CFileMgr::SetDirMyDocuments() { EAXJMP(0x538860); }
+WRAPPER void CFileMgr::SetDir(const char* pDir) { WRAPARG(pDir); EAXJMP(0x5387D0); }
+
 WRAPPER void CFileLoader::LoadObjectTypes(const char* pFileName) { WRAPARG(pFileName); EAXJMP(0x5B8400); }
 WRAPPER void CFileLoader::LoadScene(const char* pFileName) { WRAPARG(pFileName); EAXJMP(0x5B8700); }
 WRAPPER void CFileLoader::LoadCollisionFile(const char* pFileName, unsigned char bUnk) { WRAPARG(pFileName); WRAPARG(bUnk); EAXJMP(0x5B4E60); }

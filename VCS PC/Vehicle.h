@@ -98,6 +98,9 @@ protected:
 	BYTE			__pad3[144];
 
 public:
+	static bool&	m_bEnableMouseSteering;
+	static bool&	m_bEnableMouseFlying;
+
 	CVehicleFlags&	GetVehicleFlags() 
 						{ return m_nVehicleFlags; }
 	CEntity*		GetDamagingEntity()

@@ -15,7 +15,7 @@ void CPools::Initialise()
 	((void(*)())0x550F10)();
 
 	// Initialise custom pools
-	ms_pEmpireBuildingDataPool = new CEmpireBuildingDataPool(25);
+	ms_pEmpireBuildingDataPool = new CEmpireBuildingDataPool(75);
 
 	// Initialise children pools
 	if ( ms_pPedPool )

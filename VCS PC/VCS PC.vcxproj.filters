@@ -234,6 +234,9 @@
     <ClCompile Include="Shadows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FxSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CConfiscatedWeapons.h">
@@ -468,6 +471,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shadows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FxSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,8 @@
 #include "Sprite.h"
 
 bool CCamera::bDontTouchFOVInWidescreen;
+float& CCamera::m_fMouseAccelHorzntl = *(float*)0xB6EC1C;
+bool& CCamera::m_bUseMouse3rdPerson = *(bool*)0xB6EC2E;
 
 WRAPPER void CamShakeNoPos(CCamera* pCamera, float fStrength) { WRAPARG(pCamera); WRAPARG(fStrength); EAXJMP(0x50A970); }
 

@@ -37,12 +37,18 @@ WRAPPER RwBool RwIm3DEnd() { EAXJMP(0x7EF520); }
 WRAPPER void _rwObjectHasFrameSetFrame(void* object, RwFrame* frame) { WRAPARG(object); WRAPARG(frame); EAXJMP(0x804EF0); }
 WRAPPER RwBool RwMatrixDestroy(RwMatrix* mpMat) { WRAPARG(mpMat); EAXJMP(0x7F2A20); }
 WRAPPER RpAtomic* AtomicDefaultRenderCallBack(RpAtomic* atomic) { WRAPARG(atomic); EAXJMP(0x7491C0); }
+WRAPPER RwBool RwStreamFindChunk(RwStream *stream, RwUInt32 type, RwUInt32 *lengthOut, RwUInt32 *versionOut) { WRAPARG(stream); WRAPARG(type); WRAPARG(lengthOut); WRAPARG(versionOut); EAXJMP(0x7ED2D0); }
 
 WRAPPER RwV3d* RwV3dTransformPoints(RwV3d* pointsOut, const RwV3d* pointsIn, RwInt32 numPoints, const RwMatrix* matrix) { WRAPARG(pointsOut); WRAPARG(pointsIn); WRAPARG(numPoints); WRAPARG(matrix); EAXJMP(0x7EDD90); }
 WRAPPER RwFrame* RwFrameUpdateObjects(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F0910); }
 WRAPPER RwFrame* RwFrameOrthoNormalize(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F1170); }
 WRAPPER RwVideoMode* RwEngineGetVideoModeInfo(RwVideoMode* modeinfo, RwInt32 modeIndex) { WRAPARG(modeinfo); WRAPARG(modeIndex); EAXJMP(0x7F2CF0); }
 WRAPPER RwInt32 RwEngineGetCurrentVideoMode() { EAXJMP(0x7F2D20); }
+WRAPPER RwInt32 RwEngineGetCurrentSubSystem() { EAXJMP(0x7F2C60); }
+
+WRAPPER RwInt8 RpAnisotGetMaxSupportedMaxAnisotropy() { EAXJMP(0x748F20); }
+WRAPPER RwTexture* RpAnisotTextureSetMaxAnisotropy(RwTexture* tex, RwInt8 val) { WRAPARG(tex); WRAPARG(val); EAXJMP(0x748F30); }
+WRAPPER RwInt8 RpAnisotTextureGetMaxAnisotropy(RwTexture* tex) { WRAPARG(tex); EAXJMP(0x748F50); }
 
 RwCamera* RwCameraBeginUpdate(RwCamera* camera)
 {

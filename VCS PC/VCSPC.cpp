@@ -41,6 +41,7 @@
 #include "ControlsMgr.h"
 #include "VisibilityPlugins.h"
 #include "Object.h"
+#include "FxSystem.h"
 #include "VCSPC_SDK_Internal.h"
 
 // Regular functions
@@ -220,6 +221,7 @@ void			DLCMenuAction();
 void			ActivateSerialAction();
 void			AutoInstallUpdatesAction();
 void			CheckEveryAction();
+void			TextureFilteringAction();
 void			VehAudioHook();
 //void			RotorsHook();
 void			Language6Action();
@@ -376,6 +378,7 @@ DWORD*						gameState;
 void**						rwengine = (void**)0xC97B24;
 
 CControllerConfigManager&	ControlsManager = *(CControllerConfigManager*)0xB70198;
+CMousePointerStateHelper&	MousePointerStateHelper = *(CMousePointerStateHelper*)0xBA6744;
 
 void						(*replacedTXDLoadFunc)();
 void						(*replacedTXDReleaseFunc)();
@@ -484,7 +487,7 @@ const BYTE					PCMenuActionsTable[] = {
 									7, 8, 9, 10, 11, 12, 13, 14, 15,
 									16, 17, 18, 19, 20, 21, 22, 23,
 									24, 25, 26, 27, 28, 29, 33, 33,
-									30, 31, 32, 34, 35, 36, 37, 38, 39 };
+									30, 31, 32, 34, 35, 36, 37, 38, 39, 40 };
 
 const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57D397, (void*)0x57D2FA, (void*)0x57D322,
@@ -500,7 +503,7 @@ const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57D21F, (void*)0x57CF1B, (void*)0x57CF3B,
 									(void*)0x57D447, Language6Action, UpdaterMenuAction,
 									DLCMenuAction, ActivateSerialAction, AutoInstallUpdatesAction,
-									CheckEveryAction };
+									CheckEveryAction, TextureFilteringAction };
 
 const int					iRadioTracks[NUM_RADIOSTATIONS][31] = {
 				{ AA_OFFSET+1, AA_OFFSET+4, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922 },
@@ -3131,8 +3134,8 @@ __forceinline void Main_Patches()
 	InjectHook(0x57CD05, &FrameLimit_SetFPS, PATCH_JUMP);
 	/*call(0x573BB8, &FrameLimit_SetFPS2, PATCH_CALL);
 	Nop(0x573BBD, 1);*/
-	InjectHook(0x573BF0, &FrameLimit_SetFPS2, PATCH_JUMP);
-	Nop(0x573BB8, 3);
+	//InjectHook(0x573BF0, &FrameLimit_SetFPS2, PATCH_JUMP);
+	//Nop(0x573BB8, 3);
 
 	// No green blip
 	Patch<BYTE>(0x53E1EC, 0xEB);
@@ -3316,8 +3319,8 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x577370, &StatsMenuActionHack);
 
 	// Brightness
-	Patch<float>(0x573B8A, 96.0 / 512.0);
-	Patch<DWORD>(0x573B96, 96);
+	//Patch<float>(0x573B8A, 96.0 / 512.0);
+	//Patch<DWORD>(0x573B96, 96);
 	Patch<const void*>(0x57A8A9, &fBrightnessStep);
 	Patch<const void*>(0x573487, &fBrightnessStep2);
 	Patch<const void*>(0x5734AD, &fBrightnessMax);
@@ -3447,7 +3450,7 @@ __forceinline void Main_Patches()
 	Patch<float>(0x57B0D8, 320.0 + MENU_TEXT_POSITION_RCOLUMN);
 	Patch<float>(0x57AC6F, MENU_SLIDER_POSY - MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57A841, MENU_SLIDER_POSY - MENU_SLIDER_HEIGHT / 2);
-	Patch<float>(0x57AE6A, MENU_SLIDER_POSY - MENU_SLIDER_HEIGHT / 2);
+	Patch<float>(0x57AE6A, MENU_SLIDER_POSY - 30.0 - MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57B09A, MENU_SLIDER_POSY - MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57AA35, MENU_SLIDER_POSY - 30.0 - MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57A82E, MENU_SLIDER_HEIGHT);
@@ -3462,7 +3465,7 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x57B0E6, &WidescreenSupport::fMenuSliderPosX);
 	Patch<const void*>(0x57A86A, &WidescreenSupport::fMenuSliderPosY4);
 	Patch<const void*>(0x57AC9B, &WidescreenSupport::fMenuSliderPosY2);
-	Patch<const void*>(0x57AE90, &WidescreenSupport::fMenuSliderPosY4);
+	Patch<const void*>(0x57AE90, &WidescreenSupport::fMenuSliderPosY3);
 	Patch<const void*>(0x57B0C1, &WidescreenSupport::fMenuSliderPosY2);
 	Patch<const void*>(0x57AA5E, &WidescreenSupport::fMenuSliderPosY3);
 	Patch<const void*>(0x57A7EC, &fMenuSliderWidth);
@@ -3675,7 +3678,7 @@ __forceinline void Main_Patches()
 	}
 	call(0x57DDE0, dwFunc, PATCH_JUMP);*/
 
-	Patch<DWORD>(0x5759C5, offsetof(CMenuManager, textures[15]));
+	Patch<DWORD>(0x5759C5, offsetof(CMenuManager, m_apTextures[15]));
 
 	InjectHook(0x58008D, &CMenuManager::AdditionalOptionInputVCS, PATCH_NOTHING);
 	InjectHook(0x57B457, &CMenuManager::UserInputVCS, PATCH_NOTHING);
@@ -3685,19 +3688,20 @@ __forceinline void Main_Patches()
 	Nop(0x57A516, 1);
 
 	// .set alterations
-#if SET_FILE_VERSION != 6
+/*#if SET_FILE_VERSION != 6
 	static const DWORD dwSetFileVersion = SET_FILE_VERSION;
 
 	Patch<BYTE>(0x57C983, SET_FILE_VERSION);
 	Patch<BYTE>(0x530590, CONTROLS_FILE_VERSION);
 	Patch<const void*>(0x57C69A, &dwSetFileVersion);
-#endif
+#endif*/
+	Patch<BYTE>(0x530590, CONTROLS_FILE_VERSION);
 	Patch<const char*>(0x7489A0, "controls.set");
 	//Patch<WORD>(0x57C6A7, 0x09EB);
-	InjectHook(0x57C7E7, &SaveLanguageHack);
-	InjectHook(0x57CABB, &LoadLanguageHack);
-	InjectHook(0x57C6AD, &CControllerConfigManager::SaveToFile, PATCH_NOTHING);
-	InjectHook(0x57C990, &CControllerConfigManager::LoadFromFile, PATCH_NOTHING);
+	//InjectHook(0x57C7E7, &SaveLanguageHack);
+	//InjectHook(0x57CABB, &LoadLanguageHack);
+	//InjectHook(0x57C6AD, &CControllerConfigManager::SaveToFile, PATCH_NOTHING);
+	//InjectHook(0x57C990, &CControllerConfigManager::LoadFromFile, PATCH_NOTHING);
 	// Upgrading CRT of CControllerConfigManager::SaveSettings and CControllerConfigManager::LoadSettings
 	InjectHook(0x52D220, &CFileMgr::Write);
 	InjectHook(0x52D237, &CFileMgr::Write);
@@ -3711,9 +3715,9 @@ __forceinline void Main_Patches()
 	InjectHook(0x5305FC, &CFileMgr::Seek);
 	InjectHook(0x7489A4, &CFileMgr::OpenFile);
 	InjectHook(0x7489CC, &CFileMgr::CloseFile);
-	Nop(0x57C6A7, 1);
-	Nop(0x57C98A, 1);
-	Nop(0x57C997, 6);
+	//Nop(0x57C6A7, 1);
+	//Nop(0x57C98A, 1);
+	//Nop(0x57C997, 6);
 
 	// Larger 02A7 sphere
 //	patchf(0x585CD4, 3.0);
@@ -3836,7 +3840,7 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x407671, 0xC78B5B5E);
 	Patch<WORD>(0x407675, 0xC35F);
 	InjectHook(0x5B61B0, &IMGEncryptionFindOut, PATCH_JUMP);
-	InjectHook(0x5B8E1B, &static_cast<void(*)()>(CStreaming::LoadCdDirectory));
+	InjectHook(0x5B8E1B, static_cast<void(*)()>(CStreaming::LoadCdDirectory));
 	InjectHook(0x5B61E6, &IMGEncryptionDo, PATCH_JUMP);
 	Patch<const void*>(0x407614, &CStreaming::ms_cdImages);
 //	patch(0x5B82FD, &CStreaming::ms_cdImages, 4);
@@ -4403,7 +4407,7 @@ __forceinline void UserFiles()
 	Patch<BYTE>(0x74503A, 0x9);
 	Patch<const char*>(0x74503F, "\\GTA Vice City Stories User Files");
 
-#ifdef DEVBUILD
+/*#ifdef DEVBUILD
 	Patch<const char*>(0x57C672, "gta_vcsd.set");
 	Patch<const char*>(0x57C902, "gta_vcsd.set");
 	//Patch<const char*>(0x7489A0, "gta_vcsd.set");
@@ -4411,7 +4415,7 @@ __forceinline void UserFiles()
 	Patch<const char*>(0x57C672, "gta_vcs.set");
 	Patch<const char*>(0x57C902, "gta_vcs.set");
 	//Patch<const char*>(0x7489A0, "gta_vcs.set");
-#endif
+#endif*/
 	Patch<const char*>(0x619045, "GTAVCSsf");
 }
 
@@ -6118,7 +6122,7 @@ void __declspec(naked) MenuEntryColourHack()
 		mov		eax, CUpdateManager::nInterfaceStatus
 		cmp		eax, UPTMODULESTATE_NEW_UPDATES
 		jnz		MenuEntryColourHack_ColourNormal
-		mov		al, [ebp].bCurrentScreen
+		mov		al, [ebp].m_bCurrentMenuPage
 		cmp		al, 33
 		jnz		MenuEntryColourHack_CheckMainScreen
 		cmp		ebx, 6
@@ -6811,7 +6815,7 @@ void __declspec(naked) FrameLimit_SetFPS()
 {
 	_asm
 	{
-		movzx	eax, byte ptr [edi].frameLimiterMode
+		movzx	eax, byte ptr [edi].m_bFrameLimiterMode
 		test	eax, eax
 		jz		FrameLimit_SetFPS_Return
 		mov		ecx, RsGlobalFrameLimits[eax*4]
@@ -6830,13 +6834,13 @@ void __declspec(naked) FrameLimit_SetFPS2()
 {
 	_asm
 	{
-		mov		[esi].frameLimiterMode, 2
-		mov		[esi].hudMode, bl
+		mov		[esi].m_bFrameLimiterMode, 2
+		mov		[esi].m_bHudOn, bl
 		mov		ebx, RsGlobalFrameLimits+8
 		mov		ecx, [RsGlobal]
 		mov		[ecx].frameLimit, ebx
 		mov		[esi].m_bAspectRatioMode, al
-		mov		[esi].m_bSubtitlesEnabled, al
+		mov		[esi].m_bShowSubtitles, al
 		push	1
 		push	[ecx].MaximumHeight
 		push	[ecx].MaximumWidth
@@ -7194,7 +7198,7 @@ void __declspec(naked) DLCMenuAction()
 {
 	_asm
 	{
-		push	[esi]CMenuManager.currentMenuEntry
+		push	[esi]CMenuManager.m_dwSelectedMenuItem
 		call	CDLCManager::HandleButtonClick
 		add		esp, 4
 		pop     edi
@@ -7276,6 +7280,42 @@ CheckEveryAction_Return:
 	}
 }
 
+void __declspec(naked) TextureFilteringAction()
+{
+	_asm
+	{
+		call	Fx_c::GetMaxTextureFilteringQuality
+		mov		cl, [Fx_c::m_bTextureFiltering]
+		mov		dl, [esp+0Ch+4]
+		cmp		dl, 0
+		jl		TextureFilteringAction_Previous
+		inc		cl
+		cmp		cl, al
+		jna		TextureFilteringAction_Return
+		xor		cl, cl
+		jmp		TextureFilteringAction_Return
+
+TextureFilteringAction_Previous:
+		test	cl, cl
+		jz		TextureFilteringAction_ToMax
+		dec		cl
+		jmp		TextureFilteringAction_Return
+
+TextureFilteringAction_ToMax:
+		mov		cl, al
+
+TextureFilteringAction_Return:
+		mov		[Fx_c::m_bTextureFiltering], cl
+		mov		ecx, esi
+		call	CMenuManager::SaveSettings
+		pop		edi
+		pop		esi
+		mov		al, bl
+		pop		ebx
+		retn	8
+	}
+}
+
 void __declspec(naked) VehAudioHook()
 {
 	_asm
@@ -7305,9 +7345,9 @@ void __declspec(naked) Language6Action()
 {
 	_asm
 	{
-		cmp		[esi]CMenuManager.language, 5
+		cmp		[esi].m_nLanguage, 5
 		jz		Language6Action_ReturnFalse
-		mov		[esi]CMenuManager.language, 5
+		mov		[esi].m_nLanguage, 5
 		mov		eax, 57D429h
 		jmp		eax
 

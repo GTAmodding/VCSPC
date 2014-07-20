@@ -19,12 +19,15 @@ void CControllerConfigManager::SaveToFile()
 	}
 }
 
-void CControllerConfigManager::LoadFromFile()
+bool CControllerConfigManager::LoadFromFile()
 {
+	bool	bResult = false;
+
 	if ( FILE* hFile = CFileMgr::OpenFile("controls.set", "rb") )
 	{
-		LoadSettings(hFile);
+		bResult = LoadSettings(hFile);
 
 		CFileMgr::CloseFile(hFile);
 	}
+	return bResult;
 }

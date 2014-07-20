@@ -2,8 +2,11 @@
 #include "Rs.h"
 
 #include "Camera.h"
+#include "FxSystem.h"
 
 const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
+
+bool& bAnisotSupported = *(bool*)0xC87FFC;
 
 WRAPPER RsEventStatus RsEventHandler(RsEvent eventID, void* param) { WRAPARG(eventID); WRAPARG(param); EAXJMP(0x619B60); }
 WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
@@ -107,3 +110,100 @@ void CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspect
 	RsGlobal.MaximumWidth = pWorkingRect->w;
 	RsGlobal.MaximumHeight = pWorkingRect->h;
 }
+
+RwTexture* RwTextureGtaStreamRead(RwStream* stream)
+{
+	RwUInt32	length, version;
+	RwTexture*	pTexture;
+
+	if ( !RwStreamFindChunk(stream, rwID_TEXTURENATIVE, &length, &version) )
+		return nullptr;
+
+	if ( !RWSRCGLOBAL(stdFunc[rwSTANDARDNATIVETEXTUREREAD])(stream, &pTexture, length) )
+		return nullptr;
+
+#ifdef TRACE_TEXTURE_FILTERMODES
+	const char*		pModeNames[] = { "rwFILTERNAFILTERMODE",
+    "rwFILTERNEAREST",                /**<Point sampled */
+    "rwFILTERLINEAR",                 /**<Bilinear */
+    "rwFILTERMIPNEAREST",             /**<Point sampled per pixel mip map */
+    "rwFILTERMIPLINEAR",              /**<Bilinear per pixel mipmap */
+    "rwFILTERLINEARMIPNEAREST",       /**<MipMap interp point sampled */
+	"rwFILTERLINEARMIPLINEAR",        /**<Trilinear */ };
+
+	static bool	bOSAnisot = false;
+
+	if ( !bOSAnisot )
+	{
+		LogToFile("Max anisot value OS supports: %d", RpAnisotGetMaxSupportedMaxAnisotropy());
+		bOSAnisot = true;
+	}
+
+	auto	anisotValue = RpAnisotTextureGetMaxAnisotropy(pTexture);
+
+	LogToFile("Texture %s mode: %s max anisot: %d", RwTextureGetName(pTexture), pModeNames[RwTextureGetFilterMode(pTexture)], anisotValue);
+#endif
+
+	RwTextureFilterMode		textureFilter = RwTextureGetFilterMode(pTexture);
+	unsigned char			setsFilterMode = Fx_c::GetTextureFilteringQuality();
+	unsigned char			maxSetsFilterMode = Fx_c::GetMaxTextureFilteringQuality();
+
+	if ( setsFilterMode > maxSetsFilterMode )
+		setsFilterMode = maxSetsFilterMode;
+
+	// Remove ancient filtermodes
+	if ( textureFilter == rwFILTERNEAREST )
+		textureFilter = rwFILTERLINEAR;
+	else if ( textureFilter == rwFILTERMIPNEAREST )
+		textureFilter = rwFILTERMIPLINEAR;
+
+	// Force filtering by menu settings
+	if ( setsFilterMode >= 1 )	// Trilinear or more?
+	{
+		if ( textureFilter == rwFILTERMIPLINEAR )
+			textureFilter = rwFILTERLINEARMIPLINEAR;	// Bilinear -> Trilinear
+	}
+	else
+	{
+		// Bilinear selected in menu
+		if ( textureFilter == rwFILTERLINEARMIPLINEAR )
+			textureFilter = rwFILTERMIPLINEAR;			// Trilienar -> Bilinear
+	}
+
+	RwTextureSetFilterMode(pTexture, textureFilter);
+
+	// Force anisot settings by menu settings
+	if ( bAnisotSupported )
+	{
+		// This texture has anisotropy?
+		if ( RpAnisotTextureGetMaxAnisotropy(pTexture) >= 1 )
+		{
+			// Find real anisot value by menu selection
+			switch ( setsFilterMode )
+			{
+			case 2:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, 2);	// 2x
+				break;
+			case 3:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, 4);	// 4x
+				break;
+			case 4:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, 8);	// 8x
+				break;
+			case 5:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, 16);	// 16x
+				break;
+			default:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, 0);	// No anisotropy
+				break;
+			}			
+		}
+	}
+
+	return pTexture;
+}
+
+
+static StaticPatcher	Patcher([](){ 
+						Memory::InjectHook(0x730E60, &RwTextureGtaStreamRead, PATCH_JUMP);
+									});

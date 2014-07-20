@@ -83,6 +83,10 @@ class CAudioEngine
 {
 public:
 	void				ReportFrontendAudioEvent(long nSoundID, float fUnk, float fVolume);
+	void				SetMusicMasterVolume(signed char nVolume);
+	void				SetEffectsMasterVolume(signed char nVolume);
+	void				SetRadioAutoRetuneOnOff(bool bRetune);
+	void				RetuneRadio(signed char nStation);
 };
 
 extern CAudioEngine&		AudioEngine;

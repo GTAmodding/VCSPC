@@ -64,11 +64,13 @@
 #define SHOW_FOV_FANCY_RHYME
 #define NO_REPLAY_TEXT
 #define SKIP_DEBUG_TEXTS
+//#define TRACE_TEXTURE_FILTERMODES
 //#define RWERRORSET_HOOK
 //#define CONTROLLABLE_WINDOWS_TEST
 //#define MULTITHREADING_TEST
 
 //#define NEW_SHADOWS_TEST
+//#define NEW_SHADOWS_TEST2
 
 //#define MAKE_ZZCOOL_MOVIE_DEMO
 
@@ -140,6 +142,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include <rwsdk\rwcore.h>
 #include <rwsdk\rpworld.h>
 #include <rwsdk\rtpng.h>
+#include <rwsdk\rpanisot.h>
 
 #include "CCRC32.h"
 #include "MemoryMgr.h"

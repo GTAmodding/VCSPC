@@ -9,6 +9,9 @@
 WRAPPER void CVehicle::SetWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D3080); }
 WRAPPER void CVehicle::ClearWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D30B0); }
 
+bool&	CVehicle::m_bEnableMouseSteering = *(bool*)0xC1CC02;
+bool&	CVehicle::m_bEnableMouseFlying = *(bool*)0xC1CC03;
+
 static RwObject* GetCurrentAtomicObjectCB(RwObject* pObject, void* data)
 {
 	if ( RpAtomicGetFlags(pObject) & rpATOMICRENDER )

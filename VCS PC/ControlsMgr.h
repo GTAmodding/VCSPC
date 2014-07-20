@@ -3,6 +3,13 @@
 
 #define CONTROLS_FILE_VERSION			1
 
+class CMousePointerStateHelper
+{
+public:
+	bool				m_bVerticalInvert;
+	bool				m_bHorizontalInvert;
+};
+
 class CControllerConfigManager
 {
 public:
@@ -12,10 +19,11 @@ public:
 	bool				GetIsKeyboardKeyDown(RsKeyCodes eKey);
 
 	void				SaveToFile();
-	void				LoadFromFile();
+	bool				LoadFromFile();
 };
 
 
 extern CControllerConfigManager&	ControlsManager;
+extern CMousePointerStateHelper&	MousePointerStateHelper;
 
 #endif

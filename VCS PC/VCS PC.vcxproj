@@ -318,6 +318,7 @@ popd</Command>
     <ClCompile Include="CConfiscatedWeapons.cpp" />
     <ClCompile Include="CCRC32.Cpp" />
     <ClCompile Include="CDraw.cpp" />
+    <ClCompile Include="FxSystem.cpp" />
     <ClCompile Include="Gangs.cpp" />
     <ClCompile Include="CGridref.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -420,6 +421,7 @@ popd</Command>
     <ClInclude Include="ControlsMgr.h" />
     <ClInclude Include="Coronas.h" />
     <ClInclude Include="CutsceneManager.h" />
+    <ClInclude Include="FxSystem.h" />
     <ClInclude Include="Gangs.h" />
     <ClInclude Include="CGridref.h" />
     <ClInclude Include="Darkel.h" />
