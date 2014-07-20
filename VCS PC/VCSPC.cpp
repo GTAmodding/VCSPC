@@ -279,7 +279,6 @@ void*						func_6B4800_JumpBack;
 void*						func_6B4800_ElseJump;
 void*						func_6D1AA0_JumpBack;
 void*						func_6D1AA0_ElseJump;
-void*						Clock_SwitchInject_JumpBack;
 void*						Clock_StringInject_JumpBack;
 void*						Clock_StringInject_JumpToOFF;
 void*						ScriptCheckpointsColours_JumpBack;
@@ -304,7 +303,6 @@ void*						MenuEntriesAlignHack_JumpBack;
 void*						MenuEntriesPositionHack_JumpBack;
 void*						MenuEntriesLeftColumnHack2_JumpBack;
 void*						WidescreenFOVHack_JumpBack;
-void*						Widescreen_SwitchInject_JumpBack;
 void*						Widescreen_TextDrawsFix2_JumpBack;
 void*						DriveByKillFix_ReturnTrue;
 void*						DriveByKillFix_ReturnFalse;
@@ -316,7 +314,6 @@ void*						VideoPlayerCreate1_JumpBack;
 void*						VideoPlayerPlayNextFrame_JumpBack;
 void*						VideoPlayerProc_JumpBack;
 void*						VideoPlayerRelease_JumpBack;
-void*						FrameLimit_SwitchInject_JumpBack;
 void*						FrameLimit_StringInject_JumpBack;
 /*void*						LoadFontsHack_JumpBack;
 void*						ReleaseFontsHack_JumpBack;*/
@@ -872,7 +869,6 @@ __forceinline void DefineVariables()
 	func_6B4800_ElseJump = (void*)0x6B4B95;
 	func_6D1AA0_JumpBack = (void*)0x6D1ACC;
 	func_6D1AA0_ElseJump = (void*)0x6D1ACE;
-	Clock_SwitchInject_JumpBack = (void*)0x57708B;
 	Clock_StringInject_JumpBack = (void*)0x57A161;
 	Clock_StringInject_JumpToOFF = (void*)0x579F65;
 	ScriptCheckpointsColours_JumpBack = (void*)0x493651;
@@ -897,7 +893,6 @@ __forceinline void DefineVariables()
 	MenuEntriesLeftColumnHack2_JumpBack = (void*)0x57A1BA;
 	MenuEntriesPositionHack_JumpBack = (void*)0x57A3F1;
 	WidescreenFOVHack_JumpBack = (void*)0x72FD5A;
-	Widescreen_SwitchInject_JumpBack = (void*)0x577078;
 	Widescreen_TextDrawsFix2_JumpBack = (void*)0x58C229;
 	DriveByKillFix_ReturnTrue = (void*)0x43DE05;
 	DriveByKillFix_ReturnFalse = (void*)0x43DE61;
@@ -909,7 +904,6 @@ __forceinline void DefineVariables()
 	VideoPlayerPlayNextFrame_JumpBack = (void*)0x748DA3;
 	VideoPlayerProc_JumpBack = (void*)0x74817E;
 	VideoPlayerRelease_JumpBack = (void*)0x748C21;
-	FrameLimit_SwitchInject_JumpBack = (void*)0x57CECF;
 	FrameLimit_StringInject_JumpBack = (void*)0x57A168;
 	/*LoadFontsHack_JumpBack = (void*)0x5BA6E5;
 	ReleaseFontsHack_JumpBack = (void*)0x7189C6;*/
@@ -5510,16 +5504,35 @@ void __declspec(naked) Clock_SwitchInject()
 {
 	_asm
 	{
+		mov		dl, [esp+0Ch+4]
+		cmp		dl, 0
+		jl		Clock_SwitchInject_Previous
 		cmp		al, 2
 		jnl		Clock_SwitchInject_ZeroTheValue
 		inc		al
-		jmp		Clock_SwitchInject_GoBack
+		jmp		Clock_SwitchInject_Return
 
 Clock_SwitchInject_ZeroTheValue:
 		xor		al, al
+		jmp		Clock_SwitchInject_Return
 
-Clock_SwitchInject_GoBack:
-		jmp		Clock_SwitchInject_JumpBack
+Clock_SwitchInject_Previous:
+		test	al, al
+		jz		Clock_SwitchInject_ToMax
+		dec		al
+		jmp		Clock_SwitchInject_Return
+
+Clock_SwitchInject_ToMax:
+		mov		al, 2
+
+Clock_SwitchInject_Return:
+		mov		[esi].m_bHudOn, al
+		mov		ecx, esi
+		call	CMenuManager::SaveSettings
+		pop     edi
+		pop     esi
+		pop     ebx
+		retn    0Ch
 	}
 }
 
@@ -6407,14 +6420,26 @@ void __declspec(naked) Widescreen_SwitchInject()
 {
 	_asm
 	{
+		mov		dl, [esp+0Ch+4]
+		cmp		dl, 0
+		jl		Widescreen_SwitchInject_Previous
 		cmp		al, 5
 		jnl		Widescreen_SwitchInject_ZeroTheValue
 		inc		al
 		jmp		Widescreen_SwitchInject_Return
 
-
 Widescreen_SwitchInject_ZeroTheValue:
 		xor		al, al
+		jmp		Widescreen_SwitchInject_Return
+
+Widescreen_SwitchInject_Previous:
+		test	al, al
+		jz		Widescreen_SwitchInject_ToMax
+		dec		al
+		jmp		Widescreen_SwitchInject_Return
+
+Widescreen_SwitchInject_ToMax:
+		mov		al, 5
 
 Widescreen_SwitchInject_Return:
 		mov		[esi].m_bAspectRatioMode, al
@@ -6425,7 +6450,11 @@ Widescreen_SwitchInject_Return:
 		call	WidescreenSupport::Recalculate
 		add		esp, 0Ch
 		mov		ecx, esi
-		jmp		Widescreen_SwitchInject_JumpBack
+		call	CMenuManager::SaveSettings
+		pop     edi
+		pop     esi
+		pop     ebx
+		retn    0Ch
 	}
 }
 
@@ -6766,20 +6795,40 @@ void __declspec(naked) FrameLimit_SwitchInject()
 {
 	_asm
 	{
+		mov		dl, [esp+0Ch+4]
+		cmp		dl, 0
+		jl		FrameLimit_SwitchInject_Previous
 		cmp		al, 4
 		jnl		FrameLimit_SwitchInject_ZeroTheValue
 		inc		al
-		movzx	ecx, al
-		mov		ecx, RsGlobalFrameLimits[ecx*4]
-		mov		ebx, [RsGlobal]
-		mov		[ebx].frameLimit, ecx
 		jmp		FrameLimit_SwitchInject_GoBack
 
 FrameLimit_SwitchInject_ZeroTheValue:
 		xor		al, al
+		jmp		FrameLimit_SwitchInject_GoBack
+
+FrameLimit_SwitchInject_Previous:
+		test	al, al
+		jz		FrameLimit_SwitchInject_ToMax
+		dec		al
+		jmp		FrameLimit_SwitchInject_GoBack
+
+FrameLimit_SwitchInject_ToMax:
+		mov		al, 4
 
 FrameLimit_SwitchInject_GoBack:
-		jmp		FrameLimit_SwitchInject_JumpBack
+		movzx	ecx, al
+		mov		ecx, RsGlobalFrameLimits[ecx*4]
+		mov		ebx, [RsGlobal]
+		mov		[ebx].frameLimit, ecx
+		mov		ecx, esi
+		mov		[esi].m_bFrameLimiterMode, al
+		call	CMenuManager::SaveSettings
+		pop     edi
+		pop     esi
+		mov     al, bl
+		pop     ebx
+		retn    8
 	}
 }
 
