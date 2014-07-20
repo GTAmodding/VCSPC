@@ -239,7 +239,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		26, "FED_WIS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		42, "FED_FXQ", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TEXTURE_FILTERMODE, "FED_TXF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		43, "FED_MIP", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		MENUACTION_EFFECTS_QUALITY, "FED_EFF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		56, "FED_RES", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		5, "FET_DEF", ACTION_STANDARD, 50, 0, 141, 3, 0, 0,
@@ -460,12 +460,14 @@ void CMenuManager::SaveSettings()
 
 		// Graphics Setup
 		const FxQuality_e		nFxQuality = g_fx.GetFxQuality();
+		const FxQuality_e		nEffectsQuality = Fx_c::GetEffectsQuality();
 		const unsigned char		nFilterQuality = Fx_c::GetTextureFilteringQuality();
 		const RwInt32			nSubSystem = RwEngineGetCurrentSubSystem();
 
-		CFileMgr::Write(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
+		//CFileMgr::Write(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
 		CFileMgr::Write(hFile, &m_dwAppliedAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
 		CFileMgr::Write(hFile, &nFxQuality, sizeof(nFxQuality));
+		CFileMgr::Write(hFile, &nEffectsQuality, sizeof(nEffectsQuality));
 		CFileMgr::Write(hFile, &nFilterQuality, sizeof(nFilterQuality));
 		CFileMgr::Write(hFile, &m_fDrawDistance, sizeof(m_fDrawDistance));
 		CFileMgr::Write(hFile, &m_bAspectRatioMode, sizeof(m_bAspectRatioMode));
@@ -529,12 +531,13 @@ void CMenuManager::LoadSettings()
 				CFileMgr::Read(hFile, LangAcronym, 2);
 
 				// Graphics Setup
-				FxQuality_e			nFxQuality;
+				FxQuality_e			nFxQuality, nEffectsQuality;
 				unsigned char		nFilterQuality;
 
-				CFileMgr::Read(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
+				//CFileMgr::Read(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
 				CFileMgr::Read(hFile, &m_dwAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
 				CFileMgr::Read(hFile, &nFxQuality, sizeof(nFxQuality));
+				CFileMgr::Read(hFile, &nEffectsQuality, sizeof(nEffectsQuality));
 				CFileMgr::Read(hFile, &nFilterQuality, sizeof(nFilterQuality));
 				CFileMgr::Read(hFile, &m_fDrawDistance, sizeof(m_fDrawDistance));
 				CFileMgr::Read(hFile, &m_bAspectRatioMode, sizeof(m_bAspectRatioMode));
@@ -552,6 +555,7 @@ void CMenuManager::LoadSettings()
 				m_nLanguage = CText::GetLanguageIndexByAcronym(LangAcronym);
 
 				g_fx.SetFxQuality(nFxQuality);
+				Fx_c::SetEffectsQuality(nEffectsQuality);
 				Fx_c::SetTextureFilteringQuality(nFilterQuality);
 
 				AudioEngine.SetMusicMasterVolume(m_nRadioVolume);
@@ -1465,11 +1469,12 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 		// Graphics Setup
 		m_bFrameLimiterMode = 2;
 		m_bAspectRatioMode = 0;
-		m_bMipMapping = true;
+		//m_bMipMapping = true;
 		m_dwAppliedAntiAliasingLevel = m_dwAntiAliasingLevel = 1;
 		m_dwResolution = m_dwAppliedResolution;
 		ms_lodDistScale = m_fDrawDistance = 1.2f;
 		g_fx.SetFxQuality(FXQUALITY_HIGH);
+		Fx_c::SetEffectsQuality(FXQUALITY_HIGH);
 		Fx_c::SetTextureFilteringQuality(1);	// Trilinear
 
 		// Reinit widescreen and framelimit stuff
@@ -1745,6 +1750,71 @@ TextureFiltering_RightColumn_Return:
 	}
 }
 
+void __declspec(naked) EffectsQuality_RightColumn()
+{
+	static const char		aFed_Fxl[] = "FED_FXL";
+	static const char		aFed_Fxm[] = "FED_FXM";
+	static const char		aFed_Fxh[] = "FED_FXH";
+	_asm
+	{
+		mov		ecx, [TheText]
+		mov		eax, [Fx_c::m_bEffectsQuality]
+		test	eax, eax
+		jz		EffectsQuality_RightColumn_Low
+		dec		eax
+		jz		EffectsQuality_RightColumn_Medium
+		push	offset aFed_Fxh
+		jmp		EffectsQuality_RightColumn_Return
+
+EffectsQuality_RightColumn_Low:
+		push	offset aFed_Fxl
+		jmp		EffectsQuality_RightColumn_Return
+
+EffectsQuality_RightColumn_Medium:
+		push	offset aFed_Fxm
+
+EffectsQuality_RightColumn_Return:
+		push	57A161h
+		retn
+	}
+}
+
+void __declspec(naked) AntiAliasing_RightColumn()
+{
+	static const char		aFed_Aa1[] = "FED_AA1";
+	static const char		aFed_Aa2[] = "FED_AA2";
+	static const char		aFed_Aa3[] = "FED_AA3";
+	_asm
+	{
+		mov		ecx, [TheText]
+		mov		eax, [ebp].m_dwAntiAliasingLevel
+		cmp		eax, 1
+		jle		AntiAliasing_RightColumn_Off
+		sub		eax, 2
+		jz		AntiAliasing_RightColumn_2x
+		dec		eax
+		jz		AntiAliasing_RightColumn_4x
+		push	offset aFed_Aa3
+		jmp		AntiAliasing_RightColumn_Return
+
+AntiAliasing_RightColumn_2x:
+		push	offset aFed_Aa1
+		jmp		AntiAliasing_RightColumn_Return
+
+AntiAliasing_RightColumn_4x:
+		push	offset aFed_Aa2
+		jmp		AntiAliasing_RightColumn_Return
+
+AntiAliasing_RightColumn_Return:
+		push	57A161h
+		retn
+
+AntiAliasing_RightColumn_Off:
+		push	579F65h
+		retn
+	}
+}
+
 static void __declspec(naked) UserInputArrowSoundMenus()
 {
 	_asm
@@ -1771,19 +1841,20 @@ static StaticPatcher	Patcher([](){
 								0x00, 0x01, 0x02, 0x1B, 0x1B, 0x1B, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
 								0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x0A, 0x0B, 0x0C, 0x1B, 0x0D, 0x0E, 0x0F, 0x10,
 								0x11, 0x12, 0x13, 0x1B, 0x1B, 0x1B, 0x14, 0x1B, 0x15, 0x16, 0x17, 0x1B, 0x1B,
-								0x18, 0x19, 0x1A, 0x1B, 0x1B, 0x1B, 0x1B, 0x1C, 0x1D, 0x1E };
+								0x18, 0x19, 0x1A, 0x1B, 0x1B, 0x1B, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F };
 
 				static const void* const	StandardMenusRightColumn_Addresses[] = {
 								(void*)0x579EF0, (void*)0x579DDE, (void*)0x579DE6,
 								(void*)0x579DB9, (void*)0x579DB1, (void*)0x579DC1,
 								(void*)0x579DD6, (void*)0x579E37, (void*)0x579E67,
 								(void*)0x579DEE, (void*)0x579EAE, (void*)0x579EF8,
-								(void*)0x57A0D3, (void*)0x579F57, (void*)0x579F6F,
+								AntiAliasing_RightColumn, (void*)0x579F57, (void*)0x579F6F,
 								(void*)0x579F77, (void*)0x579F7F, (void*)0x579F87,
 								(void*)0x579F8F, (void*)0x579F97, (void*)0x57A05A,
 								(void*)0x57A141, (void*)0x579FB0, (void*)0x57A005,
 								(void*)0x579E7A, (void*)0x579F4F, (void*)0x579E6F,
-								(void*)0x57A168, AutoInstallUpdates_RightColumm, CheckEvery_RightColumn, TextureFiltering_RightColumn };
+								(void*)0x57A168, AutoInstallUpdates_RightColumm, CheckEvery_RightColumn, 
+								TextureFiltering_RightColumn, EffectsQuality_RightColumn };
 
 				Memory::Patch<BYTE>(0x579D9C, sizeof(StandardMenusRightColumn_Table)-1);
 				Memory::Patch<const void*>(0x579DA6, StandardMenusRightColumn_Table);

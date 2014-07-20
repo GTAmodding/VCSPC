@@ -14,6 +14,7 @@ class Fx_c
 private:
 	// VCS PC class extension
 	static unsigned char	m_bTextureFiltering;
+	static FxQuality_e		m_bEffectsQuality;
 
 public:
 	void					SetFxQuality(FxQuality_e eQuality);
@@ -25,6 +26,12 @@ public:
 
 	static unsigned char	 GetTextureFilteringQuality()
 		{ return m_bTextureFiltering; }
+
+	static void				SetEffectsQuality(FxQuality_e nQuality)
+		{ m_bEffectsQuality = nQuality; }
+
+	static FxQuality_e		GetEffectsQuality()
+		{ return m_bEffectsQuality; }
 
 	static unsigned char	GetMaxTextureFilteringQuality();
 };

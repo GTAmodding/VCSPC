@@ -222,6 +222,7 @@ void			ActivateSerialAction();
 void			AutoInstallUpdatesAction();
 void			CheckEveryAction();
 void			TextureFilteringAction();
+void			EffectsQualityAction();
 void			VehAudioHook();
 //void			RotorsHook();
 void			Language6Action();
@@ -484,7 +485,7 @@ const BYTE					PCMenuActionsTable[] = {
 									7, 8, 9, 10, 11, 12, 13, 14, 15,
 									16, 17, 18, 19, 20, 21, 22, 23,
 									24, 25, 26, 27, 28, 29, 33, 33,
-									30, 31, 32, 34, 35, 36, 37, 38, 39, 40 };
+									30, 31, 32, 34, 35, 36, 37, 38, 39, 40, 41 };
 
 const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57D397, (void*)0x57D2FA, (void*)0x57D322,
@@ -500,7 +501,7 @@ const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57D21F, (void*)0x57CF1B, (void*)0x57CF3B,
 									(void*)0x57D447, Language6Action, UpdaterMenuAction,
 									DLCMenuAction, ActivateSerialAction, AutoInstallUpdatesAction,
-									CheckEveryAction, TextureFilteringAction };
+									CheckEveryAction, TextureFilteringAction, EffectsQualityAction };
 
 const int					iRadioTracks[NUM_RADIOSTATIONS][31] = {
 				{ AA_OFFSET+1, AA_OFFSET+4, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922 },
@@ -7355,6 +7356,41 @@ TextureFilteringAction_ToMax:
 
 TextureFilteringAction_Return:
 		mov		[Fx_c::m_bTextureFiltering], cl
+		mov		ecx, esi
+		call	CMenuManager::SaveSettings
+		pop		edi
+		pop		esi
+		mov		al, bl
+		pop		ebx
+		retn	8
+	}
+}
+
+void __declspec(naked) EffectsQualityAction()
+{
+	_asm
+	{
+		mov		eax, [Fx_c::m_bEffectsQuality]
+		mov		dl, [esp+0Ch+4]
+		cmp		dl, 0
+		jl		EffectsQualityAction_Previous
+		inc		eax
+		cmp		eax, 2
+		jna		EffectsQualityAction_Return
+		xor		eax, eax
+		jmp		EffectsQualityAction_Return
+
+EffectsQualityAction_Previous:
+		test	eax, eax
+		jz		EffectsQualityAction_ToMax
+		dec		eax
+		jmp		EffectsQualityAction_Return
+
+EffectsQualityAction_ToMax:
+		mov		eax, 2
+
+EffectsQualityAction_Return:
+		mov		[Fx_c::m_bEffectsQuality], eax
 		mov		ecx, esi
 		call	CMenuManager::SaveSettings
 		pop		edi
