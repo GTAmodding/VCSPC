@@ -14,6 +14,7 @@
 #include "Vehicle.h"
 #include "Camera.h"
 #include "FxSystem.h"
+#include "Shadows.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -237,7 +238,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		61, "FEM_LOD", ACTION_CLICKORARROWS, 27, 0, -124, 2, 0, 0,
 		24, "FEM_FRM", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		26, "FED_WIS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		42, "FED_FXQ", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		MENUACTION_SHADOWS_QUALITY, "FED_SHA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TEXTURE_FILTERMODE, "FED_TXF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_EFFECTS_QUALITY, "FED_EFF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
@@ -459,16 +460,18 @@ void CMenuManager::SaveSettings()
 		CFileMgr::Write(hFile, CText::GetLanguageAcronymByIndex(m_nLanguage), 2);
 
 		// Graphics Setup
-		const FxQuality_e		nFxQuality = g_fx.GetFxQuality();
+		//const FxQuality_e		nFxQuality = g_fx.GetFxQuality();
 		const FxQuality_e		nEffectsQuality = Fx_c::GetEffectsQuality();
 		const unsigned char		nFilterQuality = Fx_c::GetTextureFilteringQuality();
+		const eShadowQuality	nShadowQuality = CShadows::GetShadowQuality();
 		const RwInt32			nSubSystem = RwEngineGetCurrentSubSystem();
 
 		//CFileMgr::Write(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
 		CFileMgr::Write(hFile, &m_dwAppliedAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
-		CFileMgr::Write(hFile, &nFxQuality, sizeof(nFxQuality));
+		//CFileMgr::Write(hFile, &nFxQuality, sizeof(nFxQuality));
 		CFileMgr::Write(hFile, &nEffectsQuality, sizeof(nEffectsQuality));
 		CFileMgr::Write(hFile, &nFilterQuality, sizeof(nFilterQuality));
+		CFileMgr::Write(hFile, &nShadowQuality, sizeof(nShadowQuality));
 		CFileMgr::Write(hFile, &m_fDrawDistance, sizeof(m_fDrawDistance));
 		CFileMgr::Write(hFile, &m_bAspectRatioMode, sizeof(m_bAspectRatioMode));
 		CFileMgr::Write(hFile, &m_bFrameLimiterMode, sizeof(m_bFrameLimiterMode));
@@ -486,104 +489,107 @@ void CMenuManager::LoadSettings()
 	
 	unsigned char	nPrevLanguage = m_nLanguage;
 
-	if ( ControlsManager.LoadFromFile() )
+	ControlsManager.LoadFromFile();
+	if ( FILE* hFile = CFileMgr::OpenFile(SET_FILE_NAME, "rb") )
 	{
-		if ( FILE* hFile = CFileMgr::OpenFile(SET_FILE_NAME, "rb") )
+		DWORD		dwFileVersion;
+
+		CFileMgr::Read(hFile, &dwFileVersion, sizeof(dwFileVersion));
+		if ( dwFileVersion >= SET_FILE_VERSION )
 		{
-			DWORD		dwFileVersion;
+			// Controls Setup
+			CFileMgr::Read(hFile, &CCamera::m_fMouseAccelHorzntl, sizeof(CCamera::m_fMouseAccelHorzntl));
+			CFileMgr::Read(hFile, &MousePointerStateHelper.m_bHorizontalInvert, sizeof(MousePointerStateHelper.m_bHorizontalInvert));
+			CFileMgr::Read(hFile, &CVehicle::m_bEnableMouseSteering, sizeof(CVehicle::m_bEnableMouseSteering));
+			CFileMgr::Read(hFile, &CVehicle::m_bEnableMouseFlying, sizeof(CVehicle::m_bEnableMouseFlying));
+			CFileMgr::Read(hFile, &m_nController, sizeof(m_nController));
+			CFileMgr::Read(hFile, &invertPadX1, sizeof(invertPadX1));
+			CFileMgr::Read(hFile, &invertPadY1, sizeof(invertPadY1));
+			CFileMgr::Read(hFile, &invertPadX2, sizeof(invertPadX2));
+			CFileMgr::Read(hFile, &invertPadY2, sizeof(invertPadY2));
+			CFileMgr::Read(hFile, &swapPadAxis1, sizeof(swapPadAxis1));
+			CFileMgr::Read(hFile, &swapPadAxis2, sizeof(swapPadAxis2));
 
-			CFileMgr::Read(hFile, &dwFileVersion, sizeof(dwFileVersion));
-			if ( dwFileVersion >= SET_FILE_VERSION )
+			// Audio Setup
+			CFileMgr::Read(hFile, &m_nSfxVolume, sizeof(m_nSfxVolume));
+			CFileMgr::Read(hFile, &m_nRadioVolume, sizeof(m_nRadioVolume));
+			CFileMgr::Read(hFile, &m_nRadioStation, sizeof(m_nRadioStation));
+			CFileMgr::Read(hFile, &m_bRadioAutoSelect, sizeof(m_bRadioAutoSelect));
+			CFileMgr::Read(hFile, &m_bTracksAutoScan, sizeof(m_bTracksAutoScan));
+			CFileMgr::Read(hFile, &m_nRadioMode, sizeof(m_nRadioMode));
+
+			// Display Setup
+			CFileMgr::Read(hFile, &m_dwBrightness, sizeof(m_dwBrightness));
+			CFileMgr::Read(hFile, &m_bShowSubtitles, sizeof(m_bShowSubtitles));
+			CFileMgr::Read(hFile, &m_bHudOn, sizeof(m_bHudOn));
+			CFileMgr::Read(hFile, &m_dwRadarMode, sizeof(m_dwRadarMode));
+			CFileMgr::Read(hFile, &m_bSavePhotos, sizeof(m_bSavePhotos));
+			CFileMgr::Read(hFile, &m_bMapLegend, sizeof(m_bMapLegend));
+
+			// Other
+			char		LangAcronym[2];
+
+			CFileMgr::Read(hFile, &field_AC, sizeof(field_AC));
+			CFileMgr::Read(hFile, LangAcronym, 2);
+
+			// Graphics Setup
+			FxQuality_e			/*nFxQuality, */nEffectsQuality;
+			eShadowQuality		nShadowQuality;
+			unsigned char		nFilterQuality;
+
+			//CFileMgr::Read(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
+			CFileMgr::Read(hFile, &m_dwAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
+			//CFileMgr::Read(hFile, &nFxQuality, sizeof(nFxQuality));
+			CFileMgr::Read(hFile, &nEffectsQuality, sizeof(nEffectsQuality));
+			CFileMgr::Read(hFile, &nFilterQuality, sizeof(nFilterQuality));
+			CFileMgr::Read(hFile, &nShadowQuality, sizeof(nShadowQuality));
+			CFileMgr::Read(hFile, &m_fDrawDistance, sizeof(m_fDrawDistance));
+			CFileMgr::Read(hFile, &m_bAspectRatioMode, sizeof(m_bAspectRatioMode));
+			CFileMgr::Read(hFile, &m_bFrameLimiterMode, sizeof(m_bFrameLimiterMode));
+			CFileMgr::Read(hFile, &m_dwResolution, sizeof(m_dwAppliedResolution));
+			CFileMgr::Read(hFile, &field_DC, sizeof(field_DC));
+
+			// Apply sets
+			CCamera::m_bUseMouse3rdPerson = m_nController == 0;
+			ms_lodDistScale = m_fDrawDistance;
+			// Fuck everything x2
+			((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, m_dwBrightness * (1.0f/512.0f), true);
+			m_dwAppliedAntiAliasingLevel = m_dwAntiAliasingLevel;
+			m_bChangeVideoMode = true;
+			m_nLanguage = CText::GetLanguageIndexByAcronym(LangAcronym);
+			RsGlobal.frameLimit = RsGlobalFrameLimits[m_bFrameLimiterMode];
+
+			//g_fx.SetFxQuality(nFxQuality);
+			Fx_c::SetEffectsQuality(nEffectsQuality);
+			Fx_c::SetTextureFilteringQuality(nFilterQuality);
+
+			CShadows::SetShadowQuality(nShadowQuality);
+
+			AudioEngine.SetMusicMasterVolume(m_nRadioVolume);
+			AudioEngine.SetEffectsMasterVolume(m_nSfxVolume);
+			AudioEngine.SetRadioAutoRetuneOnOff(m_bRadioAutoSelect);
+			AudioEngine.RetuneRadio(m_nRadioStation);
+
+			if ( m_nLanguage == nPrevLanguage )
+				m_bLanguageChanged = false;
+			else
 			{
-				// Controls Setup
-				CFileMgr::Read(hFile, &CCamera::m_fMouseAccelHorzntl, sizeof(CCamera::m_fMouseAccelHorzntl));
-				CFileMgr::Read(hFile, &MousePointerStateHelper.m_bHorizontalInvert, sizeof(MousePointerStateHelper.m_bHorizontalInvert));
-				CFileMgr::Read(hFile, &CVehicle::m_bEnableMouseSteering, sizeof(CVehicle::m_bEnableMouseSteering));
-				CFileMgr::Read(hFile, &CVehicle::m_bEnableMouseFlying, sizeof(CVehicle::m_bEnableMouseFlying));
-				CFileMgr::Read(hFile, &m_nController, sizeof(m_nController));
-				CFileMgr::Read(hFile, &invertPadX1, sizeof(invertPadX1));
-				CFileMgr::Read(hFile, &invertPadY1, sizeof(invertPadY1));
-				CFileMgr::Read(hFile, &invertPadX2, sizeof(invertPadX2));
-				CFileMgr::Read(hFile, &invertPadY2, sizeof(invertPadY2));
-				CFileMgr::Read(hFile, &swapPadAxis1, sizeof(swapPadAxis1));
-				CFileMgr::Read(hFile, &swapPadAxis2, sizeof(swapPadAxis2));
+				m_bLanguageChanged = true;
+				TheText.Load(false);
+				m_bReinitLanguageSettings = true;
+				InitialiseChangedLanguageSettings(false);
 
-				// Audio Setup
-				CFileMgr::Read(hFile, &m_nSfxVolume, sizeof(m_nSfxVolume));
-				CFileMgr::Read(hFile, &m_nRadioVolume, sizeof(m_nRadioVolume));
-				CFileMgr::Read(hFile, &m_nRadioStation, sizeof(m_nRadioStation));
-				CFileMgr::Read(hFile, &m_bRadioAutoSelect, sizeof(m_bRadioAutoSelect));
-				CFileMgr::Read(hFile, &m_bTracksAutoScan, sizeof(m_bTracksAutoScan));
-				CFileMgr::Read(hFile, &m_nRadioMode, sizeof(m_nRadioMode));
-
-				// Display Setup
-				CFileMgr::Read(hFile, &m_dwBrightness, sizeof(m_dwBrightness));
-				CFileMgr::Read(hFile, &m_bShowSubtitles, sizeof(m_bShowSubtitles));
-				CFileMgr::Read(hFile, &m_bHudOn, sizeof(m_bHudOn));
-				CFileMgr::Read(hFile, &m_dwRadarMode, sizeof(m_dwRadarMode));
-				CFileMgr::Read(hFile, &m_bSavePhotos, sizeof(m_bSavePhotos));
-				CFileMgr::Read(hFile, &m_bMapLegend, sizeof(m_bMapLegend));
-
-				// Other
-				char		LangAcronym[2];
-
-				CFileMgr::Read(hFile, &field_AC, sizeof(field_AC));
-				CFileMgr::Read(hFile, LangAcronym, 2);
-
-				// Graphics Setup
-				FxQuality_e			nFxQuality, nEffectsQuality;
-				unsigned char		nFilterQuality;
-
-				//CFileMgr::Read(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
-				CFileMgr::Read(hFile, &m_dwAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
-				CFileMgr::Read(hFile, &nFxQuality, sizeof(nFxQuality));
-				CFileMgr::Read(hFile, &nEffectsQuality, sizeof(nEffectsQuality));
-				CFileMgr::Read(hFile, &nFilterQuality, sizeof(nFilterQuality));
-				CFileMgr::Read(hFile, &m_fDrawDistance, sizeof(m_fDrawDistance));
-				CFileMgr::Read(hFile, &m_bAspectRatioMode, sizeof(m_bAspectRatioMode));
-				CFileMgr::Read(hFile, &m_bFrameLimiterMode, sizeof(m_bFrameLimiterMode));
-				CFileMgr::Read(hFile, &m_dwResolution, sizeof(m_dwAppliedResolution));
-				CFileMgr::Read(hFile, &field_DC, sizeof(field_DC));
-
-				// Apply sets
-				CCamera::m_bUseMouse3rdPerson = m_nController == 0;
-				ms_lodDistScale = m_fDrawDistance;
-				// Fuck everything x2
-				((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, m_dwBrightness * (1.0f/512.0f), true);
-				m_dwAppliedAntiAliasingLevel = m_dwAntiAliasingLevel;
-				m_bChangeVideoMode = true;
-				m_nLanguage = CText::GetLanguageIndexByAcronym(LangAcronym);
-
-				g_fx.SetFxQuality(nFxQuality);
-				Fx_c::SetEffectsQuality(nEffectsQuality);
-				Fx_c::SetTextureFilteringQuality(nFilterQuality);
-
-				AudioEngine.SetMusicMasterVolume(m_nRadioVolume);
-				AudioEngine.SetEffectsMasterVolume(m_nSfxVolume);
-				AudioEngine.SetRadioAutoRetuneOnOff(m_bRadioAutoSelect);
-				AudioEngine.RetuneRadio(m_nRadioStation);
-
-				if ( m_nLanguage == nPrevLanguage )
-					m_bLanguageChanged = false;
-				else
-				{
-					m_bLanguageChanged = true;
-					TheText.Load(false);
-					m_bReinitLanguageSettings = true;
-					InitialiseChangedLanguageSettings(false);
-
-					// Just for the sake of it
-					OutputDebugString("The previously saved language is now in use");
-				}
-
-				// Success
-				CFileMgr::CloseFile(hFile);
-				CFileMgr::SetDir("");
-				return;
+				// Just for the sake of it
+				OutputDebugString("The previously saved language is now in use");
 			}
 
+			// Success
 			CFileMgr::CloseFile(hFile);
+			CFileMgr::SetDir("");
+			return;
 		}
+
+		CFileMgr::CloseFile(hFile);
 	}
 
 	// Failure condition code
@@ -1473,7 +1479,7 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 		m_dwAppliedAntiAliasingLevel = m_dwAntiAliasingLevel = 1;
 		m_dwResolution = m_dwAppliedResolution;
 		ms_lodDistScale = m_fDrawDistance = 1.2f;
-		g_fx.SetFxQuality(FXQUALITY_HIGH);
+		//g_fx.SetFxQuality(FXQUALITY_HIGH);
 		Fx_c::SetEffectsQuality(FXQUALITY_HIGH);
 		Fx_c::SetTextureFilteringQuality(1);	// Trilinear
 
@@ -1803,13 +1809,61 @@ AntiAliasing_RightColumn_2x:
 
 AntiAliasing_RightColumn_4x:
 		push	offset aFed_Aa2
-		jmp		AntiAliasing_RightColumn_Return
 
 AntiAliasing_RightColumn_Return:
 		push	57A161h
 		retn
 
 AntiAliasing_RightColumn_Off:
+		push	579F65h
+		retn
+	}
+}
+
+void __declspec(naked) ShadowsQuality_RightColumn()
+{
+	static const char		aFed_Fxc[] = "FED_FXC";
+	static const char		aFed_Fxl[] = "FED_FXL";
+	static const char		aFed_Fxm[] = "FED_FXM";
+	static const char		aFed_Fxh[] = "FED_FXH";
+	static const char		aFed_Fxv[] = "FED_FXV";
+	_asm
+	{
+		mov		ecx, [TheText]
+		mov		eax, [CShadows::m_bShadowQuality]
+		test	eax, eax
+		jz		ShadowsQuality_RightColumn_Off
+		dec		eax
+		jz		ShadowsQuality_RightColumn_Lowest
+		dec		eax
+		jz		ShadowsQuality_RightColumn_Low
+		dec		eax
+		jz		ShadowsQuality_RightColumn_Medium
+		dec		eax
+		jz		ShadowsQuality_RightColumn_High
+		push	offset aFed_Fxv
+		jmp		ShadowsQuality_RightColumn_Return
+
+ShadowsQuality_RightColumn_Lowest:
+		push	offset aFed_Fxc
+		jmp		ShadowsQuality_RightColumn_Return
+
+ShadowsQuality_RightColumn_Low:
+		push	offset aFed_Fxl
+		jmp		ShadowsQuality_RightColumn_Return
+
+ShadowsQuality_RightColumn_Medium:
+		push	offset aFed_Fxm
+		jmp		ShadowsQuality_RightColumn_Return
+
+ShadowsQuality_RightColumn_High:
+		push	offset aFed_Fxh
+
+ShadowsQuality_RightColumn_Return:
+		push	57A161h
+		retn
+
+ShadowsQuality_RightColumn_Off:
 		push	579F65h
 		retn
 	}
@@ -1847,7 +1901,7 @@ static StaticPatcher	Patcher([](){
 								(void*)0x579EF0, (void*)0x579DDE, (void*)0x579DE6,
 								(void*)0x579DB9, (void*)0x579DB1, (void*)0x579DC1,
 								(void*)0x579DD6, (void*)0x579E37, (void*)0x579E67,
-								(void*)0x579DEE, (void*)0x579EAE, (void*)0x579EF8,
+								(void*)0x579DEE, ShadowsQuality_RightColumn, (void*)0x579EF8,
 								AntiAliasing_RightColumn, (void*)0x579F57, (void*)0x579F6F,
 								(void*)0x579F77, (void*)0x579F7F, (void*)0x579F87,
 								(void*)0x579F8F, (void*)0x579F97, (void*)0x57A05A,

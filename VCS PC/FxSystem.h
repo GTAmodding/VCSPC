@@ -17,8 +17,9 @@ private:
 	static FxQuality_e		m_bEffectsQuality;
 
 public:
-	void					SetFxQuality(FxQuality_e eQuality);
-	FxQuality_e				GetFxQuality();
+	// Dead
+	//void					SetFxQuality(FxQuality_e eQuality);
+	//FxQuality_e				GetFxQuality();
 
 	// VCS PC class extension
 	static void				SetTextureFilteringQuality(unsigned char nQuality)

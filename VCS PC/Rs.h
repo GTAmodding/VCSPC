@@ -140,6 +140,13 @@ void			DoRWStuffEndOfFrame();
 void			DefinedState2d();
 void			CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio);
 
+RpAtomic*			GetFirstAtomic(RpClump* pClump);
+RpHAnimHierarchy*	GetAnimHierarchyFromSkinClump(RpClump* pClump);
+
+// GTA heap funcs
+void*			GtaOperatorNew(size_t size);
+void			GtaOperatorDelete(void* ptr);
+
 extern RsGlobalType&		RsGlobal;
 extern const DWORD			RsGlobalFrameLimits[5];
 extern bool&				bAnisotSupported;

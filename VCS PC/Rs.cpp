@@ -11,7 +11,16 @@ bool& bAnisotSupported = *(bool*)0xC87FFC;
 WRAPPER RsEventStatus RsEventHandler(RsEvent eventID, void* param) { WRAPARG(eventID); WRAPARG(param); EAXJMP(0x619B60); }
 WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
 WRAPPER void DefinedState2d() { EAXJMP(0x734750); }
+WRAPPER RpHAnimHierarchy* GetAnimHierarchyFromSkinClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x734A40); }
 
+WRAPPER void* GtaOperatorNew(size_t size) { WRAPARG(size); EAXJMP(0x82119A); }
+WRAPPER void GtaOperatorDelete(void* ptr) { WRAPARG(ptr); EAXJMP(0x82413F); }
+
+static RpAtomic* GetFirstAtomicCallback(RpAtomic* pAtomic, void* pData)
+{
+	*static_cast<RpAtomic**>(pData) = pAtomic;
+	return nullptr;
+}
 
 RwChar* RsPathnameCreate(const RwChar* srcBuffer)
 {
@@ -40,6 +49,13 @@ BOOL RsCameraBeginUpdate(RwCamera* pCamera)
 
 	RsEventHandler(rsACTIVATE, nullptr);
 	return FALSE;
+}
+
+RpAtomic* GetFirstAtomic(RpClump* pClump)
+{
+	RpAtomic* pData = nullptr;
+	RpClumpForAllAtomics(pClump, GetFirstAtomicCallback, &pData);
+	return pData;
 }
 
 void CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio)

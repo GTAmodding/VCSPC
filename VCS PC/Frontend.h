@@ -69,9 +69,21 @@
 // Macroes
 #define MenuEntriesList (CMenuManager::ms_pMenus)
 
+enum eMenuPages
+{
+	// TODO: Fill?
+	MENU_PAGE_STATS,
+	MENU_PAGE_GAME,
+	MENU_PAGE_BRIEF,
+	MENU_PAGE_AUDIO_SETUP,
+	MENU_PAGE_DISPLAY_SETUP
+};
+
 enum eMenuActions
 {
 	// TODO: Fill?
+	MENUACTION_SHADOWS_QUALITY		= 42,	// Formerly Visual FX Quality
+
 	MENUACTION_TOGGLE_LANGUAGE_6	= 66,
 	MENUACTION_UPDATER_BUTTON,
 	MENUACTION_TOGGLE_DLC,

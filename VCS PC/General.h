@@ -200,81 +200,89 @@ public:
 class NOVMT CPhysical : public CEntity
 {
 private:
-    float			pad1; // 56
-    int				__pad2; // 60
+    float				pad1; // 56
+    int					__pad2; // 60
 
-    unsigned int	b0x01 : 1; // 64
-    unsigned int	bApplyGravity : 1;
-    unsigned int	bDisableFriction : 1;
-    unsigned int	bCollidable : 1;
-    unsigned int	b0x10 : 1;
-    unsigned int	bDisableMovement : 1;
-    unsigned int	b0x40 : 1;
-    unsigned int	b0x80 : 1;
+    unsigned int		b0x01 : 1; // 64
+    unsigned int		bApplyGravity : 1;
+    unsigned int		bDisableFriction : 1;
+    unsigned int		bCollidable : 1;
+    unsigned int		b0x10 : 1;
+    unsigned int		bDisableMovement : 1;
+    unsigned int		b0x40 : 1;
+    unsigned int		b0x80 : 1;
 
-    unsigned int	bSubmergedInWater : 1; // 65
-    unsigned int	bOnSolidSurface : 1;
-    unsigned int	bBroken : 1;
-    unsigned int	b0x800 : 1; // ref @ 0x6F5CF0
-    unsigned int	b0x1000 : 1;//
-    unsigned int	b0x2000 : 1;//
-    unsigned int	b0x4000 : 1;//
-    unsigned int	b0x8000 : 1;//
+    unsigned int		bSubmergedInWater : 1; // 65
+    unsigned int		bOnSolidSurface : 1;
+    unsigned int		bBroken : 1;
+    unsigned int		b0x800 : 1; // ref @ 0x6F5CF0
+    unsigned int		b0x1000 : 1;//
+    unsigned int		b0x2000 : 1;//
+    unsigned int		b0x4000 : 1;//
+    unsigned int		b0x8000 : 1;//
 
-    unsigned int	b0x10000 : 1; // 66
-    unsigned int	b0x20000 : 1; // ref @ CPhysical__processCollision
-    unsigned int	bBulletProof : 1;
-    unsigned int	bFireProof : 1;
-    unsigned int	bCollisionProof : 1;
-    unsigned int	bMeeleProof : 1;
-    unsigned int	bInvulnerable : 1;
-    unsigned int	bExplosionProof : 1;
+    unsigned int		b0x10000 : 1; // 66
+    unsigned int		b0x20000 : 1; // ref @ CPhysical__processCollision
+    unsigned int		bBulletProof : 1;
+    unsigned int		bFireProof : 1;
+    unsigned int		bCollisionProof : 1;
+    unsigned int		bMeeleProof : 1;
+    unsigned int		bInvulnerable : 1;
+    unsigned int		bExplosionProof : 1;
 
-    unsigned int	b0x1000000 : 1; // 67
-    unsigned int	bAttachedToEntity : 1;
-    unsigned int	b0x4000000 : 1;
-    unsigned int	bTouchingWater : 1;
-    unsigned int	bEnableCollision : 1;
-    unsigned int	bDestroyed : 1;
-    unsigned int	b0x40000000 : 1;
-    unsigned int	b0x80000000 : 1;
+    unsigned int		b0x1000000 : 1; // 67
+    unsigned int		bAttachedToEntity : 1;
+    unsigned int		b0x4000000 : 1;
+    unsigned int		bTouchingWater : 1;
+    unsigned int		bEnableCollision : 1;
+    unsigned int		bDestroyed : 1;
+    unsigned int		b0x40000000 : 1;
+    unsigned int		b0x80000000 : 1;
 
-    CVector			m_vecLinearVelocity; // 68
-    CVector			m_vecAngularVelocity; // 80
-    CVector			m_vecCollisionLinearVelocity; // 92
-    CVector			m_vecCollisionAngularVelocity; // 104
-    CVector			m_vForce;							// 0x74
-    CVector			m_vTorque;							// 0x80
-	float			fMass;								// 0x8C
-    float			fTurnMass;							// 0x90
-    float			m_fVelocityFrequency;					// 0x94
-    float			m_fAirResistance;						// 0x98
-    float			m_fElasticity;						// 0x9C
-    float			m_fBuoyancyConstant;					// 0xA0
+    CVector				m_vecLinearVelocity; // 68
+    CVector				m_vecAngularVelocity; // 80
+    CVector				m_vecCollisionLinearVelocity; // 92
+    CVector				m_vecCollisionAngularVelocity; // 104
+    CVector				m_vForce;							// 0x74
+    CVector				m_vTorque;							// 0x80
+	float				fMass;								// 0x8C
+    float				fTurnMass;							// 0x90
+    float				m_fVelocityFrequency;					// 0x94
+    float				m_fAirResistance;						// 0x98
+    float				m_fElasticity;						// 0x9C
+    float				m_fBuoyancyConstant;					// 0xA0
 
-    CVector			vecCenterOfMass;					// 0xA4
-    DWORD			dwUnk1;								// 0xB0
-    void*			unkCPtrNodeDoubleLink;				// 0xB4
-    BYTE			byUnk: 8;								// 0xB8
-    BYTE			byCollisionRecords: 8;					// 0xB9
-    BYTE			byUnk2: 8;								// 0xBA (Baracus)
-    BYTE			byUnk3: 8;								// 0xBB
+    CVector				vecCenterOfMass;					// 0xA4
+    DWORD				dwUnk1;								// 0xB0
+    void*				unkCPtrNodeDoubleLink;				// 0xB4
+    BYTE				byUnk: 8;								// 0xB8
+    BYTE				byCollisionRecords: 8;					// 0xB9
+    BYTE				byUnk2: 8;								// 0xBA (Baracus)
+    BYTE				byUnk3: 8;								// 0xBB
 
-    float			pad4[6];								// 0xBC
+    float				pad4[6];								// 0xBC
 
-    float			fDistanceTravelled;					// 0xD4
-    float			fDamageImpulseMagnitude;				// 0xD8
-    CEntity*		damageEntity;						// 0xDC
-    BYTE			pad2[28];								// 0xE0
-    CEntity*		pAttachedEntity;					// 0xFC
-    CVector			m_vAttachedPosition;				// 0x100
-    CVector			m_vAttachedRotation;				// 0x10C
-    BYTE			pad3[20];								// 0x118
-    float			fLighting;							// 0x12C col lighting? CPhysical::GetLightingFromCol
-    float			fLighting_2;							// 0x130 added to col lighting in CPhysical::GetTotalLighting
-    BYTE			pad3a[4];								// 0x134
+    float				fDistanceTravelled;					// 0xD4
+    float				fDamageImpulseMagnitude;				// 0xD8
+    CEntity*			damageEntity;						// 0xDC
+    BYTE				pad2[28];								// 0xE0
+    CEntity*			pAttachedEntity;					// 0xFC
+    CVector				m_vAttachedPosition;				// 0x100
+    CVector				m_vAttachedRotation;				// 0x10C
+    BYTE				pad3[20];								// 0x118
+    float				fLighting;							// 0x12C col lighting? CPhysical::GetLightingFromCol
+    float				fLighting_2;							// 0x130 added to col lighting in CPhysical::GetTotalLighting
+    class CRealTimeShadow*	m_pShadow;							// 0x134
 
 public:
+	inline class CRealTimeShadow*	GetRealTimeShadow()
+		{ return m_pShadow; }
+	inline CVector&					GetLinearVelocity()
+		{ return m_vecLinearVelocity; }
+
+	inline void						SetRealTimeShadow(class CRealTimeShadow* pShadow)
+		{ m_pShadow = pShadow; }
+
 	// Temp
 	CPhysical()
 	: CEntity(0) {}

@@ -8,8 +8,8 @@ Fx_c&	g_fx = *(Fx_c*)0xA9AE00;
 unsigned char	Fx_c::m_bTextureFiltering;
 FxQuality_e		Fx_c::m_bEffectsQuality;
 
-WRAPPER void Fx_c::SetFxQuality(FxQuality_e eQuality) { WRAPARG(eQuality); EAXJMP(0x49EA40); }
-WRAPPER FxQuality_e Fx_c::GetFxQuality() { EAXJMP(0x49EA50); }
+//WRAPPER void Fx_c::SetFxQuality(FxQuality_e eQuality) { WRAPARG(eQuality); EAXJMP(0x49EA40); }
+//WRAPPER FxQuality_e Fx_c::GetFxQuality() { EAXJMP(0x49EA50); }
 
 unsigned char Fx_c::GetMaxTextureFilteringQuality()
 {
@@ -62,4 +62,10 @@ static StaticPatcher	Patcher([](){
 
 						Memory::InjectHook(0x4AA56F, Fx_c::GetEffectsQuality);
 						Memory::InjectHook(0x4AA586, Fx_c::GetEffectsQuality);
+
+						Memory::InjectHook(0x7163AA, Fx_c::GetEffectsQuality);
+
+						// Killed Visual FX Quality option
+						Memory::Patch<DWORD>(0x49EA50, 0x000003B8);
+						Memory::Patch<WORD>(0x49EA54, 0xC300);
 									});

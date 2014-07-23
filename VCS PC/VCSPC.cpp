@@ -42,6 +42,8 @@
 #include "VisibilityPlugins.h"
 #include "Object.h"
 #include "FxSystem.h"
+#include "RealTimeShadowMgr.h"
+#include "Shadows.h"
 #include "VCSPC_SDK_Internal.h"
 
 // Regular functions
@@ -223,6 +225,7 @@ void			AutoInstallUpdatesAction();
 void			CheckEveryAction();
 void			TextureFilteringAction();
 void			EffectsQualityAction();
+void			ShadowsQualityMenuAction();
 void			VehAudioHook();
 //void			RotorsHook();
 void			Language6Action();
@@ -377,6 +380,7 @@ void**						rwengine = (void**)0xC97B24;
 
 CControllerConfigManager&	ControlsManager = *(CControllerConfigManager*)0xB70198;
 CMousePointerStateHelper&	MousePointerStateHelper = *(CMousePointerStateHelper*)0xBA6744;
+CRealTimeShadowManager&		g_realTimeShadowMan = *(CRealTimeShadowManager*)0xC40350;
 
 void						(*replacedTXDLoadFunc)();
 void						(*replacedTXDReleaseFunc)();
@@ -491,7 +495,7 @@ const void*	const			PCMenuActionsAddresses[] = {
 									(void*)0x57D397, (void*)0x57D2FA, (void*)0x57D322,
 									(void*)0x57D32B, (void*)0x57CEC7, (void*)0x57D3A5,
 									(void*)0x57D418, (void*)0x57D3CD, (void*)0x57D3DD,
-									(void*)0x57D3EF, (void*)0x57D401, (void*)0x57D185,
+									(void*)0x57D3EF, (void*)0x57D401, ShadowsQualityMenuAction,
 									(void*)0x57CEE1, (void*)0x57D0C6, (void*)0x57D34C,
 									(void*)0x57CD8F, (void*)0x57CDAD, (void*)0x57CDCD,
 									(void*)0x57CDED, (void*)0x57CE0D, (void*)0x57CE2D,
@@ -2366,10 +2370,10 @@ __forceinline void Main_Patches()
 	Patch<int>(0x4C9292, ~(rwMATRIXTYPEMASK|rwMATRIXINTERNALIDENTITY));
 
 	// Bumped up shadows quality
-	Memory::Patch<BYTE>(0x706825, 8);
+	/*Memory::Patch<BYTE>(0x706825, 8);
 	Memory::Patch<BYTE>(0x706832, 8);
 	Memory::Patch<BYTE>(0x7064C2, 9);
-	Memory::Patch<BYTE>(0x7064F9, 8);
+	Memory::Patch<BYTE>(0x7064F9, 8);*/
 
 	// Don't change velocity when colliding with peds in a vehicle
 	//call(0x5F12CA, &CPhysical__ApplyMoveForce_Nop, PATCH_CALL);
@@ -4695,7 +4699,7 @@ char* ParseCommandlineArgument(char* pArg)
 			return pArg;
 		}
 
-		if ( !_strnicmp(pArg, "-pedshadowquality", 18) )
+		/*if ( !_strnicmp(pArg, "-pedshadowquality", 18) )
 		{
 			pArg = strtok(nullptr, " ");
 			int		nNewShadowQuality = atoi(pArg);
@@ -4708,7 +4712,7 @@ char* ParseCommandlineArgument(char* pArg)
 				Memory::Patch<BYTE>(0x7064F9, static_cast<BYTE>(nNewShadowQuality + 5));
 			}
 			return pArg;
-		}
+		}*/
 
 #ifdef DEVBUILD
 		if ( !_strnicmp(pArg, "-noautocheck", 13) )
@@ -7391,6 +7395,42 @@ EffectsQualityAction_ToMax:
 
 EffectsQualityAction_Return:
 		mov		[Fx_c::m_bEffectsQuality], eax
+		mov		ecx, esi
+		call	CMenuManager::SaveSettings
+		pop		edi
+		pop		esi
+		mov		al, bl
+		pop		ebx
+		retn	8
+	}
+}
+
+void __declspec(naked) ShadowsQualityMenuAction()
+{
+	_asm
+	{
+		mov		eax, [CShadows::m_bShadowQuality]
+		mov		dl, [esp+0Ch+4]
+		cmp		dl, 0
+		jl		ShadowsQualityMenuAction_Previous
+		inc		eax
+		cmp		eax, SHADOW_QUALITY_HIGHEST
+		jna		ShadowsQualityMenuAction_Return
+		xor		eax, eax
+		jmp		ShadowsQualityMenuAction_Return
+
+ShadowsQualityMenuAction_Previous:
+		test	eax, eax
+		jz		ShadowsQualityMenuAction_ToMax
+		dec		eax
+		jmp		ShadowsQualityMenuAction_Return
+
+ShadowsQualityMenuAction_ToMax:
+		mov		eax, SHADOW_QUALITY_HIGHEST
+
+ShadowsQualityMenuAction_Return:
+		mov		[CShadows::m_bShadowQuality], eax
+		call	CShadows::InitialiseChangedSettings
 		mov		ecx, esi
 		call	CMenuManager::SaveSettings
 		pop		edi

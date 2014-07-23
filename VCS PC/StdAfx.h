@@ -143,6 +143,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include <rwsdk\rpworld.h>
 #include <rwsdk\rtpng.h>
 #include <rwsdk\rpanisot.h>
+#include <rwsdk\rphanim.h>
 
 #include "CCRC32.h"
 #include "MemoryMgr.h"

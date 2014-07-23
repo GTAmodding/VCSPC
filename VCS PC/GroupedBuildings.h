@@ -2,7 +2,6 @@
 #define __GROUPEDBUILDINGS_H
 
 #include "General.h"
-#include "Building.h"
 
 #define NUM_GROUPED_BUILDINGS			4
 #define NUM_MAX_BUILDINGS_IN_GROUP		7
@@ -11,7 +10,7 @@ class CGroupedBuilding
 {
 private:
 	unsigned int			m_nGroupNameHash;
-	CBuilding*				m_pActualBuilding;
+	class CBuilding*		m_pActualBuilding;
 	CSimpleTransform		m_placement;
 	int						m_nCurrentID;
 	int						m_nModelsInGroup;
@@ -20,7 +19,7 @@ private:
 public:
 	inline unsigned int		GetHash()
 			{ return m_nGroupNameHash; }
-	inline CBuilding*		GetBuilding()
+	inline class CBuilding*	GetBuilding()
 			{ return m_pActualBuilding; }
 
 	void					RegisterOne(const char* pGroupName, const CVector& vecPos, float fAngle, int nNumObjs,

@@ -3,74 +3,27 @@
 
 #include "3DMarkers.h"
 #include "Coronas.h"
+#include "RealTimeShadowMgr.h"
+
+eShadowQuality CShadows::m_bShadowQuality;
 
 void CShadows::RenderIndicatorShadow(unsigned int nIndex, unsigned char, RwTexture*, CVector* pPos, float radiusX, float, float, float radiusY, short)
 {
 	C3DMarkers::PlaceMarkerSet(nIndex, 1, *pPos, radiusX > -radiusY ? radiusX : -radiusY, MARKER_SET_COLOR_R, MARKER_SET_COLOR_G, MARKER_SET_COLOR_B, MARKER_SET_COLOR_A, 2048, 0.2f);
 }
 
+void CShadows::InitialiseChangedSettings()
+{
+	g_realTimeShadowMan.ResetForChangedSettings();
+}
 
 static const float f215 = 2.15f;
 static const float f115 = 1.15f;
 
-float gA;
-float gB;
+static float gA;
+static float gB;
 
-CPhysical *gCurrentEntityStoresShadow;
-
-struct CShadowCamera
-{
-	RwCamera*		m_pCamera;
-	RwTexture*		m_pTexture;
-
-	RwCamera*		SetCenter(RwV3d* vecCenter)
-	{
-		RwFrame*	pCamFrame = RwCameraGetFrame(m_pCamera);
-
-		RwFrameGetMatrix(pCamFrame)->pos.x = RwCameraGetFarClipPlane(m_pCamera) * -0.5f * RwFrameGetMatrix(pCamFrame)->at.x + vecCenter->x;
-		RwFrameGetMatrix(pCamFrame)->pos.y = RwCameraGetFarClipPlane(m_pCamera) * -0.5f * RwFrameGetMatrix(pCamFrame)->at.y + vecCenter->y;
-		RwFrameGetMatrix(pCamFrame)->pos.z = RwCameraGetFarClipPlane(m_pCamera) * -0.5f * RwFrameGetMatrix(pCamFrame)->at.z + vecCenter->z;
-
-		RwMatrixUpdate(RwFrameGetMatrix(pCamFrame));
-		RwFrameUpdateObjects(pCamFrame);
-		RwFrameOrthoNormalize(pCamFrame);
-
-		CMatrix		HelperMatrix(RwFrameGetMatrix(pCamFrame));
-
-		CVector		vecPos = *HelperMatrix.GetPos();
-		CVector		vecRight = vecPos + *HelperMatrix.GetRight();
-		CVector		vecUp = vecPos + *HelperMatrix.GetUp();
-		CVector		vecAt = vecPos + *HelperMatrix.GetAt();
-
-		// pos
-		CCoronas::RegisterCorona(111111112, nullptr, 255, 255, 0, 255, vecPos, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
-
-		// right
-		CCoronas::RegisterCorona(111111112 + 1, nullptr, 255, 0, 0, 255, vecRight, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
-
-		// up
-		CCoronas::RegisterCorona(111111112 + 2, nullptr, 0, 255, 0, 255, vecUp, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
-
-		// at
-		CCoronas::RegisterCorona(111111112 + 3, nullptr, 0, 0, 255, 255, vecAt, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
-
-		return m_pCamera;
-	}
-};
-
-struct CRealTimeShadow
-{
-    CPhysical*		m_pEntity;
- char isExist, intensity;
- CShadowCamera image;
- char isBlurred;
- CShadowCamera blurredImage;
- int blurLevel;
- char createBlurTypeB;
- int objectType;
- RpLight *light;
- RwSphere boundingSphere, baseSphere;
-};
+static CPhysical *gCurrentEntityStoresShadow;
 
 void * __fastcall SetLightParameters(int shd, int edx0, float a, float b, bool set)
 {
@@ -93,7 +46,7 @@ void TranlateShdMatrix(RwMatrix *matrix, RwV3d *translation, int combineOp)
 void CastShadow(void *a1, float a2, float a3, float a4, float a5, void *a6, float a7, float a8, float a9, float a10, short a11, char a12, char a13, char a14, float a15, 
 						 float a16, void **a17, CRealTimeShadow* a18, char *a19)
 {
-	gCurrentEntityStoresShadow = a18->m_pEntity;
+	gCurrentEntityStoresShadow = a18->GetOwner();;
 	((void (__cdecl *)(void *, float, float, float, float, void *, float, float, float, float, short, char, char, char, float, float, void **, CRealTimeShadow *, char *))0x70A7E0)
 		(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19);
 }
@@ -124,8 +77,53 @@ void __declspec(naked) CompareSunZ()
 	}
 }
 
+static void __declspec(naked) ShowShadowsConditionHack()
+{
+	_asm
+	{
+		mov		eax, [CShadows::m_bShadowQuality]
+		test	eax, eax	// Shadows off?
+		jz		ShowShadowsConditionHack_ShadowsOff
+		cmp		eax, SHADOW_QUALITY_LOWEST
+		jz		ShowShadowsConditionHack_Static
+		cmp		eax, SHADOW_QUALITY_LOW
+		ja		ShowShadowsConditionHack_Dynamic
+		mov     eax, [ebp+598h]
+		test	eax, eax
+		jnz		ShowShadowsConditionHack_Static
+
+ShowShadowsConditionHack_Dynamic:
+		push	5E678Fh
+		retn
+
+ShowShadowsConditionHack_Static:
+		push	5E68B7h
+		retn
+
+ShowShadowsConditionHack_ShadowsOff:
+		push	5E6908h
+		retn
+	}
+}
+
+void CShadows::Inject()
+{
+	Memory::InjectHook(0x70CCB0, RenderIndicatorShadow, PATCH_JUMP);
+
+	Memory::InjectHook(0x5E6759, ShowShadowsConditionHack, PATCH_JUMP);
+	
+	// No stencil shadows
+	Memory::Patch<BYTE>(0x53E159, 0xC3);
+	Memory::Nop(0x53C1AB, 5);
+	
+	// Off vehicle shadows
+	Memory::Patch<BYTE>(0x70F9B0, 0xA1);
+	Memory::Patch<const void*>(0x70F9B1, &CShadows::m_bShadowQuality);
+	Memory::Patch<DWORD>(0x70F9B5, 0x940FC085);
+	Memory::Patch<WORD>(0x70F9B9, 0xC3C0);
+}
+
 static StaticPatcher	Patcher([](){ 
-						Memory::InjectHook(0x70CCB0, CShadows::RenderIndicatorShadow, PATCH_JUMP);
 
 #ifdef NEW_SHADOWS_TEST2
 						// Disable stencil
@@ -162,5 +160,5 @@ static StaticPatcher	Patcher([](){
 						Memory::Nop(0x70A0C9, 5);
 #endif
 						//Memory::InjectHook(0x705590, &CShadowCamera::SetCenter, PATCH_JUMP);
-
+						CShadows::Inject();
 						});
