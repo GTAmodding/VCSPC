@@ -87,6 +87,7 @@ public:
 	void				SetEffectsMasterVolume(signed char nVolume);
 	void				SetRadioAutoRetuneOnOff(bool bRetune);
 	void				RetuneRadio(signed char nStation);
+	const char*			GetRadioStationName(signed char nStation);
 };
 
 extern CAudioEngine&		AudioEngine;

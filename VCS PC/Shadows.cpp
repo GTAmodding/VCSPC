@@ -5,6 +5,7 @@
 #include "Coronas.h"
 #include "RealTimeShadowMgr.h"
 #include "Vehicle.h"
+#include "Object.h"
 
 eShadowQuality CShadows::m_bShadowQuality;
 
@@ -28,6 +29,19 @@ bool CShadows::StoreRealTimeShadowForVehicle(CVehicle* pVehicle)
 		return true;
 	}
 	return false;
+}
+
+void CShadows::StoreRealTimeShadowForObject(CObject* pObject)
+{
+	if ( m_bShadowQuality > SHADOW_QUALITY_MEDIUM && ThisPropCanHaveShadow(pObject) )
+		g_realTimeShadowMan.DoShadowThisFrame(pObject);
+
+}
+
+bool CShadows::ThisPropCanHaveShadow(CPhysical* pPhysical)
+{
+	return pPhysical->m_nModelIndex == MI_PARKBENCH || pPhysical->m_nModelIndex == MI_CANOPY_TEST || pPhysical->m_nModelIndex == MI_CHAIR_TEST
+		|| pPhysical->m_nModelIndex == MI_PAPERMACHINE || pPhysical->m_nModelIndex == MI_HYDRANT;
 }
 
 static const float f215 = 2.15f;
@@ -130,6 +144,30 @@ static void __declspec(naked) StoreRTVehicleShadowHack()
 	}
 }
 
+static void __declspec(naked) StoreRTObjectShadowHack()
+{
+	_asm
+	{
+		push	esi
+		call	CShadows::StoreRealTimeShadowForObject
+		add		esp, 4
+		pop		esi
+		add		esp, 10h
+		retn
+	}
+}
+
+/*static void __declspec(naked) StoreRTPoleShadowHack()
+{
+	_asm
+	{
+		push	[esp+18h+4]
+		call	CShadows::StoreRealTimeShadowForVehicle
+		add		esp, 4
+		retn
+	}
+}*/
+
 void CShadows::Inject()
 {
 	Memory::InjectHook(0x70CCB0, RenderIndicatorShadow, PATCH_JUMP);
@@ -185,6 +223,8 @@ static StaticPatcher	Patcher([](){
 						Memory::Patch<BYTE>(0x5E6813, 0xEB);
 						//Memory::Patch<BYTE>(0x5E683B, 0xEB);
 						Memory::InjectHook(0x70BDA4, StoreRTVehicleShadowHack);
+						Memory::InjectHook(0x59FEDB, StoreRTObjectShadowHack, PATCH_JUMP);
+						//Memory::InjectHook(0x70C753, StoreRTPoleShadowHack);
 #endif
 						//Memory::InjectHook(0x705590, &CShadowCamera::SetCenter, PATCH_JUMP);
 						CShadows::Inject();

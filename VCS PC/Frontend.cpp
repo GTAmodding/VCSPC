@@ -15,6 +15,7 @@
 #include "Camera.h"
 #include "FxSystem.h"
 #include "Shadows.h"
+#include "PcSave.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -239,6 +240,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		24, "FEM_FRM", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		26, "FED_WIS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_SHADOWS_QUALITY, "FED_SHA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		MENUACTION_SHADOWS_DISTANCE, "FED_SHD", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TEXTURE_FILTERMODE, "FED_TXF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_EFFECTS_QUALITY, "FED_EFF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
@@ -334,7 +336,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		52, "FEJ_RNA", ACTION_CLICKORARROWS, 40, 0, 0, 2, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 146, 3, 0, 0 },
 
-
+	// Pause menu
 	{ "FET_PAU", 255, 0,
 		54, "FEP_RES", ACTION_STANDARD, 0, 0, -84, 3, 0, 0,
 		5, "FEP_SGA", ACTION_STANDARD, 1, 0, 0, 3, 0, 0,
@@ -414,6 +416,10 @@ static inline const char* GetTitlePCByLanguage()
 WRAPPER void CMenuManager::SmallMessageScreen(const char* pMessage) { WRAPARG(pMessage); EAXJMP(0x574010); }
 WRAPPER void CMenuManager::SwitchToNewScreen(signed char bScreen) { WRAPARG(bScreen); EAXJMP(0x573680); }
 WRAPPER void CMenuManager::InitialiseChangedLanguageSettings(bool bRemapButtons) { WRAPARG(bRemapButtons); EAXJMP(0x573260); }
+WRAPPER void CMenuManager::PrintBrief() { EAXJMP(0x576320); }
+WRAPPER void CMenuManager::DrawContollerScreenExtraText(int nUnk) { WRAPARG(nUnk); EAXJMP(0x57D8D0); }
+WRAPPER void CMenuManager::DisplayHelperText(const char* pText) { WRAPARG(pText); EAXJMP(0x57E240); }
+WRAPPER bool CMenuManager::CheckHover(int, int, int, int) { EAXJMP(0x57C4F0); }
 
 void CMenuManager::SaveSettings()
 {
@@ -604,6 +610,611 @@ void CMenuManager::LoadSettings()
 	CFileMgr::SetDir("");
 }
 
+void CMenuManager::DrawStandardMenus(bool bDrawMenu)
+{
+	CFont::SetBackground(0, 0);
+	CFont::SetProportional(true);
+	CFont::SetOrientation(1);
+	CFont::SetWrapx(RsGlobal.MaximumWidth - 10);
+	CFont::SetRightJustifyWrap(10.0f);
+	CFont::SetCentreSize(RsGlobal.MaximumWidth);
+
+	switch ( m_bCurrentMenuPage )
+	{
+	case MENU_PAGE_STATS:
+		PrintStats();
+		break;
+	case MENU_PAGE_BRIEF:
+		PrintBrief();
+		break;
+	case MENU_PAGE_AUDIO_SETUP:
+		if ( bDrawMenu )
+			DrawRadioStationIcons();
+		break;
+	case MENU_PAGE_GAME_UPDATES:
+		PrintUpdaterScreen();
+		break;
+	case MENU_PAGE_DLC:
+		PrintDLCScreen();
+		break;
+	case MENU_PAGE_ACTIVATE_SERIAL:
+		PrintActivationScreen();
+		break;
+	}
+
+	// Header
+	if ( bDrawMenu )
+	{
+		if ( aScreens[m_bCurrentMenuPage].name[0] )
+		{
+			if ( m_bCurrentMenuPage != 5 || !m_bMapLoaded )
+			{
+				CFont::SetOrientation(1);
+				CFont::SetFontStyle(FONT_RageItalic);
+				CFont::SetScale(_width(1.3f), _height(2.1f));
+				CFont::SetDropShadowPosition(2);
+				CFont::SetColor(CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B));
+				CFont::SetDropColor(CRGBA(0, 0, 0));
+				CFont::PrintString(_xleft(40.0f), _y(28.0f), TheText.Get(aScreens[m_bCurrentMenuPage].name));
+			}
+		}
+	}
+
+	// Action 1 text
+	if ( aScreens[m_bCurrentMenuPage].entryList[0].action == 1 )
+	{
+		CFont::SetWrapx(RsGlobal.MaximumWidth - 40);
+		CFont::SetFontStyle(FONT_Eurostile);
+		CFont::SetOrientation(1);
+		CFont::SetScaleLang(_width(0.49f), _height(1.2f));
+		CFont::SetEdge(1);
+		CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B));
+		CFont::SetDropColor(CRGBA(0, 0, 0));
+
+		const char*		pText;
+		switch ( m_bCurrentMenuPage )
+		{
+		case 6:
+			{
+				pText = TheText.Get(m_bMainMenuSwitch ? "FESZ_QQ" : aScreens[m_bCurrentMenuPage].entryList[0].entry);
+				break;
+			}
+		case 35:
+			{
+				pText = TheText.Get(m_bMainMenuSwitch ? "FEQ_SRW" : aScreens[m_bCurrentMenuPage].entryList[0].entry);
+				break;
+			}
+		case 17:
+			{
+				switch ( SlotValidation[m_bSelectedSaveGame+1] )
+				{
+				case 0:
+					pText = TheText.Get("FESZ_QO");
+					break;
+				case 2:
+					pText = TheText.Get("FESZ_QC");
+					break;
+				default:
+					pText = TheText.Get(aScreens[m_bCurrentMenuPage].entryList[0].entry);
+					break;
+				}
+				break;
+			}
+		case 11:
+			{
+				pText = TheText.Get(m_bMainMenuSwitch ? "FES_LCG" : aScreens[m_bCurrentMenuPage].entryList[0].entry);
+				break;
+			}
+		default:
+			{
+				pText = TheText.Get(aScreens[m_bCurrentMenuPage].entryList[0].entry);
+				break;
+			}
+		}
+
+		CFont::PrintString(_xleft(60.0f), _y(97.0f), pText);
+		CFont::SetWrapx(RsGlobal.MaximumWidth - 10);
+	}
+
+	// Controller Redefine
+	if ( m_bCurrentMenuPage == 38 )
+		DrawContollerScreenExtraText(-8);
+
+	// Menu drawing loop
+	for ( unsigned int i = 0; i < NUM_ENTRIES_PER_MENU; i++ )
+	{
+		CFont::SetFontStyle(FONT_Eurostile);
+		if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag <= ACTION_SAVE_12 )
+		{
+			// Save slot
+			CFont::SetScale(_width(0.42f), _height(0.95f));
+			CFont::SetEdge(1);
+		}
+		else
+		{
+			// Regular texts
+			CFont::SetScale(_width(0.7f), _height(1.0f));
+			CFont::SetEdge(1);
+		}
+		unsigned char		nAlign;
+
+		switch ( aScreens[m_bCurrentMenuPage].entryList[i].align )
+		{
+		case 1:
+			nAlign = ALIGN_Left;
+			break;
+		case 2:
+			nAlign = ALIGN_Right;
+			break;
+		default:
+			nAlign = ALIGN_Center;
+			break;
+		}
+
+		if ( i == m_dwSelectedMenuItem && m_bMapLoaded )
+			CFont::SetColor(CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B));
+		else
+		{
+			if ( CUpdateManager::NewUpdatesPending() &&  ((m_bCurrentMenuPage == 33 && i == 6) || (m_bCurrentMenuPage == 34 && i == 1) || (m_bCurrentMenuPage == 41 && i == 5) && (m_bCurrentMenuPage == 44 && i == 2)) )
+				CFont::SetColor(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B));
+			else
+				CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B));
+		}
+
+		CFont::SetDropColor(CRGBA(0, 0, 0));
+		CFont::SetOrientation(nAlign);
+
+		// Auto positioning
+		if ( (aScreens[m_bCurrentMenuPage].entryList[i].posX == 0 && aScreens[m_bCurrentMenuPage].entryList[i].posY == 0)
+			|| aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_MISSIONPACK )
+		{
+			if ( i && (i != 1 || aScreens[m_bCurrentMenuPage].entryList[0].action != 1) )
+			{
+				aScreens[m_bCurrentMenuPage].entryList[i].posX = aScreens[m_bCurrentMenuPage].entryList[i-1].posX;
+				aScreens[m_bCurrentMenuPage].entryList[i].posY = aScreens[m_bCurrentMenuPage].entryList[i-1].posY + (aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_MISSIONPACK ? 20 : 30);
+			}
+			else
+			{
+				aScreens[m_bCurrentMenuPage].entryList[i].posX = 320;
+				aScreens[m_bCurrentMenuPage].entryList[i].posY = 130;
+			}
+		}
+
+		if ( aScreens[m_bCurrentMenuPage].entryList[i].action != 1 && aScreens[m_bCurrentMenuPage].entryList[i].entry[0] )
+		{
+			const char*	pTextToShow = nullptr;
+			const char*	pTextToShow_RightColumn = nullptr;
+			char		cReservedSpace[64];
+
+			if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag <= ACTION_SAVE_12 )
+			{
+				aScreens[m_bCurrentMenuPage].entryList[i].posX = 80;
+				aScreens[m_bCurrentMenuPage].entryList[i].screenHorAlign = -1;
+				CFont::SetOrientation(1);
+
+				switch ( SlotValidation[i] )
+				{
+				case 0:
+					pTextToShow = CGenericGameStorage::GetNameOfSavedGame(i-1);
+					pTextToShow_RightColumn = GetSavedGameDateAndTime(i-1);
+					break;
+				case 2:
+					pTextToShow = TheText.Get("FESZ_CS");
+					break;
+				}
+
+				if ( !pTextToShow || !pTextToShow[0] )
+				{
+					sprintf(gString, "FEM_SL%X", i);
+					CFont::SetOrientation(0);
+					aScreens[m_bCurrentMenuPage].entryList[i].posX = 320;
+					aScreens[m_bCurrentMenuPage].entryList[i].screenHorAlign = 0;
+					pTextToShow = TheText.Get(gString);
+				}
+			}
+			else if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_MISSIONPACK )
+			{
+				// TODO: MPACK name
+
+			}
+			else if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_JOYMOUSE )
+			{
+				pTextToShow = TheText.Get(m_nController ? "FEJ_TIT" : "FEC_MOU");
+			}
+			else if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_UPDATER )
+			{
+				pTextToShow = CUpdateManager::GetGXTEntryForButton();
+			}
+			else if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_DLC )
+			{
+				pTextToShow = ProcessDLCSlot(i);
+			}
+			else
+			{
+				if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_SERIAL )
+				{
+					if ( !m_bSerialFull )
+						CFont::SetColor(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
+				}
+				pTextToShow = TheText.Get(aScreens[m_bCurrentMenuPage].entryList[i].entry);
+			}
+
+			// Regular actions - right column
+			switch ( aScreens[m_bCurrentMenuPage].entryList[i].action )
+			{
+			case 31:
+				pTextToShow_RightColumn = TheText.Get(m_bRadioAutoSelect ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 32:
+				pTextToShow_RightColumn = AudioEngine.GetRadioStationName(m_nRadioStation);
+				break;
+			case 33:
+				pTextToShow_RightColumn = TheText.Get(m_bMapLegend ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 25:
+				pTextToShow_RightColumn = TheText.Get(m_bShowSubtitles ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 26:
+				sprintf(cReservedSpace, "FEM_AS%d", m_bAspectRatioMode);
+				pTextToShow_RightColumn = TheText.Get(cReservedSpace);
+				break;
+			// case 36 - unused on PC
+			case 34:
+				switch ( m_dwRadarMode )
+				{
+				case 0:
+					pTextToShow_RightColumn = TheText.Get("FED_RDM");
+					break;
+				case 1:
+					pTextToShow_RightColumn = TheText.Get("FED_RDB");
+					break;
+				case 2:
+					pTextToShow_RightColumn = TheText.Get("FEM_OFF");
+					break;
+				}
+				break;
+			case 35:
+				switch ( m_bHudOn )
+				{
+				case 0:
+					pTextToShow_RightColumn = TheText.Get("FEM_OFF");
+					break;
+				case 1:
+					pTextToShow_RightColumn = TheText.Get("FEM_24H");
+					break;
+				case 2:
+					pTextToShow_RightColumn = TheText.Get("FEM_12H");
+					break;
+				}
+				break;
+			case 65:
+				pTextToShow_RightColumn = TheText.Get(m_bSavePhotos ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 63:
+				switch ( m_nRadioMode )
+				{
+				case 0:
+					pTextToShow_RightColumn = TheText.Get("FEA_PR1");
+					break;
+				case 1:
+					pTextToShow_RightColumn = TheText.Get("FEA_PR2");
+					break;
+				case 2:
+					pTextToShow_RightColumn = TheText.Get("FEA_PR3");
+					break;
+				}
+				break;
+			case MENUACTION_SHADOWS_QUALITY:
+				switch ( CShadows::GetShadowQuality() )
+				{
+				case SHADOW_QUALITY_OFF:
+					pTextToShow_RightColumn = TheText.Get("FEM_OFF");
+					break;
+				case SHADOW_QUALITY_LOWEST:
+					pTextToShow_RightColumn = TheText.Get("FED_FXC");
+					break;
+				case SHADOW_QUALITY_LOW:
+					pTextToShow_RightColumn = TheText.Get("FED_FXL");
+					break;
+				case SHADOW_QUALITY_MEDIUM:
+					pTextToShow_RightColumn = TheText.Get("FED_FXM");
+					break;
+				case SHADOW_QUALITY_HIGH:
+					pTextToShow_RightColumn = TheText.Get("FED_FXH");
+					break;
+				case SHADOW_QUALITY_HIGHEST:
+					pTextToShow_RightColumn = TheText.Get("FED_FXV");
+					break;
+				}
+				break;
+			case 24:
+				if ( m_bFrameLimiterMode == 0 )
+					pTextToShow_RightColumn = TheText.Get("FEM_OFF");
+				else
+				{
+					CMessages::InsertNumberInString(TheText.Get("FEM_FPS"), RsGlobalFrameLimits[m_bFrameLimiterMode], -1, -1, -1, -1, -1, cReservedSpace);
+					pTextToShow_RightColumn = cReservedSpace;
+				}
+				break;
+			// case 43 - mipmapping has been nuked
+			case 64:
+				pTextToShow_RightColumn = TheText.Get(m_bTracksAutoScan ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 46:
+				pTextToShow_RightColumn = TheText.Get(!MousePointerStateHelper.m_bHorizontalInvert ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 47:
+				pTextToShow_RightColumn = TheText.Get(invertPadX1 ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 48:
+				pTextToShow_RightColumn = TheText.Get(invertPadY1 ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 49:
+				pTextToShow_RightColumn = TheText.Get(invertPadX2 ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 50:
+				pTextToShow_RightColumn = TheText.Get(invertPadY2 ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 51:
+				pTextToShow_RightColumn = TheText.Get(swapPadAxis1 ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 52:
+				pTextToShow_RightColumn = TheText.Get(swapPadAxis2 ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 59:
+				pTextToShow_RightColumn = TheText.Get(CVehicle::m_bEnableMouseSteering ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 60:
+				pTextToShow_RightColumn = TheText.Get(CVehicle::m_bEnableMouseFlying ? "FEM_ON" : "FEM_OFF");
+				break;
+			case 56:
+				strncpy(cReservedSpace, ((const char**(*)())0x745AF0)()[m_dwResolution], sizeof(cReservedSpace));
+				pTextToShow_RightColumn = cReservedSpace;
+				break;
+			case 44:
+				if ( m_dwAntiAliasingLevel <= 1 )
+					pTextToShow_RightColumn = TheText.Get("FEM_OFF");
+				else
+				{
+					switch ( m_dwAntiAliasingLevel )
+					{
+					case 2:
+						pTextToShow_RightColumn = TheText.Get("FED_AA1");
+						break;
+					case 3:
+						pTextToShow_RightColumn = TheText.Get("FED_AA2");
+						break;
+					case 4:
+						pTextToShow_RightColumn = TheText.Get("FED_AA3");
+						break;
+					}
+				}
+				break;
+			case 58:
+				pTextToShow_RightColumn = TheText.Get(m_nController ? "FET_CCN" : "FET_SCN");
+				break;
+			case MENUACTION_AUTOINSTALL_UPDATES:
+				pTextToShow_RightColumn = TheText.Get(CUpdateManager::AutoInstallEnabled() ? "FEM_ON" : "FEM_OFF");
+				break;
+			case MENUACTION_CHECKING_PERIOD:
+				sprintf(cReservedSpace, "FEU_CH%d", CUpdateManager::GetCheckingPeriod() + 1);
+				pTextToShow_RightColumn = TheText.Get(cReservedSpace);
+				break;
+			case MENUACTION_TEXTURE_FILTERMODE:
+				sprintf(cReservedSpace, "FED_TX%d", Fx_c::GetTextureFilteringQuality());
+				pTextToShow_RightColumn = TheText.Get(cReservedSpace);
+				break;
+			case MENUACTION_EFFECTS_QUALITY:
+				switch ( Fx_c::GetEffectsQuality() )
+				{
+				case FXQUALITY_LOW:
+					pTextToShow_RightColumn = TheText.Get("FED_FXL");
+					break;
+				case FXQUALITY_MEDIUM:
+					pTextToShow_RightColumn = TheText.Get("FED_FXM");
+					break;
+				case FXQUALITY_HIGH:
+					pTextToShow_RightColumn = TheText.Get("FED_FXH");
+					break;
+				}
+				break;
+			}
+
+			float	fPosX, fPosY;
+
+			if ( aScreens[m_bCurrentMenuPage].entryList[i].screenHorAlign == -1 )
+				fPosX = _xleft(aScreens[m_bCurrentMenuPage].entryList[i].posX);
+			else if ( aScreens[m_bCurrentMenuPage].entryList[i].screenHorAlign == 1 )
+				fPosX = _x(aScreens[m_bCurrentMenuPage].entryList[i].posX);
+			else
+				fPosX = _xmiddle(aScreens[m_bCurrentMenuPage].entryList[i].posX);
+
+			if ( aScreens[m_bCurrentMenuPage].entryList[i].screenVertAlign == -1 )
+				fPosY = _y(aScreens[m_bCurrentMenuPage].entryList[i].posY);
+			else if ( aScreens[m_bCurrentMenuPage].entryList[i].screenVertAlign == 1 )
+				fPosY = _ydown(aScreens[m_bCurrentMenuPage].entryList[i].posY);
+			else
+				fPosY = _ymiddle(aScreens[m_bCurrentMenuPage].entryList[i].posY);
+
+			if ( pTextToShow )
+			{
+				if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag <= ACTION_SAVE_12 )
+				{
+					char		cSlotNumberText[4];
+					sprintf(cSlotNumberText, "%d", aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag);
+
+					CFont::PrintString(fPosX + _xleft(25.0f), fPosY, pTextToShow);
+
+					CFont::SetOrientation(ALIGN_Right);
+					CFont::PrintString(fPosX, fPosY, cSlotNumberText);
+				}
+				else
+					CFont::PrintString(fPosX, fPosY, pTextToShow);
+			}
+
+			if ( pTextToShow_RightColumn )
+			{
+				CFont::SetFontStyle(FONT_Eurostile);
+				CFont::SetEdge(1);
+
+				bool	bSaveMenu = m_bCurrentMenuPage == 9 || m_bCurrentMenuPage == 10 || m_bCurrentMenuPage == 16;
+
+				if ( bSaveMenu )
+					CFont::SetOrientation(ALIGN_Right);
+				else
+					CFont::SetOrientation(ALIGN_Left);
+
+				if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag <= ACTION_SAVE_12 )
+					CFont::SetScale(_width(0.35f), _height(0.95f));
+				else if ( m_bCurrentMenuPage == 3 && i == 4 )
+					CFont::SetScale(_width(0.56f), _height(1.0f));
+				else
+					CFont::SetScale(_width(0.7f), _height(1.0f));
+
+				CFont::PrintString(bSaveMenu ?  _x(40.0f) : _xmiddle(MENU_TEXT_POSITION_RCOLUMN), fPosY, pTextToShow_RightColumn);
+			}
+
+			// Sliders
+			switch ( aScreens[m_bCurrentMenuPage].entryList[i].action )
+			{
+			case 27:
+				{
+					// Brightness
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-97.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_dwBrightness * (1.0f/192.0f), _width(MENU_SLIDER_WIDTH));
+
+					if ( i == m_dwSelectedMenuItem )
+					{
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-97.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-97.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 7;
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-97.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-97.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 6;
+						else
+							m_nHoverOption = 16;
+					}
+					break;
+				}
+			case 28:
+				{
+					// Radio volume
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nRadioVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH));
+
+					if ( i == m_dwSelectedMenuItem )
+					{
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-124.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 11;
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-124.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 10;
+						else
+							m_nHoverOption = 16;
+					}
+					break;
+				}
+			case 29:
+				{
+					// SFX volume
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nSfxVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH));
+
+					if ( i == m_dwSelectedMenuItem )
+					{
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-94.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 13;
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-94.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 12;
+						else
+							m_nHoverOption = 16;
+					}
+					break;
+				}
+			case 61:
+				{
+					// Draw Distance
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (m_fDrawDistance-0.925f) * (1.0f/0.875f), _width(MENU_SLIDER_WIDTH));
+
+					if ( i == m_dwSelectedMenuItem )
+					{
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-124.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 9;
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-124.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 8;
+						else
+							m_nHoverOption = 16;
+					}
+					break;
+				}
+			case 62:
+				{
+					// Mouse Sensitivity
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (CCamera::m_fMouseAccelHorzntl-0.0003125f)* (1.0f/0.0049f), _width(MENU_SLIDER_WIDTH));
+
+					if ( i == m_dwSelectedMenuItem )
+					{
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-94.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 15;
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-94.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							m_nHoverOption = 14;
+						else
+							m_nHoverOption = 16;
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	// Helpers
+	if ( !strncmp(aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].entry, "FED_RES", 8) )
+	{
+		if ( m_dwResolution == m_dwAppliedResolution )
+		{
+			if ( m_nHelperTextIndex == 1 )
+				ResetHelperText();
+		}
+		else
+			SetHelperText(1);
+	}
+	else
+	{
+		if ( m_dwResolution != m_dwAppliedResolution )
+		{
+			m_dwResolution = m_dwAppliedResolution;
+			SetHelperText(3);
+		}
+	}
+
+	if ( !strncmp(aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].entry, "FED_AAS", 8) )
+	{
+		if ( m_dwAntiAliasingLevel == m_dwAppliedAntiAliasingLevel )
+		{
+			if ( m_nHelperTextIndex == 1 )
+				ResetHelperText();
+		}
+		else
+			SetHelperText(1);
+	}
+	else
+	{
+		if ( m_dwAntiAliasingLevel != m_dwAppliedAntiAliasingLevel )
+		{
+			m_dwAntiAliasingLevel = m_dwAppliedAntiAliasingLevel;
+			SetHelperText(3);
+		}
+	}
+
+	switch ( m_bCurrentMenuPage )
+	{
+	case 0:
+	case 3:
+	case 4:
+	case 26:
+	case 27:
+	case 36:
+	case 39:
+	case 40:
+		DisplayHelperText(nullptr);
+		break;
+	}
+}
+
 void CMenuManager::DrawBackEnd()
 {
 	// Calculate proper dimensions
@@ -641,25 +1252,25 @@ void CMenuManager::DrawBackEnd()
 	CFont::SetBackground(0, 0);
 	CFont::SetProportional(false);
 	CFont::SetFontStyle(FONT_PagerFont);
-	CFont::SetOrientation(ALIGN_Right);
+	CFont::SetOrientation(ALIGN_Left);
 	CFont::SetRightJustifyWrap(0.0);
 	CFont::SetEdge(1);
 	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 	CFont::SetScale(_width(0.25f), _height(0.4f));
 	CFont::SetColor(BaseColors[11]);
-	CFont::PrintString(_x(2.5f), _ydown(13.0f), MOD_VERSION" BUILD "BUILDNUMBER_STR);
+	CFont::PrintString(_xleft(2.5f), _ydown(13.0f), MOD_VERSION" BUILD "BUILDNUMBER_STR);
 
 #ifdef DEVBUILD
 	#ifdef MAKE_ZZCOOL_MOVIE_DEMO
-		CFont::PrintString(_x(2.5f), _ydown(20.5f), "DEMONSTRATION BUILD");
+		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEMONSTRATION BUILD");
 	#else
-		CFont::PrintString(_x(2.5f), _ydown(20.5f), "DEV BUILD");
+		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEV BUILD");
 	#endif
 #else
 	#ifdef COMPILE_RC
-		CFont::PrintString(_x(2.5f), _ydown(20.5f), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
+		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
 	#else
-		CFont::PrintString(_x(2.5f), _ydown(20.5f), VERSION_NAME_UPPERCASE);
+		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), VERSION_NAME_UPPERCASE);
 	#endif
 #endif
 
@@ -748,19 +1359,19 @@ void CMenuManager::DrawRadioStationIcons()
 	while ( bLoopCounter < 11 );
 }
 
-int CMenuManager::DisplaySlider(float posX, float posY, float, float height, float distBetweenRects, float filledAmount, int iWidth)
+float CMenuManager::DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width)
 {
 	BYTE			loopCounter = NUM_SLIDERS * 2;
 	BYTE			positionCounter = 0;
 	BYTE			secondPositionCounter = 0;
 	bool			bDrawHalfSlider = false;
+	bool			bGotLowestInactive = false;
 	float			fullWidth = 0.0;
-	float			width = static_cast<float>(iWidth);
 
 	do
 	{
 		float	itemPosX = distBetweenRects * positionCounter / NUM_SLIDERS + posX;
-		float	mousePosX = distBetweenRects * secondPositionCounter / (NUM_SLIDERS * 2) + posX;
+		float	mousePosX = distBetweenRects/2 * secondPositionCounter / (NUM_SLIDERS * 2) + posX;
 		CRGBA	colour;
 
 		if ( static_cast<float>(positionCounter) / NUM_SLIDERS + ( 1 / (NUM_SLIDERS * 2) ) >= filledAmount )
@@ -771,6 +1382,7 @@ int CMenuManager::DisplaySlider(float posX, float posY, float, float height, flo
 				bDrawHalfSlider = true;
 			else
 				colour = CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B, 255);
+
 			fullWidth = mousePosX;
 		}
 
@@ -792,7 +1404,7 @@ int CMenuManager::DisplaySlider(float posX, float posY, float, float height, flo
 	}
 	while ( loopCounter );
 
-	return static_cast<int>(fullWidth);
+	return fullWidth;
 }
 
 void CMenuManager::DrawLeftColumn(MenuItem::MenuEntry& pPosition, const char* pText, const char* pRightText)
@@ -1532,7 +2144,7 @@ const char* CMenuManager::ProcessDLCSlot(int nSlotID)
 
 	ms_pMenus[m_bCurrentMenuPage].entryList[nSlotID].action = MENUACTION_TOGGLE_DLC;
 	_snprintf(lastDLCName, sizeof(lastDLCName), "FEE_N%02d", nDLC);
-	return lastDLCName;
+	return TheText.Get(lastDLCName);
 }
 
 float CMenuManager::GetTextYPos(const MenuItem::MenuEntry& pPosition)
@@ -1555,6 +2167,11 @@ float CMenuManager::GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition)
 		return _ydown(pPosition.posY - 26);
 
 	return _ymiddle(pPosition.posY + 26);
+}
+
+void CMenuManager::Inject()
+{
+	Memory::InjectHook(0x57BA58, &DrawStandardMenus);
 }
 
 // TODO: CLoadingScreen
@@ -1785,7 +2402,7 @@ EffectsQuality_RightColumn_Return:
 	}
 }
 
-void __declspec(naked) AntiAliasing_RightColumn()
+/*void __declspec(naked) AntiAliasing_RightColumn()
 {
 	static const char		aFed_Aa1[] = "FED_AA1";
 	static const char		aFed_Aa2[] = "FED_AA2";
@@ -1818,56 +2435,7 @@ AntiAliasing_RightColumn_Off:
 		push	579F65h
 		retn
 	}
-}
-
-void __declspec(naked) ShadowsQuality_RightColumn()
-{
-	static const char		aFed_Fxc[] = "FED_FXC";
-	static const char		aFed_Fxl[] = "FED_FXL";
-	static const char		aFed_Fxm[] = "FED_FXM";
-	static const char		aFed_Fxh[] = "FED_FXH";
-	static const char		aFed_Fxv[] = "FED_FXV";
-	_asm
-	{
-		mov		ecx, [TheText]
-		mov		eax, [CShadows::m_bShadowQuality]
-		test	eax, eax
-		jz		ShadowsQuality_RightColumn_Off
-		dec		eax
-		jz		ShadowsQuality_RightColumn_Lowest
-		dec		eax
-		jz		ShadowsQuality_RightColumn_Low
-		dec		eax
-		jz		ShadowsQuality_RightColumn_Medium
-		dec		eax
-		jz		ShadowsQuality_RightColumn_High
-		push	offset aFed_Fxv
-		jmp		ShadowsQuality_RightColumn_Return
-
-ShadowsQuality_RightColumn_Lowest:
-		push	offset aFed_Fxc
-		jmp		ShadowsQuality_RightColumn_Return
-
-ShadowsQuality_RightColumn_Low:
-		push	offset aFed_Fxl
-		jmp		ShadowsQuality_RightColumn_Return
-
-ShadowsQuality_RightColumn_Medium:
-		push	offset aFed_Fxm
-		jmp		ShadowsQuality_RightColumn_Return
-
-ShadowsQuality_RightColumn_High:
-		push	offset aFed_Fxh
-
-ShadowsQuality_RightColumn_Return:
-		push	57A161h
-		retn
-
-ShadowsQuality_RightColumn_Off:
-		push	579F65h
-		retn
-	}
-}
+}*/
 
 static void __declspec(naked) UserInputArrowSoundMenus()
 {
@@ -1901,18 +2469,18 @@ static StaticPatcher	Patcher([](){
 								(void*)0x579EF0, (void*)0x579DDE, (void*)0x579DE6,
 								(void*)0x579DB9, (void*)0x579DB1, (void*)0x579DC1,
 								(void*)0x579DD6, (void*)0x579E37, (void*)0x579E67,
-								(void*)0x579DEE, ShadowsQuality_RightColumn, (void*)0x579EF8,
-								AntiAliasing_RightColumn, (void*)0x579F57, (void*)0x579F6F,
+								(void*)0x579DEE, /*ShadowsQuality_RightColumn*/ (void*)0x579EF8,
+								/*AntiAliasing_RightColumn,*/ (void*)0x579F57, (void*)0x579F6F,
 								(void*)0x579F77, (void*)0x579F7F, (void*)0x579F87,
 								(void*)0x579F8F, (void*)0x579F97, (void*)0x57A05A,
 								(void*)0x57A141, (void*)0x579FB0, (void*)0x57A005,
 								(void*)0x579E7A, (void*)0x579F4F, (void*)0x579E6F,
-								(void*)0x57A168, AutoInstallUpdates_RightColumm, CheckEvery_RightColumn, 
-								TextureFiltering_RightColumn, EffectsQuality_RightColumn };
+								(void*)0x57A168, /*AutoInstallUpdates_RightColumm,*/ /*CheckEvery_RightColumn, */
+								/*TextureFiltering_RightColumn, EffectsQuality_RightColumn*/ };
 
-				Memory::Patch<BYTE>(0x579D9C, sizeof(StandardMenusRightColumn_Table)-1);
-				Memory::Patch<const void*>(0x579DA6, StandardMenusRightColumn_Table);
-				Memory::Patch<const void*>(0x579DAD, StandardMenusRightColumn_Addresses);
+				//Memory::Patch<BYTE>(0x579D9C, sizeof(StandardMenusRightColumn_Table)-1);
+				//Memory::Patch<const void*>(0x579DA6, StandardMenusRightColumn_Table);
+				//Memory::Patch<const void*>(0x579DAD, StandardMenusRightColumn_Addresses);
 
 				static const BYTE			UserInputArrowSoundMenus_Table[] = {
 								0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01,
@@ -1930,5 +2498,7 @@ static StaticPatcher	Patcher([](){
 
 				Memory::InjectHook(0x57C660, &CMenuManager::SaveSettings, PATCH_JUMP);
 				Memory::InjectHook(0x747545, &CMenuManager::LoadSettings);
+
+				CMenuManager::Inject();
 			});
 

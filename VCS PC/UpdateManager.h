@@ -30,6 +30,13 @@ private:
 public:
 	static inline bool			AnyTextDisplaysNow()
 		{ return nDrawingState != 0; }
+	static inline bool			NewUpdatesPending()
+		{ return nInterfaceStatus == UPTMODULESTATE_NEW_UPDATES; }
+
+	static inline bool			AutoInstallEnabled()
+		{ return bAutoInstallUpdates; }
+	static inline unsigned char	GetCheckingPeriod()
+		{ return bCheckingPeriod; }
 
 	static inline bool			IsDownloading()
 	{ return nInterfaceStatus == UPTMODULESTATE_DOWNLOADING || nInterfaceStatus == UPTMODULESTATE_ALL_READY; }

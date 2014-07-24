@@ -384,16 +384,16 @@ const char* CUpdateManager::GetGXTEntryForButton()
 	{
 	case UPTMODULESTATE_CHECKING:
 		CFont::SetColor(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
-		return "FEU_UCK";
+		return TheText.Get("FEU_UCK");
 	case UPTMODULESTATE_NEW_UPDATES:
-		return "FEU_UPN";
+		return TheText.Get("FEU_UPN");
 	case UPTMODULESTATE_DOWNLOADING:
 		CFont::SetColor(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
-		return "FEU_UDL";
+		return TheText.Get("FEU_UDL");
 	case UPTMODULESTATE_ALL_READY:
 		CFont::SetColor(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
 	default:
-		return "FEU_UPC";
+		return TheText.Get("FEU_UPC");
 	}
 }
 

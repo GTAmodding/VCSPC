@@ -72,6 +72,7 @@
 
 // Macroes
 #define MenuEntriesList (CMenuManager::ms_pMenus)
+#define aScreens (CMenuManager::ms_pMenus)
 
 enum eMenuPages
 {
@@ -80,7 +81,11 @@ enum eMenuPages
 	MENU_PAGE_GAME,
 	MENU_PAGE_BRIEF,
 	MENU_PAGE_AUDIO_SETUP,
-	MENU_PAGE_DISPLAY_SETUP
+	MENU_PAGE_DISPLAY_SETUP,
+
+	MENU_PAGE_GAME_UPDATES = 44,
+	MENU_PAGE_DLC,
+	MENU_PAGE_ACTIVATE_SERIAL = 49
 };
 
 enum eMenuActions
@@ -96,6 +101,7 @@ enum eMenuActions
 	MENUACTION_CHECKING_PERIOD,
 	MENUACTION_TEXTURE_FILTERMODE,
 	MENUACTION_EFFECTS_QUALITY,
+	MENUACTION_SHADOWS_DISTANCE,
 
 	NUM_MENU_ACTIONS
 };
@@ -191,7 +197,7 @@ public:
 	bool                m_bRadioEq;
 	signed char			m_nRadioStation;
 	__int8 field_53;
-	__int32             m_dwSelectedMenuItem;
+	unsigned int		m_dwSelectedMenuItem;
 	__int8 field_58;
 	__int8 drawRadarOrMap;
 	__int8 field_5A;
@@ -206,7 +212,7 @@ public:
 	float               m_fMapBaseX;
 	float               m_fMapBaseY;
 	CVector2D           m_vMousePos;
-	__int8 field_78;
+	bool				m_bMapLoaded;
 	__int8 field_79[3];
 	__int32 titleLanguage;
 	__int32 textLanguage;
@@ -294,7 +300,7 @@ public:
 	__int32 field_1AF4;
 	__int32 field_1AF8;
 	__int32 field_1AFC;
-	__int32 field_1B00;
+	int			m_nHoverOption;
 	__int32 field_1B04;
 	__int8 field_1B08;
 	__int8 field_1B09;
@@ -309,7 +315,7 @@ public:
 	__int8 field_1B15;
 	__int8 field_1B16;
 	__int8 field_1B17;
-	__int32 EventToDo;
+	int			m_nHelperTextIndex;
 	__int32 field_1B1C;
 	__int8 field_1B20;
 	__int8 field_1B21;
@@ -363,6 +369,15 @@ public:
 public:
 	static MenuItem		ms_pMenus[];
 
+private:
+	void			PrintStats();
+	void			PrintUpdaterScreen();
+	void			PrintDLCScreen();
+	void			PrintActivationScreen();
+	void			DrawStandardMenus(bool bDrawMenu);
+	void			DrawRadioStationIcons();
+	float			DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width);
+
 public:
 	inline BYTE		GetHudMode()
 						{ return m_bHudOn; };
@@ -393,6 +408,12 @@ public:
 
 	static inline void	SwitchToScreenAfterMessage(signed char nScreen)
 	{ m_nSwitchToThisAfterMessage = nScreen; }
+	
+	void			ResetHelperText()
+	{ m_nHelperTextIndex = 0; field_1AEC = 300; }
+	void			SetHelperText(int nText)
+	{ m_nHelperTextIndex = nText; field_1AEC = 300; }
+
 
 	static void		RegisterDLCMessage(const char* pMessage);
 	static void		LookIntoClipboardForSerial();
@@ -400,19 +421,17 @@ public:
 	void			SmallMessageScreen(const char* pMessage);
 	void			SwitchToNewScreen(signed char bScreen);
 	void			InitialiseChangedLanguageSettings(bool bRemapButtons);
+	void			PrintBrief();
+	void			DrawContollerScreenExtraText(int nUnk);
+	void			DisplayHelperText(const char* pText);
+	bool			CheckHover(int, int, int, int);
 
 	void			SetDefaultPreferences(signed char bScreen);
 	void			DrawBackEnd();
-	void			DrawRadioStationIcons();
-	int				DisplaySlider(float posX, float posY, float, float height, float distBetweenRects, float filledAmount, int width);
 	void			DrawLeftColumn(MenuItem::MenuEntry& pPosition, const char* pText, const char* pRightText);
 	//float			GetLeftColumnPos_Height(long posY);
 	float			GetRightColumnPos(MenuVar& sPosY);
 	void			DrawOutroSplash();
-	void			PrintStats();
-	void			PrintUpdaterScreen();
-	void			PrintDLCScreen();
-	void			PrintActivationScreen();
 	void			ReadFrontendTextures();
 	void			SwitchToNewScreenVCS(signed char bScreen);
 	void			AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* pDown);
@@ -427,6 +446,8 @@ public:
 
 	// Hacky workaround
 	float			GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition);
+
+	static void		Inject();
 
 //	void		SaveStatsHTML();
 };

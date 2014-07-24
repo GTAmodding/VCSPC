@@ -27,6 +27,14 @@ public:
 	void					LoadFirstBlock(DWORD* pTimestamp);
 };
 
+class CGenericGameStorage
+{
+public:
+	friend const char*		GetSavedGameDateAndTime(int nSlot);
+
+	static const char*		GetNameOfSavedGame(int nSlot);
+};
+
 class CPedSaveStructure
 {
 private:

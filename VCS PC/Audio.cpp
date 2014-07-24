@@ -13,6 +13,7 @@ WRAPPER void CAudioEngine::SetMusicMasterVolume(signed char nVolume) { WRAPARG(n
 WRAPPER void CAudioEngine::SetEffectsMasterVolume(signed char nVolume) { WRAPARG(nVolume); EAXJMP(0x506E10); }
 WRAPPER void CAudioEngine::SetRadioAutoRetuneOnOff(bool bRetune) { WRAPARG(bRetune); EAXJMP(0x506F80); }
 WRAPPER void CAudioEngine::RetuneRadio(signed char nStation) { WRAPARG(nStation); EAXJMP(0x507E10); }
+WRAPPER const char* CAudioEngine::GetRadioStationName(signed char nStation) { WRAPARG(nStation); EAXJMP(0x507000); }
 
 
 signed char CAERadioTrackManager::GetNextTrackByStation(BYTE stationID)

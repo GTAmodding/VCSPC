@@ -74,6 +74,10 @@ public:
 			{ CObject::Render(); }
 };
 
+void MatchAllModelStrings();
+
+extern unsigned short MI_PARKBENCH, MI_CANOPY_TEST, MI_CHAIR_TEST, MI_PAPERMACHINE, MI_HYDRANT;
+
 static_assert(sizeof(CObject) == 0x17C, "Wrong size: CObject");
 
 #endif

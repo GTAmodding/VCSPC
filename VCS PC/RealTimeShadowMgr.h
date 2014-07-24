@@ -1,7 +1,7 @@
 #ifndef __REALTIMESHADOWMGR
 #define __REALTIMESHADOWMGR
 
-#define NUM_MAX_REALTIME_SHADOWS		32
+#define NUM_MAX_REALTIME_SHADOWS		64
 
 struct tShadowQualitySettings
 {
@@ -26,12 +26,12 @@ public:
 	void			SetLight(RpLight* pLight);
 	void			MakeGradientRaster();
 	RwCamera*		SetCenter(RwV3d* pVector);
-	RwCamera*		Update(RpAtomic* pAtomic);
 	RwRaster*		RasterResample(RwRaster* pRaster);
 	RwRaster*		RasterBlur(RwRaster* pRaster, int nPasses);
 	RwRaster*		RasterGradient(RwRaster* pRaster);
 	void			InvertRaster();
 
+	RwCamera*		Update(RpAtomic* pAtomic);
 	RwCamera*		Update(RpClump* pClump, CPhysical* pEntity);
 	void			ReInit();
 };

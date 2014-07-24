@@ -26,6 +26,7 @@ WRAPPER void CFont::SetOrientation(unsigned char bOrientation) { WRAPARG(bOrient
 WRAPPER void CFont::PrintString(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A700); }
 WRAPPER void CFont::PrintStringFromBottom(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A820); }
 WRAPPER void CFont::InitPerFrame() { EAXJMP(0x719800); }
+WRAPPER int CFont::GetNumberLines(float, float, const char* pText) { WRAPARG(pText); EAXJMP(0x71A5E0); }
 
 unsigned char CFont::FindSubFontCharacter(char character, unsigned char bFontType)
 {

@@ -95,6 +95,16 @@ void C_PcSave::SaveBlockVersion(int nBlock)
 	}
 }
 
+const char* GetSavedGameDateAndTime(int nSlot)
+{
+	return SlotSaveDate[nSlot];
+}
+
+const char* CGenericGameStorage::GetNameOfSavedGame(int nSlot)
+{
+	return SlotFileName[nSlot];
+}
+
 DEPRECATED void CPedSaveStructure::CPedSaveStructure001::Construct(CPed* pPed)
 {
 	Coords = *pPed->GetCoords();

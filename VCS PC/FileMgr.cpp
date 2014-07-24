@@ -8,6 +8,7 @@
 #include "Audio.h"
 #include "GroupedBuildings.h"
 #include "TxdStore.h"
+#include "Object.h"
 
 tFileLoaderList_IMG*	CFileLoader::m_pImagesList;
 tFileLoaderList*		CFileLoader::m_pObjectsList;
@@ -310,6 +311,7 @@ void CFileLoader::LoadLevels()
 	}
 
 	// Pre-IPL stuff
+	MatchAllModelStrings();
 	InitModelIndices();
 
 	// Wraps some calls

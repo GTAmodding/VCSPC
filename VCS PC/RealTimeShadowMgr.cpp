@@ -12,7 +12,6 @@ WRAPPER void CShadowCamera::Destroy() { EAXJMP(0x705400); }
 WRAPPER void CShadowCamera::SetLight(RpLight* pLight) { WRAPARG(pLight); EAXJMP(0x705520); }
 WRAPPER void CShadowCamera::MakeGradientRaster() { EAXJMP(0x705D20); }
 WRAPPER RwCamera* CShadowCamera::SetCenter(RwV3d* pVector) { WRAPARG(pVector); EAXJMP(0x705590); }
-WRAPPER RwCamera* CShadowCamera::Update(RpAtomic* pAtomic) { WRAPARG(pAtomic); EAXJMP(0x705C80); }
 WRAPPER RwRaster* CShadowCamera::RasterResample(RwRaster* pRaster) { WRAPARG(pRaster); EAXJMP(0x706070); }
 WRAPPER RwRaster* CShadowCamera::RasterBlur(RwRaster* pRaster, int nPasses) { WRAPARG(pRaster); WRAPARG(nPasses); EAXJMP(0x706170); }
 WRAPPER RwRaster* CShadowCamera::RasterGradient(RwRaster* pRaster) { WRAPARG(pRaster); EAXJMP(0x706330); }
@@ -56,6 +55,29 @@ static RpAtomic* PushGeometryFlags(RpAtomic* pAtomic, void* pData)
 	return pAtomic;
 }
 
+RwCamera* CShadowCamera::Update(RpAtomic* pAtomic)
+{
+	RwRGBA	ClearColour = { 255, 255, 255, 0 };
+	RwCameraClear(m_pCamera, &ClearColour, rwCAMERACLEARIMAGE|rwCAMERACLEARZ);
+
+	if ( RwCameraBeginUpdate(m_pCamera ) )
+	{
+		RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
+		RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
+
+		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|/*rpGEOMETRYPRELIT|*/
+						rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+		
+		AtomicDefaultRenderCallBack(pAtomic);
+
+		RpGeometrySetFlags(pGeometry, geometryFlags);
+
+		InvertRaster();
+		RwCameraEndUpdate(m_pCamera);
+	}
+	return m_pCamera;
+}
+
 RwCamera* CShadowCamera::Update(RpClump* pClump, CPhysical* pEntity)
 {
 	RwRGBA	ClearColour = { 255, 255, 255, 0 };
@@ -86,29 +108,33 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CPhysical* pEntity)
 
 RwTexture* CRealTimeShadow::Update()
 {
-	if ( m_nRwObjectType == rpATOMIC )
-		RwV3dTransformPoints(&m_BaseSphere.center, &m_BoundingSphere.center, 1, RwFrameGetMatrix(RpAtomicGetFrame(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject))));
-	else if ( m_nRwObjectType == rpCLUMP )
-		RwV3dTransformPoints(&m_BaseSphere.center, &m_BoundingSphere.center, 1, RwFrameGetMatrix(RpClumpGetFrame(reinterpret_cast<RpClump*>(m_pEntity->m_pRwObject))));
+	if ( m_pEntity->m_pRwObject )
+	{
+		if ( m_nRwObjectType == rpATOMIC )
+			RwV3dTransformPoints(&m_BaseSphere.center, &m_BoundingSphere.center, 1, RwFrameGetMatrix(RpAtomicGetFrame(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject))));
+		else if ( m_nRwObjectType == rpCLUMP )
+			RwV3dTransformPoints(&m_BaseSphere.center, &m_BoundingSphere.center, 1, RwFrameGetMatrix(RpClumpGetFrame(reinterpret_cast<RpClump*>(m_pEntity->m_pRwObject))));
 
-	m_Camera.SetCenter(&m_BaseSphere.center);
-	if ( m_nRwObjectType == rpATOMIC )
-		m_Camera.Update(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject));
-	else if ( m_nRwObjectType == rpCLUMP )
-		m_Camera.Update(reinterpret_cast<RpClump*>(m_pEntity->m_pRwObject), m_pEntity);
+		m_Camera.SetCenter(&m_BaseSphere.center);
+		if ( m_nRwObjectType == rpATOMIC )
+			m_Camera.Update(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject));
+		else if ( m_nRwObjectType == rpCLUMP )
+			m_Camera.Update(reinterpret_cast<RpClump*>(m_pEntity->m_pRwObject), m_pEntity);
 
-	RwRaster*	pRaster = RwCameraGetRaster(m_Camera.m_pCamera);
+		RwRaster*	pRaster = RwCameraGetRaster(m_Camera.m_pCamera);
 
-	if ( m_bDrawResample )
-		pRaster = m_ResampledCamera.RasterResample(pRaster);
+		if ( m_bDrawResample )
+			pRaster = m_ResampledCamera.RasterResample(pRaster);
 
-	if ( m_dwBlurPasses )
-		pRaster = m_bUsePlayerHelperCams ? g_realTimeShadowMan.m_BlurCamera_Player.RasterBlur(pRaster, m_dwBlurPasses) : g_realTimeShadowMan.m_BlurCamera.RasterBlur(pRaster, m_dwBlurPasses);
+		if ( m_dwBlurPasses )
+			pRaster = m_bUsePlayerHelperCams ? g_realTimeShadowMan.m_BlurCamera_Player.RasterBlur(pRaster, m_dwBlurPasses) : g_realTimeShadowMan.m_BlurCamera.RasterBlur(pRaster, m_dwBlurPasses);
 
-	if ( m_bDrawGradient )
-		pRaster = m_bUsePlayerHelperCams ? g_realTimeShadowMan.m_GradientCamera_Player.RasterGradient(pRaster) : g_realTimeShadowMan.m_GradientCamera.RasterGradient(pRaster);
+		if ( m_bDrawGradient )
+			pRaster = m_bUsePlayerHelperCams ? g_realTimeShadowMan.m_GradientCamera_Player.RasterGradient(pRaster) : g_realTimeShadowMan.m_GradientCamera.RasterGradient(pRaster);
 
-	return m_bDrawResample ? m_ResampledCamera.m_pTexture : m_Camera.m_pTexture;
+		return m_bDrawResample ? m_ResampledCamera.m_pTexture : m_Camera.m_pTexture;
+	}
+	return nullptr;
 }
 
 void CRealTimeShadow::Create(int nSize, int nSizeResampled, bool bResample, int nBlurPasses, bool bGradient, bool bUsePlayerCams)

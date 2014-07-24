@@ -26,7 +26,9 @@ public:
 		{ return m_bShadowQuality; }
 
 	static bool						StoreRealTimeShadowForVehicle(class CVehicle* pVehicle);
+	static void						StoreRealTimeShadowForObject(class CObject* pObject);
 	static void						InitialiseChangedSettings();
+	static bool						ThisPropCanHaveShadow(CPhysical* pPhysical);
 	static void						Inject();
 };
 
