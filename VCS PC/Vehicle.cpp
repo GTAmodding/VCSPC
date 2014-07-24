@@ -5,6 +5,7 @@
 #include "Timer.h"
 #include "PlayerInfo.h"
 #include "Pad.h"
+#include "RealTimeShadowMgr.h"
 
 WRAPPER void CVehicle::SetWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D3080); }
 WRAPPER void CVehicle::ClearWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D30B0); }
@@ -31,6 +32,26 @@ void CVehicle::SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha)
 	pGeometry->flags |= rpGEOMETRYMODULATEMATERIALCOLOR;
 
 	RpGeometryForAllMaterials(pGeometry, SetCompAlphaCB, reinterpret_cast<void*>(nAlpha));
+}
+
+void CVehicle::RenderForShadow(RpClump* pClump)
+{
+	RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, nullptr);
+
+	// Is open top?
+	if ( m_dwVehicleSubClass == VEHICLE_QUAD || m_dwVehicleSubClass == VEHICLE_BIKE || m_dwVehicleSubClass == VEHICLE_BMX )
+	{
+		// Render driver
+		if ( m_pDriver )
+			m_pDriver->RenderForShadow(reinterpret_cast<RpClump*>(m_pDriver->m_pRwObject));
+
+		// Render passengers
+		for ( int i = 0; i < 8; i++ )
+		{
+			if ( m_apPassengers[i] )
+				m_apPassengers[i]->RenderForShadow(reinterpret_cast<RpClump*>(m_apPassengers[i]->m_pRwObject));
+		}
+	}
 }
 
 #include "Font.h"

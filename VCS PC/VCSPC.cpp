@@ -380,7 +380,7 @@ void**						rwengine = (void**)0xC97B24;
 
 CControllerConfigManager&	ControlsManager = *(CControllerConfigManager*)0xB70198;
 CMousePointerStateHelper&	MousePointerStateHelper = *(CMousePointerStateHelper*)0xBA6744;
-CRealTimeShadowManager&		g_realTimeShadowMan = *(CRealTimeShadowManager*)0xC40350;
+CRealTimeShadowManager		g_realTimeShadowMan;
 
 void						(*replacedTXDLoadFunc)();
 void						(*replacedTXDReleaseFunc)();
@@ -3148,8 +3148,9 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x6FB9A0, 0);
 
 	// Relocated sun
-	Patch<float>(0x560A76, 1.0f);
-	Nop(0x560A84, 6);
+	// TODO: FIX COMPATIBILITY WITH MOBILE SHADOWS
+	//Patch<float>(0x560A76, 1.0f);
+	//Nop(0x560A84, 6);
 
 	// More vehicles
 #if NUM_VEHICLE_MODELS > 212
@@ -4712,6 +4713,18 @@ char* ParseCommandlineArgument(char* pArg)
 				Memory::Patch<BYTE>(0x7064F9, static_cast<BYTE>(nNewShadowQuality + 5));
 			}
 			return pArg;
+		}*/
+
+		/*if ( !_strnicmp(pArg, "-stencil", 8) )
+		{
+			// Stencil shadows are back
+			Memory::Patch<BYTE>(0x53E159, 0xE9);
+			Memory::InjectHook(0x53C1AB, 0x711D90, PATCH_CALL);
+
+			Memory::Patch<DWORD>(0x70F9B0, 0xAE00B953);
+			Memory::Patch<DWORD>(0x70F9B4, 0xDB3200A9);
+			Memory::Patch<WORD>(0x70F9B8, 0x93E8);
+			Memory::Patch<BYTE>(0x70F9BA, 0xF0);
 		}*/
 
 #ifdef DEVBUILD

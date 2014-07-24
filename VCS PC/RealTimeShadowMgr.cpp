@@ -21,13 +21,18 @@ WRAPPER void CShadowCamera::InvertRaster() { EAXJMP(0x705660); }
 WRAPPER void CRealTimeShadow::Destroy() { EAXJMP(0x705990); }
 WRAPPER bool CRealTimeShadow::SetShadowedObject(CPhysical* pObject) { WRAPARG(pObject); EAXJMP(0x706520); }
 
-CShadowCamera	CRealTimeShadowManager::m_BlurCamera_Player;
-CShadowCamera	CRealTimeShadowManager::m_GradientCamera_Player;
-
-static RpAtomic* ShadowCameraRenderCallback(RpAtomic* pAtomic, void* pData)
+RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 {
 	UNREFERENCED_PARAMETER(pData);
-	return AtomicDefaultRenderCallBack(pAtomic);
+
+	RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
+	RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
+	RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
+						rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+
+	auto*	pOut = AtomicDefaultRenderCallBack(pAtomic);
+	RpGeometrySetFlags(pGeometry, geometryFlags);
+	return pOut;
 }
 
 void CShadowCamera::ReInit()
@@ -42,61 +47,35 @@ void CShadowCamera::ReInit()
 	RwTextureSetRaster(m_pTexture, pNewRaster);
 }
 
-RwCamera* CShadowCamera::Update(RpClump* pClump, CPed* pPed)
+static RpAtomic* PushGeometryFlags(RpAtomic* pAtomic, void* pData)
+{
+	std::pair<RwUInt32*, RwUInt32>**	pGeometryStack = static_cast<std::pair<RwUInt32*, RwUInt32>**>(pData);
+	RpGeometry*							pGeometry = RpAtomicGetGeometry(pAtomic);
+
+	*((*pGeometryStack)++) = std::make_pair(&RpGeometryGetFlags(pGeometry), RpGeometryGetFlags(pGeometry));
+	return pAtomic;
+}
+
+RwCamera* CShadowCamera::Update(RpClump* pClump, CPhysical* pEntity)
 {
 	RwRGBA	ClearColour = { 255, 255, 255, 0 };
 	RwCameraClear(m_pCamera, &ClearColour, rwCAMERACLEARIMAGE|rwCAMERACLEARZ);
 
 	if ( RwCameraBeginUpdate(m_pCamera ) )
 	{
-		RpGeometry*	pGeometry = RpAtomicGetGeometry(GetFirstAtomic(pClump));
-		auto		geometryFlags = RpGeometryGetFlags(pGeometry);
+		//std::pair<RwUInt32*, RwUInt32>		GeometryFlagsPair[32];
 
-		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
-						rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
-		RpClumpForAllAtomics(pClump, ShadowCameraRenderCallback, nullptr);
-		RpGeometrySetFlags(pGeometry, geometryFlags);
+		//RpGeometry*	pGeometry = RpAtomicGetGeometry(GetFirstAtomic(pClump));
+		//RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
-		if ( pPed )
+		//RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
+		//				rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+		if ( pEntity )
 		{
-			if ( pPed->m_pWeaponObject )
-			{
-				RpHAnimHierarchy*	pAnimHierarchy = GetAnimHierarchyFromSkinClump(pClump);
-				bool				bHasParachute = pPed->weaponSlots[pPed->m_bActiveWeapon].m_eWeaponType == WEAPONTYPE_PARACHUTE;
-
-				RwFrame*			pFrame = RpClumpGetFrame(reinterpret_cast<RpClump*>(pPed->m_pWeaponObject));
-				*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, bHasParachute ? 3 : 24)];
-
-				if ( bHasParachute )
-				{
-					const RwV3d		vecParachuteTranslation = { 0.1f, -0.15f, 0.0f };
-					const RwV3d		vecParachuteRotation = { 0.0f, 1.0f, 0.0f };
-					RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
-					RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 90.0f, rwCOMBINEPRECONCAT);
-				}
-
-				RwFrameUpdateObjects(pFrame);
-				AtomicDefaultRenderCallBack(GetFirstAtomic(reinterpret_cast<RpClump*>(pPed->m_pWeaponObject)));	
-
-				// Dual weapons
-				if ( CWeaponInfo::GetWeaponInfo(pPed->weaponSlots[pPed->m_bActiveWeapon].m_eWeaponType, pPed->GetWeaponSkill())->hexFlags >> 11 & 1 )
-				{
-					*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, 34)];				
-
-					const RwV3d		vecParachuteRotation = { 1.0f, 0.0f, 0.0f };
-					const RwV3d		vecParachuteTranslation  = { 0.04f, -0.05f, 0.0f };
-					RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 180.0f, rwCOMBINEPRECONCAT);
-					RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
-
-					RwFrameUpdateObjects(pFrame);
-					AtomicDefaultRenderCallBack(GetFirstAtomic(reinterpret_cast<RpClump*>(pPed->m_pWeaponObject)));	
-				}
-			}
-
-			// Render jetpack
-			auto*	pJetPackTask = pPed->GetPedIntelligencePtr()->GetTaskJetPack();
-			if ( pJetPackTask )
-				pJetPackTask->RenderJetPack(pPed);
+			if ( pEntity->nType == 3 )
+				static_cast<CPed*>(pEntity)->RenderForShadow(pClump);
+			else if ( pEntity->nType == 2 )
+				static_cast<CVehicle*>(pEntity)->RenderForShadow(pClump);
 		}
 
 		InvertRaster();
@@ -116,7 +95,7 @@ RwTexture* CRealTimeShadow::Update()
 	if ( m_nRwObjectType == rpATOMIC )
 		m_Camera.Update(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject));
 	else if ( m_nRwObjectType == rpCLUMP )
-		m_Camera.Update(reinterpret_cast<RpClump*>(m_pEntity->m_pRwObject), m_pEntity->nType == 3 ? static_cast<CPed*>(m_pEntity) : nullptr);
+		m_Camera.Update(reinterpret_cast<RpClump*>(m_pEntity->m_pRwObject), m_pEntity);
 
 	RwRaster*	pRaster = RwCameraGetRaster(m_Camera.m_pCamera);
 
@@ -124,10 +103,10 @@ RwTexture* CRealTimeShadow::Update()
 		pRaster = m_ResampledCamera.RasterResample(pRaster);
 
 	if ( m_dwBlurPasses )
-		pRaster = m_bUsePlayerHelperCams ? CRealTimeShadowManager::m_BlurCamera_Player.RasterBlur(pRaster, m_dwBlurPasses) : g_realTimeShadowMan.m_BlurCamera.RasterBlur(pRaster, m_dwBlurPasses);
+		pRaster = m_bUsePlayerHelperCams ? g_realTimeShadowMan.m_BlurCamera_Player.RasterBlur(pRaster, m_dwBlurPasses) : g_realTimeShadowMan.m_BlurCamera.RasterBlur(pRaster, m_dwBlurPasses);
 
 	if ( m_bDrawGradient )
-		pRaster = m_bUsePlayerHelperCams ? CRealTimeShadowManager::m_GradientCamera_Player.RasterGradient(pRaster) : g_realTimeShadowMan.m_GradientCamera.RasterGradient(pRaster);
+		pRaster = m_bUsePlayerHelperCams ? g_realTimeShadowMan.m_GradientCamera_Player.RasterGradient(pRaster) : g_realTimeShadowMan.m_GradientCamera.RasterGradient(pRaster);
 
 	return m_bDrawResample ? m_ResampledCamera.m_pTexture : m_Camera.m_pTexture;
 }
@@ -317,9 +296,10 @@ void CRealTimeShadowManager::GetRealTimeShadow(CPhysical* pEntity)
 
 		if ( pPlayerPed->pedFlags.bInVehicle )
 		{
-			CVehicle*	pVehicle = pPlayerPed->pVehicle;
+			/*CVehicle*	pVehicle = pPlayerPed->pVehicle;
 			if ( pVehicle )
-				bRender = pVehicle->GetLinearVelocity().MagnitudeSqr() <= 0.3f * 0.3f;
+				bRender = pVehicle->GetLinearVelocity().MagnitudeSqr() <= 0.3f * 0.3f;*/
+			bIsPlayer = pPlayerPed->pVehicle == pEntity;
 		}
 	}
 
@@ -339,14 +319,28 @@ void CRealTimeShadowManager::GetRealTimeShadow(CPhysical* pEntity)
 					break;
 				}
 			}
+
+			// Debug
+#ifdef DEVBUILD
+			if ( !pOutShadow )
+			{
+				static bool		bLimitHit = false;
+
+				if ( !bLimitHit )
+				{
+					assert(!"Too many real time shadows at once, consider increasing limits.");
+					bLimitHit = true;
+				}
+			}
+#endif
 		}
 
 		if ( pOutShadow )
 		{
 			pOutShadow->SetShadowedObject(pEntity);
+			pOutShadow->ResetIntensity();
 			pEntity->SetRealTimeShadow(pOutShadow);
 			pOutShadow->SetRenderedThisFrame();
-			pOutShadow->ResetIntensity();
 		}
 	}
 }
@@ -387,4 +381,22 @@ static StaticPatcher	Patcher([](){
 						Memory::InjectHook(0x706BA0, &CRealTimeShadowManager::DoShadowThisFrame, PATCH_JUMP);
 						Memory::InjectHook(0x706AC2, &CRealTimeShadowManager::ReInit);
 						Memory::InjectHook(0x706B29, &CRealTimeShadow::Update);
+
+						// Increased shadows limit
+						Memory::Patch<const void*>(0x45D412, &g_realTimeShadowMan);
+						Memory::Patch<const void*>(0x53BE63, &g_realTimeShadowMan);
+						Memory::Patch<const void*>(0x53C63F, &g_realTimeShadowMan);
+						Memory::Patch<const void*>(0x53C9E5, &g_realTimeShadowMan);
+						Memory::Patch<const void*>(0x53EA09, &g_realTimeShadowMan);
+						Memory::Patch<const void*>(0x542487, &g_realTimeShadowMan);
+						Memory::Patch<const void*>(0x5B1F38, &g_realTimeShadowMan);
+						Memory::Patch<const void*>(0x5BA478, &g_realTimeShadowMan);
+						Memory::Patch<const void*>(0x5E68A4, &g_realTimeShadowMan);
+						//Memory::Patch<const void*>(0x854980, &g_realTimeShadowMan);
+						//Memory::Patch<const void*>(0x856AD0, &g_realTimeShadowMan);
+
+						Memory::Patch<const void*>(0x5BA137, &g_realTimeShadowMan.m_bNeedsReinit);
+
+						Memory::Patch<DWORD>(0x706AD4, NUM_MAX_REALTIME_SHADOWS);
+						Memory::Patch<DWORD>(0x706B80, NUM_MAX_REALTIME_SHADOWS);
 									});

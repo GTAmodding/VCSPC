@@ -4,8 +4,11 @@
 #include "3DMarkers.h"
 #include "Coronas.h"
 #include "RealTimeShadowMgr.h"
+#include "Vehicle.h"
 
 eShadowQuality CShadows::m_bShadowQuality;
+
+float&			MAX_DISTANCE_PED_SHADOWS = *(float*)0x8D5240;
 
 void CShadows::RenderIndicatorShadow(unsigned int nIndex, unsigned char, RwTexture*, CVector* pPos, float radiusX, float, float, float radiusY, short)
 {
@@ -17,17 +20,27 @@ void CShadows::InitialiseChangedSettings()
 	g_realTimeShadowMan.ResetForChangedSettings();
 }
 
+bool CShadows::StoreRealTimeShadowForVehicle(CVehicle* pVehicle)
+{
+	if ( m_bShadowQuality > SHADOW_QUALITY_LOW )
+	{
+		g_realTimeShadowMan.DoShadowThisFrame(pVehicle);
+		return true;
+	}
+	return false;
+}
+
 static const float f215 = 2.15f;
 static const float f115 = 1.15f;
 
-static float gA;
+//static float gA;
 static float gB;
 
 static CPhysical *gCurrentEntityStoresShadow;
 
 void * __fastcall SetLightParameters(int shd, int edx0, float a, float b, bool set)
 {
-	gA = a;
+	//gA = a;
 	gB = b;
 	return ((void *(__thiscall *)(int, float, float, bool))0x705900)(shd, a, b, set);
 }
@@ -54,7 +67,7 @@ void CastShadow(void *a1, float a2, float a3, float a4, float a5, void *a6, floa
 void __fastcall SetupShadowBoundSphere(void *sphere, int edx0, float size, CVector  const& center, unsigned char material, unsigned char flags, unsigned char lighting)
 {
 	((void (__thiscall *)(void *, float, CVector  const&, unsigned char, unsigned char, unsigned char))0x40FD10)
-		(sphere, 2.0f, center, material, flags, lighting);
+		(sphere, 3.0f, center, material, flags, lighting);
 }
 
 #define NightState (*(float *)0x8D12C0)
@@ -106,6 +119,17 @@ ShowShadowsConditionHack_ShadowsOff:
 	}
 }
 
+static void __declspec(naked) StoreRTVehicleShadowHack()
+{
+	_asm
+	{
+		push	[esp+4Ch+4]
+		call	CShadows::StoreRealTimeShadowForVehicle
+		add		esp, 4
+		retn
+	}
+}
+
 void CShadows::Inject()
 {
 	Memory::InjectHook(0x70CCB0, RenderIndicatorShadow, PATCH_JUMP);
@@ -126,15 +150,12 @@ void CShadows::Inject()
 static StaticPatcher	Patcher([](){ 
 
 #ifdef NEW_SHADOWS_TEST2
-						// Disable stencil
-						Memory::Patch<BYTE>(0x53E159, 0xC3);
-
 						// CRealTimeShadow for vehicle (temp)
-						Memory::Patch<DWORD>(0x70BDA0, 0xC40350B9);
+						/*Memory::Patch<DWORD>(0x70BDA0, 0xC40350B9);
 						Memory::Patch<DWORD>(0x70BDA4, 0x2474FF00);
 						Memory::Patch<BYTE>(0x70BDA8, 0x04);
 						Memory::InjectHook(0x70BDA9, 0x706BA0, PATCH_CALL);
-						Memory::Patch<BYTE>(0x70BDAE, 0xC3);
+						Memory::Patch<BYTE>(0x70BDAE, 0xC3);*/
 
 						Memory::Patch<const void*>(0x707EF7, &f215);
 						Memory::Patch<const void*>(0x707F05, &f215);
@@ -147,18 +168,25 @@ static StaticPatcher	Patcher([](){
 						Memory::InjectHook(0x707E4F, SetLightParameters);
 						Memory::InjectHook(0x70596A, RotateLightFrame);
 
-						// Same as TranlateShdMatrix
+						// Same as TranslateShdMatrix
 						Memory::Patch<float>(0x70A19D, 0.5f);
 
 						//Memory::InjectHook(0x70A1AC, TranlateShdMatrix);
-						//Memory::InjectHook(0x707E2B, CompareSunZ, PATCH_JUMP);
+						Memory::InjectHook(0x707E2B, CompareSunZ, PATCH_JUMP);
 
 						//Memory::InjectHook(0x70AD0D, CastShadow);
 						Memory::InjectHook(0x70A2C8, SetupShadowBoundSphere);
 
 						// matrix rotate
 						Memory::Nop(0x70A0C9, 5);
+
+						// Improved in car shadows
+						//Memory::Patch<WORD>(0x5E682C, 0x26EB);
+						Memory::Patch<BYTE>(0x5E6813, 0xEB);
+						//Memory::Patch<BYTE>(0x5E683B, 0xEB);
+						Memory::InjectHook(0x70BDA4, StoreRTVehicleShadowHack);
 #endif
 						//Memory::InjectHook(0x705590, &CShadowCamera::SetCenter, PATCH_JUMP);
 						CShadows::Inject();
+
 						});

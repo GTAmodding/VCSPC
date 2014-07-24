@@ -1,7 +1,7 @@
 #ifndef __REALTIMESHADOWMGR
 #define __REALTIMESHADOWMGR
 
-#define NUM_MAX_REALTIME_SHADOWS		16
+#define NUM_MAX_REALTIME_SHADOWS		32
 
 struct tShadowQualitySettings
 {
@@ -32,7 +32,7 @@ public:
 	RwRaster*		RasterGradient(RwRaster* pRaster);
 	void			InvertRaster();
 
-	RwCamera*		Update(RpClump* pClump, class CPed* pPed);
+	RwCamera*		Update(RpClump* pClump, CPhysical* pEntity);
 	void			ReInit();
 };
 
@@ -60,6 +60,8 @@ public:
 		{ m_bRenderedThisFrame = true; }
 	inline void					ResetIntensity()
 		{ m_nIntensity = 0; }
+	inline void					ForceFullIntensity()
+		{ m_nIntensity = 100; }
 	inline void					ClearOwner()
 		{ m_pEntity = nullptr; }
 	//void*			operator new(size_t size)
@@ -101,10 +103,16 @@ public:
 	CShadowCamera			m_GradientCamera;
 
 	// VCS PC class extension
-	static CShadowCamera	m_BlurCamera_Player;
-	static CShadowCamera	m_GradientCamera_Player;
+	CShadowCamera			m_BlurCamera_Player;
+	CShadowCamera			m_GradientCamera_Player;
 
 public:
+	CRealTimeShadowManager()
+		: m_bInitialised(false), m_bNeedsReinit(false), m_bPlayerHelperCamsInUse(false)
+	{
+		memset(m_pShadows, 0, sizeof(m_pShadows));
+	}
+
 	void					ResetForChangedSettings()
 	{	for ( int i = 0; i < NUM_MAX_REALTIME_SHADOWS; i++ ) ReturnRealTimeShadow(m_pShadows[i]);
 		Exit(); Init(); }
@@ -117,9 +125,11 @@ public:
 	void					ReInit();
 };
 
-extern CRealTimeShadowManager&	g_realTimeShadowMan;
+RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData);
+
+extern CRealTimeShadowManager	g_realTimeShadowMan;
 
 static_assert(sizeof(CRealTimeShadow) == 0x4C, "Wrong size: CRealTimeShadow");
-static_assert(sizeof(CRealTimeShadowManager) == 0x54, "Wrong size: CRealTimeShadowManager");
+//static_assert(sizeof(CRealTimeShadowManager) == 0x54, "Wrong size: CRealTimeShadowManager");
 
 #endif

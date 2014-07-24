@@ -25,6 +25,7 @@ public:
 	static inline eShadowQuality	GetShadowQuality()
 		{ return m_bShadowQuality; }
 
+	static bool						StoreRealTimeShadowForVehicle(class CVehicle* pVehicle);
 	static void						InitialiseChangedSettings();
 	static void						Inject();
 };
