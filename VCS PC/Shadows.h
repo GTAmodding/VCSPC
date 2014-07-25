@@ -32,4 +32,6 @@ public:
 	static void						Inject();
 };
 
+extern float&			MAX_DISTANCE_PED_SHADOWS;
+
 #endif

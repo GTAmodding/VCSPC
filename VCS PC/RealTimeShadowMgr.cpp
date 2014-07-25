@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "RealTimeShadowMgr.h"
 
+#include "Camera.h"
 #include "Shadows.h"
 #include "Ped.h"
 #include "World.h"
@@ -24,14 +25,17 @@ RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 {
 	UNREFERENCED_PARAMETER(pData);
 
-	RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
-	RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
-	RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
-						rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+	if ( RpAtomicGetFlags(pAtomic) & rpATOMICRENDER )
+	{
+		RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
+		RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
+		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
+							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
 
-	auto*	pOut = AtomicDefaultRenderCallBack(pAtomic);
-	RpGeometrySetFlags(pGeometry, geometryFlags);
-	return pOut;
+		AtomicDefaultRenderCallBack(pAtomic);
+		RpGeometrySetFlags(pGeometry, geometryFlags);
+	}
+	return pAtomic;
 }
 
 void CShadowCamera::ReInit()
@@ -110,6 +114,14 @@ RwTexture* CRealTimeShadow::Update()
 {
 	if ( m_pEntity->m_pRwObject )
 	{
+		// Close enough to the object?
+		CVector*	pObjPos = m_pEntity->GetCoords();
+		CVector*	pCamPos = TheCamera.GetCoords();
+
+		// TODO: Different distances for different entities
+		if ( (*pObjPos-*pCamPos).MagnitudeSqr() > MAX_DISTANCE_PED_SHADOWS * MAX_DISTANCE_PED_SHADOWS )
+			return nullptr;
+
 		if ( m_nRwObjectType == rpATOMIC )
 			RwV3dTransformPoints(&m_BaseSphere.center, &m_BoundingSphere.center, 1, RwFrameGetMatrix(RpAtomicGetFrame(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject))));
 		else if ( m_nRwObjectType == rpCLUMP )
@@ -288,6 +300,9 @@ void CRealTimeShadowManager::Exit()
 
 void CRealTimeShadowManager::DoShadowThisFrame(CPhysical* pEntity)
 {
+	if ( m_bNeedsReinit )
+		return;
+
 	bool			bRenderAtLowDetails;
 	eShadowQuality	nShadowQuality = CShadows::GetShadowQuality();
 
@@ -316,7 +331,7 @@ void CRealTimeShadowManager::GetRealTimeShadow(CPhysical* pEntity)
 	else
 		bIsPlayer = false;
 
-	if ( pEntity->nType != 3 || !bIsPlayer )
+	/*if ( pEntity->nType != 3 || !bIsPlayer )
 	{
 		CPed*	pPlayerPed = CWorld::Players[CWorld::PlayerInFocus].GetPed();
 
@@ -325,9 +340,9 @@ void CRealTimeShadowManager::GetRealTimeShadow(CPhysical* pEntity)
 			/*CVehicle*	pVehicle = pPlayerPed->pVehicle;
 			if ( pVehicle )
 				bRender = pVehicle->GetLinearVelocity().MagnitudeSqr() <= 0.3f * 0.3f;*/
-			bIsPlayer = pPlayerPed->pVehicle == pEntity;
-		}
-	}
+//			bIsPlayer = pPlayerPed->pVehicle == pEntity;
+//		}
+//	}
 
 	if ( m_bInitialised && bRender )
 	{
@@ -373,7 +388,7 @@ void CRealTimeShadowManager::GetRealTimeShadow(CPhysical* pEntity)
 
 void CRealTimeShadowManager::ReInit()
 {
-	if ( CShadows::GetShadowQuality() > SHADOW_QUALITY_LOWEST )
+	if ( !m_bNewSettings )
 	{
 		for ( int i = 0; i < NUM_MAX_REALTIME_SHADOWS; i++ )
 			m_pShadows[i]->ReInit();
@@ -388,6 +403,109 @@ void CRealTimeShadowManager::ReInit()
 			m_GradientCamera_Player.ReInit();
 			m_GradientCamera_Player.MakeGradientRaster();
 		}
+	}
+	else
+	{
+		const tShadowQualitySettings*	pSets_Player;
+		const tShadowQualitySettings*	pSets;
+		
+		switch ( CShadows::GetShadowQuality() )
+		{
+		case SHADOW_QUALITY_LOW:
+			pSets_Player = &gShadowSettings[0];
+			pSets = nullptr;
+			break;
+		case SHADOW_QUALITY_MEDIUM:
+			pSets_Player = &gShadowSettings[1];
+			pSets = &gShadowSettings[0];
+			break;
+		case SHADOW_QUALITY_HIGH:
+			pSets_Player = &gShadowSettings[2];
+			pSets = &gShadowSettings[1];
+			break;
+		case SHADOW_QUALITY_HIGHEST:
+			pSets_Player = &gShadowSettings[3];
+			pSets = &gShadowSettings[3];
+			break;
+		default:
+			pSets_Player = nullptr;
+			pSets = nullptr;
+			break;
+		}
+
+		for ( int i = 0; i < NUM_MAX_REALTIME_SHADOWS; i++ )
+		{
+			CPhysical*	pOldOwner = m_pShadows[i]->GetOwner();
+			m_pShadows[i]->Destroy();
+
+			if ( !i )
+			{
+				if ( pSets_Player )	
+				{
+					m_pShadows[0]->Create(pSets_Player->nQuality, pSets_Player->nQualityAfterResample, 
+								pSets_Player->nQuality != pSets_Player->nQualityAfterResample,
+								pSets_Player->nBlurPasses, pSets_Player->bUseGradient,
+								pSets_Player->bDedicatedCamsForPlayer);
+
+					if ( pOldOwner )
+						m_pShadows[i]->SetShadowedObject(pOldOwner);
+				}
+				else
+				{
+					if ( pOldOwner )
+						pOldOwner->SetRealTimeShadow(nullptr);
+				}
+			}
+			else
+			{
+				if ( pSets )
+				{
+					m_pShadows[i]->Create(pSets->nQuality, pSets->nQualityAfterResample, 
+								pSets->nQuality != pSets->nQualityAfterResample,
+								pSets->nBlurPasses, pSets->bUseGradient,
+								false);
+
+					if ( pOldOwner )
+						m_pShadows[i]->SetShadowedObject(pOldOwner);
+				}
+				else
+				{
+					if ( pOldOwner )
+						pOldOwner->SetRealTimeShadow(nullptr);
+				}
+			}
+
+			if ( !pSets )
+				pSets = pSets_Player;
+		}
+
+		m_BlurCamera.Destroy();
+		m_GradientCamera.Destroy();
+
+		if ( m_bPlayerHelperCamsInUse )
+		{
+			m_BlurCamera_Player.Destroy();
+			m_GradientCamera_Player.Destroy();
+		}
+
+		if ( pSets )
+		{
+			m_BlurCamera.Create(pSets->nQualityAfterResample);
+			m_GradientCamera.Create(pSets->nQualityAfterResample);
+			m_GradientCamera.MakeGradientRaster();
+
+			if ( pSets_Player->bDedicatedCamsForPlayer )
+			{
+				m_BlurCamera_Player.Create(pSets_Player->nQualityAfterResample);
+				m_GradientCamera_Player.Create(pSets_Player->nQualityAfterResample);
+				m_GradientCamera_Player.MakeGradientRaster();
+				m_bPlayerHelperCamsInUse = true;
+			}
+			else
+				m_bPlayerHelperCamsInUse = false;
+		}
+
+		m_bNewSettings = false;
 	}
 }
 

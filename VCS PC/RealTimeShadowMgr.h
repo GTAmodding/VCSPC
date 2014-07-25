@@ -97,6 +97,7 @@ class CRealTimeShadowManager
 public:
 	bool					m_bInitialised;
 	bool					m_bNeedsReinit;
+	bool					m_bNewSettings;
 	bool					m_bPlayerHelperCamsInUse;	// VCS PC class extension
 	CRealTimeShadow*		m_pShadows[NUM_MAX_REALTIME_SHADOWS];
 	CShadowCamera			m_BlurCamera;
@@ -108,14 +109,13 @@ public:
 
 public:
 	CRealTimeShadowManager()
-		: m_bInitialised(false), m_bNeedsReinit(false), m_bPlayerHelperCamsInUse(false)
+		: m_bInitialised(false), m_bNeedsReinit(false), m_bPlayerHelperCamsInUse(false), m_bNewSettings(false)
 	{
 		memset(m_pShadows, 0, sizeof(m_pShadows));
 	}
 
 	void					ResetForChangedSettings()
-	{	for ( int i = 0; i < NUM_MAX_REALTIME_SHADOWS; i++ ) ReturnRealTimeShadow(m_pShadows[i]);
-		Exit(); Init(); }
+		{ m_bNeedsReinit = true; m_bNewSettings = true; }
 
 	void					ReturnRealTimeShadow(CRealTimeShadow* pShadow);
 	void					Init();

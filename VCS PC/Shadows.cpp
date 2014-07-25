@@ -26,8 +26,10 @@ bool CShadows::StoreRealTimeShadowForVehicle(CVehicle* pVehicle)
 	if ( m_bShadowQuality > SHADOW_QUALITY_LOW )
 	{
 		g_realTimeShadowMan.DoShadowThisFrame(pVehicle);
-		return true;
+
+		return pVehicle->GetSubClass() == VEHICLE_HELI || pVehicle->GetSubClass() == VEHICLE_PLANE;
 	}
+
 	return false;
 }
 
@@ -41,7 +43,9 @@ void CShadows::StoreRealTimeShadowForObject(CObject* pObject)
 bool CShadows::ThisPropCanHaveShadow(CPhysical* pPhysical)
 {
 	return pPhysical->m_nModelIndex == MI_PARKBENCH || pPhysical->m_nModelIndex == MI_CANOPY_TEST || pPhysical->m_nModelIndex == MI_CHAIR_TEST
-		|| pPhysical->m_nModelIndex == MI_PAPERMACHINE || pPhysical->m_nModelIndex == MI_HYDRANT;
+		|| pPhysical->m_nModelIndex == MI_PAPERMACHINE || pPhysical->m_nModelIndex == MI_HYDRANT
+		// Flying components
+		|| ( pPhysical->m_nModelIndex >= 374 && pPhysical->m_nModelIndex <= 379 );
 }
 
 static const float f215 = 2.15f;
