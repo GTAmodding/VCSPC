@@ -62,7 +62,7 @@
 #define MENU_RED_B				0x4D
 
 #define						MAX_AA				8
-#define						SET_FILE_VERSION	9
+#define						SET_FILE_VERSION	10
 
 #ifdef DEVBUILD
 #define						SET_FILE_NAME		"gta_vcsd.set"
@@ -379,10 +379,11 @@ private:
 	void			PrintActivationScreen();
 	void			DrawStandardMenus(bool bDrawMenu);
 	void			DrawRadioStationIcons();
-	float			DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width);
+	float			DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width, bool bLocked);
 
 	void			CentreMousePointer();
 	void			ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, bool bEnterInput);
+	void			CheckSliderMovement(signed char nDirection);
 
 public:
 	inline BYTE		GetHudMode()

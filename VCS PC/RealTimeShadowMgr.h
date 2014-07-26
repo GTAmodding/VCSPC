@@ -33,15 +33,15 @@ public:
 	RwRaster*		RasterGradient(RwRaster* pRaster);
 	void			InvertRaster();
 
-	RwCamera*		Update(RpAtomic* pAtomic);
-	RwCamera*		Update(RpClump* pClump, CPhysical* pEntity);
+	RwCamera*		Update(RpAtomic* pAtomic, CEntity* pEntity);
+	RwCamera*		Update(RpClump* pClump, CEntity* pEntity);
 	void			ReInit();
 };
 
 class CRealTimeShadow
 {
 private:
-	CPhysical*		m_pEntity;
+	CEntity*		m_pEntity;
 	bool			m_bRenderedThisFrame;
 	unsigned char	m_nIntensity;
 	bool			m_bUsePlayerHelperCams;		// VCS PC class extension
@@ -56,7 +56,7 @@ private:
 	RwSphere		m_BaseSphere;
 
 public:
-	inline class CPhysical*		GetOwner()
+	inline class CEntity*		GetOwner()
 		{ return m_pEntity; }
 	inline void					SetRenderedThisFrame()
 		{ m_bRenderedThisFrame = true; }
@@ -90,7 +90,7 @@ public:
 
 	void			Create(int nSize, int nSizeResampled, bool bResample, int nBlurPasses, bool bGradient, bool bUsePlayerCams);
 	RwTexture*		Update();
-	bool			SetShadowedObject(CPhysical* pObject);
+	bool			SetShadowedObject(CEntity* pObject);
 };
 
 
@@ -122,8 +122,8 @@ public:
 	void					ReturnRealTimeShadow(CRealTimeShadow* pShadow);
 	void					Init();
 	void					Exit();
-	void					DoShadowThisFrame(CPhysical* pEntity);
-	void					GetRealTimeShadow(CPhysical* pEntity);	
+	void					DoShadowThisFrame(CEntity* pEntity);
+	void					GetRealTimeShadow(CEntity* pEntity);	
 	void					ReInit();
 };
 

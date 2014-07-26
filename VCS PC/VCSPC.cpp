@@ -314,7 +314,6 @@ void*						RightShockKeyHack_JumpBack;
 void*						NoRadioCommercialsHack_JumpBack;
 void*						VideoPlayerCreate1_JumpBack;
 void*						VideoPlayerPlayNextFrame_JumpBack;
-void*						VideoPlayerProc_JumpBack;
 void*						VideoPlayerRelease_JumpBack;
 //void*						FrameLimit_StringInject_JumpBack;
 /*void*						LoadFontsHack_JumpBack;
@@ -402,8 +401,8 @@ const float					fCTSliderRight = 370.0f;
 const float					fRhinoHitStrength = 1000.0f;
 const float					fRefZVal = 1.0f;
 //const float					fBrightnessStep = 1.0f / 192.0f;
-const float					fBrightnessStep2 = 12.0f;
-const float					fBrightnessMax = 192.0f;
+//const float					fBrightnessStep2 = 12.0f;
+//const float					fBrightnessMax = 192.0f;
 //const float					fBriefTextHeight = 0.7/448.0;
 const float					fNewDrawDistance = MAX_DRAW_DISTANCE;
 const float					fSkyMultFix = 3.5f;
@@ -873,7 +872,6 @@ __forceinline void DefineVariables()
 	NoRadioCommercialsHack_JumpBack = (void*)0x4EA675;
 	VideoPlayerCreate1_JumpBack = (void*)0x748B08;
 	VideoPlayerPlayNextFrame_JumpBack = (void*)0x748DA3;
-	VideoPlayerProc_JumpBack = (void*)0x74817E;
 	VideoPlayerRelease_JumpBack = (void*)0x748C21;
 	//FrameLimit_StringInject_JumpBack = (void*)0x57A168;
 	/*LoadFontsHack_JumpBack = (void*)0x5BA6E5;
@@ -3287,12 +3285,12 @@ __forceinline void Main_Patches()
 	//Patch<float>(0x573B8A, 96.0 / 512.0);
 	//Patch<DWORD>(0x573B96, 96);
 	//Patch<const void*>(0x57A8A9, &fBrightnessStep);
-	Patch<const void*>(0x573487, &fBrightnessStep2);
-	Patch<const void*>(0x5734AD, &fBrightnessMax);
-	Patch<const void*>(0x5734BC, &fBrightnessMax);
+	//Patch<const void*>(0x573487, &fBrightnessStep2);
+	//Patch<const void*>(0x5734AD, &fBrightnessMax);
+	//Patch<const void*>(0x5734BC, &fBrightnessMax);
 
 	// Tweaked draw distance
-	InjectHook(0x5735C8, &DrawDistanceRecalc);
+	//InjectHook(0x5735C8, &DrawDistanceRecalc);
 
 	// Widescreen
 	Patch<DWORD>(0x745B71, 0x9090687D);
@@ -3320,7 +3318,7 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x748F0C, &VideoPlayerRelease);
 //	InjectHook(0x748BC9, &VideoPlayerCreate2, PATCH_JUMP);
 	InjectHook(0x748BB9, &VideoPlayerPlayNextFrame);
-	InjectHook(0x7480D6, &VideoPlayerProc, PATCH_JUMP);
+	InjectHook(0x7480C5, &VideoPlayerProc, PATCH_JUMP);
 
 	// Disable re-initialization of DirectInput mouse device by the game
 	Patch<BYTE>(0x576CCC, 0xEB);
@@ -3896,7 +3894,7 @@ __forceinline void Main_Patches()
 	//Patch<BYTE>(0x579D52, ACTION_JOYMOUSE);
 	Patch<BYTE>(0x57B6F5, ACTION_CLICKORARROWS);
 
-	Patch<DWORD>(0x57344F, sizeof(MenuItem));
+	//Patch<DWORD>(0x57344F, sizeof(MenuItem));
 	Patch<DWORD>(0x5736FD, sizeof(MenuItem));
 	Patch<DWORD>(0x573703, sizeof(MenuItem));
 	Patch<DWORD>(0x57371B, sizeof(MenuItem));
@@ -4150,7 +4148,7 @@ __forceinline void PatchMenus()
 #endif
 	using namespace Memory;
 
-	Patch<void*>(0x57345A, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57345A, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57370A, &MenuEntriesList->startingMenuEntry);
 	Patch<void*>(0x573713, &MenuEntriesList->prevMenu);
 	Patch<void*>(0x573728, &MenuEntriesList->prevMenu);
@@ -6436,16 +6434,6 @@ LookLeftRightHack_Return:
 	}
 }
 
-void __declspec(naked) DrawDistanceRecalc()
-{
-	_asm
-	{
-		mov		eax, 57C660h
-		call	eax
-		jmp		CModelInfo::RecalcDrawDistances
-	}
-}
-
 void __declspec(naked) DriveByKillFix()
 {
 	_asm
@@ -6623,7 +6611,8 @@ void __declspec(naked) VideoPlayerProc()
 		push	esi
 		call	CVideoPlayer::WindowProc
 		add		esp, 4
-		jmp		VideoPlayerProc_JumpBack
+		push	74817Eh
+		retn
 	}
 }
 

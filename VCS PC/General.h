@@ -192,6 +192,9 @@ public:
 	inline short	GetModelIndex()
 					{ return m_nModelIndex; }
 
+	class CRealTimeShadow*		GetRealTimeShadow();
+	void						SetRealTimeShadow(class CRealTimeShadow* pShadow);
+
 	void			UpdateRW();
 	void			RegisterReference(CEntity** pAddress);
 	void			CleanUpOldReference(CEntity** pAddress);

@@ -39,7 +39,16 @@ WRAPPER void CFileLoader::LoadCollisionFile(const char* pFileName, unsigned char
 static WRAPPER void InitPostIDEStuff() { EAXJMP(0x5B924E); }
 static WRAPPER void InitPostLoadLevelStuff() { EAXJMP(0x5B930F); }
 
-static WRAPPER void SetAtomicModelInfoFlags(CAtomicModelInfo* pInfo, unsigned int dwFlags) { WRAPARG(pInfo); WRAPARG(dwFlags); EAXJMP(0x5B3B20); }
+void SetAtomicModelInfoFlags(CAtomicModelInfo* pInfo, unsigned int dwFlags)
+{
+	((void(*)(CAtomicModelInfo*,unsigned int))0x5B3B20)(pInfo, dwFlags);
+
+	// VCS PC flags
+
+	// Project realtime shadow?
+	if ( dwFlags & 0x40000 )
+		pInfo->SetCastShadowFlag();
+}
 
 std::string CFileLoader::TranslatePath(const char* pFileName, const char* pDLCName)
 {
@@ -408,3 +417,8 @@ bool CFileLoader::ParseLevelFile(const char* pFileName, char* pDLCName)
 	}
 	return false;
 }
+
+
+static StaticPatcher	Patcher([](){ 
+						Memory::InjectHook(0x5B3F7B, SetAtomicModelInfoFlags);
+									});

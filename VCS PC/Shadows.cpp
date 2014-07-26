@@ -6,14 +6,25 @@
 #include "RealTimeShadowMgr.h"
 #include "Vehicle.h"
 #include "Object.h"
+#include "Camera.h"
+#include "Building.h"
 
-eShadowQuality CShadows::m_bShadowQuality;
+eShadowQuality	CShadows::m_bShadowQuality;
+float			CShadows::m_fShadowDistMult;
 
-float&			MAX_DISTANCE_PED_SHADOWS = *(float*)0x8D5240;
+float&			MAX_DISTANCE_REALTIME_SHADOWS = *(float*)0x8D5240;
+float&			MAX_DISTANCE_REALTIME_SHADOWS_SQR = *(float*)0xC4B6B0;
+
+float			MAX_DISTANCE_PED_SHADOWS, MAX_DISTANCE_PED_SHADOWS_SQR;
+float			MAX_DISTANCE_CAR_SHADOWS, MAX_DISTANCE_CAR_SHADOWS_SQR;
 
 // SHADOW DRAW DISTANCES
 // Ped
-// Min - ??? Max - 45.0
+// Min - 12.5 Max - 45.0
+// Vehicle
+// Min - 15.0 Max - 60.0
+// Object
+// Min - 12.5 Max - 45.0
 
 void CShadows::RenderIndicatorShadow(unsigned int nIndex, unsigned char, RwTexture*, CVector* pPos, float radiusX, float, float, float radiusY, short)
 {
@@ -22,7 +33,20 @@ void CShadows::RenderIndicatorShadow(unsigned int nIndex, unsigned char, RwTextu
 
 void CShadows::InitialiseChangedSettings()
 {
-	g_realTimeShadowMan.ResetForChangedSettings();
+	static eShadowQuality	eOldQuality = SHADOW_QUALITY_UNDEFINED;
+
+	if ( eOldQuality != m_bShadowQuality )
+	{
+		eOldQuality = m_bShadowQuality;
+		g_realTimeShadowMan.ResetForChangedSettings();
+	}
+
+	// Recalculate distances
+	MAX_DISTANCE_PED_SHADOWS = 12.5f + (m_fShadowDistMult*(45.0f-12.5f));
+	MAX_DISTANCE_CAR_SHADOWS = 15.0 + (m_fShadowDistMult*(60.0f-15.0f));
+
+	MAX_DISTANCE_PED_SHADOWS_SQR = MAX_DISTANCE_PED_SHADOWS*MAX_DISTANCE_PED_SHADOWS;
+	MAX_DISTANCE_CAR_SHADOWS_SQR = MAX_DISTANCE_CAR_SHADOWS*MAX_DISTANCE_CAR_SHADOWS;
 }
 
 bool CShadows::StoreRealTimeShadowForVehicle(CVehicle* pVehicle)
@@ -41,15 +65,59 @@ void CShadows::StoreRealTimeShadowForObject(CObject* pObject)
 {
 	if ( m_bShadowQuality > SHADOW_QUALITY_MEDIUM && ThisPropCanHaveShadow(pObject) )
 		g_realTimeShadowMan.DoShadowThisFrame(pObject);
-
 }
 
-bool CShadows::ThisPropCanHaveShadow(CPhysical* pPhysical)
+void CShadows::StoreRealTimeShadowForBuilding(CBuilding* pBuilding)
 {
-	return pPhysical->m_nModelIndex == MI_PARKBENCH || pPhysical->m_nModelIndex == MI_CANOPY_TEST || pPhysical->m_nModelIndex == MI_CHAIR_TEST
-		|| pPhysical->m_nModelIndex == MI_PAPERMACHINE || pPhysical->m_nModelIndex == MI_HYDRANT
-		// Flying components
-		|| ( pPhysical->m_nModelIndex >= 374 && pPhysical->m_nModelIndex <= 379 );
+	if ( m_bShadowQuality > SHADOW_QUALITY_MEDIUM && ThisPropCanHaveShadow(pBuilding) )
+	{
+		float		fMaxDist = GetRealTimeShadowDistances(pBuilding) * 1.1f;
+		if ( (*pBuilding->GetCoords() - *TheCamera.GetCoords()).MagnitudeSqr() < fMaxDist*fMaxDist )
+		{
+			g_realTimeShadowMan.DoShadowThisFrame(pBuilding);
+		}
+	}
+}
+
+bool CShadows::ThisPropCanHaveShadow(CEntity* pEntity)
+{
+	// Is flying component?
+	if ( pEntity->m_nModelIndex >= 374 && pEntity->m_nModelIndex <= 379 )
+		return true;
+
+	// IDE flag enabled?
+	CAtomicModelInfo*	pModelInfo = CModelInfo::ms_modelInfoPtrs[pEntity->m_nModelIndex]->AsAtomicModelInfoPtr();
+
+	if ( pModelInfo )
+		return pModelInfo->CastShadow();
+
+	return false;
+}
+
+void CShadows::SetRealTimeShadowDistances(CEntity* pEntity)
+{
+	switch ( pEntity->nType )
+	{
+	case 2:
+		MAX_DISTANCE_REALTIME_SHADOWS = MAX_DISTANCE_CAR_SHADOWS;
+		MAX_DISTANCE_REALTIME_SHADOWS_SQR = MAX_DISTANCE_CAR_SHADOWS_SQR;
+		break;
+	default:
+		MAX_DISTANCE_REALTIME_SHADOWS = MAX_DISTANCE_PED_SHADOWS;
+		MAX_DISTANCE_REALTIME_SHADOWS_SQR = MAX_DISTANCE_PED_SHADOWS_SQR;
+		break;
+	}
+}
+
+float CShadows::GetRealTimeShadowDistances(CEntity* pEntity)
+{
+	switch ( pEntity->nType )
+	{
+	case 2:
+		return MAX_DISTANCE_CAR_SHADOWS;
+	default:
+		return MAX_DISTANCE_PED_SHADOWS;
+	}
 }
 
 static const float f215 = 2.15f;
@@ -58,7 +126,7 @@ static const float f115 = 1.15f;
 //static float gA;
 static float gB;
 
-static CPhysical *gCurrentEntityStoresShadow;
+static CEntity *gCurrentEntityStoresShadow;
 
 void * __fastcall SetLightParameters(int shd, int edx0, float a, float b, bool set)
 {
@@ -86,11 +154,11 @@ void CastShadow(void *a1, float a2, float a3, float a4, float a5, void *a6, floa
 		(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19);
 }
 
-void __fastcall SetupShadowBoundSphere(void *sphere, int edx0, float size, CVector  const& center, unsigned char material, unsigned char flags, unsigned char lighting)
+/*void __fastcall SetupShadowBoundSphere(void *sphere, int edx0, float size, CVector  const& center, unsigned char material, unsigned char flags, unsigned char lighting)
 {
 	((void (__thiscall *)(void *, float, CVector  const&, unsigned char, unsigned char, unsigned char))0x40FD10)
-		(sphere, 3.0f, center, material, flags, lighting);
-}
+	//	(sphere, 7.5f/*3.0f*///, center, material, flags, lighting);
+//}
 
 #define NightState (*(float *)0x8D12C0)
 
@@ -165,6 +233,21 @@ static void __declspec(naked) StoreRTObjectShadowHack()
 	}
 }
 
+static void __declspec(naked) GetShadowHack()
+{
+	_asm
+	{
+		push	ecx
+		call	CShadows::SetRealTimeShadowDistances
+		add		esp, 4
+		mov		ecx, ebp
+		call	CEntity::GetRealTimeShadow
+		mov		edi, eax
+		push	707CB0h
+		retn
+	}
+}
+
 /*static void __declspec(naked) StoreRTPoleShadowHack()
 {
 	_asm
@@ -187,10 +270,19 @@ void CShadows::Inject()
 	Memory::Nop(0x53C1AB, 5);
 	
 	// Off vehicle shadows
-	Memory::Patch<BYTE>(0x70F9B0, 0xA1);
-	Memory::Patch<const void*>(0x70F9B1, &CShadows::m_bShadowQuality);
-	Memory::Patch<DWORD>(0x70F9B5, 0x940FC085);
-	Memory::Patch<WORD>(0x70F9B9, 0xC3C0);
+	//Memory::Patch<BYTE>(0x70F9B0, 0xA1);
+	//Memory::Patch<const void*>(0x70F9B1, &CShadows::m_bShadowQuality);
+	//Memory::Patch<DWORD>(0x70F9B5, 0x940FC085);
+	//Memory::Patch<WORD>(0x70F9B9, 0xC3C0);
+	Memory::InjectHook(0x70C753, DontRenderShadowsForPoles);
+
+	// Adjustable shadows draw distance
+	Memory::Patch<const void*>(0x707BF3, &MAX_DISTANCE_PED_SHADOWS);
+	Memory::Patch<const void*>(0x5E67E0, &MAX_DISTANCE_PED_SHADOWS_SQR);
+	Memory::Patch<const void*>(0x707B9E, &MAX_DISTANCE_PED_SHADOWS_SQR);
+
+	Memory::Patch<const void*>(0x70BEA7, &MAX_DISTANCE_CAR_SHADOWS_SQR);
+	Memory::Patch<const void*>(0x70BEB6, &MAX_DISTANCE_CAR_SHADOWS);
 }
 
 static StaticPatcher	Patcher([](){ 
@@ -216,12 +308,15 @@ static StaticPatcher	Patcher([](){
 
 						// Same as TranslateShdMatrix
 						Memory::Patch<float>(0x70A19D, 0.5f);
+						// Same as SetupShadowBoundSphere
+						Memory::Patch<float>(0x70A2AA, 9.75f);
+						Memory::Patch<float>(0x707D59, 9.75f * 1.5f);
 
 						//Memory::InjectHook(0x70A1AC, TranlateShdMatrix);
 						Memory::InjectHook(0x707E2B, CompareSunZ, PATCH_JUMP);
 
 						//Memory::InjectHook(0x70AD0D, CastShadow);
-						Memory::InjectHook(0x70A2C8, SetupShadowBoundSphere);
+						//Memory::InjectHook(0x70A2C8, SetupShadowBoundSphere);
 
 						// matrix rotate
 						Memory::Nop(0x70A0C9, 5);
@@ -232,6 +327,7 @@ static StaticPatcher	Patcher([](){
 						//Memory::Patch<BYTE>(0x5E683B, 0xEB);
 						Memory::InjectHook(0x70BDA4, StoreRTVehicleShadowHack);
 						Memory::InjectHook(0x59FEDB, StoreRTObjectShadowHack, PATCH_JUMP);
+						Memory::InjectHook(0x707CAA, GetShadowHack, PATCH_JUMP);
 						//Memory::InjectHook(0x70C753, StoreRTPoleShadowHack);
 #endif
 						//Memory::InjectHook(0x705590, &CShadowCamera::SetCenter, PATCH_JUMP);

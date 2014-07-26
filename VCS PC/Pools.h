@@ -206,7 +206,8 @@ typedef CPool<CTask, FakeClass<128,CTask>>			CTaskPool;
 
 typedef CPool<CEmpireBuildingData>					CEmpireBuildingDataPool;
 
-typedef CChildrenPool<CPedData,CPed,CPedPool>		CPedPoolAux;
+typedef CChildrenPool<CPedData,CPed,CPedPool>				CPedPoolAux;
+typedef CChildrenPool<CBuildingAux,CBuilding,CBuildingPool>	CBuildingPoolAux;
 
 class CPools
 {
@@ -221,6 +222,7 @@ private:
 	// VCS PC class extension
 	static CEmpireBuildingDataPool*			ms_pEmpireBuildingDataPool;
 	static CPedPoolAux*						ms_pPedPoolAux;
+	static CBuildingPoolAux*				ms_pBuildingPoolAux;
 
 public:
 	static inline CPedPool*					GetPedPool()
@@ -240,6 +242,8 @@ public:
 		{ return ms_pEmpireBuildingDataPool; }
 	static inline CPedPoolAux*				GetPedPoolAux()
 		{ return ms_pPedPoolAux; }
+	static inline CBuildingPoolAux*			GetBuildingPoolAux()
+		{ return ms_pBuildingPoolAux; }
 
 	static void								Initialise();
 	static void								ShutDown();

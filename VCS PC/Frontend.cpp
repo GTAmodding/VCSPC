@@ -473,6 +473,7 @@ void CMenuManager::SaveSettings()
 		const FxQuality_e		nEffectsQuality = Fx_c::GetEffectsQuality();
 		const unsigned char		nFilterQuality = Fx_c::GetTextureFilteringQuality();
 		const eShadowQuality	nShadowQuality = CShadows::GetShadowQuality();
+		const float				fShadowDist = CShadows::GetShadowDistance();
 		const RwInt32			nSubSystem = RwEngineGetCurrentSubSystem();
 
 		//CFileMgr::Write(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
@@ -481,6 +482,7 @@ void CMenuManager::SaveSettings()
 		CFileMgr::Write(hFile, &nEffectsQuality, sizeof(nEffectsQuality));
 		CFileMgr::Write(hFile, &nFilterQuality, sizeof(nFilterQuality));
 		CFileMgr::Write(hFile, &nShadowQuality, sizeof(nShadowQuality));
+		CFileMgr::Write(hFile, &fShadowDist, sizeof(fShadowDist));
 		CFileMgr::Write(hFile, &m_fDrawDistance, sizeof(m_fDrawDistance));
 		CFileMgr::Write(hFile, &m_bAspectRatioMode, sizeof(m_bAspectRatioMode));
 		CFileMgr::Write(hFile, &m_bFrameLimiterMode, sizeof(m_bFrameLimiterMode));
@@ -544,6 +546,7 @@ void CMenuManager::LoadSettings()
 			// Graphics Setup
 			FxQuality_e			/*nFxQuality, */nEffectsQuality;
 			eShadowQuality		nShadowQuality;
+			float				fShadowDist;
 			unsigned char		nFilterQuality;
 
 			//CFileMgr::Read(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
@@ -552,6 +555,7 @@ void CMenuManager::LoadSettings()
 			CFileMgr::Read(hFile, &nEffectsQuality, sizeof(nEffectsQuality));
 			CFileMgr::Read(hFile, &nFilterQuality, sizeof(nFilterQuality));
 			CFileMgr::Read(hFile, &nShadowQuality, sizeof(nShadowQuality));
+			CFileMgr::Read(hFile, &fShadowDist, sizeof(fShadowDist));
 			CFileMgr::Read(hFile, &m_fDrawDistance, sizeof(m_fDrawDistance));
 			CFileMgr::Read(hFile, &m_bAspectRatioMode, sizeof(m_bAspectRatioMode));
 			CFileMgr::Read(hFile, &m_bFrameLimiterMode, sizeof(m_bFrameLimiterMode));
@@ -573,6 +577,8 @@ void CMenuManager::LoadSettings()
 			Fx_c::SetTextureFilteringQuality(nFilterQuality);
 
 			CShadows::SetShadowQuality(nShadowQuality);
+			CShadows::SetShadowDistance(fShadowDist);
+			CShadows::InitialiseChangedSettings();
 
 			AudioEngine.SetMusicMasterVolume(m_nRadioVolume);
 			AudioEngine.SetEffectsMasterVolume(m_nSfxVolume);
@@ -1021,6 +1027,10 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 					break;
 				}
 				break;
+			case MENUACTION_SHADOWS_DISTANCE:
+				if ( CShadows::GetShadowQuality() == SHADOW_QUALITY_OFF )
+					CFont::SetColor(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
+				break;
 			}
 
 			float	fPosX, fPosY;
@@ -1084,7 +1094,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 27:
 				{
 					// Brightness
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-97.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_dwBrightness * (1.0f/192.0f), _width(MENU_SLIDER_WIDTH));
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-97.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_dwBrightness * (1.0f/192.0f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
@@ -1100,7 +1110,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 28:
 				{
 					// Radio volume
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nRadioVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH));
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nRadioVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
@@ -1116,7 +1126,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 29:
 				{
 					// SFX volume
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nSfxVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH));
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nSfxVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
@@ -1132,7 +1142,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 61:
 				{
 					// Draw Distance
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (m_fDrawDistance-0.925f) * (1.0f/0.875f), _width(MENU_SLIDER_WIDTH));
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (m_fDrawDistance-0.925f) * (1.0f/0.875f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
@@ -1148,7 +1158,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 62:
 				{
 					// Mouse Sensitivity
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (CCamera::m_fMouseAccelHorzntl-0.0003125f)* (1.0f/0.0049f), _width(MENU_SLIDER_WIDTH));
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (CCamera::m_fMouseAccelHorzntl-0.0003125f)* (1.0f/0.0049f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
@@ -1161,6 +1171,27 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 					}
 					break;
 				}
+			case MENUACTION_SHADOWS_DISTANCE:
+				{
+					// Shadows Distance
+					bool	bLockedSlider = CShadows::GetShadowQuality() == SHADOW_QUALITY_OFF;
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), CShadows::GetShadowDistance(), _width(MENU_SLIDER_WIDTH), bLockedSlider);
+
+					if ( !bLockedSlider )
+					{
+						/*if ( i == m_dwSelectedMenuItem )
+						{
+							if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-4.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+								m_nHoverOption = 15;
+							else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-4.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+								m_nHoverOption = 14;
+							else
+								m_nHoverOption = 16;
+						}*/
+					}
+					break;
+				}
+
 			}
 		}
 	}
@@ -1815,6 +1846,100 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 	}
 }
 
+void CMenuManager::CheckSliderMovement(signed char nDirection)
+{
+	switch ( aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].action )
+	{
+	case 27:
+		{
+			float	fNewBrightness = m_dwBrightness + (nDirection*12.0f);
+
+			if ( fNewBrightness > 192.0f )
+				fNewBrightness = 192.0f;
+			else if ( fNewBrightness < 0.0f )
+				fNewBrightness = 0.0f;
+			m_dwBrightness = fNewBrightness;
+
+			((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, fNewBrightness * (1.0f/512.0f), false);
+			SaveSettings();
+			return;
+		}
+	case 28:
+		{
+			signed char		nNewVolume = m_nRadioVolume + (nDirection*4);
+			
+			if ( nNewVolume > 64 )
+				nNewVolume = 64;
+			else if ( nNewVolume < 0 )
+				nNewVolume = 0;
+
+			m_nRadioVolume = nNewVolume;
+			AudioEngine.SetMusicMasterVolume(nNewVolume);
+			SaveSettings();
+			return;
+		}
+	case 29:
+		{
+			signed char		nNewVolume = m_nSfxVolume + (nDirection*4);
+			
+			if ( nNewVolume > 64 )
+				nNewVolume = 64;
+			else if ( nNewVolume < 0 )
+				nNewVolume = 0;
+
+			m_nSfxVolume = nNewVolume;
+			AudioEngine.SetEffectsMasterVolume(nNewVolume);
+			SaveSettings();
+			return;
+		}
+	case 61:
+		{
+			float	fNewDrawDist = m_fDrawDistance + (nDirection*((1.8f-0.925f)/16.0f));
+
+			if ( fNewDrawDist > 1.8f )
+				fNewDrawDist = 1.8f;
+			else if ( fNewDrawDist < 0.925f )
+				fNewDrawDist = 0.925f;
+			ms_lodDistScale = m_fDrawDistance = fNewDrawDist;
+
+			CModelInfo::RecalcDrawDistances();
+			SaveSettings();
+			return;
+		}
+	case 62:
+		{
+			float	fNewSensitivity = CCamera::m_fMouseAccelHorzntl + (nDirection*((0.005f-0.0003125f)/16.0f));
+
+			if ( fNewSensitivity > 0.005f )
+				fNewSensitivity = 0.005f;
+			else if ( fNewSensitivity < 0.0003125f )
+				fNewSensitivity = 0.0003125f;
+			CCamera::m_fMouseAccelHorzntl = fNewSensitivity;
+
+			SaveSettings();
+			return;
+		}
+	case MENUACTION_SHADOWS_DISTANCE:
+		{
+			if ( CShadows::GetShadowQuality() != SHADOW_QUALITY_OFF )
+			{
+				float	fNewDist = CShadows::GetShadowDistance() + (nDirection*(1.0f/16.0f));
+
+				if ( fNewDist > 1.0f )
+					fNewDist = 1.0f;
+				else if ( fNewDist < 0.0f )
+					fNewDist = 0.0f;
+				CShadows::SetShadowDistance(fNewDist);
+				CShadows::InitialiseChangedSettings();
+
+				SaveSettings();
+			}
+			return;
+		}
+
+	}
+}
+
 void CMenuManager::CentreMousePointer()
 {
 	POINT		PointerPos;
@@ -1972,7 +2097,7 @@ void CMenuManager::DrawRadioStationIcons()
 	while ( bLoopCounter < 11 );
 }
 
-float CMenuManager::DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width)
+float CMenuManager::DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width, bool bLocked)
 {
 	BYTE			loopCounter = NUM_SLIDERS * 2;
 	BYTE			positionCounter = 0;
@@ -1987,13 +2112,13 @@ float CMenuManager::DisplaySlider(float posX, float posY, float height, float di
 		CRGBA	colour;
 
 		if ( static_cast<float>(positionCounter) / NUM_SLIDERS + ( 1 / (NUM_SLIDERS * 2) ) >= filledAmount )
-			colour = CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 0xFF);
+			colour = bLocked ? CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B) : CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B);
 		else
 		{
 			if ( static_cast<float>(secondPositionCounter) / (NUM_SLIDERS * 2) + ( 1 / (NUM_SLIDERS * 4)) >= filledAmount )
 				bDrawHalfSlider = true;
 			else
-				colour = CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B, 255);
+				colour = bLocked ? CRGBA(MENU_ACTIVE_LOCKED_R, MENU_ACTIVE_LOCKED_G, MENU_ACTIVE_LOCKED_B) : CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B);
 
 			fullWidth = mousePosX;
 		}
@@ -2707,6 +2832,8 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 		Fx_c::SetEffectsQuality(FXQUALITY_HIGH);
 		Fx_c::SetTextureFilteringQuality(1);	// Trilinear
 		CShadows::SetShadowQuality(SHADOW_QUALITY_MEDIUM);
+		CShadows::SetShadowDistance(6.0f/16.0f);
+		CShadows::InitialiseChangedSettings();
 
 		// Reinit widescreen and framelimit stuff
 		WidescreenSupport::Recalculate(RsGlobal.MaximumWidth, RsGlobal.MaximumHeight, true);
@@ -2787,6 +2914,9 @@ void CMenuManager::Inject()
 	Memory::InjectHook(0x57BA58, &DrawStandardMenus);
 	Memory::InjectHook(0x57B66F, &ProcessMenuOptions);
 	Memory::InjectHook(0x57B702, &ProcessMenuOptions);
+
+	Memory::InjectHook(0x57B70A, &CheckSliderMovement);
+	Memory::InjectHook(0x580215, &CheckSliderMovement);
 }
 
 // TODO: CLoadingScreen
