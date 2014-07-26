@@ -21,6 +21,34 @@ WRAPPER void CShadowCamera::InvertRaster() { EAXJMP(0x705660); }
 WRAPPER void CRealTimeShadow::Destroy() { EAXJMP(0x705990); }
 WRAPPER bool CRealTimeShadow::SetShadowedObject(CPhysical* pObject) { WRAPARG(pObject); EAXJMP(0x706520); }
 
+RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData)
+{
+	// Check if to render this basing on settings
+	if ( reinterpret_cast<bool>(pData) )
+	{
+		// Reject if it's a LOD
+		if ( strstr(GetFrameNodeName(RpAtomicGetFrame(pAtomic)), "_vlo") )
+			return pAtomic;
+	}
+	else
+	{
+		// Reject if it's not a LOD
+		if ( !strstr(GetFrameNodeName(RpAtomicGetFrame(pAtomic)), "_vlo") )
+			return pAtomic;
+	}
+
+	RxPipeline*		pOldPipe;
+
+	RpAtomicGetPipeline(pAtomic, &pOldPipe);
+	RpAtomicSetPipeline(pAtomic, RpAtomicGetDefaultPipeline());
+
+	ShadowCameraRenderCB(pAtomic, pData);
+
+	RpAtomicSetPipeline(pAtomic, pOldPipe);
+
+	return pAtomic;
+}
+
 RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 {
 	UNREFERENCED_PARAMETER(pData);
@@ -29,6 +57,7 @@ RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 	{
 		RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
 		RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
+
 		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
 							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
 
@@ -99,7 +128,7 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CPhysical* pEntity)
 		if ( pEntity )
 		{
 			if ( pEntity->nType == 3 )
-				static_cast<CPed*>(pEntity)->RenderForShadow(pClump);
+				static_cast<CPed*>(pEntity)->RenderForShadow(pClump, true);
 			else if ( pEntity->nType == 2 )
 				static_cast<CVehicle*>(pEntity)->RenderForShadow(pClump);
 		}
@@ -543,4 +572,8 @@ static StaticPatcher	Patcher([](){
 
 						Memory::Patch<DWORD>(0x706AD4, NUM_MAX_REALTIME_SHADOWS);
 						Memory::Patch<DWORD>(0x706B80, NUM_MAX_REALTIME_SHADOWS);
+
+						Memory::Patch<BYTE>(0x706AF3, 0xB8);
+						Memory::Patch<DWORD>(0x706AF4, SHADOWS_MAX_INTENSITY);
+						Memory::Patch<WORD>(0x706AF8, 0x15EB);
 									});

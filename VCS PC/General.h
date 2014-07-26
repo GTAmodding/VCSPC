@@ -298,12 +298,8 @@ public:
 // TODO: Move away?
 class CGame
 {
-private:
-	static bool&			bMissionPackGame;
-
 public:
-	static inline bool		IsMissionPackGame()
-		{ return bMissionPackGame; }
+	static unsigned char&		bMissionPackGame;
 };
 
 

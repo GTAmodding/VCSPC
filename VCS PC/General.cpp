@@ -12,7 +12,7 @@ WRAPPER void CEntity::Render() { EAXJMP(0x534310); }
 
 WRAPPER unsigned int CKeyGen::GetUppercaseKey(const char* pEntry) { WRAPARG(pEntry); EAXJMP(0x53CF30); }
 
-bool& CGame::bMissionPackGame = *(bool*)0xB72910;
+unsigned char& CGame::bMissionPackGame = *(unsigned char*)0xB72910;
 
 /*void CMatrix::UpdateRW()
 {

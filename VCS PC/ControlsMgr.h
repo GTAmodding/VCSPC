@@ -20,6 +20,8 @@ public:
 
 	void				SaveToFile();
 	bool				LoadFromFile();
+
+	static void			ReinitControls();
 };
 
 

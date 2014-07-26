@@ -141,6 +141,7 @@ void			DefinedState2d();
 void			CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio);
 
 RpAtomic*			GetFirstAtomic(RpClump* pClump);
+const char*			GetFrameNodeName(RwFrame* pFrame);
 RpHAnimHierarchy*	GetAnimHierarchyFromSkinClump(RpClump* pClump);
 
 // GTA heap funcs

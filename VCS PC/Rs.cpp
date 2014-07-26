@@ -15,6 +15,7 @@ WRAPPER RpHAnimHierarchy* GetAnimHierarchyFromSkinClump(RpClump* pClump) { WRAPA
 
 WRAPPER void* GtaOperatorNew(size_t size) { WRAPARG(size); EAXJMP(0x82119A); }
 WRAPPER void GtaOperatorDelete(void* ptr) { WRAPARG(ptr); EAXJMP(0x82413F); }
+WRAPPER const char* GetFrameNodeName(RwFrame* pFrame) { WRAPARG(pFrame); EAXJMP(0x72FB30); }
 
 static RpAtomic* GetFirstAtomicCallback(RpAtomic* pAtomic, void* pData)
 {

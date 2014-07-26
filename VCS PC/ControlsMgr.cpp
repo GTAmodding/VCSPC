@@ -5,6 +5,7 @@ WRAPPER void CControllerConfigManager::SaveSettings(FILE* hFile) { WRAPARG(hFile
 WRAPPER bool CControllerConfigManager::LoadSettings(FILE* hFile) { WRAPARG(hFile); EAXJMP(0x530530); }
 WRAPPER bool CControllerConfigManager::GetIsKeyboardKeyJustDown(RsKeyCodes eKey) { WRAPARG(eKey); EAXJMP(0x52E450); }
 WRAPPER bool CControllerConfigManager::GetIsKeyboardKeyDown(RsKeyCodes eKey) { WRAPARG(eKey); EAXJMP(0x52DDB0); }
+WRAPPER void CControllerConfigManager::ReinitControls() { EAXJMP(0x531F20); }
 
 void CControllerConfigManager::SaveToFile()
 {

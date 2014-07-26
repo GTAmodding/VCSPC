@@ -145,6 +145,9 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include <rwsdk\rpanisot.h>
 #include <rwsdk\rphanim.h>
 
+#undef RXPIPELINEGLOBAL(var)
+#define RXPIPELINEGLOBAL(var) (RWPLUGINOFFSET(rwPipeGlobals, RwEngineInstance, *(RwInt32*)0xC9BC60)->var)
+
 #include "CCRC32.h"
 #include "MemoryMgr.h"
 #include "StaticPatcher.h"

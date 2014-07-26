@@ -50,6 +50,7 @@ WRAPPER RwFrame* RwFrameOrthoNormalize(RwFrame* frame) { WRAPARG(frame); EAXJMP(
 WRAPPER RwVideoMode* RwEngineGetVideoModeInfo(RwVideoMode* modeinfo, RwInt32 modeIndex) { WRAPARG(modeinfo); WRAPARG(modeIndex); EAXJMP(0x7F2CF0); }
 WRAPPER RwInt32 RwEngineGetCurrentVideoMode() { EAXJMP(0x7F2D20); }
 WRAPPER RwInt32 RwEngineGetCurrentSubSystem() { EAXJMP(0x7F2C60); }
+WRAPPER RwInt32 RwEngineGetNumVideoModes() { EAXJMP(0x7F2CC0); }
 
 WRAPPER RwMatrix* RpHAnimHierarchyGetMatrixArray(RpHAnimHierarchy* hierarchy) { WRAPARG(hierarchy); EAXJMP(0x7C5120); }
 WRAPPER RwInt32 RpHAnimIDGetIndex(RpHAnimHierarchy* hierarchy, RwInt32 ID) { WRAPARG(hierarchy); WRAPARG(ID); EAXJMP(0x7C51A0); }
@@ -57,6 +58,9 @@ WRAPPER RwInt32 RpHAnimIDGetIndex(RpHAnimHierarchy* hierarchy, RwInt32 ID) { WRA
 WRAPPER RwInt8 RpAnisotGetMaxSupportedMaxAnisotropy() { EAXJMP(0x748F20); }
 WRAPPER RwTexture* RpAnisotTextureSetMaxAnisotropy(RwTexture* tex, RwInt8 val) { WRAPARG(tex); WRAPARG(val); EAXJMP(0x748F30); }
 WRAPPER RwInt8 RpAnisotTextureGetMaxAnisotropy(RwTexture* tex) { WRAPARG(tex); EAXJMP(0x748F50); }
+
+WRAPPER RwBool RwD3D9ChangeMultiSamplingLevels(RwUInt32 numLevels) { WRAPARG(numLevels); EAXJMP(0x7F8A90); }
+WRAPPER RwUInt32 RwD3D9EngineGetMaxMultiSamplingLevels() { EAXJMP(0x7F84E0); }
 
 RwCamera* RwCameraBeginUpdate(RwCamera* camera)
 {

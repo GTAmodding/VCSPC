@@ -16,6 +16,7 @@
 #include "FxSystem.h"
 #include "Shadows.h"
 #include "PcSave.h"
+#include "PostEffects.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -420,6 +421,8 @@ WRAPPER void CMenuManager::PrintBrief() { EAXJMP(0x576320); }
 WRAPPER void CMenuManager::DrawContollerScreenExtraText(int nUnk) { WRAPARG(nUnk); EAXJMP(0x57D8D0); }
 WRAPPER void CMenuManager::DisplayHelperText(const char* pText) { WRAPARG(pText); EAXJMP(0x57E240); }
 WRAPPER bool CMenuManager::CheckHover(int, int, int, int) { EAXJMP(0x57C4F0); }
+WRAPPER void CMenuManager::ProcessMissionPackNewGame() { EAXJMP(0x57D520); }
+WRAPPER void CMenuManager::DoSettingsBeforeStartingAGame() { EAXJMP(0x573330); }
 
 void CMenuManager::SaveSettings()
 {
@@ -790,7 +793,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			{
 				aScreens[m_bCurrentMenuPage].entryList[i].posX = 80;
 				aScreens[m_bCurrentMenuPage].entryList[i].screenHorAlign = -1;
-				CFont::SetOrientation(1);
+				CFont::SetOrientation(ALIGN_Left);
 
 				switch ( SlotValidation[i] )
 				{
@@ -806,8 +809,8 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				if ( !pTextToShow || !pTextToShow[0] )
 				{
 					sprintf(gString, "FEM_SL%X", i);
-					CFont::SetOrientation(0);
-					aScreens[m_bCurrentMenuPage].entryList[i].posX = 320;
+					CFont::SetOrientation(ALIGN_Center);
+					aScreens[m_bCurrentMenuPage].entryList[i].posX = 0;
 					aScreens[m_bCurrentMenuPage].entryList[i].screenHorAlign = 0;
 					pTextToShow = TheText.Get(gString);
 				}
@@ -1038,7 +1041,8 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 
 			if ( pTextToShow )
 			{
-				if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag <= ACTION_SAVE_12 )
+				if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag <= ACTION_SAVE_12
+					&& (SlotValidation[i] != 1 && SlotValidation[i] != 2) )
 				{
 					char		cSlotNumberText[4];
 					sprintf(cSlotNumberText, "%d", aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag);
@@ -1215,6 +1219,615 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	}
 }
 
+void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, bool bEnterInput)
+{
+	switch ( aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].action )
+	{
+	case 2:
+		*bReturn = true;
+		return;
+	case 25:
+		m_bShowSubtitles = m_bShowSubtitles == false;
+		SaveSettings();
+		return;
+	case 33:
+		m_bMapLegend = m_bMapLegend == false;
+		SaveSettings();
+		return;
+	case 26:
+		if ( nArrowsInput >= 0 )
+		{
+			if ( ++m_bAspectRatioMode > 5 )
+				m_bAspectRatioMode = 0;
+		}
+		else
+		{
+			if ( m_bAspectRatioMode )
+				--m_bAspectRatioMode;
+			else
+				m_bAspectRatioMode = 5;
+		}
+		WidescreenSupport::Recalculate(RsGlobal.MaximumWidth, RsGlobal.MaximumHeight, true);
+		SaveSettings();
+		return;
+	case 35:
+		if ( nArrowsInput >= 0 )
+		{
+			if ( ++m_bHudOn > 2 )
+				m_bHudOn = 0;
+		}
+		else
+		{
+			if ( m_bHudOn )
+				--m_bHudOn;
+			else
+				m_bHudOn = 2;
+		}
+		SaveSettings();
+		return;
+	// case 22: - PS2 only
+	// case 23: - PS2 only
+	case 31:
+		m_bRadioAutoSelect = m_bRadioAutoSelect == false;
+		AudioEngine.SetRadioAutoRetuneOnOff(m_bRadioAutoSelect);
+		SaveSettings();
+		return;
+	// case 30: - removed option
+	case 21:
+		if ( bEnterInput )
+		{
+			*bReturn = true;
+			return;
+		}
+
+		if ( nArrowsInput >= 0 )
+		{
+			if ( m_bStatScrollUp )
+			{
+				if ( m_fStatsScrollSpeed == 0.0f )
+					m_fStatsScrollSpeed = 150.0f;
+				else if ( m_fStatsScrollSpeed == 150.0f )
+					m_fStatsScrollSpeed = 30.0f;
+			}
+			else
+			{
+				if ( m_fStatsScrollSpeed == 0.0f )
+					m_fStatsScrollSpeed = 150.0f;
+				else
+					m_fStatsScrollSpeed = 0.0f;
+
+				m_bStatScrollUp = true;
+			}
+		}
+		else
+		{
+			if ( m_bStatScrollUp )
+			{
+				if ( m_fStatsScrollSpeed != 0.0f )
+					m_fStatsScrollSpeed = 0.0f;
+				m_bStatScrollUp = false;
+			}
+			else
+			{
+				if ( m_fStatsScrollSpeed == 0.0f )
+					m_fStatsScrollSpeed = 150.0f;
+				else if ( m_fStatsScrollSpeed == 150.0f )
+					m_fStatsScrollSpeed = 30.0f;
+			}
+		}
+
+		return;
+	case 32:
+		AudioEngine.ScrollRadioStations(nArrowsInput);
+		return;
+	//case 36: - PS2 only
+	case 34:
+		if ( nArrowsInput >= 0 )
+		{
+			if ( ++m_dwRadarMode > 2 )
+				m_dwRadarMode = 0;
+		}
+		else
+		{
+			if ( m_dwRadarMode )
+				--m_dwRadarMode;
+			else
+				m_dwRadarMode = 2;
+		}
+		SaveSettings();
+		return;
+	case 3:
+	case 4:
+	case 5:
+		SwitchToNewScreen(aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].targetMenu);
+		return;
+	case 11:
+		// TODO: Do
+		return;
+	case 10:
+		ProcessMissionPackNewGame();
+		return;
+	case 13:
+		if ( aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].specialDescFlag <= ACTION_SAVE_12 )
+		{
+			m_bSelectedSaveGame = m_dwSelectedMenuItem-1;
+			if ( m_bCurrentMenuPage == 9 )
+			{
+				if ( SlotValidation[m_dwSelectedMenuItem] != 1 && SlotValidation[m_dwSelectedMenuItem] != 2 )
+					SwitchToNewScreen(11);
+			}
+			else if ( m_bCurrentMenuPage == 10 )
+			{
+				if ( SlotValidation[m_dwSelectedMenuItem] != 1  )
+					SwitchToNewScreen(12);
+			}
+		}
+		return;
+	case 18:
+		if ( aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].specialDescFlag <= ACTION_SAVE_12 )
+		{
+			m_bSelectedSaveGame = m_dwSelectedMenuItem-1;
+			SwitchToNewScreen(17);
+		}
+		return;
+	case 12:
+		CGame::bMissionPackGame = m_bSelectedMissionPack;
+		DoSettingsBeforeStartingAGame();
+		return;
+	case 14:
+		CGame::bMissionPackGame = 0;
+		DoSettingsBeforeStartingAGame();
+		m_bBackIntoGame = true;
+		return;
+	case 15:
+		m_bBackIntoGame = true;
+		return;
+
+	case 46:
+		MousePointerStateHelper.m_bHorizontalInvert = MousePointerStateHelper.m_bHorizontalInvert == false;
+		SaveSettings();
+		return;
+	case 47:
+		invertPadX1 = invertPadX1 == false;
+		SaveSettings();
+		return;
+	case 48:
+		invertPadY1 = invertPadY1 == false;
+		SaveSettings();
+		return;
+	case 49:
+		invertPadX2 = invertPadX2 == false;
+		SaveSettings();
+		return;
+	case 50:
+		invertPadY2 = invertPadY2 == false;
+		SaveSettings();
+		return;
+	case 51:
+		swapPadAxis1 = swapPadAxis1 == false;
+		SaveSettings();
+		return;
+	case 52:
+		swapPadAxis2 = swapPadAxis2 == false;
+		SaveSettings();
+		return;
+	case 59:
+		if ( !m_nController )
+		{
+			CVehicle::m_bEnableMouseSteering = CVehicle::m_bEnableMouseSteering == false;
+			SaveSettings();
+		}
+		return;
+	case 60:
+		if ( !m_nController )
+		{
+			CVehicle::m_bEnableMouseFlying = CVehicle::m_bEnableMouseFlying == false;
+			SaveSettings();
+		}
+		return;
+	case 24:
+		if ( nArrowsInput >= 0 )
+		{
+			if ( ++m_bFrameLimiterMode > 4 )
+				m_bFrameLimiterMode = 0;
+		}
+		else
+		{
+			if ( m_bFrameLimiterMode )
+				--m_bFrameLimiterMode;
+			else
+				m_bFrameLimiterMode = 4;
+		}
+		RsGlobal.frameLimit = RsGlobalFrameLimits[m_bFrameLimiterMode];
+		SaveSettings();
+		return;
+	//case 43: - Removed option
+	case 64:
+		m_bTracksAutoScan = m_bTracksAutoScan == false;
+		SaveSettings();
+		return;
+	case 65:
+		m_bSavePhotos = m_bSavePhotos == false;
+		SaveSettings();
+		return;
+	case 58:
+		if ( m_nController == 1 )
+		{
+			m_nController = 0;
+			CCamera::m_bUseMouse3rdPerson = true;
+		}
+		else
+		{
+			m_nController = 1;
+			CCamera::m_bUseMouse3rdPerson = false;
+		}
+		SaveSettings();
+		return;
+	case 56:
+		if ( bEnterInput )
+		{
+			if ( m_dwResolution != m_dwAppliedResolution )
+			{
+				m_dwAppliedResolution = m_dwResolution;
+				// CSettings__SetCurrentVideoMode
+				((void(*)(int))0x745C70)(m_dwAppliedResolution);
+				CentreMousePointer();
+
+				m_bDrawMouse = true;
+				SaveSettings();
+				CPostEffects::DoScreenModeDependentInitializations();
+			}
+		}
+		else
+		{
+			char**				pVideoModes = ((char**(*)())0x745AF0)();
+			int					nNumVideoModes = RwEngineGetNumVideoModes();
+
+			if ( nArrowsInput > 0 )
+			{
+				int		nCurrentVidMode = m_dwResolution + 1;
+
+				if ( nCurrentVidMode >= nNumVideoModes )
+					nCurrentVidMode = 0;
+
+				while ( !pVideoModes[nCurrentVidMode] )
+				{
+					++nCurrentVidMode;
+
+					if ( nCurrentVidMode >= nNumVideoModes )
+						nCurrentVidMode = 0;
+				}
+
+				m_dwResolution = nCurrentVidMode;
+			}
+			else
+			{
+				int		nCurrentVidMode = m_dwResolution - 1;
+
+				if ( nCurrentVidMode < 0 )
+					nCurrentVidMode = nNumVideoModes - 1;
+
+				while ( !pVideoModes[nCurrentVidMode] )
+				{
+					--nCurrentVidMode;
+
+					if ( nCurrentVidMode < 0 )
+						nCurrentVidMode = nNumVideoModes - 1;
+				}
+
+				m_dwResolution = nCurrentVidMode;
+			}
+		}
+		return;
+	case 44:
+		if ( bEnterInput )
+		{
+			if ( m_dwAntiAliasingLevel != m_dwAppliedAntiAliasingLevel )
+			{
+				m_dwAppliedAntiAliasingLevel = m_dwAntiAliasingLevel;
+
+				RwD3D9ChangeMultiSamplingLevels(m_dwAppliedAntiAliasingLevel);
+				// CSettings__SetCurrentVideoMode
+				((void(*)(int))0x745C70)(m_dwAppliedResolution);
+				SaveSettings();
+			}
+		}
+		else
+		{
+			int		nNumMultiSamplingModes = RwD3D9EngineGetMaxMultiSamplingLevels();
+
+			if ( nNumMultiSamplingModes > 4 )
+				nNumMultiSamplingModes = 4;
+
+			if ( nArrowsInput > 0 )
+			{
+				int		nCurrentMode = m_dwAntiAliasingLevel + 1;
+
+				if ( nCurrentMode > nNumMultiSamplingModes )
+					nCurrentMode = 1;
+
+				m_dwAntiAliasingLevel = nCurrentMode;
+			}
+			else
+			{
+				int		nCurrentMode = m_dwAntiAliasingLevel - 1;
+
+				if ( nCurrentMode <= 0 )
+					nCurrentMode = nNumMultiSamplingModes;
+
+				m_dwAntiAliasingLevel = nCurrentMode;
+			}
+		}
+		return;
+	case MENUACTION_SHADOWS_QUALITY:
+		if ( nArrowsInput >= 0 )
+		{
+			switch ( CShadows::GetShadowQuality() )
+			{
+			case SHADOW_QUALITY_OFF:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_LOWEST);
+				break;
+			case SHADOW_QUALITY_LOWEST:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_LOW);
+				break;
+			case SHADOW_QUALITY_LOW:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_MEDIUM);
+				break;
+			case SHADOW_QUALITY_MEDIUM:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_HIGH);
+				break;
+			case SHADOW_QUALITY_HIGH:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_HIGHEST);
+				break;
+			case SHADOW_QUALITY_HIGHEST:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_OFF);
+				break;
+			}
+		}
+		else
+		{
+			switch ( CShadows::GetShadowQuality() )
+			{
+			case SHADOW_QUALITY_OFF:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_HIGHEST);
+				break;
+			case SHADOW_QUALITY_LOWEST:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_OFF);
+				break;
+			case SHADOW_QUALITY_LOW:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_LOWEST);
+				break;
+			case SHADOW_QUALITY_MEDIUM:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_LOW);
+				break;
+			case SHADOW_QUALITY_HIGH:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_MEDIUM);
+				break;
+			case SHADOW_QUALITY_HIGHEST:
+				CShadows::SetShadowQuality(SHADOW_QUALITY_HIGH);
+				break;
+			}
+		}
+		CShadows::InitialiseChangedSettings();
+		SaveSettings();
+		return;
+	case 63:
+		if ( nArrowsInput >= 0 )
+		{
+			if ( ++m_nRadioMode > 2 )
+				m_nRadioMode = 0;
+		}
+		else
+		{
+			if ( m_nRadioMode )
+				--m_nRadioMode;
+			else
+				m_nRadioMode = 2;
+		}
+		SaveSettings();
+		return;
+	case 54:
+		m_bBackIntoGame = true;
+		return;
+	case 57:
+		SetDefaultPreferences(aScreens[m_bCurrentMenuPage].entryList[2].targetMenu);
+
+		if ( aScreens[m_bCurrentMenuPage].entryList[2].targetMenu == 36 )
+			CControllerConfigManager::ReinitControls();
+
+		SaveSettings();
+		SwitchToNewScreen(aScreens[m_bCurrentMenuPage].entryList[2].targetMenu);
+		SetHelperText(2);
+		return;
+	case 7:
+		SwitchToNewScreen(m_nController == 1 ? 40 : 39);
+		return;
+	case 8:
+		m_bInVehicleControlsScreen = false;
+		SwitchToNewScreen(38);
+		field_90 = 0;
+		return;
+	case 9:
+		m_bInVehicleControlsScreen = true;
+		SwitchToNewScreen(38);
+		field_90 = 0;
+		return;
+	case 45:
+		field_1B14 = 1;
+		field_1B09 = 1;
+		field_1B08 = 1;
+		field_1B0C = m_dwSelectedMenuItem;
+		field_F0 =  &field_36[2];
+		return;
+	case 53:
+		SwitchToNewScreen(43);
+		return;
+	case 55:
+		SwitchToNewScreen(-2);
+		return;
+	case 6:
+		field_1AEB = 1;
+		return;
+	case 37:
+		if ( m_nLanguage != 0 )
+		{
+			m_nLanguage = 0;
+			m_bReinitLanguageSettings = true;
+			InitialiseChangedLanguageSettings(false);
+			SaveSettings();
+		}
+		return;
+	case 38:
+		if ( m_nLanguage != 1 )
+		{
+			m_nLanguage = 1;
+			m_bReinitLanguageSettings = true;
+			InitialiseChangedLanguageSettings(false);
+			SaveSettings();
+		}
+		return;
+	case 39:
+		if ( m_nLanguage != 2 )
+		{
+			m_nLanguage = 2;
+			m_bReinitLanguageSettings = true;
+			InitialiseChangedLanguageSettings(false);
+			SaveSettings();
+		}
+		return;
+	case 40:
+		if ( m_nLanguage != 3 )
+		{
+			m_nLanguage = 3;
+			m_bReinitLanguageSettings = true;
+			InitialiseChangedLanguageSettings(false);
+			SaveSettings();
+		}
+		return;
+	case 41:
+		if ( m_nLanguage != 4 )
+		{
+			m_nLanguage = 4;
+			m_bReinitLanguageSettings = true;
+			InitialiseChangedLanguageSettings(false);
+			SaveSettings();
+		}
+		return;
+	case MENUACTION_TOGGLE_LANGUAGE_6:
+		if ( m_nLanguage != 5 )
+		{
+			m_nLanguage = 5;
+			m_bReinitLanguageSettings = true;
+			InitialiseChangedLanguageSettings(false);
+			SaveSettings();
+		}
+		return;
+
+	case MENUACTION_UPDATER_BUTTON:
+		CUpdateManager::HandleButtonClick();
+		return;
+	case MENUACTION_TOGGLE_DLC:
+		CDLCManager::HandleButtonClick(m_dwSelectedMenuItem);
+		return;
+	case MENUACTION_ACTIVATE_SERIAL:
+		if ( m_bSerialFull )
+			CDLCManager::ActivateSerial(m_strSerialCode);
+		return;
+	case MENUACTION_AUTOINSTALL_UPDATES:
+		CUpdateManager::SetAutoInstall(CUpdateManager::AutoInstallEnabled() == false);
+		CUpdateManager::SaveSettings();
+		return;
+	case MENUACTION_CHECKING_PERIOD:
+		if ( nArrowsInput >= 0 )
+		{
+			unsigned char		nPeriod = CUpdateManager::GetCheckingPeriod();
+			if ( ++nPeriod > 3 )
+				nPeriod = 0;
+
+			CUpdateManager::SetCheckingPeriod(nPeriod);
+		}
+		else
+		{
+			unsigned char		nPeriod = CUpdateManager::GetCheckingPeriod();
+			if ( nPeriod )
+				--nPeriod;
+			else
+				nPeriod = 3;
+
+			CUpdateManager::SetCheckingPeriod(nPeriod);
+		}
+		CUpdateManager::SaveSettings();
+		return;
+	case MENUACTION_TEXTURE_FILTERMODE:
+		if ( nArrowsInput >= 0 )
+		{
+			unsigned char	nFilteringQuality = Fx_c::GetTextureFilteringQuality();
+			if ( ++nFilteringQuality > Fx_c::GetMaxTextureFilteringQuality() )
+				nFilteringQuality = 0;
+
+			Fx_c::SetTextureFilteringQuality(nFilteringQuality);
+		}
+		else
+		{
+			unsigned char	nFilteringQuality = Fx_c::GetTextureFilteringQuality();
+			if ( nFilteringQuality )
+				--nFilteringQuality;
+			else
+				nFilteringQuality = Fx_c::GetMaxTextureFilteringQuality();
+
+			Fx_c::SetTextureFilteringQuality(nFilteringQuality);
+		}
+		SaveSettings();
+		return;
+	case MENUACTION_EFFECTS_QUALITY:
+		if ( nArrowsInput >= 0 )
+		{
+			switch ( Fx_c::GetEffectsQuality() )
+			{
+			case FXQUALITY_LOW:
+				Fx_c::SetEffectsQuality(FXQUALITY_MEDIUM);
+				break;
+			case FXQUALITY_MEDIUM:
+				Fx_c::SetEffectsQuality(FXQUALITY_HIGH);
+				break;
+			case FXQUALITY_HIGH:
+				Fx_c::SetEffectsQuality(FXQUALITY_LOW);
+				break;
+			}
+		}
+		else
+		{
+			switch ( Fx_c::GetEffectsQuality() )
+			{
+			case FXQUALITY_LOW:
+				Fx_c::SetEffectsQuality(FXQUALITY_HIGH);
+				break;
+			case FXQUALITY_MEDIUM:
+				Fx_c::SetEffectsQuality(FXQUALITY_LOW);
+				break;
+			case FXQUALITY_HIGH:
+				Fx_c::SetEffectsQuality(FXQUALITY_MEDIUM);
+				break;
+			}
+		}
+		SaveSettings();
+		return;
+	}
+}
+
+void CMenuManager::CentreMousePointer()
+{
+	POINT		PointerPos;
+	PointerPos.x = RsGlobal.MaximumWidth / 2;
+	PointerPos.y = RsGlobal.MaximumHeight / 2;
+
+	ClientToScreen(RsGlobal.ps->window, &PointerPos);
+	SetCursorPos(PointerPos.x, PointerPos.y);
+
+	RsGlobal.ps->lastMousePos_X = RsGlobal.MaximumWidth / 2;
+	RsGlobal.ps->lastMousePos_Y = RsGlobal.MaximumHeight / 2;
+}
+
 void CMenuManager::DrawBackEnd()
 {
 	// Calculate proper dimensions
@@ -1365,7 +1978,6 @@ float CMenuManager::DisplaySlider(float posX, float posY, float height, float di
 	BYTE			positionCounter = 0;
 	BYTE			secondPositionCounter = 0;
 	bool			bDrawHalfSlider = false;
-	bool			bGotLowestInactive = false;
 	float			fullWidth = 0.0;
 
 	do
@@ -2094,6 +2706,7 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 		//g_fx.SetFxQuality(FXQUALITY_HIGH);
 		Fx_c::SetEffectsQuality(FXQUALITY_HIGH);
 		Fx_c::SetTextureFilteringQuality(1);	// Trilinear
+		CShadows::SetShadowQuality(SHADOW_QUALITY_MEDIUM);
 
 		// Reinit widescreen and framelimit stuff
 		WidescreenSupport::Recalculate(RsGlobal.MaximumWidth, RsGlobal.MaximumHeight, true);
@@ -2172,6 +2785,8 @@ float CMenuManager::GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition)
 void CMenuManager::Inject()
 {
 	Memory::InjectHook(0x57BA58, &DrawStandardMenus);
+	Memory::InjectHook(0x57B66F, &ProcessMenuOptions);
+	Memory::InjectHook(0x57B702, &ProcessMenuOptions);
 }
 
 // TODO: CLoadingScreen
@@ -2270,173 +2885,6 @@ void LoadingScreen()
 	}
 }
 
-static void __declspec(naked) AutoInstallUpdates_RightColumm()
-{
-	_asm
-	{
-		mov		cl, [CUpdateManager::bAutoInstallUpdates]
-		test	cl, cl
-		mov		ecx, [TheText]
-		jz		AutoInstallUpdates_RightColumm_Off
-		push	579FA6h
-		retn
-
-AutoInstallUpdates_RightColumm_Off:
-		push	579F65h
-		retn
-	}
-}
-
-static void __declspec(naked) CheckEvery_RightColumn()
-{
-	static const char		aFem_Ch1[] = "FEU_CH1";
-	static const char		aFem_Ch2[] = "FEU_CH2";
-	static const char		aFem_Ch3[] = "FEU_CH3";
-	static const char		aFem_Ch4[] = "FEU_CH4";
-	_asm
-	{
-		mov		ecx, [TheText]
-		mov		al, [CUpdateManager::bCheckingPeriod]
-		test	al, al
-		jz		CheckEvery_RightColumn_Ch1
-		dec		al
-		jz		CheckEvery_RightColumn_Ch2
-		dec		al
-		jz		CheckEvery_RightColumn_Ch3
-		push	offset aFem_Ch4
-		jmp		CheckEvery_RightColumn_Return
-
-CheckEvery_RightColumn_Ch1:
-		push	offset aFem_Ch1
-		jmp		CheckEvery_RightColumn_Return
-
-CheckEvery_RightColumn_Ch2:
-		push	offset aFem_Ch2
-		jmp		CheckEvery_RightColumn_Return
-
-CheckEvery_RightColumn_Ch3:
-		push	offset aFem_Ch3
-
-CheckEvery_RightColumn_Return:
-		push	57A161h
-		retn
-	}
-}
-
-void __declspec(naked) TextureFiltering_RightColumn()
-{
-	static const char		aFed_Tx0[] = "FED_TX0";
-	static const char		aFed_Tx1[] = "FED_TX1";
-	static const char		aFed_Tx2[] = "FED_TX2";
-	static const char		aFed_Tx3[] = "FED_TX3";
-	static const char		aFed_Tx4[] = "FED_TX4";
-	static const char		aFed_Tx5[] = "FED_TX5";
-	_asm
-	{
-		mov		ecx, [TheText]
-		mov		al, [Fx_c::m_bTextureFiltering]
-		test	al, al
-		jz		TextureFiltering_RightColumn_Tx0
-		dec		al
-		jz		TextureFiltering_RightColumn_Tx1
-		dec		al
-		jz		TextureFiltering_RightColumn_Tx2
-		dec		al
-		jz		TextureFiltering_RightColumn_Tx3
-		dec		al
-		jz		TextureFiltering_RightColumn_Tx4
-		push	offset aFed_Tx5
-		jmp		TextureFiltering_RightColumn_Return
-
-TextureFiltering_RightColumn_Tx0:
-		push	offset aFed_Tx0
-		jmp		TextureFiltering_RightColumn_Return
-
-TextureFiltering_RightColumn_Tx1:
-		push	offset aFed_Tx1
-		jmp		TextureFiltering_RightColumn_Return
-
-TextureFiltering_RightColumn_Tx2:
-		push	offset aFed_Tx2
-		jmp		TextureFiltering_RightColumn_Return
-
-TextureFiltering_RightColumn_Tx3:
-		push	offset aFed_Tx3
-		jmp		TextureFiltering_RightColumn_Return
-
-TextureFiltering_RightColumn_Tx4:
-		push	offset aFed_Tx4
-
-TextureFiltering_RightColumn_Return:
-		push	57A161h
-		retn
-	}
-}
-
-void __declspec(naked) EffectsQuality_RightColumn()
-{
-	static const char		aFed_Fxl[] = "FED_FXL";
-	static const char		aFed_Fxm[] = "FED_FXM";
-	static const char		aFed_Fxh[] = "FED_FXH";
-	_asm
-	{
-		mov		ecx, [TheText]
-		mov		eax, [Fx_c::m_bEffectsQuality]
-		test	eax, eax
-		jz		EffectsQuality_RightColumn_Low
-		dec		eax
-		jz		EffectsQuality_RightColumn_Medium
-		push	offset aFed_Fxh
-		jmp		EffectsQuality_RightColumn_Return
-
-EffectsQuality_RightColumn_Low:
-		push	offset aFed_Fxl
-		jmp		EffectsQuality_RightColumn_Return
-
-EffectsQuality_RightColumn_Medium:
-		push	offset aFed_Fxm
-
-EffectsQuality_RightColumn_Return:
-		push	57A161h
-		retn
-	}
-}
-
-/*void __declspec(naked) AntiAliasing_RightColumn()
-{
-	static const char		aFed_Aa1[] = "FED_AA1";
-	static const char		aFed_Aa2[] = "FED_AA2";
-	static const char		aFed_Aa3[] = "FED_AA3";
-	_asm
-	{
-		mov		ecx, [TheText]
-		mov		eax, [ebp].m_dwAntiAliasingLevel
-		cmp		eax, 1
-		jle		AntiAliasing_RightColumn_Off
-		sub		eax, 2
-		jz		AntiAliasing_RightColumn_2x
-		dec		eax
-		jz		AntiAliasing_RightColumn_4x
-		push	offset aFed_Aa3
-		jmp		AntiAliasing_RightColumn_Return
-
-AntiAliasing_RightColumn_2x:
-		push	offset aFed_Aa1
-		jmp		AntiAliasing_RightColumn_Return
-
-AntiAliasing_RightColumn_4x:
-		push	offset aFed_Aa2
-
-AntiAliasing_RightColumn_Return:
-		push	57A161h
-		retn
-
-AntiAliasing_RightColumn_Off:
-		push	579F65h
-		retn
-	}
-}*/
-
 static void __declspec(naked) UserInputArrowSoundMenus()
 {
 	_asm
@@ -2459,29 +2907,6 @@ UserInputArrowSoundMenus_False:
 
 
 static StaticPatcher	Patcher([](){
-				static const BYTE			StandardMenusRightColumn_Table[] = {
-								0x00, 0x01, 0x02, 0x1B, 0x1B, 0x1B, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
-								0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x0A, 0x0B, 0x0C, 0x1B, 0x0D, 0x0E, 0x0F, 0x10,
-								0x11, 0x12, 0x13, 0x1B, 0x1B, 0x1B, 0x14, 0x1B, 0x15, 0x16, 0x17, 0x1B, 0x1B,
-								0x18, 0x19, 0x1A, 0x1B, 0x1B, 0x1B, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F };
-
-				static const void* const	StandardMenusRightColumn_Addresses[] = {
-								(void*)0x579EF0, (void*)0x579DDE, (void*)0x579DE6,
-								(void*)0x579DB9, (void*)0x579DB1, (void*)0x579DC1,
-								(void*)0x579DD6, (void*)0x579E37, (void*)0x579E67,
-								(void*)0x579DEE, /*ShadowsQuality_RightColumn*/ (void*)0x579EF8,
-								/*AntiAliasing_RightColumn,*/ (void*)0x579F57, (void*)0x579F6F,
-								(void*)0x579F77, (void*)0x579F7F, (void*)0x579F87,
-								(void*)0x579F8F, (void*)0x579F97, (void*)0x57A05A,
-								(void*)0x57A141, (void*)0x579FB0, (void*)0x57A005,
-								(void*)0x579E7A, (void*)0x579F4F, (void*)0x579E6F,
-								(void*)0x57A168, /*AutoInstallUpdates_RightColumm,*/ /*CheckEvery_RightColumn, */
-								/*TextureFiltering_RightColumn, EffectsQuality_RightColumn*/ };
-
-				//Memory::Patch<BYTE>(0x579D9C, sizeof(StandardMenusRightColumn_Table)-1);
-				//Memory::Patch<const void*>(0x579DA6, StandardMenusRightColumn_Table);
-				//Memory::Patch<const void*>(0x579DAD, StandardMenusRightColumn_Addresses);
-
 				static const BYTE			UserInputArrowSoundMenus_Table[] = {
 								0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01,
 								0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,

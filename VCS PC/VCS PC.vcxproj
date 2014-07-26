@@ -356,6 +356,7 @@ popd</Command>
     <ClCompile Include="PlayerInfo.cpp" />
     <ClCompile Include="PNGArchive.cpp" />
     <ClCompile Include="Pools.cpp" />
+    <ClCompile Include="PostEffects.cpp" />
     <ClCompile Include="Project2dfx.cpp" />
     <ClCompile Include="RealTimeShadowMgr.cpp" />
     <ClCompile Include="Replay.cpp" />
@@ -447,6 +448,7 @@ popd</Command>
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="PNGArchive.h" />
     <ClInclude Include="Pools.h" />
+    <ClInclude Include="PostEffects.h" />
     <ClInclude Include="Project2dfx.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="RealTimeShadowMgr.h" />

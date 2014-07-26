@@ -6,6 +6,7 @@
 #include "PlayerInfo.h"
 #include "Pad.h"
 #include "RealTimeShadowMgr.h"
+#include "Shadows.h"
 
 WRAPPER void CVehicle::SetWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D3080); }
 WRAPPER void CVehicle::ClearWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D30B0); }
@@ -36,20 +37,25 @@ void CVehicle::SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha)
 
 void CVehicle::RenderForShadow(RpClump* pClump)
 {
-	RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, nullptr);
+	bool		bOpenTop =  m_dwVehicleSubClass == VEHICLE_QUAD || m_dwVehicleSubClass == VEHICLE_BIKE || m_dwVehicleSubClass == VEHICLE_BMX;
+	bool		bRenderAtLower = bOpenTop || CShadows::GetShadowQuality() > SHADOW_QUALITY_MEDIUM;
 
-	// Is open top?
-	if ( m_dwVehicleSubClass == VEHICLE_QUAD || m_dwVehicleSubClass == VEHICLE_BIKE || m_dwVehicleSubClass == VEHICLE_BMX )
+	RpClumpForAllAtomics(pClump, ShadowCameraRenderCB_Vehicle, reinterpret_cast<void*>(bRenderAtLower));
+
+	// High or Very High OR open top?
+	if ( CShadows::GetShadowQuality() > SHADOW_QUALITY_MEDIUM || bOpenTop )
 	{
+		bool		bRenderWeapons = (bOpenTop && CShadows::GetShadowQuality() > SHADOW_QUALITY_MEDIUM) || CShadows::GetShadowQuality() > SHADOW_QUALITY_HIGH;
+
 		// Render driver
 		if ( m_pDriver )
-			m_pDriver->RenderForShadow(reinterpret_cast<RpClump*>(m_pDriver->m_pRwObject));
+			m_pDriver->RenderForShadow(reinterpret_cast<RpClump*>(m_pDriver->m_pRwObject), bRenderWeapons);
 
 		// Render passengers
 		for ( int i = 0; i < 8; i++ )
 		{
 			if ( m_apPassengers[i] )
-				m_apPassengers[i]->RenderForShadow(reinterpret_cast<RpClump*>(m_apPassengers[i]->m_pRwObject));
+				m_apPassengers[i]->RenderForShadow(reinterpret_cast<RpClump*>(m_apPassengers[i]->m_pRwObject), bRenderWeapons);
 		}
 	}
 }

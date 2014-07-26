@@ -38,6 +38,11 @@ public:
 	static inline unsigned char	GetCheckingPeriod()
 		{ return bCheckingPeriod; }
 
+	static inline void			SetCheckingPeriod(unsigned char nPeriod)
+		{ bCheckingPeriod = nPeriod; }
+	static inline void			SetAutoInstall(bool bEnabled)
+		{ bAutoInstallUpdates = bEnabled; }
+
 	static inline bool			IsDownloading()
 	{ return nInterfaceStatus == UPTMODULESTATE_DOWNLOADING || nInterfaceStatus == UPTMODULESTATE_ALL_READY; }
 

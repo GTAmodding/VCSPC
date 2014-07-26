@@ -243,6 +243,9 @@
     <ClCompile Include="Tasks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PostEffects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CConfiscatedWeapons.h">
@@ -486,6 +489,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tasks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PostEffects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

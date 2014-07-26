@@ -21,9 +21,13 @@ enum
 template<typename AT>
 inline void CheckMemoryBanList(AT address)
 {
+#ifdef DEVBUILD
 	unsigned int	nAddress = (unsigned int)address;
 
 	assert(nAddress < 0x5794A0 || nAddress > 0x57B43F);
+	assert(nAddress < 0x576FE0 || nAddress > 0x5773CF);
+	assert(nAddress < 0x57CD50 || nAddress > 0x57D51F);
+#endif
 }
 
 namespace Memory

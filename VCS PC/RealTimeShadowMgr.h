@@ -1,7 +1,9 @@
 #ifndef __REALTIMESHADOWMGR
 #define __REALTIMESHADOWMGR
 
-#define NUM_MAX_REALTIME_SHADOWS		64
+#define NUM_MAX_REALTIME_SHADOWS		56
+
+#define SHADOWS_MAX_INTENSITY			100
 
 struct tShadowQualitySettings
 {
@@ -126,6 +128,7 @@ public:
 };
 
 RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData);
+RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData);
 
 extern CRealTimeShadowManager	g_realTimeShadowMan;
 

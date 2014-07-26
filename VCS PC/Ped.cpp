@@ -43,55 +43,58 @@ bool CPed::Load()
 	return true;
 }
 
-void CPed::RenderForShadow(RpClump* pClump)
+void CPed::RenderForShadow(RpClump* pClump, bool bRenderWeapon)
 {
 	RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, nullptr);
 
-	if ( m_pWeaponObject )
+	if ( bRenderWeapon )
 	{
-		RpHAnimHierarchy*	pAnimHierarchy = GetAnimHierarchyFromSkinClump(pClump);
-		bool				bHasParachute = weaponSlots[m_bActiveWeapon].m_eWeaponType == WEAPONTYPE_PARACHUTE;
-
-		RwFrame*			pFrame = RpClumpGetFrame(reinterpret_cast<RpClump*>(m_pWeaponObject));
-		*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, bHasParachute ? 3 : 24)];
-
-		if ( bHasParachute )
+		if ( m_pWeaponObject )
 		{
-			const RwV3d		vecParachuteTranslation = { 0.1f, -0.15f, 0.0f };
-			const RwV3d		vecParachuteRotation = { 0.0f, 1.0f, 0.0f };
-			RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
-			RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 90.0f, rwCOMBINEPRECONCAT);
-		}
+			RpHAnimHierarchy*	pAnimHierarchy = GetAnimHierarchyFromSkinClump(pClump);
+			bool				bHasParachute = weaponSlots[m_bActiveWeapon].m_eWeaponType == WEAPONTYPE_PARACHUTE;
 
-		RpGeometry*	pWeaponGeometry = RpAtomicGetGeometry(GetFirstAtomic(reinterpret_cast<RpClump*>(m_pWeaponObject)));
-		RwUInt32	weaponGeometryFlags = RpGeometryGetFlags(pWeaponGeometry);
-		RpGeometrySetFlags(pWeaponGeometry, weaponGeometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
-				rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+			RwFrame*			pFrame = RpClumpGetFrame(reinterpret_cast<RpClump*>(m_pWeaponObject));
+			*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, bHasParachute ? 3 : 24)];
 
-		RwFrameUpdateObjects(pFrame);
-		//AtomicDefaultRenderCallBack(GetFirstAtomic(reinterpret_cast<RpClump*>(pPed->m_pWeaponObject)));	
-		RpClumpRender(reinterpret_cast<RpClump*>(m_pWeaponObject));
+			if ( bHasParachute )
+			{
+				const RwV3d		vecParachuteTranslation = { 0.1f, -0.15f, 0.0f };
+				const RwV3d		vecParachuteRotation = { 0.0f, 1.0f, 0.0f };
+				RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
+				RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 90.0f, rwCOMBINEPRECONCAT);
+			}
 
-		// Dual weapons
-		if ( CWeaponInfo::GetWeaponInfo(weaponSlots[m_bActiveWeapon].m_eWeaponType, GetWeaponSkill())->hexFlags >> 11 & 1 )
-		{
-			*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, 34)];				
+			RpGeometry*	pWeaponGeometry = RpAtomicGetGeometry(GetFirstAtomic(reinterpret_cast<RpClump*>(m_pWeaponObject)));
+			RwUInt32	weaponGeometryFlags = RpGeometryGetFlags(pWeaponGeometry);
+			RpGeometrySetFlags(pWeaponGeometry, weaponGeometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
+					rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
 
-			const RwV3d		vecParachuteRotation = { 1.0f, 0.0f, 0.0f };
-			const RwV3d		vecParachuteTranslation  = { 0.04f, -0.05f, 0.0f };
-			RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 180.0f, rwCOMBINEPRECONCAT);
-			RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
-
-			RwFrameUpdateObjects(pFrame);	
+			RwFrameUpdateObjects(pFrame);
+			//AtomicDefaultRenderCallBack(GetFirstAtomic(reinterpret_cast<RpClump*>(pPed->m_pWeaponObject)));	
 			RpClumpRender(reinterpret_cast<RpClump*>(m_pWeaponObject));
-		}
-		RpGeometrySetFlags(pWeaponGeometry, weaponGeometryFlags);
-	}
 
-	// Render jetpack
-	auto*	pJetPackTask = pPedIntelligence->GetTaskJetPack();
-	if ( pJetPackTask )
-		pJetPackTask->RenderJetPack(this);
+			// Dual weapons
+			if ( CWeaponInfo::GetWeaponInfo(weaponSlots[m_bActiveWeapon].m_eWeaponType, GetWeaponSkill())->hexFlags >> 11 & 1 )
+			{
+				*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, 34)];				
+
+				const RwV3d		vecParachuteRotation = { 1.0f, 0.0f, 0.0f };
+				const RwV3d		vecParachuteTranslation  = { 0.04f, -0.05f, 0.0f };
+				RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 180.0f, rwCOMBINEPRECONCAT);
+				RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
+
+				RwFrameUpdateObjects(pFrame);	
+				RpClumpRender(reinterpret_cast<RpClump*>(m_pWeaponObject));
+			}
+			RpGeometrySetFlags(pWeaponGeometry, weaponGeometryFlags);
+		}
+
+		// Render jetpack
+		auto*	pJetPackTask = pPedIntelligence->GetTaskJetPack();
+		if ( pJetPackTask )
+			pJetPackTask->RenderJetPack(this);
+	}
 }
 
 

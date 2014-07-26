@@ -15,34 +15,25 @@ public:
 	static float	fScreenWidthDivider;
 	static float	fScreenHeightMultiplier;
 	static float	f4;
-	static float	f40;
 	static float	f45;
 	static float	f50;
 	static float	f55;
 	static float	f60;
 	static float	f70;
 	static float	f95;
-	static float	f100;
 	static float	f160;
 	static float	f350;
 	static float	f555;
 	static float	f580;
 	static float	f0pt3;
-	static float	f1pt3;
 	static float	f0pt49;
-	static float	f0pt42;
-	static float	f0pt35;
-	static float	f0pt7;
 	static float	f0pt8;
 	static float	f0pt56;
-	static float	fMenuSliderPosX;
-	static float	fMenuSliderWidth;
 	static float	fMenuMessageWidth;
 	static float	fCTSliderRight;
 	static float	fCTSliderLeft;
 	static float	fScreenCoorsFix;
 //	static float	fSpawningFix;
-	static float	fAimpointFix;
 	static float	fMapZonePosX2;
 //	static float	fSkyMultFix;
 
@@ -53,10 +44,6 @@ public:
 	static float	f1_h;
 	static float	f28_h;
 	static float	f97_centh;
-	static float	fMenuSliderPosY2;
-	static float	fMenuSliderPosY3;
-	static float	fMenuSliderPosY4;
-	static float	fMenuSliderHeight2;
 
 	static float	fProperWidthMultiplier;
 	static float	fProperHeightMultiplier;
@@ -81,7 +68,7 @@ public:
 	static inline float GetScreenHeightMultiplier()
 		{ return fScreenHeightMultiplier; }
 
-	static CVector2D	GetFullscreenImageDimensions(float fImageAspectRatio, float fScreenAspectRatio, bool bFitToScreen);
+	static CVector2D		GetFullscreenImageDimensions(float fImageAspectRatio, float fScreenAspectRatio, bool bFitToScreen);
 };
 
 #endif

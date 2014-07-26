@@ -166,14 +166,14 @@ public:
 	__int8 field_8;
 	__int8 field_9[23];
 	bool				m_bVibration;
-	bool                m_bHudOn;
+	unsigned char		m_bHudOn;
 	__int8 field_22[2];
 	__int32             m_dwRadarMode;
 	__int8 field_28[4];
 	__int32 field_2C;
 	__int8 field_30;
 	__int8 field_31;
-	__int8 field_32;
+	bool				m_bBackIntoGame;
 	bool                m_bActivateMenuNextFrame;
 	bool                m_bMenuAccessWidescreen;
 	__int8 field_35;
@@ -232,7 +232,7 @@ public:
 	__int8 invertPadY2;
 	__int8 swapPadAxis1;
 	__int8 swapPadAxis2;
-	__int8 field_B7;
+	bool				m_bInVehicleControlsScreen;
 	bool                m_bDrawMouse;
 	__int8 field_B9[3];
 	__int32             m_dwMousePosLeft;
@@ -254,7 +254,7 @@ public:
 	__int8              m_nPlayerNumber;
 	bool				m_bReinitLanguageSettings;
 	__int32 field_EC;
-	__int32 field_F0;
+	void* field_F0;
 	__int8 field_F4;
 	__int8 field_F5[3];
 	union{
@@ -271,8 +271,8 @@ public:
 	bool                m_bTexturesLoaded;
 	signed char	        m_bCurrentMenuPage;
 	signed char			m_bLastMenuPage;
-	bool                m_bSelectedSaveGame;
-	__int8 field_160;
+	unsigned char		m_bSelectedSaveGame;
+	unsigned char		m_bSelectedMissionPack;
 	__int8 field_161;
 	char                m_mpackName[8];
 	__int8 field_16A[6486];
@@ -370,6 +370,9 @@ public:
 	static MenuItem		ms_pMenus[];
 
 private:
+	void			ProcessMissionPackNewGame();
+	void			DoSettingsBeforeStartingAGame();
+
 	void			PrintStats();
 	void			PrintUpdaterScreen();
 	void			PrintDLCScreen();
@@ -377,6 +380,9 @@ private:
 	void			DrawStandardMenus(bool bDrawMenu);
 	void			DrawRadioStationIcons();
 	float			DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width);
+
+	void			CentreMousePointer();
+	void			ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, bool bEnterInput);
 
 public:
 	inline BYTE		GetHudMode()

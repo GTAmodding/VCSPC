@@ -11,6 +11,10 @@ eShadowQuality CShadows::m_bShadowQuality;
 
 float&			MAX_DISTANCE_PED_SHADOWS = *(float*)0x8D5240;
 
+// SHADOW DRAW DISTANCES
+// Ped
+// Min - ??? Max - 45.0
+
 void CShadows::RenderIndicatorShadow(unsigned int nIndex, unsigned char, RwTexture*, CVector* pPos, float radiusX, float, float, float radiusY, short)
 {
 	C3DMarkers::PlaceMarkerSet(nIndex, 1, *pPos, radiusX > -radiusY ? radiusX : -radiusY, MARKER_SET_COLOR_R, MARKER_SET_COLOR_G, MARKER_SET_COLOR_B, MARKER_SET_COLOR_A, 2048, 0.2f);
@@ -30,7 +34,7 @@ bool CShadows::StoreRealTimeShadowForVehicle(CVehicle* pVehicle)
 		return pVehicle->GetSubClass() == VEHICLE_HELI || pVehicle->GetSubClass() == VEHICLE_PLANE;
 	}
 
-	return false;
+	return m_bShadowQuality == SHADOW_QUALITY_OFF;
 }
 
 void CShadows::StoreRealTimeShadowForObject(CObject* pObject)

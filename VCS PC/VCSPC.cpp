@@ -431,13 +431,9 @@ static const char			aSpanish_gxt[] = "SPANISH.GXT";
 static const char			aPolish_gxt[] = "POLISH.GXT";
 static const char			aHungarian_gxt[] = "HUNGARIAN.GXT";
 static const char			aRomanian_gxt[] = "ROMANIAN.GXT";
-static const char			aFem_24H[] = "FEM_24H";
-static const char			aFem_12H[] = "FEM_12H";
-static const char			aFem_Fps[] = "FEM_FPS";
-static const char			aFem_Asd[] = "FEM_AS%d";
-#ifdef ADD_UNFINISHED_WINDOWED_MODE
-const char					aWindowed[] = "WINDOWED";
-#endif
+
+static const char			aWindowed[] = "WINDOWED";
+
 
 const BYTE					audioGearboxSoundTable[] = {
 									0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
@@ -478,32 +474,6 @@ const BYTE					CAutomobile__PreRenderCoronasTable[] = {
 									4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
 									4, 4, 4, 0, 0, 0, 0, 4, 4, 4,
 									4, 2 };
-
-const BYTE					PCMenuActionsTable[] = {
-									0, 1, 2, 3, 33, 33, 33, 33,
-									33, 33, 33, 33, 33, 33, 33, 33,
-									33, 33, 4, 33, 33, 33, 33, 33,
-									33, 33, 33, 33, 5, 33, 33, 6,
-									7, 8, 9, 10, 11, 12, 13, 14, 15,
-									16, 17, 18, 19, 20, 21, 22, 23,
-									24, 25, 26, 27, 28, 29, 33, 33,
-									30, 31, 32, 34, 35, 36, 37, 38, 39, 40, 41 };
-
-const void*	const			PCMenuActionsAddresses[] = {
-									(void*)0x57D397, (void*)0x57D2FA, (void*)0x57D322,
-									(void*)0x57D32B, (void*)0x57CEC7, (void*)0x57D3A5,
-									(void*)0x57D418, (void*)0x57D3CD, (void*)0x57D3DD,
-									(void*)0x57D3EF, (void*)0x57D401, ShadowsQualityMenuAction,
-									(void*)0x57CEE1, (void*)0x57D0C6, (void*)0x57D34C,
-									(void*)0x57CD8F, (void*)0x57CDAD, (void*)0x57CDCD,
-									(void*)0x57CDED, (void*)0x57CE0D, (void*)0x57CE2D,
-									(void*)0x57CE4D, (void*)0x57D375, (void*)0x57D25D,
-									(void*)0x57D386, (void*)0x57CF9B, (void*)0x57D268,
-									(void*)0x57CF5B, (void*)0x57CE6D, (void*)0x57CE9A,
-									(void*)0x57D21F, (void*)0x57CF1B, (void*)0x57CF3B,
-									(void*)0x57D447, Language6Action, UpdaterMenuAction,
-									DLCMenuAction, ActivateSerialAction, AutoInstallUpdatesAction,
-									CheckEveryAction, TextureFilteringAction, EffectsQualityAction };
 
 const int					iRadioTracks[NUM_RADIOSTATIONS][31] = {
 				{ AA_OFFSET+1, AA_OFFSET+4, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922 },
@@ -3056,9 +3026,9 @@ __forceinline void Main_Patches()
 	//InjectHook(0x579D50, &UpdaterTextSwap, PATCH_JUMP);
 //	InjectHook(0x576E13, &MenuToggleHack, PATCH_JUMP
 //	InjectHook(0x573680, &SetToNewMenuHack, PATCH_JUMP);
-	Patch<const void*>(0x57CD84, PCMenuActionsTable);
-	Patch<const void*>(0x57CD8B, PCMenuActionsAddresses);
-	Patch<BYTE>(0x57CD74, sizeof(PCMenuActionsTable)-1);
+	//Patch<const void*>(0x57CD84, PCMenuActionsTable);
+	//Patch<const void*>(0x57CD8B, PCMenuActionsAddresses);
+	//Patch<BYTE>(0x57CD74, sizeof(PCMenuActionsTable)-1);
 	Patch<WORD>(0x573830, 0xCE8B);
 	Patch<BYTE>(0x573832, 0x5E);
 	InjectHook(0x573833, &CMenuManager::SwitchToNewScreenVCS, PATCH_JUMP);
@@ -3123,9 +3093,9 @@ __forceinline void Main_Patches()
 	InjectHook(0x748D83, &MaxosFrameLimitHack, PATCH_JUMP);
 	InjectHook(0x748D9A, &MaxosFrameLimitHack, PATCH_JUMP);
 
-	InjectHook(0x57CECA, &FrameLimit_SwitchInject, PATCH_JUMP);
+	//InjectHook(0x57CECA, &FrameLimit_SwitchInject, PATCH_JUMP);
 	//InjectHook(0x579EF3, &FrameLimit_StringInject);
-	InjectHook(0x57CD05, &FrameLimit_SetFPS, PATCH_JUMP);
+	//InjectHook(0x57CD05, &FrameLimit_SetFPS, PATCH_JUMP);
 	/*call(0x573BB8, &FrameLimit_SetFPS2, PATCH_CALL);
 	Nop(0x573BBD, 1);*/
 	//InjectHook(0x573BF0, &FrameLimit_SetFPS2, PATCH_JUMP);
@@ -3220,7 +3190,7 @@ __forceinline void Main_Patches()
 	//Patch<BYTE>(0x57A2BD, 4);
 
 	// 12H Clock menu options
-	InjectHook(0x577086, &Clock_SwitchInject, PATCH_JUMP);
+	//InjectHook(0x577086, &Clock_SwitchInject, PATCH_JUMP);
 	//InjectHook(0x579E6A, &Clock_StringInject);
 
 	// Pink menu header
@@ -3311,7 +3281,7 @@ __forceinline void Main_Patches()
 
 	// Stats Menu
 	//InjectHook(0x57954A, &CMenuManager::PrintStats, PATCH_NOTHING);
-	Patch<const void*>(0x577370, &StatsMenuActionHack);
+	//Patch<const void*>(0x577370, &StatsMenuActionHack);
 
 	// Brightness
 	//Patch<float>(0x573B8A, 96.0 / 512.0);
@@ -3558,7 +3528,7 @@ __forceinline void Main_Patches()
 	InjectHook(0x58C3C8, &WidescreenTextPositionHack, PATCH_CALL);
 	InjectHook(0x58BB88, &WidescreenSupport::GetTextBoxPos, PATCH_CALL);
 //	InjectHook(0x714841, &WidescreenSkyWidthHack, PATCH_CALL);
-	InjectHook(0x57706E, &Widescreen_SwitchInject, PATCH_JUMP);
+	//InjectHook(0x57706E, &Widescreen_SwitchInject, PATCH_JUMP);
 	//InjectHook(0x579DE9, &Widescreen_StringInject);
 //	InjectHook(0x58C0BB, &Widescreen_TextDrawsFix, PATCH_CALL);
 	InjectHook(0x58C1EC, &Widescreen_TextDrawsFix2, PATCH_JUMP);
@@ -3903,8 +3873,8 @@ __forceinline void Main_Patches()
 	Patch<void*>(0x5D0F4B, SlotFileName);
 	//Patch<void*>(0x579BD5, SlotValidation);
 	Patch<void*>(0x57B6AD, SlotValidation);
-	Patch<void*>(0x5772B3, &SlotValidation[1]);
-	Patch<void*>(0x5772D3, &SlotValidation[1]);
+	//Patch<void*>(0x5772B3, &SlotValidation[1]);
+	//Patch<void*>(0x5772D3, &SlotValidation[1]);
 	//Patch<void*>(0x5797D7, &SlotValidation[1]);
 	Patch<void*>(0x619157, &SlotValidation[1]);
 	Patch<void*>(0x61922D, &SlotValidation[1]);
@@ -3914,8 +3884,8 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x57378F, NUM_SAVE_SLOTS+1);
 	Patch<BYTE>(0x619388, NUM_SAVE_SLOTS);
 
-	Patch<BYTE>(0x57728F, ACTION_SAVE_12);
-	Patch<BYTE>(0x5772FD, ACTION_SAVE_12);
+	//Patch<BYTE>(0x57728F, ACTION_SAVE_12);
+	//Patch<BYTE>(0x5772FD, ACTION_SAVE_12);
 	//Patch<BYTE>(0x579921, ACTION_SAVE_12);
 	//Patch<BYTE>(0x579BB6, ACTION_SAVE_12);
 	//Patch<BYTE>(0x57A241, ACTION_SAVE_12);
@@ -3938,7 +3908,7 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x576B18, sizeof(MenuItem));
 	Patch<DWORD>(0x576B30, sizeof(MenuItem));
 	Patch<DWORD>(0x576B4F, sizeof(MenuItem));
-	Patch<DWORD>(0x57700A, sizeof(MenuItem));
+	//Patch<DWORD>(0x57700A, sizeof(MenuItem));
 	//Patch<DWORD>(0x579562, sizeof(MenuItem));
 	//Patch<DWORD>(0x579678, sizeof(MenuItem));
 	//Patch<DWORD>(0x5796A9, sizeof(MenuItem));
@@ -3974,9 +3944,9 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x57B692, sizeof(MenuItem));
 	Patch<DWORD>(0x57B6E7, sizeof(MenuItem));
 	Patch<DWORD>(0x57C30D, sizeof(MenuItem));
-	Patch<DWORD>(0x57CD60, sizeof(MenuItem));
-	Patch<DWORD>(0x57D281, sizeof(MenuItem));
-	Patch<DWORD>(0x57D2CA, sizeof(MenuItem));
+	//Patch<DWORD>(0x57CD60, sizeof(MenuItem));
+	//Patch<DWORD>(0x57D281, sizeof(MenuItem));
+	//Patch<DWORD>(0x57D2CA, sizeof(MenuItem));
 	Patch<DWORD>(0x57D6D3, sizeof(MenuItem));
 	Patch<DWORD>(0x57D6FB, sizeof(MenuItem));
 	Patch<DWORD>(0x57E3EC, sizeof(MenuItem));
@@ -4192,10 +4162,10 @@ __forceinline void PatchMenus()
 	Patch<void*>(0x576B1E, &MenuEntriesList->entryList[1].targetMenu);
 	Patch<void*>(0x576B38, MenuEntriesList);
 	Patch<void*>(0x576B58, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x577017, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57723D, &MenuEntriesList->entryList->targetMenu);
-	Patch<void*>(0x577280, &MenuEntriesList->entryList->specialDescFlag);
-	Patch<void*>(0x5772F2, &MenuEntriesList->entryList->specialDescFlag);
+	//Patch<void*>(0x577017, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57723D, &MenuEntriesList->entryList->targetMenu);
+	//Patch<void*>(0x577280, &MenuEntriesList->entryList->specialDescFlag);
+	//Patch<void*>(0x5772F2, &MenuEntriesList->entryList->specialDescFlag);
 	//Patch<void*>(0x579568, MenuEntriesList);
 	//Patch<void*>(0x57967E, MenuEntriesList);
 	//Patch<void*>(0x5796AF, &MenuEntriesList->entryList->action);
@@ -4252,10 +4222,10 @@ __forceinline void PatchMenus()
 	Patch<void*>(0x57B69C, &MenuEntriesList->entryList->specialDescFlag);
 	Patch<void*>(0x57B6F1, &MenuEntriesList->entryList->specialDescFlag);
 	Patch<void*>(0x57C313, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57CD6B, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57D26C, &MenuEntriesList->entryList[2].targetMenu);
-	Patch<void*>(0x57D287, &MenuEntriesList->entryList[2].targetMenu);
-	Patch<void*>(0x57D2D2, &MenuEntriesList->entryList[2].targetMenu);
+	//Patch<void*>(0x57CD6B, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57D26C, &MenuEntriesList->entryList[2].targetMenu);
+	//Patch<void*>(0x57D287, &MenuEntriesList->entryList[2].targetMenu);
+	//Patch<void*>(0x57D2D2, &MenuEntriesList->entryList[2].targetMenu);
 	Patch<void*>(0x57D6D8, &MenuEntriesList->entryList->entry);
 	Patch<void*>(0x57D701, &MenuEntriesList->entryList->entry);
 	Patch<void*>(0x57E3F7, &MenuEntriesList->entryList->action);
@@ -5549,29 +5519,6 @@ Clock_SwitchInject_Return:
 	}
 }
 
-/*void __declspec(naked) Clock_StringInject()
-{
-	_asm
-	{
-		mov		ecx, [TheText]
-		cmp		al, 1
-		jnz		Clock_StringInject_Compare12H
-		push	offset aFem_24H
-		jmp		Clock_StringInject_GoBack
-
-Clock_StringInject_Compare12H:
-		cmp		al, 2
-		jnz		Clock_StringInject_DisplayOFF
-		push	offset aFem_12H
-
-Clock_StringInject_GoBack:
-		jmp		Clock_StringInject_JumpBack
-
-Clock_StringInject_DisplayOFF:
-		jmp		Clock_StringInject_JumpToOFF
-	}
-}*/
-
 void __declspec(naked) RadioNameInject()
 {
 	_asm
@@ -6429,64 +6376,6 @@ void __declspec(naked) WidescreenTextPositionHack()
 	}
 }*/
 
-void __declspec(naked) Widescreen_SwitchInject()
-{
-	_asm
-	{
-		mov		dl, [esp+0Ch+4]
-		cmp		dl, 0
-		jl		Widescreen_SwitchInject_Previous
-		cmp		al, 5
-		jnl		Widescreen_SwitchInject_ZeroTheValue
-		inc		al
-		jmp		Widescreen_SwitchInject_Return
-
-Widescreen_SwitchInject_ZeroTheValue:
-		xor		al, al
-		jmp		Widescreen_SwitchInject_Return
-
-Widescreen_SwitchInject_Previous:
-		test	al, al
-		jz		Widescreen_SwitchInject_ToMax
-		dec		al
-		jmp		Widescreen_SwitchInject_Return
-
-Widescreen_SwitchInject_ToMax:
-		mov		al, 5
-
-Widescreen_SwitchInject_Return:
-		mov		[esi].m_bAspectRatioMode, al
-		mov		eax, [RsGlobal]
-		push	1
-		push	[eax].MaximumHeight
-		push	[eax].MaximumWidth
-		call	WidescreenSupport::Recalculate
-		add		esp, 0Ch
-		mov		ecx, esi
-		call	CMenuManager::SaveSettings
-		pop     edi
-		pop     esi
-		pop     ebx
-		retn    0Ch
-	}
-}
-
-void __declspec(naked) Widescreen_StringInject()
-{
-	_asm
-	{
-		movzx	eax, al
-		push	eax
-		push	offset aFem_Asd
-		push	LENGTH gString
-		push	offset gString
-		call	_snprintf
-		add		esp, 10h
-		mov		ecx, [TheText]
-		push	offset gString
-		//jmp		Clock_StringInject_JumpBack
-	}
-}
 
 /*void __declspec(naked) Widescreen_TextDrawsFix()
 {
@@ -6845,34 +6734,6 @@ FrameLimit_SwitchInject_GoBack:
 	}
 }
 
-void __declspec(naked) FrameLimit_StringInject()
-{
-	_asm
-	{
-		mov		ecx, [TheText]
-		test	al, al
-		jz		FrameLimit_StringInject_Off
-		movzx	eax, al
-		push	offset gString
-		push	0
-		push	0
-		push	0
-		push	0
-		push	0
-		push	RsGlobalFrameLimits[eax*4]
-		push	offset aFem_Fps
-		call	CText::Get
-		push	eax
-		call	CMessages::InsertNumberInString
-		add		esp, 20h
-		mov		esi, offset gString
-		//jmp		FrameLimit_StringInject_JumpBack
-
-FrameLimit_StringInject_Off:
-		//jmp		Clock_StringInject_JumpToOFF
-	}
-}
-
 void __declspec(naked) FrameLimit_SetFPS()
 {
 	_asm
@@ -6889,28 +6750,6 @@ FrameLimit_SetFPS_Return:
 		pop		esi
 		add     esp, 44h
 		retn
-	}
-}
-
-void __declspec(naked) FrameLimit_SetFPS2()
-{
-	_asm
-	{
-		mov		[esi].m_bFrameLimiterMode, 2
-		mov		[esi].m_bHudOn, bl
-		mov		ebx, RsGlobalFrameLimits+8
-		mov		ecx, [RsGlobal]
-		mov		[ecx].frameLimit, ebx
-		mov		[esi].m_bAspectRatioMode, al
-		mov		[esi].m_bShowSubtitles, al
-		push	1
-		push	[ecx].MaximumHeight
-		push	[ecx].MaximumWidth
-		call	WidescreenSupport::Recalculate
-		add		esp, 0Ch
-		pop		ebx
-		pop		esi
-		retn	4
 	}
 }
 
@@ -7152,19 +6991,6 @@ UpdaterTextSwap_NotSerial:
 	}
 }
 
-void __declspec(naked) UpdaterMenuAction()
-{
-	_asm
-	{
-		call	CUpdateManager::HandleButtonClick
-		pop     edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
 static bool		bThisIMGIsEncrypted;
 
 void __stdcall DecryptIMG(CBlowFish* pEncryption, unsigned char* pBuf, size_t nSize, int iMode)
@@ -7253,163 +7079,6 @@ void __declspec(naked) LoadGameWithDLCHack()
 		call	CDLCManager::LoadLevelFiles
 		mov		eax, 5BFA90h
 		jmp		eax
-	}
-}
-
-void __declspec(naked) DLCMenuAction()
-{
-	_asm
-	{
-		push	[esi]CMenuManager.m_dwSelectedMenuItem
-		call	CDLCManager::HandleButtonClick
-		add		esp, 4
-		pop     edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
-void __declspec(naked) ActivateSerialAction()
-{
-	_asm
-	{
-		mov		al, CMenuManager::m_bSerialFull
-		test	al, al
-		jz		ActivateSerialAction_DontActivate
-		push	offset CMenuManager::m_strSerialCode
-		call	CDLCManager::ActivateSerial
-		add		esp, 4
-
-ActivateSerialAction_DontActivate:
-		pop     edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
-void __declspec(naked) AutoInstallUpdatesAction()
-{
-	_asm
-	{
-		mov		al, [CUpdateManager::bAutoInstallUpdates]
-		test	al, al
-		setz	al
-		mov		[CUpdateManager::bAutoInstallUpdates], al
-		call	CUpdateManager::SaveSettings
-		pop		edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
-void __declspec(naked) CheckEveryAction()
-{
-	_asm
-	{
-		mov		al, [CUpdateManager::bCheckingPeriod]
-		mov		dl, [esp+0Ch+4]
-		cmp		dl, 0
-		jl		CheckEveryAction_Previous
-		inc		al
-		cmp		al, 3
-		jna		CheckEveryAction_Return
-		xor		al, al
-		jmp		CheckEveryAction_Return
-
-CheckEveryAction_Previous:
-		test	al, al
-		jz		CheckEveryAction_ToMax
-		dec		al
-		jmp		CheckEveryAction_Return
-
-CheckEveryAction_ToMax:
-		mov		al, 3
-
-CheckEveryAction_Return:
-		mov		[CUpdateManager::bCheckingPeriod], al
-		call	CUpdateManager::SaveSettings
-		pop		edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
-void __declspec(naked) TextureFilteringAction()
-{
-	_asm
-	{
-		call	Fx_c::GetMaxTextureFilteringQuality
-		mov		cl, [Fx_c::m_bTextureFiltering]
-		mov		dl, [esp+0Ch+4]
-		cmp		dl, 0
-		jl		TextureFilteringAction_Previous
-		inc		cl
-		cmp		cl, al
-		jna		TextureFilteringAction_Return
-		xor		cl, cl
-		jmp		TextureFilteringAction_Return
-
-TextureFilteringAction_Previous:
-		test	cl, cl
-		jz		TextureFilteringAction_ToMax
-		dec		cl
-		jmp		TextureFilteringAction_Return
-
-TextureFilteringAction_ToMax:
-		mov		cl, al
-
-TextureFilteringAction_Return:
-		mov		[Fx_c::m_bTextureFiltering], cl
-		mov		ecx, esi
-		call	CMenuManager::SaveSettings
-		pop		edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
-void __declspec(naked) EffectsQualityAction()
-{
-	_asm
-	{
-		mov		eax, [Fx_c::m_bEffectsQuality]
-		mov		dl, [esp+0Ch+4]
-		cmp		dl, 0
-		jl		EffectsQualityAction_Previous
-		inc		eax
-		cmp		eax, 2
-		jna		EffectsQualityAction_Return
-		xor		eax, eax
-		jmp		EffectsQualityAction_Return
-
-EffectsQualityAction_Previous:
-		test	eax, eax
-		jz		EffectsQualityAction_ToMax
-		dec		eax
-		jmp		EffectsQualityAction_Return
-
-EffectsQualityAction_ToMax:
-		mov		eax, 2
-
-EffectsQualityAction_Return:
-		mov		[Fx_c::m_bEffectsQuality], eax
-		mov		ecx, esi
-		call	CMenuManager::SaveSettings
-		pop		edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
 	}
 }
 

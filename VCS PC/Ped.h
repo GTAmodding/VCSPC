@@ -304,7 +304,7 @@ public:
 
 	long double			GetCrosshairSize();
 	void				Remap();
-	void				RenderForShadow(RpClump* pClump);
+	void				RenderForShadow(RpClump* pClump, bool bRenderWeapon);
 };
 
 class CPedData
