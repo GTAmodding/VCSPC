@@ -195,16 +195,19 @@ struct FakeClass : public T
 #include "Vehicle.h"
 #include "Building.h"
 #include "ModelInfo.h"
+#include "Tasks.h"
 
 typedef CPool<CPed, FakeClass<0x7C4,CPed>>			CPedPool;
 typedef CPool<CVehicle, FakeClass<0xA18,CVehicle>>	CVehiclePool;
 typedef CPool<CBuilding>							CBuildingPool;
 typedef CPool<CDummy>								CDummyPool;
 typedef CPool<CColModel>							CColModelPool;
+typedef CPool<CTask, FakeClass<128,CTask>>			CTaskPool;
 
 typedef CPool<CEmpireBuildingData>					CEmpireBuildingDataPool;
 
-typedef CChildrenPool<CPedData,CPed,CPedPool>		CPedPoolAux;
+typedef CChildrenPool<CPedData,CPed,CPedPool>				CPedPoolAux;
+typedef CChildrenPool<CBuildingAux,CBuilding,CBuildingPool>	CBuildingPoolAux;
 
 class CPools
 {
@@ -214,10 +217,12 @@ private:
 	static CBuildingPool*&					ms_pBuildingPool;
 	static CDummyPool*&						ms_pDummyPool;
 	static CColModelPool*&					ms_pColModelPool;
+	static CTaskPool*&						ms_pTaskPool;
 
 	// VCS PC class extension
 	static CEmpireBuildingDataPool*			ms_pEmpireBuildingDataPool;
 	static CPedPoolAux*						ms_pPedPoolAux;
+	static CBuildingPoolAux*				ms_pBuildingPoolAux;
 
 public:
 	static inline CPedPool*					GetPedPool()
@@ -230,11 +235,15 @@ public:
 		{ return ms_pDummyPool; }
 	static inline CColModelPool*			GetColModelPool()
 		{ return ms_pColModelPool; }
+	static inline CTaskPool*				GetTaskPool()
+		{ return ms_pTaskPool; }
 
 	static inline CEmpireBuildingDataPool*	GetEmpireBuildingDataPool()
 		{ return ms_pEmpireBuildingDataPool; }
 	static inline CPedPoolAux*				GetPedPoolAux()
 		{ return ms_pPedPoolAux; }
+	static inline CBuildingPoolAux*			GetBuildingPoolAux()
+		{ return ms_pBuildingPoolAux; }
 
 	static void								Initialise();
 	static void								ShutDown();

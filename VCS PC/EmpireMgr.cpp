@@ -227,9 +227,6 @@ void CEmpire::Place()
 
 	m_pBuilding[0] = pEmpireBuilding;
 
-	// Additional models
-	CBuilding		pAdditionalBuilding[2];
-
 	// TODO: Damaged check
 	for ( int i = 0; i < 2; i++ )
 	{

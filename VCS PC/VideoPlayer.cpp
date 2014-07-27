@@ -5,13 +5,13 @@
 #include "Sprite.h"
 
 BINK*				CVideoPlayer::m_hBinkPlayer;
-BINKBUFFER*			CVideoPlayer::m_hBinkBuffer;
 RwRaster*			CVideoPlayer::m_pVideoRaster;
 CRect				CVideoPlayer::m_videoFrame;
+int					CVideoPlayer::m_nRasterPitch;
 unsigned char		CVideoPlayer::m_bSurfaceMask;
 unsigned char		CVideoPlayer::m_bExtraThreadIndex;
 
-void CVideoPlayer::UpdateVideoFrame(const CRect* pVideoFrame)
+void CVideoPlayer::UpdateVideoFrame(const CRect* pVideoFrame, const CVector2D& vecScale)
 {
 	if ( !pVideoFrame )
 	{
@@ -23,10 +23,10 @@ void CVideoPlayer::UpdateVideoFrame(const CRect* pVideoFrame)
 		colour.blue = 0;
 		colour.alpha = 255;
 
-		m_videoFrame.x1 = 0.5f * (RsGlobal.MaximumWidth - m_hBinkBuffer->StretchWidth);
-		m_videoFrame.y1 = 0.5f * (RsGlobal.MaximumHeight + m_hBinkBuffer->StretchHeight);
-		m_videoFrame.x2 = 0.5f * (RsGlobal.MaximumWidth + m_hBinkBuffer->StretchWidth);
-		m_videoFrame.y2 = 0.5f * (RsGlobal.MaximumHeight - m_hBinkBuffer->StretchHeight);
+		m_videoFrame.x1 = 0.5f * (RsGlobal.MaximumWidth - vecScale.x);
+		m_videoFrame.y1 = 0.5f * (RsGlobal.MaximumHeight + vecScale.y);
+		m_videoFrame.x2 = 0.5f * (RsGlobal.MaximumWidth + vecScale.x);
+		m_videoFrame.y2 = 0.5f * (RsGlobal.MaximumHeight - vecScale.y);
 
 		RwCameraClear(Scene, &colour, rwCAMERACLEARIMAGE);
 	}
@@ -70,21 +70,21 @@ void CVideoPlayer::Create(const char* pFileName, const CRect* pVideoFrame, bool 
 	if ( m_hBinkPlayer )
 	{
 		BinkDoFrameAsync(m_hBinkPlayer, 0, m_bExtraThreadIndex);
-		m_hBinkBuffer = BinkBufferOpen(RsGlobal.ps->window, m_hBinkPlayer->Width, m_hBinkPlayer->Height, BINKBUFFERAUTO /*BINKBUFFERSTRETCHXINT | BINKBUFFERSTRETCHYINT*//*BINKBUFFERSTRETCHY*/);
 
+		CVector2D	vecOutScale;
 		if ( !pVideoFrame )
-		{
-			CVector2D		vecVidScale = WidescreenSupport::GetFullscreenImageDimensions(static_cast<float>(m_hBinkPlayer->Width)/m_hBinkPlayer->Height, WidescreenSupport::SetAspectRatio(), true);
-			
-			BinkBufferSetScale(m_hBinkBuffer, static_cast<unsigned int>(vecVidScale.x), static_cast<unsigned int>(vecVidScale.y));
-		}
+			vecOutScale = WidescreenSupport::GetFullscreenImageDimensions(static_cast<float>(m_hBinkPlayer->Width)/m_hBinkPlayer->Height, WidescreenSupport::SetAspectRatio(), true);
 		else
-			BinkBufferSetScale(m_hBinkBuffer, static_cast<unsigned int>(abs(pVideoFrame->x2 - pVideoFrame->x1)), static_cast<unsigned int>(abs(pVideoFrame->y2 - pVideoFrame->y1)));
+		{
+			vecOutScale.x = abs(pVideoFrame->x2 - pVideoFrame->x1);
+			vecOutScale.y = abs(pVideoFrame->y2 - pVideoFrame->y1);
+		}
 
 		m_pVideoRaster = RwRasterCreate(m_hBinkPlayer->Width, m_hBinkPlayer->Height, 0, rwRASTERTYPECAMERATEXTURE);
 		m_bSurfaceMask = ( RwRasterGetFormat(m_pVideoRaster) == rwRASTERFORMAT565 ) ? BINKSURFACE565 : BINKSURFACE32;
+		m_nRasterPitch = RwRasterGetWidth(m_pVideoRaster) * (RwRasterGetDepth(m_pVideoRaster)/8);
 
-		UpdateVideoFrame(pVideoFrame);
+		UpdateVideoFrame(pVideoFrame, vecOutScale);
 	}
 }
 
@@ -102,7 +102,6 @@ void CVideoPlayer::Release()
 		if ( m_bExtraThreadIndex )
 			BinkWaitStopAsyncThread(1);
 
-		BinkBufferClose(m_hBinkBuffer);
 		RwRasterDestroy(m_pVideoRaster);
 	}
 }
@@ -119,11 +118,7 @@ bool CVideoPlayer::PlayNextFullscreenFrame()
 				{
 					if ( RwRasterLock(m_pVideoRaster, 0, rwRASTERLOCKREADWRITE) )
 					{
-						if ( BinkBufferLock(m_hBinkBuffer) )
-						{
-							BinkCopyToBuffer(m_hBinkPlayer, m_pVideoRaster->cpPixels, m_hBinkBuffer->BufferPitch, m_hBinkBuffer->Height, 0, 0, (m_hBinkBuffer->SurfaceType & (~BINKSURFACEMASK)) | m_bSurfaceMask);
-							BinkBufferUnlock(m_hBinkBuffer);
-						}
+						BinkCopyToBuffer(m_hBinkPlayer, m_pVideoRaster->cpPixels, m_nRasterPitch, RwRasterGetHeight(m_pVideoRaster), 0, 0, m_bSurfaceMask);
 						RwRasterUnlock(m_pVideoRaster);
 					}
 
@@ -167,11 +162,7 @@ void CVideoPlayer::PlayNextFrame()
 			{
 				if ( RwRasterLock(m_pVideoRaster, 0, rwRASTERLOCKREADWRITE) )
 				{
-					if ( BinkBufferLock(m_hBinkBuffer) )
-					{
-						BinkCopyToBuffer(m_hBinkPlayer, m_pVideoRaster->cpPixels, m_hBinkBuffer->BufferPitch, m_hBinkBuffer->Height, 0, 0, (m_hBinkBuffer->SurfaceType & (~BINKSURFACEMASK)) | m_bSurfaceMask);
-						BinkBufferUnlock(m_hBinkBuffer);
-					}
+					BinkCopyToBuffer(m_hBinkPlayer, m_pVideoRaster->cpPixels, m_nRasterPitch, RwRasterGetHeight(m_pVideoRaster), 0, 0, m_bSurfaceMask);
 					RwRasterUnlock(m_pVideoRaster);
 				}
 
@@ -199,12 +190,9 @@ void CVideoPlayer::WindowProc(WPARAM wParam)
 {
 	if ( m_hBinkPlayer )
 	{
-		if ( m_hBinkPlayer->Paused && wParam )
+		if ( wParam )
 			BinkPause(m_hBinkPlayer, FALSE);
 		else
-		{
-			if ( !m_hBinkPlayer->Paused && !wParam )
-				BinkPause(m_hBinkPlayer, TRUE);
-		}
+			BinkPause(m_hBinkPlayer, TRUE);
 	}
 }

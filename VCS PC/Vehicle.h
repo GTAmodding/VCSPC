@@ -4,6 +4,22 @@
 #include "General.h"
 #include "ModelInfo.h"
 
+enum eVehicleType
+{
+    VEHICLE_AUTOMOBILE,
+    VEHICLE_MTRUCK,
+    VEHICLE_QUAD,
+    VEHICLE_HELI,
+    VEHICLE_PLANE,
+    VEHICLE_BOAT,
+    VEHICLE_TRAIN,
+    VEHICLE_FHELI,
+    VEHICLE_FPLANE,
+    VEHICLE_BIKE,
+    VEHICLE_BMX,
+    VEHICLE_TRAILER
+};
+
 struct CVehicleFlags
 {
 	//0x428
@@ -86,27 +102,42 @@ struct CVehicleFlags
     unsigned char bUsedForReplay: 1; // This car is controlled by replay and should be removed when replay is done.
 };
 
-class NOVMT CVehicle	: public CPhysical
+class NOVMT CVehicle : public CPhysical
 {
 protected:
 	BYTE			__pad1[752];
 	CVehicleFlags	m_nVehicleFlags;
-	BYTE			__pad2[160];
+	BYTE			__pad5[48];
+	class CPed*		m_pDriver;
+    class CPed*		m_apPassengers[8];
+	BYTE			__pad2[76];
 	signed int		m_nTimeTillWeNeedThisCar;
 	BYTE			__pad4[56];
 	CEntity*		pDamagingEntity;
-	BYTE			__pad3[144];
+	BYTE			__pad3[128];
+	eVehicleType	m_dwVehicleClass;
+	eVehicleType	m_dwVehicleSubClass;
+	short			m_wPreviousRemapTxd;
+    short			m_wRemapTxd;
+    RwTexture*		m_pRemapTexture;
 
 public:
+	static bool&	m_bEnableMouseSteering;
+	static bool&	m_bEnableMouseFlying;
+
 	CVehicleFlags&	GetVehicleFlags() 
 						{ return m_nVehicleFlags; }
 	CEntity*		GetDamagingEntity()
 						{ return pDamagingEntity; }
+	eVehicleType	GetSubClass()
+		{ return m_dwVehicleSubClass; }
 
 	virtual void	Render() override;
 
 	void			SetWindowOpenFlag(unsigned char nWindow);
 	void			ClearWindowOpenFlag(unsigned char nWindow);
+
+	void			RenderForShadow(RpClump* pClump);
 
 	static void		SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha);
 };

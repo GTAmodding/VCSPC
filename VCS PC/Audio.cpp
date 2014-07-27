@@ -9,6 +9,13 @@ signed char	CAERadioTrackManager::bTracksPlayedRecently[NUM_RADIOSTATIONS];
 static std::map<short,tVehicleAudioSettings>	AudioSettingsMap;
 
 WRAPPER void CAudioEngine::ReportFrontendAudioEvent(long nSoundID, float fUnk, float fVolume) { WRAPARG(nSoundID); WRAPARG(fUnk); WRAPARG(fVolume); EAXJMP(0x506EA0); }
+WRAPPER void CAudioEngine::SetMusicMasterVolume(signed char nVolume) { WRAPARG(nVolume); EAXJMP(0x506DE0); };
+WRAPPER void CAudioEngine::SetEffectsMasterVolume(signed char nVolume) { WRAPARG(nVolume); EAXJMP(0x506E10); }
+WRAPPER void CAudioEngine::SetRadioAutoRetuneOnOff(bool bRetune) { WRAPARG(bRetune); EAXJMP(0x506F80); }
+WRAPPER void CAudioEngine::RetuneRadio(signed char nStation) { WRAPARG(nStation); EAXJMP(0x507E10); }
+WRAPPER const char* CAudioEngine::GetRadioStationName(signed char nStation) { WRAPARG(nStation); EAXJMP(0x507000); }
+WRAPPER void CAudioEngine::ScrollRadioStations(signed char nDirection) { WRAPARG(nDirection); EAXJMP(0x573A00); }
+
 
 signed char CAERadioTrackManager::GetNextTrackByStation(BYTE stationID)
 {

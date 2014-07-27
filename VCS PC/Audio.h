@@ -83,6 +83,12 @@ class CAudioEngine
 {
 public:
 	void				ReportFrontendAudioEvent(long nSoundID, float fUnk, float fVolume);
+	void				SetMusicMasterVolume(signed char nVolume);
+	void				SetEffectsMasterVolume(signed char nVolume);
+	void				SetRadioAutoRetuneOnOff(bool bRetune);
+	void				RetuneRadio(signed char nStation);
+	const char*			GetRadioStationName(signed char nStation);
+	void				ScrollRadioStations(signed char nDirection);
 };
 
 extern CAudioEngine&		AudioEngine;

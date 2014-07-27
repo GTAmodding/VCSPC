@@ -6,20 +6,25 @@ CVehiclePool*&				CPools::ms_pVehiclePool = *(CVehiclePool**)0xB74494;
 CBuildingPool*&				CPools::ms_pBuildingPool = *(CBuildingPool**)0xB74498;
 CDummyPool*&				CPools::ms_pDummyPool = *(CDummyPool**)0xB744A0;
 CColModelPool*&				CPools::ms_pColModelPool = *(CColModelPool**)0xB744A4;
+CTaskPool*&					CPools::ms_pTaskPool = *(CTaskPool**)0xB744A8;
 
 CEmpireBuildingDataPool*	CPools::ms_pEmpireBuildingDataPool;
 CPedPoolAux*				CPools::ms_pPedPoolAux;
+CBuildingPoolAux*			CPools::ms_pBuildingPoolAux;
 
 void CPools::Initialise()
 {
 	((void(*)())0x550F10)();
 
 	// Initialise custom pools
-	ms_pEmpireBuildingDataPool = new CEmpireBuildingDataPool(25);
+	ms_pEmpireBuildingDataPool = new CEmpireBuildingDataPool(75);
 
 	// Initialise children pools
 	if ( ms_pPedPool )
 		ms_pPedPoolAux = new CPedPoolAux(ms_pPedPool);
+
+	if ( ms_pBuildingPool )
+		ms_pBuildingPoolAux = new CBuildingPoolAux(ms_pBuildingPool);
 }
 
 void CPools::ShutDown()
@@ -31,4 +36,5 @@ void CPools::ShutDown()
 
 	// Shutdown children pools
 	delete ms_pPedPoolAux;
+	delete ms_pBuildingPoolAux;
 }

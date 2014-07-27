@@ -485,6 +485,7 @@ class CAtomicModelInfo : public CBaseModelInfo
 private:
 	// VCS PC class extension (NONSTATIC)
 	CEmpireBuildingData*			pEmpireData;
+	bool							m_bCastShadow;
 
 public:
 	virtual CAtomicModelInfo*		AsAtomicModelInfoPtr() override { return this; }
@@ -501,15 +502,20 @@ public:
 	inline CEmpireBuildingData*		GetEmpireData()
 		{ return pEmpireData; }
 
+	inline void						SetCastShadowFlag()
+		{ m_bCastShadow = true; }
+	inline bool						CastShadow()
+		{ return m_bCastShadow; }
+
 	CAtomicModelInfo()
-		: pEmpireData(nullptr)
+		: pEmpireData(nullptr), m_bCastShadow(false)
 	{}
 };
 
 class CDamageAtomicModelInfo : public CAtomicModelInfo
 {
 public:
-	RpAtomic*				pAtomic2;
+	RpAtomic*						pAtomic2;
 
 public:
 	virtual CDamageAtomicModelInfo*	AsDamageAtomicModelInfoPtr() override { return this; }

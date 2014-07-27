@@ -8,14 +8,14 @@ class CVideoPlayer
 {
 private:
 	static BINK*				m_hBinkPlayer;
-	static BINKBUFFER*			m_hBinkBuffer;
 	static RwRaster*			m_pVideoRaster;
 	static CRect				m_videoFrame;
+	static int					m_nRasterPitch;
 	static unsigned char		m_bSurfaceMask;
 	static unsigned char		m_bExtraThreadIndex;
 
 private:
-	static void					UpdateVideoFrame(const CRect* pVideoFrame);
+	static void					UpdateVideoFrame(const CRect* pVideoFrame, const CVector2D& vecScale);
 
 public:
 	static void					Create(const char* pFileName, const CRect* pVideoFrame = nullptr, bool bAudio = true, bool bBlackWhite = false);

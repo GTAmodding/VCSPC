@@ -4,7 +4,8 @@
 class CPedIntelligence
 {
 public:
-	void*		GetTaskSwim() const;
+	void*						GetTaskSwim() const;
+	class CTaskSimpleJetPack*	GetTaskJetPack() const;
 };
 
 #endif

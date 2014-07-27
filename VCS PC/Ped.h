@@ -235,7 +235,9 @@ public:
 	unsigned char		PedCreatedBy;
 	BYTE				__pad7[76];
 	int					iMoveAnimGroup;
-	BYTE				__pad2[104];
+	BYTE				__pad2[28];
+	RwObject*			m_pWeaponObject;
+	BYTE				__pad10[72];
 	float				fHealth;
 	float				fMaxHealth;
 	float				fArmour;
@@ -298,9 +300,11 @@ public:
 	unsigned char		GetWeaponSkill();
 	void				SetCharCreatedBy(unsigned char bBy);
 	void				SetCurrentWeapon(int nSlot);
+	void				ResetGunFlashAlpha();
 
 	long double			GetCrosshairSize();
 	void				Remap();
+	void				RenderForShadow(RpClump* pClump, bool bRenderWeapon);
 };
 
 class CPedData

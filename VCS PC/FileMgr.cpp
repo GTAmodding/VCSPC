@@ -8,6 +8,7 @@
 #include "Audio.h"
 #include "GroupedBuildings.h"
 #include "TxdStore.h"
+#include "Object.h"
 
 tFileLoaderList_IMG*	CFileLoader::m_pImagesList;
 tFileLoaderList*		CFileLoader::m_pObjectsList;
@@ -21,12 +22,15 @@ char					CFileLoader::m_cParticlesPath[64] = "MODELS\\PARTICLE.TXD";
 char					CFileLoader::m_cPedgrpPath[64] = "DATA\\PEDGRP.DAT";
 char					CFileLoader::m_cPopcyclePath[64] = "DATA\\POPCYCLE.DAT";
 char					CFileLoader::m_cTimecycPath[64] = "DATA\\TIMECYC.DAT";
-char					CFileLoader::m_cFrontendPath[64] = "\0";
+char					CFileLoader::m_cFrontendPath[64] = "";
 char					CFileLoader::m_cP2dfxPath[64];
 
 unsigned char			CFileLoader::m_bCurrentEncryptionType;
 
 // Wrappers
+WRAPPER void CFileMgr::SetDirMyDocuments() { EAXJMP(0x538860); }
+WRAPPER void CFileMgr::SetDir(const char* pDir) { WRAPARG(pDir); EAXJMP(0x5387D0); }
+
 WRAPPER void CFileLoader::LoadObjectTypes(const char* pFileName) { WRAPARG(pFileName); EAXJMP(0x5B8400); }
 WRAPPER void CFileLoader::LoadScene(const char* pFileName) { WRAPARG(pFileName); EAXJMP(0x5B8700); }
 WRAPPER void CFileLoader::LoadCollisionFile(const char* pFileName, unsigned char bUnk) { WRAPARG(pFileName); WRAPARG(bUnk); EAXJMP(0x5B4E60); }
@@ -35,7 +39,16 @@ WRAPPER void CFileLoader::LoadCollisionFile(const char* pFileName, unsigned char
 static WRAPPER void InitPostIDEStuff() { EAXJMP(0x5B924E); }
 static WRAPPER void InitPostLoadLevelStuff() { EAXJMP(0x5B930F); }
 
-static WRAPPER void SetAtomicModelInfoFlags(CAtomicModelInfo* pInfo, unsigned int dwFlags) { WRAPARG(pInfo); WRAPARG(dwFlags); EAXJMP(0x5B3B20); }
+void SetAtomicModelInfoFlags(CAtomicModelInfo* pInfo, unsigned int dwFlags)
+{
+	((void(*)(CAtomicModelInfo*,unsigned int))0x5B3B20)(pInfo, dwFlags);
+
+	// VCS PC flags
+
+	// Project realtime shadow?
+	if ( dwFlags & 0x40000 )
+		pInfo->SetCastShadowFlag();
+}
 
 std::string CFileLoader::TranslatePath(const char* pFileName, const char* pDLCName)
 {
@@ -307,6 +320,7 @@ void CFileLoader::LoadLevels()
 	}
 
 	// Pre-IPL stuff
+	MatchAllModelStrings();
 	InitModelIndices();
 
 	// Wraps some calls
@@ -403,3 +417,8 @@ bool CFileLoader::ParseLevelFile(const char* pFileName, char* pDLCName)
 	}
 	return false;
 }
+
+
+static StaticPatcher	Patcher([](){ 
+						Memory::InjectHook(0x5B3F7B, SetAtomicModelInfoFlags);
+									});

@@ -41,6 +41,9 @@
 #include "ControlsMgr.h"
 #include "VisibilityPlugins.h"
 #include "Object.h"
+#include "FxSystem.h"
+#include "RealTimeShadowMgr.h"
+#include "Shadows.h"
 #include "VCSPC_SDK_Internal.h"
 
 // Regular functions
@@ -220,6 +223,9 @@ void			DLCMenuAction();
 void			ActivateSerialAction();
 void			AutoInstallUpdatesAction();
 void			CheckEveryAction();
+void			TextureFilteringAction();
+void			EffectsQualityAction();
+void			ShadowsQualityMenuAction();
 void			VehAudioHook();
 //void			RotorsHook();
 void			Language6Action();
@@ -277,9 +283,8 @@ void*						func_6B4800_JumpBack;
 void*						func_6B4800_ElseJump;
 void*						func_6D1AA0_JumpBack;
 void*						func_6D1AA0_ElseJump;
-void*						Clock_SwitchInject_JumpBack;
-void*						Clock_StringInject_JumpBack;
-void*						Clock_StringInject_JumpToOFF;
+//void*						Clock_StringInject_JumpBack;
+//void*						Clock_StringInject_JumpToOFF;
 void*						ScriptCheckpointsColours_JumpBack;
 void*						BigMessage1Inject_JumpBack;
 void*						ExtraWeaponAnimationsInject_JumpBack;
@@ -298,11 +303,8 @@ void*						SaveFallback_InjectOnLoad_JumpBack;
 void*						SaveFallback_InjectOnSave_ReturnTrue;
 void*						SaveFallback_InjectOnSave_ReturnFalse;
 void*						SaveFallback_FallbackPreBeta3Names_JumpBack;
-void*						MenuEntriesAlignHack_JumpBack;
-void*						MenuEntriesPositionHack_JumpBack;
 void*						MenuEntriesLeftColumnHack2_JumpBack;
 void*						WidescreenFOVHack_JumpBack;
-void*						Widescreen_SwitchInject_JumpBack;
 void*						Widescreen_TextDrawsFix2_JumpBack;
 void*						DriveByKillFix_ReturnTrue;
 void*						DriveByKillFix_ReturnFalse;
@@ -312,10 +314,8 @@ void*						RightShockKeyHack_JumpBack;
 void*						NoRadioCommercialsHack_JumpBack;
 void*						VideoPlayerCreate1_JumpBack;
 void*						VideoPlayerPlayNextFrame_JumpBack;
-void*						VideoPlayerProc_JumpBack;
 void*						VideoPlayerRelease_JumpBack;
-void*						FrameLimit_SwitchInject_JumpBack;
-void*						FrameLimit_StringInject_JumpBack;
+//void*						FrameLimit_StringInject_JumpBack;
 /*void*						LoadFontsHack_JumpBack;
 void*						ReleaseFontsHack_JumpBack;*/
 void*						SetCutsceneModelHack_JumpBack;
@@ -376,6 +376,8 @@ DWORD*						gameState;
 void**						rwengine = (void**)0xC97B24;
 
 CControllerConfigManager&	ControlsManager = *(CControllerConfigManager*)0xB70198;
+CMousePointerStateHelper&	MousePointerStateHelper = *(CMousePointerStateHelper*)0xBA6744;
+CRealTimeShadowManager		g_realTimeShadowMan;
 
 void						(*replacedTXDLoadFunc)();
 void						(*replacedTXDReleaseFunc)();
@@ -398,9 +400,9 @@ const float					fRadarPosY = 107.0f;
 const float					fCTSliderRight = 370.0f;
 const float					fRhinoHitStrength = 1000.0f;
 const float					fRefZVal = 1.0f;
-const float					fBrightnessStep = 1.0f / 192.0f;
-const float					fBrightnessStep2 = 12.0f;
-const float					fBrightnessMax = 192.0f;
+//const float					fBrightnessStep = 1.0f / 192.0f;
+//const float					fBrightnessStep2 = 12.0f;
+//const float					fBrightnessMax = 192.0f;
 //const float					fBriefTextHeight = 0.7/448.0;
 const float					fNewDrawDistance = MAX_DRAW_DISTANCE;
 const float					fSkyMultFix = 3.5f;
@@ -428,13 +430,9 @@ static const char			aSpanish_gxt[] = "SPANISH.GXT";
 static const char			aPolish_gxt[] = "POLISH.GXT";
 static const char			aHungarian_gxt[] = "HUNGARIAN.GXT";
 static const char			aRomanian_gxt[] = "ROMANIAN.GXT";
-static const char			aFem_24H[] = "FEM_24H";
-static const char			aFem_12H[] = "FEM_12H";
-static const char			aFem_Fps[] = "FEM_FPS";
-static const char			aFem_Asd[] = "FEM_AS%d";
-#ifdef ADD_UNFINISHED_WINDOWED_MODE
-const char					aWindowed[] = "WINDOWED";
-#endif
+
+static const char			aWindowed[] = "WINDOWED";
+
 
 const BYTE					audioGearboxSoundTable[] = {
 									0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
@@ -475,32 +473,6 @@ const BYTE					CAutomobile__PreRenderCoronasTable[] = {
 									4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
 									4, 4, 4, 0, 0, 0, 0, 4, 4, 4,
 									4, 2 };
-
-const BYTE					PCMenuActionsTable[] = {
-									0, 1, 2, 3, 33, 33, 33, 33,
-									33, 33, 33, 33, 33, 33, 33, 33,
-									33, 33, 4, 33, 33, 33, 33, 33,
-									33, 33, 33, 33, 5, 33, 33, 6,
-									7, 8, 9, 10, 11, 12, 13, 14, 15,
-									16, 17, 18, 19, 20, 21, 22, 23,
-									24, 25, 26, 27, 28, 29, 33, 33,
-									30, 31, 32, 34, 35, 36, 37, 38, 39 };
-
-const void*	const			PCMenuActionsAddresses[] = {
-									(void*)0x57D397, (void*)0x57D2FA, (void*)0x57D322,
-									(void*)0x57D32B, (void*)0x57CEC7, (void*)0x57D3A5,
-									(void*)0x57D418, (void*)0x57D3CD, (void*)0x57D3DD,
-									(void*)0x57D3EF, (void*)0x57D401, (void*)0x57D185,
-									(void*)0x57CEE1, (void*)0x57D0C6, (void*)0x57D34C,
-									(void*)0x57CD8F, (void*)0x57CDAD, (void*)0x57CDCD,
-									(void*)0x57CDED, (void*)0x57CE0D, (void*)0x57CE2D,
-									(void*)0x57CE4D, (void*)0x57D375, (void*)0x57D25D,
-									(void*)0x57D386, (void*)0x57CF9B, (void*)0x57D268,
-									(void*)0x57CF5B, (void*)0x57CE6D, (void*)0x57CE9A,
-									(void*)0x57D21F, (void*)0x57CF1B, (void*)0x57CF3B,
-									(void*)0x57D447, Language6Action, UpdaterMenuAction,
-									DLCMenuAction, ActivateSerialAction, AutoInstallUpdatesAction,
-									CheckEveryAction };
 
 const int					iRadioTracks[NUM_RADIOSTATIONS][31] = {
 				{ AA_OFFSET+1, AA_OFFSET+4, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922, 1922 },
@@ -869,9 +841,8 @@ __forceinline void DefineVariables()
 	func_6B4800_ElseJump = (void*)0x6B4B95;
 	func_6D1AA0_JumpBack = (void*)0x6D1ACC;
 	func_6D1AA0_ElseJump = (void*)0x6D1ACE;
-	Clock_SwitchInject_JumpBack = (void*)0x57708B;
-	Clock_StringInject_JumpBack = (void*)0x57A161;
-	Clock_StringInject_JumpToOFF = (void*)0x579F65;
+	//Clock_StringInject_JumpBack = (void*)0x57A161;
+	//Clock_StringInject_JumpToOFF = (void*)0x579F65;
 	ScriptCheckpointsColours_JumpBack = (void*)0x493651;
 	BigMessage1Inject_JumpBack = (void*)0x58C8B7;
 	ExtraWeaponAnimationsInject_JumpBack = (void*)0x609A3B;
@@ -890,11 +861,8 @@ __forceinline void DefineVariables()
 	SaveFallback_InjectOnSave_ReturnFalse = (void*)0x5D15AB;
 	SaveFallback_FallbackPreBeta3Names_JumpBack = (void*)0x6191EE;
 	LoadGameFailedMessage_JumpBack = (void*)0x53C74B;
-	MenuEntriesAlignHack_JumpBack = (void*)0x57A21F;
 	MenuEntriesLeftColumnHack2_JumpBack = (void*)0x57A1BA;
-	MenuEntriesPositionHack_JumpBack = (void*)0x57A3F1;
 	WidescreenFOVHack_JumpBack = (void*)0x72FD5A;
-	Widescreen_SwitchInject_JumpBack = (void*)0x577078;
 	Widescreen_TextDrawsFix2_JumpBack = (void*)0x58C229;
 	DriveByKillFix_ReturnTrue = (void*)0x43DE05;
 	DriveByKillFix_ReturnFalse = (void*)0x43DE61;
@@ -904,10 +872,8 @@ __forceinline void DefineVariables()
 	NoRadioCommercialsHack_JumpBack = (void*)0x4EA675;
 	VideoPlayerCreate1_JumpBack = (void*)0x748B08;
 	VideoPlayerPlayNextFrame_JumpBack = (void*)0x748DA3;
-	VideoPlayerProc_JumpBack = (void*)0x74817E;
 	VideoPlayerRelease_JumpBack = (void*)0x748C21;
-	FrameLimit_SwitchInject_JumpBack = (void*)0x57CECF;
-	FrameLimit_StringInject_JumpBack = (void*)0x57A168;
+	//FrameLimit_StringInject_JumpBack = (void*)0x57A168;
 	/*LoadFontsHack_JumpBack = (void*)0x5BA6E5;
 	ReleaseFontsHack_JumpBack = (void*)0x7189C6;*/
 	SetCutsceneModelHack_JumpBack = (void*)0x5B10DE;
@@ -2182,7 +2148,6 @@ RpAtomic* RenderAtomicTest(RpAtomic* atomic)
 __forceinline void Main_Patches()
 {
 	using namespace Memory;
-	DWORD dwFunc;
 
 	LogToFile("Patching miscellaneous game data...");
 
@@ -2368,10 +2333,10 @@ __forceinline void Main_Patches()
 	Patch<int>(0x4C9292, ~(rwMATRIXTYPEMASK|rwMATRIXINTERNALIDENTITY));
 
 	// Bumped up shadows quality
-	Memory::Patch<BYTE>(0x706825, 8);
+	/*Memory::Patch<BYTE>(0x706825, 8);
 	Memory::Patch<BYTE>(0x706832, 8);
 	Memory::Patch<BYTE>(0x7064C2, 9);
-	Memory::Patch<BYTE>(0x7064F9, 8);
+	Memory::Patch<BYTE>(0x7064F9, 8);*/
 
 	// Don't change velocity when colliding with peds in a vehicle
 	//call(0x5F12CA, &CPhysical__ApplyMoveForce_Nop, PATCH_CALL);
@@ -3055,13 +3020,13 @@ __forceinline void Main_Patches()
 	// Autoupdater
 	InjectHook(0x53E77C, &CUpdateManager::Process);
 	InjectHook(0x53BF4E, &UpdaterProcessHack);
-	InjectHook(0x579526, &UpdaterMenuDrawHack, PATCH_JUMP);
-	InjectHook(0x579D50, &UpdaterTextSwap, PATCH_JUMP);
+	//InjectHook(0x579526, &UpdaterMenuDrawHack, PATCH_JUMP);
+	//InjectHook(0x579D50, &UpdaterTextSwap, PATCH_JUMP);
 //	InjectHook(0x576E13, &MenuToggleHack, PATCH_JUMP
 //	InjectHook(0x573680, &SetToNewMenuHack, PATCH_JUMP);
-	Patch<const void*>(0x57CD84, PCMenuActionsTable);
-	Patch<const void*>(0x57CD8B, PCMenuActionsAddresses);
-	Patch<BYTE>(0x57CD74, sizeof(PCMenuActionsTable)-1);
+	//Patch<const void*>(0x57CD84, PCMenuActionsTable);
+	//Patch<const void*>(0x57CD8B, PCMenuActionsAddresses);
+	//Patch<BYTE>(0x57CD74, sizeof(PCMenuActionsTable)-1);
 	Patch<WORD>(0x573830, 0xCE8B);
 	Patch<BYTE>(0x573832, 0x5E);
 	InjectHook(0x573833, &CMenuManager::SwitchToNewScreenVCS, PATCH_JUMP);
@@ -3126,13 +3091,13 @@ __forceinline void Main_Patches()
 	InjectHook(0x748D83, &MaxosFrameLimitHack, PATCH_JUMP);
 	InjectHook(0x748D9A, &MaxosFrameLimitHack, PATCH_JUMP);
 
-	InjectHook(0x57CECA, &FrameLimit_SwitchInject, PATCH_JUMP);
-	InjectHook(0x579EF3, &FrameLimit_StringInject);
-	InjectHook(0x57CD05, &FrameLimit_SetFPS, PATCH_JUMP);
+	//InjectHook(0x57CECA, &FrameLimit_SwitchInject, PATCH_JUMP);
+	//InjectHook(0x579EF3, &FrameLimit_StringInject);
+	//InjectHook(0x57CD05, &FrameLimit_SetFPS, PATCH_JUMP);
 	/*call(0x573BB8, &FrameLimit_SetFPS2, PATCH_CALL);
 	Nop(0x573BBD, 1);*/
-	InjectHook(0x573BF0, &FrameLimit_SetFPS2, PATCH_JUMP);
-	Nop(0x573BB8, 3);
+	//InjectHook(0x573BF0, &FrameLimit_SetFPS2, PATCH_JUMP);
+	//Nop(0x573BB8, 3);
 
 	// No green blip
 	Patch<BYTE>(0x53E1EC, 0xEB);
@@ -3146,8 +3111,9 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x6FB9A0, 0);
 
 	// Relocated sun
-	Patch<float>(0x560A76, 1.0f);
-	Nop(0x560A84, 6);
+	// TODO: FIX COMPATIBILITY WITH MOBILE SHADOWS
+	//Patch<float>(0x560A76, 1.0f);
+	//Nop(0x560A84, 6);
 
 	// More vehicles
 #if NUM_VEHICLE_MODELS > 212
@@ -3213,26 +3179,26 @@ __forceinline void Main_Patches()
 	InjectHook(0x56D220, &UseMetricSystem, PATCH_JUMP);
 
 	// Radio icons tweaks
-	InjectHook(0x579538, &CMenuManager::DrawRadioStationIcons, PATCH_NOTHING);
+	//InjectHook(0x579538, &CMenuManager::DrawRadioStationIcons, PATCH_NOTHING);
 	/*patch(0x574702, 91, 4);
 	patch(0x57470D, 10, 4);
 	Patch<BYTE>(0x57480A, 11);
 	patch(0x574889, 0x8120C283, 4);*/
 
-	Patch<BYTE>(0x57A2BD, 4);
+	//Patch<BYTE>(0x57A2BD, 4);
 
 	// 12H Clock menu options
-	InjectHook(0x577086, &Clock_SwitchInject, PATCH_JUMP);
-	InjectHook(0x579E6A, &Clock_StringInject);
+	//InjectHook(0x577086, &Clock_SwitchInject, PATCH_JUMP);
+	//InjectHook(0x579E6A, &Clock_StringInject);
 
 	// Pink menu header
-	Patch<BYTE>(0x5795F3, 11);
+	//Patch<BYTE>(0x5795F3, 11);
 	Patch<BYTE>(0x57F6C6, 11);
 
 	// active menu entry RGB
-	Patch<DWORD>(0x579A63, MENU_ACTIVE_B);
-	Patch<DWORD>(0x579A68, MENU_ACTIVE_G);
-	Patch<DWORD>(0x579A6D, MENU_ACTIVE_R);
+	//Patch<DWORD>(0x579A63, MENU_ACTIVE_B);
+	//Patch<DWORD>(0x579A68, MENU_ACTIVE_G);
+	//Patch<DWORD>(0x579A6D, MENU_ACTIVE_R);
 	/*patch(0x5768D3, MENU_ACTIVE_B, 4);
 	patch(0x5768D8, MENU_ACTIVE_G, 4);
 	patch(0x5768DD, MENU_ACTIVE_R, 4);*/
@@ -3244,19 +3210,19 @@ __forceinline void Main_Patches()
 	/*Patch<BYTE>(0x576913, MENU_INACTIVE_B);
 	Patch<BYTE>(0x576915, MENU_INACTIVE_G);
 	Patch<BYTE>(0x576917, MENU_INACTIVE_R);*/
-	Patch<BYTE>(0x579767, MENU_INACTIVE_B);
-	Patch<BYTE>(0x579769, MENU_INACTIVE_G);
-	Patch<BYTE>(0x57976B, MENU_INACTIVE_R);
+	//Patch<BYTE>(0x579767, MENU_INACTIVE_B);
+	//Patch<BYTE>(0x579769, MENU_INACTIVE_G);
+	//Patch<BYTE>(0x57976B, MENU_INACTIVE_R);
 	/*Patch<BYTE>(0x579A88, MENU_INACTIVE_B);
 	Patch<BYTE>(0x579A8A, MENU_INACTIVE_G);
 	Patch<BYTE>(0x579A8C, MENU_INACTIVE_R);*/
 	Patch<BYTE>(0x57FD08, MENU_INACTIVE_B);
 	Patch<BYTE>(0x57FD0A, MENU_INACTIVE_G);
 	Patch<BYTE>(0x57FD0C, MENU_INACTIVE_R);
-	Patch<BYTE>(0x579F2E, MENU_LOCKED_B);
-	Patch<BYTE>(0x579F30, MENU_LOCKED_G);
-	Patch<BYTE>(0x579F32, MENU_LOCKED_R);
-	InjectHook(0x579A87, &MenuEntryColourHack, PATCH_JUMP);
+	//Patch<BYTE>(0x579F2E, MENU_LOCKED_B);
+	//Patch<BYTE>(0x579F30, MENU_LOCKED_G);
+	//Patch<BYTE>(0x579F32, MENU_LOCKED_R);
+	//InjectHook(0x579A87, &MenuEntryColourHack, PATCH_JUMP);
 
 
 	// Custom Tracks slider
@@ -3276,18 +3242,18 @@ __forceinline void Main_Patches()
 	patch(0x57BE10, MENU_INACTIVE_R, 4);
 
 	// Fixed menu fonts
-	Patch<BYTE>(0x579929, FONT_Eurostile);
-	Patch<BYTE>(0x5799AD, FONT_Eurostile);
+	//Patch<BYTE>(0x579929, FONT_Eurostile);
+	//Patch<BYTE>(0x5799AD, FONT_Eurostile);
 	//Patch<BYTE>(0x5799AD, FONT_PagerFont);
-	Patch<BYTE>(0x57A20B, FONT_Eurostile);
+	//Patch<BYTE>(0x57A20B, FONT_Eurostile);
 	Patch<BYTE>(0x57E280, FONT_Eurostile);
 	Patch<BYTE>(0x57FCC3, FONT_Eurostile);
 	Patch<BYTE>(0x5760F7, FONT_Eurostile);
 	Patch<BYTE>(0x57FA41, FONT_Eurostile/*FONT_RageItalic*/);
 
 	// Smaller outline
-	Patch<BYTE>(0x579A24, 1);
-	Patch<BYTE>(0x579739, 1);
+	//Patch<BYTE>(0x579A24, 1);
+	//Patch<BYTE>(0x579739, 1);
 	Patch<BYTE>(0x575F21, 1);
 
 	Patch<DWORD>(0x575F7C, 0x402444DB);
@@ -3299,8 +3265,8 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x575F66, &WidescreenSupport::fMapZonePosX2);
 	Patch<float>(0x575E6E, 1280.0);
 
-	Patch<BYTE>(0x5795E9, 2);
-	InjectHook(0x5795EA, 0x719570);
+	//Patch<BYTE>(0x5795E9, 2);
+	//InjectHook(0x5795EA, 0x719570);
 
 	// ONE intro splash (FINALLY)
 	Patch<DWORD>(0x748EF8, 0x748AC6);
@@ -3312,19 +3278,19 @@ __forceinline void Main_Patches()
 	InjectHook(0x57BA5F, &CMenuManager::DrawOutroSplash, PATCH_NOTHING);
 
 	// Stats Menu
-	InjectHook(0x57954A, &CMenuManager::PrintStats, PATCH_NOTHING);
-	Patch<const void*>(0x577370, &StatsMenuActionHack);
+	//InjectHook(0x57954A, &CMenuManager::PrintStats, PATCH_NOTHING);
+	//Patch<const void*>(0x577370, &StatsMenuActionHack);
 
 	// Brightness
-	Patch<float>(0x573B8A, 96.0 / 512.0);
-	Patch<DWORD>(0x573B96, 96);
-	Patch<const void*>(0x57A8A9, &fBrightnessStep);
-	Patch<const void*>(0x573487, &fBrightnessStep2);
-	Patch<const void*>(0x5734AD, &fBrightnessMax);
-	Patch<const void*>(0x5734BC, &fBrightnessMax);
+	//Patch<float>(0x573B8A, 96.0 / 512.0);
+	//Patch<DWORD>(0x573B96, 96);
+	//Patch<const void*>(0x57A8A9, &fBrightnessStep);
+	//Patch<const void*>(0x573487, &fBrightnessStep2);
+	//Patch<const void*>(0x5734AD, &fBrightnessMax);
+	//Patch<const void*>(0x5734BC, &fBrightnessMax);
 
 	// Tweaked draw distance
-	InjectHook(0x5735C8, &DrawDistanceRecalc);
+	//InjectHook(0x5735C8, &DrawDistanceRecalc);
 
 	// Widescreen
 	Patch<DWORD>(0x745B71, 0x9090687D);
@@ -3352,7 +3318,7 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x748F0C, &VideoPlayerRelease);
 //	InjectHook(0x748BC9, &VideoPlayerCreate2, PATCH_JUMP);
 	InjectHook(0x748BB9, &VideoPlayerPlayNextFrame);
-	InjectHook(0x7480D6, &VideoPlayerProc, PATCH_JUMP);
+	InjectHook(0x7480C5, &VideoPlayerProc, PATCH_JUMP);
 
 	// Disable re-initialization of DirectInput mouse device by the game
 	Patch<BYTE>(0x576CCC, 0xEB);
@@ -3427,27 +3393,27 @@ __forceinline void Main_Patches()
 	Patch<WORD>(0x57B9FB, 0x05EB);
 
 	// More centered stuff in menu, sliders
-	InjectHook(0x57A218, &MenuEntriesAlignHack, PATCH_JUMP);
-	InjectHook(0x57A3B1, &MenuEntriesPositionHack_Inject, PATCH_JUMP);
+	//InjectHook(0x57A218, &MenuEntriesAlignHack, PATCH_JUMP);
+	//InjectHook(0x57A3B1, &MenuEntriesPositionHack_Inject, PATCH_JUMP);
 	//Patch<BYTE>(0x57A219, ALIGN_Left);
 	//patch(0x57A3DF, &fMenuTextsPosX, 4);
 	//patch(0x57A3ED, &fMenuTextsPosX2, 4);
 
 	// -//- related to sliders
-	InjectHook(0x576860, &CMenuManager::DisplaySlider, PATCH_JUMP);
+	//InjectHook(0x576860, &CMenuManager::DisplaySlider, PATCH_JUMP);
 	/*patchf(0x57A881, 640.0 - MENU_TEXT_POSITION_RCOLUMN);
 	patchf(0x57AA75, 640.0 - MENU_TEXT_POSITION_RCOLUMN);
 	patchf(0x57ACB2, 640.0 - MENU_TEXT_POSITION_RCOLUMN);
 	patchf(0x57AEA4, 640.0 - MENU_TEXT_POSITION_RCOLUMN);
 	patchf(0x57B0D8, 640.0 - MENU_TEXT_POSITION_RCOLUMN);*/
-	Patch<float>(0x57A881, 320.0 + MENU_TEXT_POSITION_RCOLUMN);
+	/*Patch<float>(0x57A881, 320.0 + MENU_TEXT_POSITION_RCOLUMN);
 	Patch<float>(0x57AA75, 320.0 + MENU_TEXT_POSITION_RCOLUMN);
 	Patch<float>(0x57ACB2, 320.0 + MENU_TEXT_POSITION_RCOLUMN);
 	Patch<float>(0x57AEA4, 320.0 + MENU_TEXT_POSITION_RCOLUMN);
 	Patch<float>(0x57B0D8, 320.0 + MENU_TEXT_POSITION_RCOLUMN);
 	Patch<float>(0x57AC6F, MENU_SLIDER_POSY - MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57A841, MENU_SLIDER_POSY - MENU_SLIDER_HEIGHT / 2);
-	Patch<float>(0x57AE6A, MENU_SLIDER_POSY - MENU_SLIDER_HEIGHT / 2);
+	Patch<float>(0x57AE6A, MENU_SLIDER_POSY - 30.0 - MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57B09A, MENU_SLIDER_POSY - MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57AA35, MENU_SLIDER_POSY - 30.0 - MENU_SLIDER_HEIGHT);
 	Patch<float>(0x57A82E, MENU_SLIDER_HEIGHT);
@@ -3462,7 +3428,7 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x57B0E6, &WidescreenSupport::fMenuSliderPosX);
 	Patch<const void*>(0x57A86A, &WidescreenSupport::fMenuSliderPosY4);
 	Patch<const void*>(0x57AC9B, &WidescreenSupport::fMenuSliderPosY2);
-	Patch<const void*>(0x57AE90, &WidescreenSupport::fMenuSliderPosY4);
+	Patch<const void*>(0x57AE90, &WidescreenSupport::fMenuSliderPosY3);
 	Patch<const void*>(0x57B0C1, &WidescreenSupport::fMenuSliderPosY2);
 	Patch<const void*>(0x57AA5E, &WidescreenSupport::fMenuSliderPosY3);
 	Patch<const void*>(0x57A7EC, &fMenuSliderWidth);
@@ -3485,18 +3451,18 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x57AC3B, &WidescreenSupport::f100);
 	Patch<const void*>(0x57AE42, &WidescreenSupport::f100);
 	Patch<const void*>(0x57B070, &WidescreenSupport::f100);
-//	Patch<BYTE>(0x57A878, 0xEB);
+//	Patch<BYTE>(0x57A878, 0xEB);*/
 
 	// Proper widescreen support
-	patch(0x579667, &WidescreenSupport::f40, 4);
-	patch(0x5795D1, &WidescreenSupport::f1pt3, 4);
-	patch(0x579865, &WidescreenSupport::f60, 4);
-	patch(0x57971A, &WidescreenSupport::f0pt49, 4);
-	patch(0x579983, &WidescreenSupport::f0pt42, 4);
-	patch(0x579A03, &WidescreenSupport::f0pt7, 4);
-	patch(0x57A2A2, &WidescreenSupport::f0pt35, 4);
-	patch(0x57A31B, &WidescreenSupport::f0pt56, 4);
-	patch(0x57A370, &WidescreenSupport::f0pt7, 4);
+	//patch(0x579667, &WidescreenSupport::f40, 4);
+	//patch(0x5795D1, &WidescreenSupport::f1pt3, 4);
+	//patch(0x579865, &WidescreenSupport::f60, 4);
+	//patch(0x57971A, &WidescreenSupport::f0pt49, 4);
+	//patch(0x579983, &WidescreenSupport::f0pt42, 4);
+	//patch(0x579A03, &WidescreenSupport::f0pt7, 4);
+	//patch(0x57A2A2, &WidescreenSupport::f0pt35, 4);
+	//patch(0x57A31B, &WidescreenSupport::f0pt56, 4);
+	//patch(0x57A370, &WidescreenSupport::f0pt7, 4);
 	patch(0x57403F, &WidescreenSupport::fMenuMessageWidth, 4);
 	patch(0x5740BE, &WidescreenSupport::f0pt56, 4);
 	patch(0x574112, &WidescreenSupport::f95, 4);
@@ -3543,10 +3509,10 @@ __forceinline void Main_Patches()
 	patch(0x58C12D, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C144, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);*/
 	InjectHook(0x57E3A5, &HelperPosXHack);
-	InjectHook(0x57A186/*0x57A1BA*//*0x57A1C1*/, &MenuEntriesLeftColumnHack, PATCH_JUMP);
+	//InjectHook(0x57A186/*0x57A1BA*//*0x57A1C1*/, &MenuEntriesLeftColumnHack, PATCH_JUMP);
 	//call(0x57A190, &MenuEntriesLeftColumnHack2, PATCH_JUMP);
-	InjectHook(0x579BBF, &MenuEntriesPlaceSave, PATCH_JUMP);
-	InjectHook(0x579C7F, &MenuEntriesPlaceSave2, PATCH_JUMP);
+	//InjectHook(0x579BBF, &MenuEntriesPlaceSave, PATCH_JUMP);
+	//InjectHook(0x579C7F, &MenuEntriesPlaceSave2, PATCH_JUMP);
 	InjectHook(0x72FD75, &WidescreenSupportRecalculateHack, PATCH_JUMP);
 	InjectHook(0x745C99, &WidescreenSupportRecalculateHack2, PATCH_JUMP);
 	InjectHook(0x746341, &WidescreenSupportRecalculateHack3, PATCH_CALL);
@@ -3560,8 +3526,8 @@ __forceinline void Main_Patches()
 	InjectHook(0x58C3C8, &WidescreenTextPositionHack, PATCH_CALL);
 	InjectHook(0x58BB88, &WidescreenSupport::GetTextBoxPos, PATCH_CALL);
 //	InjectHook(0x714841, &WidescreenSkyWidthHack, PATCH_CALL);
-	InjectHook(0x57706E, &Widescreen_SwitchInject, PATCH_JUMP);
-	InjectHook(0x579DE9, &Widescreen_StringInject);
+	//InjectHook(0x57706E, &Widescreen_SwitchInject, PATCH_JUMP);
+	//InjectHook(0x579DE9, &Widescreen_StringInject);
 //	InjectHook(0x58C0BB, &Widescreen_TextDrawsFix, PATCH_CALL);
 	InjectHook(0x58C1EC, &Widescreen_TextDrawsFix2, PATCH_JUMP);
 	InjectHook(0x72FC70, &CameraSize, PATCH_JUMP);
@@ -3675,29 +3641,30 @@ __forceinline void Main_Patches()
 	}
 	call(0x57DDE0, dwFunc, PATCH_JUMP);*/
 
-	Patch<DWORD>(0x5759C5, offsetof(CMenuManager, textures[15]));
+	Patch<DWORD>(0x5759C5, offsetof(CMenuManager, m_apTextures[15]));
 
 	InjectHook(0x58008D, &CMenuManager::AdditionalOptionInputVCS, PATCH_NOTHING);
 	InjectHook(0x57B457, &CMenuManager::UserInputVCS, PATCH_NOTHING);
 
 	// No arrow.txd
-	Patch<DWORD>(0x57A511, 0xDBE9);
-	Nop(0x57A516, 1);
+	//Patch<DWORD>(0x57A511, 0xDBE9);
+	//Nop(0x57A516, 1);
 
 	// .set alterations
-#if SET_FILE_VERSION != 6
+/*#if SET_FILE_VERSION != 6
 	static const DWORD dwSetFileVersion = SET_FILE_VERSION;
 
 	Patch<BYTE>(0x57C983, SET_FILE_VERSION);
 	Patch<BYTE>(0x530590, CONTROLS_FILE_VERSION);
 	Patch<const void*>(0x57C69A, &dwSetFileVersion);
-#endif
+#endif*/
+	Patch<BYTE>(0x530590, CONTROLS_FILE_VERSION);
 	Patch<const char*>(0x7489A0, "controls.set");
 	//Patch<WORD>(0x57C6A7, 0x09EB);
-	InjectHook(0x57C7E7, &SaveLanguageHack);
-	InjectHook(0x57CABB, &LoadLanguageHack);
-	InjectHook(0x57C6AD, &CControllerConfigManager::SaveToFile, PATCH_NOTHING);
-	InjectHook(0x57C990, &CControllerConfigManager::LoadFromFile, PATCH_NOTHING);
+	//InjectHook(0x57C7E7, &SaveLanguageHack);
+	//InjectHook(0x57CABB, &LoadLanguageHack);
+	//InjectHook(0x57C6AD, &CControllerConfigManager::SaveToFile, PATCH_NOTHING);
+	//InjectHook(0x57C990, &CControllerConfigManager::LoadFromFile, PATCH_NOTHING);
 	// Upgrading CRT of CControllerConfigManager::SaveSettings and CControllerConfigManager::LoadSettings
 	InjectHook(0x52D220, &CFileMgr::Write);
 	InjectHook(0x52D237, &CFileMgr::Write);
@@ -3711,9 +3678,9 @@ __forceinline void Main_Patches()
 	InjectHook(0x5305FC, &CFileMgr::Seek);
 	InjectHook(0x7489A4, &CFileMgr::OpenFile);
 	InjectHook(0x7489CC, &CFileMgr::CloseFile);
-	Nop(0x57C6A7, 1);
-	Nop(0x57C98A, 1);
-	Nop(0x57C997, 6);
+	//Nop(0x57C6A7, 1);
+	//Nop(0x57C98A, 1);
+	//Nop(0x57C997, 6);
 
 	// Larger 02A7 sphere
 //	patchf(0x585CD4, 3.0);
@@ -3836,7 +3803,7 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x407671, 0xC78B5B5E);
 	Patch<WORD>(0x407675, 0xC35F);
 	InjectHook(0x5B61B0, &IMGEncryptionFindOut, PATCH_JUMP);
-	InjectHook(0x5B8E1B, &static_cast<void(*)()>(CStreaming::LoadCdDirectory));
+	InjectHook(0x5B8E1B, static_cast<void(*)()>(CStreaming::LoadCdDirectory));
 	InjectHook(0x5B61E6, &IMGEncryptionDo, PATCH_JUMP);
 	Patch<const void*>(0x407614, &CStreaming::ms_cdImages);
 //	patch(0x5B82FD, &CStreaming::ms_cdImages, 4);
@@ -3902,11 +3869,11 @@ __forceinline void Main_Patches()
 	Patch<void*>(0x61916B, SlotFileName);
 	Patch<void*>(0x619189, SlotFileName);
 	Patch<void*>(0x5D0F4B, SlotFileName);
-	Patch<void*>(0x579BD5, SlotValidation);
+	//Patch<void*>(0x579BD5, SlotValidation);
 	Patch<void*>(0x57B6AD, SlotValidation);
-	Patch<void*>(0x5772B3, &SlotValidation[1]);
-	Patch<void*>(0x5772D3, &SlotValidation[1]);
-	Patch<void*>(0x5797D7, &SlotValidation[1]);
+	//Patch<void*>(0x5772B3, &SlotValidation[1]);
+	//Patch<void*>(0x5772D3, &SlotValidation[1]);
+	//Patch<void*>(0x5797D7, &SlotValidation[1]);
 	Patch<void*>(0x619157, &SlotValidation[1]);
 	Patch<void*>(0x61922D, &SlotValidation[1]);
 	Patch<void*>(0x619247, &SlotValidation[1]);
@@ -3915,19 +3882,19 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x57378F, NUM_SAVE_SLOTS+1);
 	Patch<BYTE>(0x619388, NUM_SAVE_SLOTS);
 
-	Patch<BYTE>(0x57728F, ACTION_SAVE_12);
-	Patch<BYTE>(0x5772FD, ACTION_SAVE_12);
-	Patch<BYTE>(0x579921, ACTION_SAVE_12);
-	Patch<BYTE>(0x579BB6, ACTION_SAVE_12);
-	Patch<BYTE>(0x57A241, ACTION_SAVE_12);
+	//Patch<BYTE>(0x57728F, ACTION_SAVE_12);
+	//Patch<BYTE>(0x5772FD, ACTION_SAVE_12);
+	//Patch<BYTE>(0x579921, ACTION_SAVE_12);
+	//Patch<BYTE>(0x579BB6, ACTION_SAVE_12);
+	//Patch<BYTE>(0x57A241, ACTION_SAVE_12);
 	Patch<BYTE>(0x57B6A7, ACTION_SAVE_12);
-	Patch<BYTE>(0x579903, ACTION_MISSIONPACK);
-	Patch<BYTE>(0x579AFB, ACTION_MISSIONPACK);
-	Patch<BYTE>(0x579CDA, ACTION_MISSIONPACK);
+	//Patch<BYTE>(0x579903, ACTION_MISSIONPACK);
+	//Patch<BYTE>(0x579AFB, ACTION_MISSIONPACK);
+	//Patch<BYTE>(0x579CDA, ACTION_MISSIONPACK);
 	//Patch<BYTE>(0x579D52, ACTION_JOYMOUSE);
 	Patch<BYTE>(0x57B6F5, ACTION_CLICKORARROWS);
 
-	Patch<DWORD>(0x57344F, sizeof(MenuItem));
+	//Patch<DWORD>(0x57344F, sizeof(MenuItem));
 	Patch<DWORD>(0x5736FD, sizeof(MenuItem));
 	Patch<DWORD>(0x573703, sizeof(MenuItem));
 	Patch<DWORD>(0x57371B, sizeof(MenuItem));
@@ -3939,34 +3906,34 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x576B18, sizeof(MenuItem));
 	Patch<DWORD>(0x576B30, sizeof(MenuItem));
 	Patch<DWORD>(0x576B4F, sizeof(MenuItem));
-	Patch<DWORD>(0x57700A, sizeof(MenuItem));
-	Patch<DWORD>(0x579562, sizeof(MenuItem));
-	Patch<DWORD>(0x579678, sizeof(MenuItem));
-	Patch<DWORD>(0x5796A9, sizeof(MenuItem));
-	Patch<DWORD>(0x57981A, sizeof(MenuItem));
-	Patch<DWORD>(0x5798D0, sizeof(MenuItem));
-	Patch<DWORD>(0x579AAA, sizeof(MenuItem));
-	Patch<DWORD>(0x579AD7, sizeof(MenuItem));
-	Patch<DWORD>(0x579B24, sizeof(MenuItem));
-	Patch<DWORD>(0x579B52, sizeof(MenuItem));
-	Patch<DWORD>(0x579B69, sizeof(MenuItem));
-	Patch<DWORD>(0x579C78, sizeof(MenuItem));
-	Patch<DWORD>(0x579D14, sizeof(MenuItem));
-	Patch<DWORD>(0x579D37, sizeof(MenuItem));
-	Patch<DWORD>(0x579D8B, sizeof(MenuItem));
-	Patch<DWORD>(0x57A182, sizeof(MenuItem));
-	Patch<DWORD>(0x57A22E, sizeof(MenuItem));
-	Patch<DWORD>(0x57A397, sizeof(MenuItem));
-	Patch<DWORD>(0x57A44D, sizeof(MenuItem));
-	Patch<DWORD>(0x57A543, sizeof(MenuItem));
-	Patch<DWORD>(0x57A60B, sizeof(MenuItem));
-	Patch<DWORD>(0x57A653, sizeof(MenuItem));
-	Patch<DWORD>(0x57A69B, sizeof(MenuItem));
-	Patch<DWORD>(0x57A6DC, sizeof(MenuItem));
-	Patch<DWORD>(0x57A71F, sizeof(MenuItem));
-	Patch<DWORD>(0x57A772, sizeof(MenuItem));
-	Patch<DWORD>(0x57A7B6, sizeof(MenuItem));
-	Patch<DWORD>(0x57B277, sizeof(MenuItem));
+	//Patch<DWORD>(0x57700A, sizeof(MenuItem));
+	//Patch<DWORD>(0x579562, sizeof(MenuItem));
+	//Patch<DWORD>(0x579678, sizeof(MenuItem));
+	//Patch<DWORD>(0x5796A9, sizeof(MenuItem));
+	//Patch<DWORD>(0x57981A, sizeof(MenuItem));
+	//Patch<DWORD>(0x5798D0, sizeof(MenuItem));
+	//Patch<DWORD>(0x579AAA, sizeof(MenuItem));
+	//Patch<DWORD>(0x579AD7, sizeof(MenuItem));
+	//Patch<DWORD>(0x579B24, sizeof(MenuItem));
+	//Patch<DWORD>(0x579B52, sizeof(MenuItem));
+	//Patch<DWORD>(0x579B69, sizeof(MenuItem));
+	//Patch<DWORD>(0x579C78, sizeof(MenuItem));
+	//Patch<DWORD>(0x579D14, sizeof(MenuItem));
+	//Patch<DWORD>(0x579D37, sizeof(MenuItem));
+	//Patch<DWORD>(0x579D8B, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A182, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A22E, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A397, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A44D, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A543, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A60B, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A653, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A69B, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A6DC, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A71F, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A772, sizeof(MenuItem));
+	//Patch<DWORD>(0x57A7B6, sizeof(MenuItem));
+	//Patch<DWORD>(0x57B277, sizeof(MenuItem));
 	Patch<DWORD>(0x57B4E4, sizeof(MenuItem));
 	Patch<DWORD>(0x57B50D, sizeof(MenuItem));
 	Patch<DWORD>(0x57B582, sizeof(MenuItem));
@@ -3975,9 +3942,9 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x57B692, sizeof(MenuItem));
 	Patch<DWORD>(0x57B6E7, sizeof(MenuItem));
 	Patch<DWORD>(0x57C30D, sizeof(MenuItem));
-	Patch<DWORD>(0x57CD60, sizeof(MenuItem));
-	Patch<DWORD>(0x57D281, sizeof(MenuItem));
-	Patch<DWORD>(0x57D2CA, sizeof(MenuItem));
+	//Patch<DWORD>(0x57CD60, sizeof(MenuItem));
+	//Patch<DWORD>(0x57D281, sizeof(MenuItem));
+	//Patch<DWORD>(0x57D2CA, sizeof(MenuItem));
 	Patch<DWORD>(0x57D6D3, sizeof(MenuItem));
 	Patch<DWORD>(0x57D6FB, sizeof(MenuItem));
 	Patch<DWORD>(0x57E3EC, sizeof(MenuItem));
@@ -3991,7 +3958,7 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x5804E0, sizeof(MenuItem));
 	Patch<DWORD>(0x5805C8, sizeof(MenuItem));
 
-	Patch<BYTE>(0x57B29A, NUM_ENTRIES_PER_MENU);
+	//Patch<BYTE>(0x57B29A, NUM_ENTRIES_PER_MENU);
 	Patch<BYTE>(0x57FED9, NUM_ENTRIES_PER_MENU);
 	Patch<BYTE>(0x57B521, NUM_ENTRIES_PER_MENU);
 	Patch<DWORD>(0x57B5D2, NUM_ENTRIES_PER_MENU - 1);
@@ -4181,7 +4148,7 @@ __forceinline void PatchMenus()
 #endif
 	using namespace Memory;
 
-	Patch<void*>(0x57345A, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57345A, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57370A, &MenuEntriesList->startingMenuEntry);
 	Patch<void*>(0x573713, &MenuEntriesList->prevMenu);
 	Patch<void*>(0x573728, &MenuEntriesList->prevMenu);
@@ -4193,53 +4160,53 @@ __forceinline void PatchMenus()
 	Patch<void*>(0x576B1E, &MenuEntriesList->entryList[1].targetMenu);
 	Patch<void*>(0x576B38, MenuEntriesList);
 	Patch<void*>(0x576B58, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x577017, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57723D, &MenuEntriesList->entryList->targetMenu);
-	Patch<void*>(0x577280, &MenuEntriesList->entryList->specialDescFlag);
-	Patch<void*>(0x5772F2, &MenuEntriesList->entryList->specialDescFlag);
-	Patch<void*>(0x579568, MenuEntriesList);
-	Patch<void*>(0x57967E, MenuEntriesList);
-	Patch<void*>(0x5796AF, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57981F, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x5798D6, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x5798FC, &MenuEntriesList->entryList->specialDescFlag);
-	Patch<void*>(0x579AB2, &MenuEntriesList->entryList->align);
-	Patch<void*>(0x579AE4, &MenuEntriesList->entryList->posX);
-	Patch<void*>(0x579AEE, &MenuEntriesList->entryList->posY);
-	Patch<void*>(0x579AF7, &MenuEntriesList->entryList->specialDescFlag);
-	Patch<void*>(0x579B10, &MenuEntriesList->name[4]);
-	Patch<void*>(0x579B17, &MenuEntriesList->entryList->posX);
-	Patch<void*>(0x579B2E, &MenuEntriesList->name[6]);
-	Patch<void*>(0x579B3A, &MenuEntriesList->entryList->posY);
-	Patch<void*>(0x579B43, &MenuEntriesList->entryList->posX);
-	Patch<void*>(0x579B5A, &MenuEntriesList->entryList->posY);
-	Patch<void*>(0x579B70, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x579B7A, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x579B8B, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x579B9F, &MenuEntriesList->entryList->specialDescFlag);
+	//Patch<void*>(0x577017, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57723D, &MenuEntriesList->entryList->targetMenu);
+	//Patch<void*>(0x577280, &MenuEntriesList->entryList->specialDescFlag);
+	//Patch<void*>(0x5772F2, &MenuEntriesList->entryList->specialDescFlag);
+	//Patch<void*>(0x579568, MenuEntriesList);
+	//Patch<void*>(0x57967E, MenuEntriesList);
+	//Patch<void*>(0x5796AF, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57981F, &MenuEntriesList->entryList->entry);
+	//Patch<void*>(0x5798D6, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x5798FC, &MenuEntriesList->entryList->specialDescFlag);
+	//Patch<void*>(0x579AB2, &MenuEntriesList->entryList->align);
+	//Patch<void*>(0x579AE4, &MenuEntriesList->entryList->posX);
+	//Patch<void*>(0x579AEE, &MenuEntriesList->entryList->posY);
+	//Patch<void*>(0x579AF7, &MenuEntriesList->entryList->specialDescFlag);
+	//Patch<void*>(0x579B10, &MenuEntriesList->name[4]);
+	//Patch<void*>(0x579B17, &MenuEntriesList->entryList->posX);
+	//Patch<void*>(0x579B2E, &MenuEntriesList->name[6]);
+	//Patch<void*>(0x579B3A, &MenuEntriesList->entryList->posY);
+	//Patch<void*>(0x579B43, &MenuEntriesList->entryList->posX);
+	//Patch<void*>(0x579B5A, &MenuEntriesList->entryList->posY);
+	//Patch<void*>(0x579B70, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x579B7A, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x579B8B, &MenuEntriesList->entryList->entry);
+	//Patch<void*>(0x579B9F, &MenuEntriesList->entryList->specialDescFlag);
 	//Patch<void*>(0x579BC3, &MenuEntriesList->entryList->posX);
 	//Patch<void*>(0x579C83, &MenuEntriesList->entryList->posX);
-	Patch<void*>(0x579D20, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x579D3F, &MenuEntriesList->name[6]);
-	Patch<void*>(0x579D4A, &MenuEntriesList->entryList->posY);
-	Patch<void*>(0x579D93, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x579D20, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x579D3F, &MenuEntriesList->name[6]);
+	//Patch<void*>(0x579D4A, &MenuEntriesList->entryList->posY);
+	//Patch<void*>(0x579D93, &MenuEntriesList->entryList->action);
 	//Patch<void*>(0x57A18A, &MenuEntriesList->entryList->posY);
 	//Patch<void*>(0x57A1BD, &MenuEntriesList->entryList->posX);
-	Patch<void*>(0x57A235, &MenuEntriesList->entryList->specialDescFlag);
-	Patch<void*>(0x57A39F, &MenuEntriesList->entryList->posY);
-	Patch<void*>(0x57A455, &MenuEntriesList->entryList->align);
-	Patch<void*>(0x57A469, &MenuEntriesList->entryList->posX);
-	Patch<void*>(0x57A4B9, &MenuEntriesList->entryList->posX);
-	Patch<void*>(0x57A4DA, &MenuEntriesList->entryList->posX);
-	Patch<void*>(0x57A54F, &MenuEntriesList->entryList->posY);
-	Patch<void*>(0x57A615, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57A65D, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57A6A5, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57A6E6, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57A729, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57A77C, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57A7BE, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B27E, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57A235, &MenuEntriesList->entryList->specialDescFlag);
+	//Patch<void*>(0x57A39F, &MenuEntriesList->entryList->posY);
+	//Patch<void*>(0x57A455, &MenuEntriesList->entryList->align);
+	//Patch<void*>(0x57A469, &MenuEntriesList->entryList->posX);
+	//Patch<void*>(0x57A4B9, &MenuEntriesList->entryList->posX);
+	//Patch<void*>(0x57A4DA, &MenuEntriesList->entryList->posX);
+	//Patch<void*>(0x57A54F, &MenuEntriesList->entryList->posY);
+	//Patch<void*>(0x57A615, &MenuEntriesList->entryList->entry);
+	//Patch<void*>(0x57A65D, &MenuEntriesList->entryList->entry);
+	//Patch<void*>(0x57A6A5, &MenuEntriesList->entryList->entry);
+	//Patch<void*>(0x57A6E6, &MenuEntriesList->entryList->entry);
+	//Patch<void*>(0x57A729, &MenuEntriesList->entryList->entry);
+	//Patch<void*>(0x57A77C, &MenuEntriesList->entryList->entry);
+	//Patch<void*>(0x57A7BE, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57B27E, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57B4F2, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57B519, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57B52A, &MenuEntriesList->entryList->action);
@@ -4253,10 +4220,10 @@ __forceinline void PatchMenus()
 	Patch<void*>(0x57B69C, &MenuEntriesList->entryList->specialDescFlag);
 	Patch<void*>(0x57B6F1, &MenuEntriesList->entryList->specialDescFlag);
 	Patch<void*>(0x57C313, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57CD6B, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57D26C, &MenuEntriesList->entryList[2].targetMenu);
-	Patch<void*>(0x57D287, &MenuEntriesList->entryList[2].targetMenu);
-	Patch<void*>(0x57D2D2, &MenuEntriesList->entryList[2].targetMenu);
+	//Patch<void*>(0x57CD6B, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57D26C, &MenuEntriesList->entryList[2].targetMenu);
+	//Patch<void*>(0x57D287, &MenuEntriesList->entryList[2].targetMenu);
+	//Patch<void*>(0x57D2D2, &MenuEntriesList->entryList[2].targetMenu);
 	Patch<void*>(0x57D6D8, &MenuEntriesList->entryList->entry);
 	Patch<void*>(0x57D701, &MenuEntriesList->entryList->entry);
 	Patch<void*>(0x57E3F7, &MenuEntriesList->entryList->action);
@@ -4278,7 +4245,7 @@ __forceinline void PatchMenus()
 	Patch<const char*>(0x57F79C, "FEM_CFT");
 	Patch<const char*>(0x57F702, "FEH_SCN");
 	Patch<const char*>(0x57F709, "FEH_CCN");
-	Patch<const char*>(0x579C56, "FEM_SL%X");
+	//Patch<const char*>(0x579C56, "FEM_SL%X");
 
 #ifdef DUMP_MENUS
 	if ( FILE* hDumpFile = fopen("menu_dump.log", "w") )
@@ -4403,7 +4370,7 @@ __forceinline void UserFiles()
 	Patch<BYTE>(0x74503A, 0x9);
 	Patch<const char*>(0x74503F, "\\GTA Vice City Stories User Files");
 
-#ifdef DEVBUILD
+/*#ifdef DEVBUILD
 	Patch<const char*>(0x57C672, "gta_vcsd.set");
 	Patch<const char*>(0x57C902, "gta_vcsd.set");
 	//Patch<const char*>(0x7489A0, "gta_vcsd.set");
@@ -4411,7 +4378,7 @@ __forceinline void UserFiles()
 	Patch<const char*>(0x57C672, "gta_vcs.set");
 	Patch<const char*>(0x57C902, "gta_vcs.set");
 	//Patch<const char*>(0x7489A0, "gta_vcs.set");
-#endif
+#endif*/
 	Patch<const char*>(0x619045, "GTAVCSsf");
 }
 
@@ -4696,7 +4663,7 @@ char* ParseCommandlineArgument(char* pArg)
 			return pArg;
 		}
 
-		if ( !_strnicmp(pArg, "-pedshadowquality", 18) )
+		/*if ( !_strnicmp(pArg, "-pedshadowquality", 18) )
 		{
 			pArg = strtok(nullptr, " ");
 			int		nNewShadowQuality = atoi(pArg);
@@ -4709,7 +4676,19 @@ char* ParseCommandlineArgument(char* pArg)
 				Memory::Patch<BYTE>(0x7064F9, static_cast<BYTE>(nNewShadowQuality + 5));
 			}
 			return pArg;
-		}
+		}*/
+
+		/*if ( !_strnicmp(pArg, "-stencil", 8) )
+		{
+			// Stencil shadows are back
+			Memory::Patch<BYTE>(0x53E159, 0xE9);
+			Memory::InjectHook(0x53C1AB, 0x711D90, PATCH_CALL);
+
+			Memory::Patch<DWORD>(0x70F9B0, 0xAE00B953);
+			Memory::Patch<DWORD>(0x70F9B4, 0xDB3200A9);
+			Memory::Patch<WORD>(0x70F9B8, 0x93E8);
+			Memory::Patch<BYTE>(0x70F9BA, 0xF0);
+		}*/
 
 #ifdef DEVBUILD
 		if ( !_strnicmp(pArg, "-noautocheck", 13) )
@@ -5506,39 +5485,35 @@ void __declspec(naked) Clock_SwitchInject()
 {
 	_asm
 	{
+		mov		dl, [esp+0Ch+4]
+		cmp		dl, 0
+		jl		Clock_SwitchInject_Previous
 		cmp		al, 2
 		jnl		Clock_SwitchInject_ZeroTheValue
 		inc		al
-		jmp		Clock_SwitchInject_GoBack
+		jmp		Clock_SwitchInject_Return
 
 Clock_SwitchInject_ZeroTheValue:
 		xor		al, al
+		jmp		Clock_SwitchInject_Return
 
-Clock_SwitchInject_GoBack:
-		jmp		Clock_SwitchInject_JumpBack
-	}
-}
+Clock_SwitchInject_Previous:
+		test	al, al
+		jz		Clock_SwitchInject_ToMax
+		dec		al
+		jmp		Clock_SwitchInject_Return
 
-void __declspec(naked) Clock_StringInject()
-{
-	_asm
-	{
-		mov		ecx, [TheText]
-		cmp		al, 1
-		jnz		Clock_StringInject_Compare12H
-		push	offset aFem_24H
-		jmp		Clock_StringInject_GoBack
+Clock_SwitchInject_ToMax:
+		mov		al, 2
 
-Clock_StringInject_Compare12H:
-		cmp		al, 2
-		jnz		Clock_StringInject_DisplayOFF
-		push	offset aFem_12H
-
-Clock_StringInject_GoBack:
-		jmp		Clock_StringInject_JumpBack
-
-Clock_StringInject_DisplayOFF:
-		jmp		Clock_StringInject_JumpToOFF
+Clock_SwitchInject_Return:
+		mov		[esi].m_bHudOn, al
+		mov		ecx, esi
+		call	CMenuManager::SaveSettings
+		pop     edi
+		pop     esi
+		pop     ebx
+		retn    0Ch
 	}
 }
 
@@ -6039,7 +6014,7 @@ MenuEntriesAlignHack_AlignToRight:
 
 MenuEntriesAlignHack_Finish:
 		call	CFont::SetOrientation
-		jmp		MenuEntriesAlignHack_JumpBack
+		//jmp		MenuEntriesAlignHack_JumpBack
 	}
 }
 
@@ -6053,7 +6028,7 @@ void __declspec(naked) MenuEntriesPositionHack_Inject()
 		mov		ecx, ebp
 		call	CMenuManager::GetRightColumnPos
 		pop		ecx
-		jmp		MenuEntriesPositionHack_JumpBack
+		//jmp		MenuEntriesPositionHack_JumpBack
 	}
 }
 
@@ -6118,7 +6093,7 @@ void __declspec(naked) MenuEntryColourHack()
 		mov		eax, CUpdateManager::nInterfaceStatus
 		cmp		eax, UPTMODULESTATE_NEW_UPDATES
 		jnz		MenuEntryColourHack_ColourNormal
-		mov		al, [ebp].bCurrentScreen
+		mov		al, [ebp].m_bCurrentMenuPage
 		cmp		al, 33
 		jnz		MenuEntryColourHack_CheckMainScreen
 		cmp		ebx, 6
@@ -6399,48 +6374,6 @@ void __declspec(naked) WidescreenTextPositionHack()
 	}
 }*/
 
-void __declspec(naked) Widescreen_SwitchInject()
-{
-	_asm
-	{
-		cmp		al, 5
-		jnl		Widescreen_SwitchInject_ZeroTheValue
-		inc		al
-		jmp		Widescreen_SwitchInject_Return
-
-
-Widescreen_SwitchInject_ZeroTheValue:
-		xor		al, al
-
-Widescreen_SwitchInject_Return:
-		mov		[esi].m_bAspectRatioMode, al
-		mov		eax, [RsGlobal]
-		push	1
-		push	[eax].MaximumHeight
-		push	[eax].MaximumWidth
-		call	WidescreenSupport::Recalculate
-		add		esp, 0Ch
-		mov		ecx, esi
-		jmp		Widescreen_SwitchInject_JumpBack
-	}
-}
-
-void __declspec(naked) Widescreen_StringInject()
-{
-	_asm
-	{
-		movzx	eax, al
-		push	eax
-		push	offset aFem_Asd
-		push	LENGTH gString
-		push	offset gString
-		call	_snprintf
-		add		esp, 10h
-		mov		ecx, [TheText]
-		push	offset gString
-		jmp		Clock_StringInject_JumpBack
-	}
-}
 
 /*void __declspec(naked) Widescreen_TextDrawsFix()
 {
@@ -6498,16 +6431,6 @@ LookLeftRightHack_ReturnTrue:
 LookLeftRightHack_Return:
 		mov		eax, 52781Dh
 		jmp		eax
-	}
-}
-
-void __declspec(naked) DrawDistanceRecalc()
-{
-	_asm
-	{
-		mov		eax, 57C660h
-		call	eax
-		jmp		CModelInfo::RecalcDrawDistances
 	}
 }
 
@@ -6688,7 +6611,8 @@ void __declspec(naked) VideoPlayerProc()
 		push	esi
 		call	CVideoPlayer::WindowProc
 		add		esp, 4
-		jmp		VideoPlayerProc_JumpBack
+		push	74817Eh
+		retn
 	}
 }
 
@@ -6762,48 +6686,40 @@ void __declspec(naked) FrameLimit_SwitchInject()
 {
 	_asm
 	{
+		mov		dl, [esp+0Ch+4]
+		cmp		dl, 0
+		jl		FrameLimit_SwitchInject_Previous
 		cmp		al, 4
 		jnl		FrameLimit_SwitchInject_ZeroTheValue
 		inc		al
-		movzx	ecx, al
-		mov		ecx, RsGlobalFrameLimits[ecx*4]
-		mov		ebx, [RsGlobal]
-		mov		[ebx].frameLimit, ecx
 		jmp		FrameLimit_SwitchInject_GoBack
 
 FrameLimit_SwitchInject_ZeroTheValue:
 		xor		al, al
+		jmp		FrameLimit_SwitchInject_GoBack
+
+FrameLimit_SwitchInject_Previous:
+		test	al, al
+		jz		FrameLimit_SwitchInject_ToMax
+		dec		al
+		jmp		FrameLimit_SwitchInject_GoBack
+
+FrameLimit_SwitchInject_ToMax:
+		mov		al, 4
 
 FrameLimit_SwitchInject_GoBack:
-		jmp		FrameLimit_SwitchInject_JumpBack
-	}
-}
-
-void __declspec(naked) FrameLimit_StringInject()
-{
-	_asm
-	{
-		mov		ecx, [TheText]
-		test	al, al
-		jz		FrameLimit_StringInject_Off
-		movzx	eax, al
-		push	offset gString
-		push	0
-		push	0
-		push	0
-		push	0
-		push	0
-		push	RsGlobalFrameLimits[eax*4]
-		push	offset aFem_Fps
-		call	CText::Get
-		push	eax
-		call	CMessages::InsertNumberInString
-		add		esp, 20h
-		mov		esi, offset gString
-		jmp		FrameLimit_StringInject_JumpBack
-
-FrameLimit_StringInject_Off:
-		jmp		Clock_StringInject_JumpToOFF
+		movzx	ecx, al
+		mov		ecx, RsGlobalFrameLimits[ecx*4]
+		mov		ebx, [RsGlobal]
+		mov		[ebx].frameLimit, ecx
+		mov		ecx, esi
+		mov		[esi].m_bFrameLimiterMode, al
+		call	CMenuManager::SaveSettings
+		pop     edi
+		pop     esi
+		mov     al, bl
+		pop     ebx
+		retn    8
 	}
 }
 
@@ -6811,7 +6727,7 @@ void __declspec(naked) FrameLimit_SetFPS()
 {
 	_asm
 	{
-		movzx	eax, byte ptr [edi].frameLimiterMode
+		movzx	eax, byte ptr [edi].m_bFrameLimiterMode
 		test	eax, eax
 		jz		FrameLimit_SetFPS_Return
 		mov		ecx, RsGlobalFrameLimits[eax*4]
@@ -6823,28 +6739,6 @@ FrameLimit_SetFPS_Return:
 		pop		esi
 		add     esp, 44h
 		retn
-	}
-}
-
-void __declspec(naked) FrameLimit_SetFPS2()
-{
-	_asm
-	{
-		mov		[esi].frameLimiterMode, 2
-		mov		[esi].hudMode, bl
-		mov		ebx, RsGlobalFrameLimits+8
-		mov		ecx, [RsGlobal]
-		mov		[ecx].frameLimit, ebx
-		mov		[esi].m_bAspectRatioMode, al
-		mov		[esi].m_bSubtitlesEnabled, al
-		push	1
-		push	[ecx].MaximumHeight
-		push	[ecx].MaximumWidth
-		call	WidescreenSupport::Recalculate
-		add		esp, 0Ch
-		pop		ebx
-		pop		esi
-		retn	4
 	}
 }
 
@@ -7086,19 +6980,6 @@ UpdaterTextSwap_NotSerial:
 	}
 }
 
-void __declspec(naked) UpdaterMenuAction()
-{
-	_asm
-	{
-		call	CUpdateManager::HandleButtonClick
-		pop     edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
 static bool		bThisIMGIsEncrypted;
 
 void __stdcall DecryptIMG(CBlowFish* pEncryption, unsigned char* pBuf, size_t nSize, int iMode)
@@ -7190,84 +7071,34 @@ void __declspec(naked) LoadGameWithDLCHack()
 	}
 }
 
-void __declspec(naked) DLCMenuAction()
+void __declspec(naked) ShadowsQualityMenuAction()
 {
 	_asm
 	{
-		push	[esi]CMenuManager.currentMenuEntry
-		call	CDLCManager::HandleButtonClick
-		add		esp, 4
-		pop     edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
-void __declspec(naked) ActivateSerialAction()
-{
-	_asm
-	{
-		mov		al, CMenuManager::m_bSerialFull
-		test	al, al
-		jz		ActivateSerialAction_DontActivate
-		push	offset CMenuManager::m_strSerialCode
-		call	CDLCManager::ActivateSerial
-		add		esp, 4
-
-ActivateSerialAction_DontActivate:
-		pop     edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
-void __declspec(naked) AutoInstallUpdatesAction()
-{
-	_asm
-	{
-		mov		al, [CUpdateManager::bAutoInstallUpdates]
-		test	al, al
-		setz	al
-		mov		[CUpdateManager::bAutoInstallUpdates], al
-		call	CUpdateManager::SaveSettings
-		pop		edi
-		pop		esi
-		mov		al, bl
-		pop		ebx
-		retn	8
-	}
-}
-
-void __declspec(naked) CheckEveryAction()
-{
-	_asm
-	{
-		mov		al, [CUpdateManager::bCheckingPeriod]
+		mov		eax, [CShadows::m_bShadowQuality]
 		mov		dl, [esp+0Ch+4]
 		cmp		dl, 0
-		jl		CheckEveryAction_Previous
-		inc		al
-		cmp		al, 3
-		jna		CheckEveryAction_Return
-		xor		al, al
-		jmp		CheckEveryAction_Return
+		jl		ShadowsQualityMenuAction_Previous
+		inc		eax
+		cmp		eax, SHADOW_QUALITY_HIGHEST
+		jna		ShadowsQualityMenuAction_Return
+		xor		eax, eax
+		jmp		ShadowsQualityMenuAction_Return
 
-CheckEveryAction_Previous:
-		test	al, al
-		jz		CheckEveryAction_ToMax
-		dec		al
-		jmp		CheckEveryAction_Return
+ShadowsQualityMenuAction_Previous:
+		test	eax, eax
+		jz		ShadowsQualityMenuAction_ToMax
+		dec		eax
+		jmp		ShadowsQualityMenuAction_Return
 
-CheckEveryAction_ToMax:
-		mov		al, 3
+ShadowsQualityMenuAction_ToMax:
+		mov		eax, SHADOW_QUALITY_HIGHEST
 
-CheckEveryAction_Return:
-		mov		[CUpdateManager::bCheckingPeriod], al
-		call	CUpdateManager::SaveSettings
+ShadowsQualityMenuAction_Return:
+		mov		[CShadows::m_bShadowQuality], eax
+		call	CShadows::InitialiseChangedSettings
+		mov		ecx, esi
+		call	CMenuManager::SaveSettings
 		pop		edi
 		pop		esi
 		mov		al, bl
@@ -7305,9 +7136,9 @@ void __declspec(naked) Language6Action()
 {
 	_asm
 	{
-		cmp		[esi]CMenuManager.language, 5
+		cmp		[esi].m_nLanguage, 5
 		jz		Language6Action_ReturnFalse
-		mov		[esi]CMenuManager.language, 5
+		mov		[esi].m_nLanguage, 5
 		mov		eax, 57D429h
 		jmp		eax
 

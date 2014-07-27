@@ -128,6 +128,9 @@ enum RsKeyCodes
 };
 typedef enum RsKeyCodes RsKeyCodes;
 
+// R* RW function extensions
+RwTexture*		RwTextureGtaStreamRead(RwStream* stream);
+
 RsEventStatus	RsEventHandler(RsEvent eventID, void* param);
 RwChar*			RsPathnameCreate(const RwChar* srcBuffer);
 void			RsPathnameDestroy(RwChar* buffer);
@@ -137,7 +140,16 @@ void			DoRWStuffEndOfFrame();
 void			DefinedState2d();
 void			CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio);
 
+RpAtomic*			GetFirstAtomic(RpClump* pClump);
+const char*			GetFrameNodeName(RwFrame* pFrame);
+RpHAnimHierarchy*	GetAnimHierarchyFromSkinClump(RpClump* pClump);
+
+// GTA heap funcs
+void*			GtaOperatorNew(size_t size);
+void			GtaOperatorDelete(void* ptr);
+
 extern RsGlobalType&		RsGlobal;
 extern const DWORD			RsGlobalFrameLimits[5];
+extern bool&				bAnisotSupported;
 
 #endif

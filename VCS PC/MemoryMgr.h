@@ -17,20 +17,35 @@ enum
 	PATCH_NOTHING,
 };
 
+// Debug checker to make sure reversed functions don't still get hacks
+template<typename AT>
+inline void CheckMemoryBanList(AT address)
+{
+#ifdef DEVBUILD
+	unsigned int	nAddress = (unsigned int)address;
+
+	assert(nAddress < 0x5794A0 || nAddress > 0x57B43F);
+	assert(nAddress < 0x576FE0 || nAddress > 0x5773CF);
+	assert(nAddress < 0x57CD50 || nAddress > 0x57D51F);
+	assert(nAddress < 0x573440 || nAddress > 0x57367F);
+#endif
+}
+
 namespace Memory
 {
 	template<typename T, typename AT>
 	inline void		Patch(AT address, T value)
-	{ *(T*)address = value; }
+	{ CheckMemoryBanList(address); *(T*)address = value; }
 
 	template<typename AT>
 	inline void		Nop(AT address, unsigned int nCount)
 	// TODO: Finish multibyte nops
-	{ memset((void*)address, 0x90, nCount); }
+	{ CheckMemoryBanList(address); memset((void*)address, 0x90, nCount); }
 
 	template<typename AT, typename HT>
 	inline void		InjectHook(AT address, HT hook, unsigned int nType=PATCH_NOTHING)
 	{
+		CheckMemoryBanList(address);
 		DWORD		dwHook;
 		_asm
 		{

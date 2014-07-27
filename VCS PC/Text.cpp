@@ -36,7 +36,7 @@ const char* CText::Get(const char* pEntry)
 
 		if ( !bFound )
 		{
-			if ( missionLoaded || CGame::IsMissionPackGame() || haveTabl )
+			if ( missionLoaded || CGame::bMissionPackGame != 0 || haveTabl )
 			{
 				outputText = tkeyMission.Search(pEntry, &bFound);
 				if ( !bFound )
