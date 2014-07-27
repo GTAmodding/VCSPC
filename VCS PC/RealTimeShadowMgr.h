@@ -25,7 +25,7 @@ public:
 
 	RwCamera*		Create(int nSize);
 	void			Destroy();
-	void			SetLight(RpLight* pLight);
+	RwCamera*		SetLight(RpLight* pLight);
 	void			MakeGradientRaster();
 	RwCamera*		SetCenter(RwV3d* pVector);
 	RwRaster*		RasterResample(RwRaster* pRaster);
@@ -56,8 +56,12 @@ private:
 	RwSphere		m_BaseSphere;
 
 public:
+	inline RwSphere*			GetBaseSphere()
+		{ return &m_BaseSphere; }
 	inline class CEntity*		GetOwner()
 		{ return m_pEntity; }
+	inline bool					GetRenderedThisFrame()
+		{ return m_bRenderedThisFrame; }
 	inline void					SetRenderedThisFrame()
 		{ m_bRenderedThisFrame = true; }
 	inline void					ResetIntensity()
@@ -125,6 +129,8 @@ public:
 	void					DoShadowThisFrame(CEntity* pEntity);
 	void					GetRealTimeShadow(CEntity* pEntity);	
 	void					ReInit();
+
+	void					KeepBuildingShadowsAlive();
 };
 
 RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData);

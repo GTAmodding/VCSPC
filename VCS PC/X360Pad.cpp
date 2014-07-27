@@ -119,6 +119,6 @@ void CX360Pad::Vibrate(unsigned short wLeftMotorSpeed, unsigned short wRightMoto
 		if ( !hXinputLibrary )
 			InitializeLibrary();
 
-		XInputSetState(dwPadIndex, &vibrationData);
+		//XInputSetState(dwPadIndex, &vibrationData);
 	}
 }

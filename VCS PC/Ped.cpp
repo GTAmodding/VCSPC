@@ -45,7 +45,7 @@ bool CPed::Load()
 
 void CPed::RenderForShadow(RpClump* pClump, bool bRenderWeapon)
 {
-	RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, nullptr);
+	RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, reinterpret_cast<void*>(TRUE));
 
 	if ( bRenderWeapon )
 	{

@@ -237,15 +237,15 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 	// Graphics Setup
 	{ "FEH_GFX", 33, 3,
-		61, "FEM_LOD", ACTION_CLICKORARROWS, 27, 0, -124, 2, 0, 0,
-		24, "FEM_FRM", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		56, "FED_RES", ACTION_CLICKORARROWS, 27, 0, -154, 2, 0, 0,
 		26, "FED_WIS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		MENUACTION_SHADOWS_QUALITY, "FED_SHA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		MENUACTION_SHADOWS_DISTANCE, "FED_SHD", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		MENUACTION_TEXTURE_FILTERMODE, "FED_TXF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		24, "FEM_FRM", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_EFFECTS_QUALITY, "FED_EFF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		MENUACTION_SHADOWS_QUALITY, "FED_SHA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		61, "FEM_LOD", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		MENUACTION_SHADOWS_DISTANCE, "FED_SHD", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		56, "FED_RES", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		MENUACTION_TEXTURE_FILTERMODE, "FED_TXF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		5, "FET_DEF", ACTION_STANDARD, 50, 0, 141, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 33, 0, 0, 3, 0, 0 },
 
@@ -402,7 +402,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
 
 	// Restore defaults - Graphics Setup
-	{ "FEH_GFX", 27, 8,
+	{ "FEH_GFX", 27, 9,
 		1, "FED_RDP", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 27, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 27, 0, 16, 3, 0, 0 },
@@ -423,6 +423,7 @@ WRAPPER void CMenuManager::DisplayHelperText(const char* pText) { WRAPARG(pText)
 WRAPPER bool CMenuManager::CheckHover(int, int, int, int) { EAXJMP(0x57C4F0); }
 WRAPPER void CMenuManager::ProcessMissionPackNewGame() { EAXJMP(0x57D520); }
 WRAPPER void CMenuManager::DoSettingsBeforeStartingAGame() { EAXJMP(0x573330); }
+WRAPPER void CMenuManager::ScrollRadioStations(signed char nDirection) { WRAPARG(nDirection); EAXJMP(0x573A00); }
 
 void CMenuManager::SaveSettings()
 {
@@ -733,17 +734,16 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	for ( unsigned int i = 0; i < NUM_ENTRIES_PER_MENU; i++ )
 	{
 		CFont::SetFontStyle(FONT_Eurostile);
+		CFont::SetEdge(1);
 		if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag <= ACTION_SAVE_12 )
 		{
 			// Save slot
-			CFont::SetScale(_width(0.42f), _height(0.95f));
-			CFont::SetEdge(1);
+			CFont::SetScale(_width(0.42f), _height(0.95f));	
 		}
 		else
 		{
 			// Regular texts
 			CFont::SetScale(_width(0.7f), _height(1.0f));
-			CFont::SetEdge(1);
 		}
 		unsigned char		nAlign;
 
@@ -764,7 +764,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			CFont::SetColor(CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B));
 		else
 		{
-			if ( CUpdateManager::NewUpdatesPending() &&  ((m_bCurrentMenuPage == 33 && i == 6) || (m_bCurrentMenuPage == 34 && i == 1) || (m_bCurrentMenuPage == 41 && i == 5) && (m_bCurrentMenuPage == 44 && i == 2)) )
+			if ( CUpdateManager::NewUpdatesPending() &&  ((m_bCurrentMenuPage == 33 && i == 6) || (m_bCurrentMenuPage == 34 && i == 1) || (m_bCurrentMenuPage == 41 && i == 5) || (m_bCurrentMenuPage == 44 && i == 2)) )
 				CFont::SetColor(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B));
 			else
 				CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B));
@@ -1142,13 +1142,13 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 61:
 				{
 					// Draw Distance
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (m_fDrawDistance-0.925f) * (1.0f/0.875f), _width(MENU_SLIDER_WIDTH), false);
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (m_fDrawDistance-0.925f) * (1.0f/0.875f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
-						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-124.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-4.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 9;
-						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-124.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-4.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 8;
 						else
 							m_nHoverOption = 16;
@@ -1175,15 +1175,15 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				{
 					// Shadows Distance
 					bool	bLockedSlider = CShadows::GetShadowQuality() == SHADOW_QUALITY_OFF;
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), CShadows::GetShadowDistance(), _width(MENU_SLIDER_WIDTH), bLockedSlider);
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(26.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), CShadows::GetShadowDistance(), _width(MENU_SLIDER_WIDTH), bLockedSlider);
 
 					if ( !bLockedSlider )
 					{
 						/*if ( i == m_dwSelectedMenuItem )
 						{
-							if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-4.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(26.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(26.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 								m_nHoverOption = 15;
-							else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-4.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+							else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(26.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(26.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 								m_nHoverOption = 14;
 							else
 								m_nHoverOption = 16;
@@ -1349,7 +1349,7 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 
 		return;
 	case 32:
-		AudioEngine.ScrollRadioStations(nArrowsInput);
+		ScrollRadioStations(nArrowsInput);
 		return;
 	//case 36: - PS2 only
 	case 34:

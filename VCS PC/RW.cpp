@@ -43,6 +43,7 @@ WRAPPER RpLight* RpLightSetColor(RpLight* light, const RwRGBAReal* color) { WRAP
 WRAPPER RpClump* RpClumpRender(RpClump* clump) { WRAPARG(clump); EAXJMP(0x749B20); }
 WRAPPER RwMatrix* RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, RwOpCombineType combineOp) { WRAPARG(matrix); WRAPARG(translation); WRAPARG(combineOp); EAXJMP(0x7F2450); }
 WRAPPER RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, RwReal angle, RwOpCombineType combineOp) { WRAPARG(matrix); WRAPARG(axis); WRAPARG(angle); WRAPARG(combineOp); EAXJMP(0x7F1FD0); }
+WRAPPER RwFrame* RwFrameRotate(RwFrame* frame, const RwV3d* axis, RwReal angle, RwOpCombineType combine) { WRAPARG(frame); WRAPARG(axis); WRAPARG(angle); WRAPARG(combine); EAXJMP(0x7F1010); }
 
 WRAPPER RwV3d* RwV3dTransformPoints(RwV3d* pointsOut, const RwV3d* pointsIn, RwInt32 numPoints, const RwMatrix* matrix) { WRAPARG(pointsOut); WRAPARG(pointsIn); WRAPARG(numPoints); WRAPARG(matrix); EAXJMP(0x7EDD90); }
 WRAPPER RwFrame* RwFrameUpdateObjects(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F0910); }

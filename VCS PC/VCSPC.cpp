@@ -199,9 +199,7 @@ void			VideoPlayerPlayNextFrame();
 void			VideoPlayerProc();
 void			VideoPlayerRelease();
 void			MaxosFrameLimitHack();
-void			FrameLimit_SwitchInject();
 void			FrameLimit_StringInject();
-void			FrameLimit_SetFPS();
 void			FrameLimit_SetFPS2();
 void			CameraInitHack();
 void			OpaqueRadarHack();
@@ -312,7 +310,6 @@ void*						ZeroScriptsCounter_JumpBack;
 void*						func_01C6_JumpBack;
 void*						RightShockKeyHack_JumpBack;
 void*						NoRadioCommercialsHack_JumpBack;
-void*						VideoPlayerCreate1_JumpBack;
 void*						VideoPlayerPlayNextFrame_JumpBack;
 void*						VideoPlayerRelease_JumpBack;
 //void*						FrameLimit_StringInject_JumpBack;
@@ -870,8 +867,6 @@ __forceinline void DefineVariables()
 	func_01C6_JumpBack = (void*)0x47D7EC;
 	RightShockKeyHack_JumpBack = (void*)0x52FA42;
 	NoRadioCommercialsHack_JumpBack = (void*)0x4EA675;
-	VideoPlayerCreate1_JumpBack = (void*)0x748B08;
-	VideoPlayerPlayNextFrame_JumpBack = (void*)0x748DA3;
 	VideoPlayerRelease_JumpBack = (void*)0x748C21;
 	//FrameLimit_StringInject_JumpBack = (void*)0x57A168;
 	/*LoadFontsHack_JumpBack = (void*)0x5BA6E5;
@@ -3111,9 +3106,8 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x6FB9A0, 0);
 
 	// Relocated sun
-	// TODO: FIX COMPATIBILITY WITH MOBILE SHADOWS
-	//Patch<float>(0x560A76, 1.0f);
-	//Nop(0x560A84, 6);
+	Patch<float>(0x560A76, 1.0f);
+	Nop(0x560A84, 6);
 
 	// More vehicles
 #if NUM_VEHICLE_MODELS > 212
@@ -6584,24 +6578,53 @@ void __declspec(naked) LoadRadios()
 
 void __declspec(naked) VideoPlayerCreate1()
 {
-	CVideoPlayer::Create("MOVIES\\LOGO.BIK");
-	_asm jmp		VideoPlayerCreate1_JumpBack
+	static const char		filename[] = "MOVIES\\LOGO.BIK";
+	_asm
+	{
+		push	ebx
+		push	edi
+		push	ebx
+		push	offset filename
+		call	CVideoPlayer::Create
+		add		esp, 10h
+		push	748B08h
+		retn
+	}
 }
 
 void __declspec(naked) VideoPlayerCreate2()
 {
-	CVideoPlayer::Release();
-	CVideoPlayer::Create("MOVIES\\GTATITLES.BIK");
-	*gameState = 4;
-	_asm jmp		VideoPlayerPlayNextFrame_JumpBack
+	static const char		filename[] = "MOVIES\\GTATITLES.BIK";
+	_asm
+	{
+		call	CVideoPlayer::Release
+		push	ebx
+		push	edi
+		push	ebx
+		push	offset filename
+		call	CVideoPlayer::Create
+		add		esp, 10h
+		mov		eax, [gameState]
+		mov		[eax], 4
+		push	748DA3h
+		retn
+	}
 }
 
 void __declspec(naked) VideoPlayerPlayNextFrame()
 {
-	if ( !CVideoPlayer::PlayNextFullscreenFrame() )
-		++(*gameState);
+	_asm
+	{
+		call	CVideoPlayer::PlayNextFullscreenFrame
+		test	al, al
+		jnz		VideoPlayerPlayNextFrame_Return
+		mov		eax, [gameState]
+		inc		[eax]
 
-	_asm jmp		VideoPlayerPlayNextFrame_JumpBack
+VideoPlayerPlayNextFrame_Return:
+		push	748DA3h
+		retn
+	}
 }
 
 void __declspec(naked) VideoPlayerProc()
@@ -6644,6 +6667,7 @@ void __declspec(naked) MaxosFrameLimitHack()
 
 	_asm
 	{
+		pushad
 		test	al, al
 		jz		MaxosFrameLimitHack_NoLimit
 		mov		eax, [RsGlobal]
@@ -6656,7 +6680,7 @@ MaxosFrameLimitHack_NoLimit:
 		mov		fOne, 41000000h
 
 MaxosFrameLimitHack_LimitFrames:
-		mov		eax, [esp+14h]
+		mov		eax, [esp+20h+14h]
 		mov		fTwo, eax
 	}
 
@@ -6677,68 +6701,9 @@ MaxosFrameLimitHack_LimitFrames:
 
 	_asm
 	{
+		popad
 		mov		eax, 748DA3h
 		jmp		eax
-	}
-}
-
-void __declspec(naked) FrameLimit_SwitchInject()
-{
-	_asm
-	{
-		mov		dl, [esp+0Ch+4]
-		cmp		dl, 0
-		jl		FrameLimit_SwitchInject_Previous
-		cmp		al, 4
-		jnl		FrameLimit_SwitchInject_ZeroTheValue
-		inc		al
-		jmp		FrameLimit_SwitchInject_GoBack
-
-FrameLimit_SwitchInject_ZeroTheValue:
-		xor		al, al
-		jmp		FrameLimit_SwitchInject_GoBack
-
-FrameLimit_SwitchInject_Previous:
-		test	al, al
-		jz		FrameLimit_SwitchInject_ToMax
-		dec		al
-		jmp		FrameLimit_SwitchInject_GoBack
-
-FrameLimit_SwitchInject_ToMax:
-		mov		al, 4
-
-FrameLimit_SwitchInject_GoBack:
-		movzx	ecx, al
-		mov		ecx, RsGlobalFrameLimits[ecx*4]
-		mov		ebx, [RsGlobal]
-		mov		[ebx].frameLimit, ecx
-		mov		ecx, esi
-		mov		[esi].m_bFrameLimiterMode, al
-		call	CMenuManager::SaveSettings
-		pop     edi
-		pop     esi
-		mov     al, bl
-		pop     ebx
-		retn    8
-	}
-}
-
-void __declspec(naked) FrameLimit_SetFPS()
-{
-	_asm
-	{
-		movzx	eax, byte ptr [edi].m_bFrameLimiterMode
-		test	eax, eax
-		jz		FrameLimit_SetFPS_Return
-		mov		ecx, RsGlobalFrameLimits[eax*4]
-		mov		eax, [RsGlobal]
-		mov		[eax].frameLimit, ecx
-
-FrameLimit_SetFPS_Return:
-		pop		edi
-		pop		esi
-		add     esp, 44h
-		retn
 	}
 }
 

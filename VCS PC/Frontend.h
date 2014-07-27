@@ -372,6 +372,7 @@ public:
 private:
 	void			ProcessMissionPackNewGame();
 	void			DoSettingsBeforeStartingAGame();
+	void			ScrollRadioStations(signed char nDirection);
 
 	void			PrintStats();
 	void			PrintUpdaterScreen();

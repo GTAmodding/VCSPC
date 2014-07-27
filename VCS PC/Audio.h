@@ -88,7 +88,6 @@ public:
 	void				SetRadioAutoRetuneOnOff(bool bRetune);
 	void				RetuneRadio(signed char nStation);
 	const char*			GetRadioStationName(signed char nStation);
-	void				ScrollRadioStations(signed char nDirection);
 };
 
 extern CAudioEngine&		AudioEngine;

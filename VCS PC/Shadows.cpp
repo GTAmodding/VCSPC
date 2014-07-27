@@ -24,7 +24,7 @@ float			MAX_DISTANCE_CAR_SHADOWS, MAX_DISTANCE_CAR_SHADOWS_SQR;
 // Vehicle
 // Min - 15.0 Max - 60.0
 // Object
-// Min - 12.5 Max - 45.0
+// Min - 15.0 Max - 60.0
 
 void CShadows::RenderIndicatorShadow(unsigned int nIndex, unsigned char, RwTexture*, CVector* pPos, float radiusX, float, float, float radiusY, short)
 {
@@ -43,7 +43,7 @@ void CShadows::InitialiseChangedSettings()
 
 	// Recalculate distances
 	MAX_DISTANCE_PED_SHADOWS = 12.5f + (m_fShadowDistMult*(45.0f-12.5f));
-	MAX_DISTANCE_CAR_SHADOWS = 15.0 + (m_fShadowDistMult*(60.0f-15.0f));
+	MAX_DISTANCE_CAR_SHADOWS = 15.0f + (m_fShadowDistMult*(60.0f-15.0f));
 
 	MAX_DISTANCE_PED_SHADOWS_SQR = MAX_DISTANCE_PED_SHADOWS*MAX_DISTANCE_PED_SHADOWS;
 	MAX_DISTANCE_CAR_SHADOWS_SQR = MAX_DISTANCE_CAR_SHADOWS*MAX_DISTANCE_CAR_SHADOWS;
@@ -98,13 +98,13 @@ void CShadows::SetRealTimeShadowDistances(CEntity* pEntity)
 {
 	switch ( pEntity->nType )
 	{
-	case 2:
-		MAX_DISTANCE_REALTIME_SHADOWS = MAX_DISTANCE_CAR_SHADOWS;
-		MAX_DISTANCE_REALTIME_SHADOWS_SQR = MAX_DISTANCE_CAR_SHADOWS_SQR;
-		break;
-	default:
+	case 3:
 		MAX_DISTANCE_REALTIME_SHADOWS = MAX_DISTANCE_PED_SHADOWS;
 		MAX_DISTANCE_REALTIME_SHADOWS_SQR = MAX_DISTANCE_PED_SHADOWS_SQR;
+		break;
+	default:
+		MAX_DISTANCE_REALTIME_SHADOWS = MAX_DISTANCE_CAR_SHADOWS;
+		MAX_DISTANCE_REALTIME_SHADOWS_SQR = MAX_DISTANCE_CAR_SHADOWS_SQR;
 		break;
 	}
 }
@@ -113,10 +113,10 @@ float CShadows::GetRealTimeShadowDistances(CEntity* pEntity)
 {
 	switch ( pEntity->nType )
 	{
-	case 2:
-		return MAX_DISTANCE_CAR_SHADOWS;
-	default:
+	case 3:
 		return MAX_DISTANCE_PED_SHADOWS;
+	default:
+		return MAX_DISTANCE_CAR_SHADOWS;
 	}
 }
 
@@ -285,9 +285,14 @@ void CShadows::Inject()
 	Memory::Patch<const void*>(0x70BEB6, &MAX_DISTANCE_CAR_SHADOWS);
 }
 
+/*void MatrixTranslate(RwMatrix* matrix, CRealTimeShadow* pShadow)
+{
+	const RwV3d		translation = { 0.5f, 0.5f, 0.0f };
+	RwMatrixTranslate(matrix, &translation, rwCOMBINEPOSTCONCAT);
+}*/
+
 static StaticPatcher	Patcher([](){ 
 
-#ifdef NEW_SHADOWS_TEST2
 						// CRealTimeShadow for vehicle (temp)
 						/*Memory::Patch<DWORD>(0x70BDA0, 0xC40350B9);
 						Memory::Patch<DWORD>(0x70BDA4, 0x2474FF00);
@@ -299,27 +304,40 @@ static StaticPatcher	Patcher([](){
 						Memory::Patch<const void*>(0x707F05, &f215);
 						Memory::Patch<const void*>(0x707F13, &f215);
 						Memory::Patch<const void*>(0x707F21, &f215);
+						
+						Memory::Patch<const void*>(0x70A211, &f115);
+						Memory::Patch<const void*>(0x70A228, &f115);
 
-						//Memory::Patch<const void*>(0x70A211, &f115);
-						//Memory::Patch<const void*>(0x70A228, &f115);
-
-						Memory::InjectHook(0x707E4F, SetLightParameters);
-						Memory::InjectHook(0x70596A, RotateLightFrame);
+						//Memory::InjectHook(0x707E4F, SetLightParameters);
+						//Memory::InjectHook(0x70596A, RotateLightFrame);
+						Memory::Patch<DWORD>(0x705960, 0x3C2474FF);
+						Memory::Nop(0x70595F, 1);
 
 						// Same as TranslateShdMatrix
 						Memory::Patch<float>(0x70A19D, 0.5f);
 						// Same as SetupShadowBoundSphere
-						Memory::Patch<float>(0x70A2AA, 9.75f);
-						Memory::Patch<float>(0x707D59, 9.75f * 1.5f);
+						Memory::Patch<float>(0x70A2AA, 23.5f);
+						Memory::Patch<float>(0x707D59, 25.0f);
 
 						//Memory::InjectHook(0x70A1AC, TranlateShdMatrix);
 						Memory::InjectHook(0x707E2B, CompareSunZ, PATCH_JUMP);
 
 						//Memory::InjectHook(0x70AD0D, CastShadow);
 						//Memory::InjectHook(0x70A2C8, SetupShadowBoundSphere);
+						/*Memory::Patch<DWORD>(0x70A182, 0x3824B4FF);
+						Memory::Patch<DWORD>(0x70A186, 0x8D000002);
+						Memory::Patch<DWORD>(0x70A18C, 0xF8);
+						Memory::Patch<WORD>(0x70A191, 0x19EB);
+						Memory::Patch<DWORD>(0x70A1B7, 0x224);
+						Memory::Patch<BYTE>(0x70A1BD, 0x1C);
+						Memory::InjectHook(0x70A1AC, MatrixTranslate);*/
 
 						// matrix rotate
 						Memory::Nop(0x70A0C9, 5);
+
+						// Sun pos fix
+						Memory::Nop(0x707E29, 2);
+						Memory::Nop(0x707E3E, 2);
 
 						// Improved in car shadows
 						//Memory::Patch<WORD>(0x5E682C, 0x26EB);
@@ -329,7 +347,7 @@ static StaticPatcher	Patcher([](){
 						Memory::InjectHook(0x59FEDB, StoreRTObjectShadowHack, PATCH_JUMP);
 						Memory::InjectHook(0x707CAA, GetShadowHack, PATCH_JUMP);
 						//Memory::InjectHook(0x70C753, StoreRTPoleShadowHack);
-#endif
+
 						//Memory::InjectHook(0x705590, &CShadowCamera::SetCenter, PATCH_JUMP);
 						CShadows::Inject();
 

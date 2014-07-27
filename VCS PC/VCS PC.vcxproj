@@ -365,6 +365,8 @@ popd</Command>
     <ClCompile Include="Shadows.cpp" />
     <ClCompile Include="SpeechRecognition.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="StaticPatcher.cpp" />
     <ClCompile Include="Stats.cpp" />

@@ -10,7 +10,7 @@
 
 WRAPPER RwCamera* CShadowCamera::Create(int nSize) { WRAPARG(nSize); EAXJMP(0x705B60); }
 WRAPPER void CShadowCamera::Destroy() { EAXJMP(0x705400); }
-WRAPPER void CShadowCamera::SetLight(RpLight* pLight) { WRAPARG(pLight); EAXJMP(0x705520); }
+WRAPPER RwCamera* CShadowCamera::SetLight(RpLight* pLight) { WRAPARG(pLight); EAXJMP(0x705520); }
 WRAPPER void CShadowCamera::MakeGradientRaster() { EAXJMP(0x705D20); }
 WRAPPER RwCamera* CShadowCamera::SetCenter(RwV3d* pVector) { WRAPARG(pVector); EAXJMP(0x705590); }
 WRAPPER RwRaster* CShadowCamera::RasterResample(RwRaster* pRaster) { WRAPARG(pRaster); EAXJMP(0x706070); }
@@ -42,7 +42,7 @@ RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData)
 	RpAtomicGetPipeline(pAtomic, &pOldPipe);
 	RpAtomicSetPipeline(pAtomic, RpAtomicGetDefaultPipeline());
 
-	ShadowCameraRenderCB(pAtomic, pData);
+	ShadowCameraRenderCB(pAtomic, reinterpret_cast<void*>(TRUE));
 
 	RpAtomicSetPipeline(pAtomic, pOldPipe);
 
@@ -58,8 +58,17 @@ RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 		RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
 		RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
-		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
+		if ( reinterpret_cast<BOOL>(pData) )
+		{
+			RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
 							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+		}
+		else
+		{
+			// For CObject renders
+			RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|/*rpGEOMETRYPRELIT|*/
+							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+		}
 
 		AtomicDefaultRenderCallBack(pAtomic);
 		RpGeometrySetFlags(pGeometry, geometryFlags);
@@ -93,11 +102,15 @@ RwCamera* CShadowCamera::Update(RpAtomic* pAtomic, CEntity* pEntity)
 
 			// Disable prelighting if it's not CObject
 			if ( pEntity->nType != 4 )
+			{
 				RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
 							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+			}
 			else
+			{
 				RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|/*rpGEOMETRYPRELIT|*/
 							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+			}
 		
 			AtomicDefaultRenderCallBack(pAtomic);
 
@@ -129,6 +142,12 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 				static_cast<CPed*>(pEntity)->RenderForShadow(pClump, true);
 			else if ( pEntity->nType == 2 )
 				static_cast<CVehicle*>(pEntity)->RenderForShadow(pClump);
+			else if ( pEntity->nType == 4 )
+				RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, FALSE);
+			else
+			{
+				assert(!"Baad, unknown entity type in CShadowCamera::Update!");
+			}
 		}
 
 		InvertRaster();
@@ -136,6 +155,8 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 	}
 	return m_pCamera;
 }
+
+#include "Coronas.h"
 
 RwTexture* CRealTimeShadow::Update()
 {
@@ -159,6 +180,26 @@ RwTexture* CRealTimeShadow::Update()
 			m_Camera.Update(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject), m_pEntity);
 		else if ( m_nRwObjectType == rpCLUMP )
 			m_Camera.Update(reinterpret_cast<RpClump*>(m_pEntity->m_pRwObject), m_pEntity);
+
+
+		/*CMatrix		Helper(RwFrameGetMatrix(RwCameraGetFrame(m_Camera.m_pCamera)));
+		CVector		vecPos = *Helper.GetPos();
+		CVector		vecRight = *Helper.GetPos() + *Helper.GetRight();
+		CVector		vecUp = *Helper.GetPos() + *Helper.GetUp();
+		CVector		vecAt = *Helper.GetPos() + *Helper.GetAt();
+
+		// pos
+		CCoronas::RegisterCorona((int)m_pEntity + 69, nullptr, 255, 255, 0, 255, vecPos, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
+
+		// right
+		CCoronas::RegisterCorona((int)m_pEntity + 69 + 1, nullptr, 255, 0, 0, 255, vecRight, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
+
+		// up
+		CCoronas::RegisterCorona((int)m_pEntity + 69 + 2, nullptr, 0, 255, 0, 255, vecUp, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
+
+		// at
+		CCoronas::RegisterCorona((int)m_pEntity + 69 + 3, nullptr, 0, 0, 255, 255, vecAt, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);*/
+
 
 		RwRaster*	pRaster = RwCameraGetRaster(m_Camera.m_pCamera);
 
@@ -536,6 +577,29 @@ void CRealTimeShadowManager::ReInit()
 	}
 }
 
+void CRealTimeShadowManager::KeepBuildingShadowsAlive()
+{
+	if ( m_bInitialised && CShadows::GetShadowQuality() > SHADOW_QUALITY_MEDIUM )
+	{
+		CVector		vecCamCoords = *TheCamera.GetCoords();
+		for ( int i = 0; i < NUM_MAX_REALTIME_SHADOWS; i++ )
+		{
+			if ( !m_pShadows[i]->GetRenderedThisFrame() )
+			{
+				CEntity*	pShadowOwner = m_pShadows[i]->GetOwner();
+				if ( pShadowOwner )
+				{
+					if ( pShadowOwner->nType == 1 )
+					{
+						if ( (*pShadowOwner->GetCoords() - vecCamCoords).MagnitudeSqr() < 45.0*45.0 )
+							m_pShadows[i]->SetRenderedThisFrame();
+					}
+				}
+			}
+		}
+	}
+}
+
 void CRealTimeShadowManager::ReturnRealTimeShadow(CRealTimeShadow* pShadow)
 {
 	if ( m_bInitialised && pShadow->GetOwner() )
@@ -543,6 +607,11 @@ void CRealTimeShadowManager::ReturnRealTimeShadow(CRealTimeShadow* pShadow)
 		pShadow->GetOwner()->SetRealTimeShadow(nullptr);
 		pShadow->ClearOwner();
 	}
+}
+
+static void BuildingShadowsKeep()
+{
+	g_realTimeShadowMan.KeepBuildingShadowsAlive();
 }
 
 static void __declspec(naked) ReturnShadowHack()
@@ -566,6 +635,7 @@ static StaticPatcher	Patcher([](){
 						Memory::InjectHook(0x706BA0, &CRealTimeShadowManager::DoShadowThisFrame, PATCH_JUMP);
 						Memory::InjectHook(0x706AC2, &CRealTimeShadowManager::ReInit);
 						Memory::InjectHook(0x706B29, &CRealTimeShadow::Update);
+						Memory::InjectHook(0x5539FC, BuildingShadowsKeep);
 
 						// Increased shadows limit
 						Memory::Patch<const void*>(0x45D412, &g_realTimeShadowMan);
