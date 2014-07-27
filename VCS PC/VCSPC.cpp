@@ -7413,5 +7413,8 @@ void LogToFile(const char* str, ...)
 		fputc('\n', LogFile);
 		fclose(LogFile);
 		va_end(arguments);
+
+		OutputDebugString(TempString);
+		OutputDebugString("\n");
 	}
 }
