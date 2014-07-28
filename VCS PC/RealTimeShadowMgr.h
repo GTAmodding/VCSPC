@@ -123,6 +123,8 @@ public:
 	void					ResetForChangedSettings()
 		{ m_bNeedsReinit = true; m_bNewSettings = true; }
 
+	void					Update();
+
 	void					ReturnRealTimeShadow(CRealTimeShadow* pShadow);
 	void					Init();
 	void					Exit();

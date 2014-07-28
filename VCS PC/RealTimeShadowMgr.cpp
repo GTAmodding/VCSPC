@@ -21,6 +21,8 @@ WRAPPER void CShadowCamera::InvertRaster() { EAXJMP(0x705660); }
 WRAPPER void CRealTimeShadow::Destroy() { EAXJMP(0x705990); }
 WRAPPER bool CRealTimeShadow::SetShadowedObject(CEntity* pObject) { WRAPARG(pObject); EAXJMP(0x706520); }
 
+WRAPPER void CRealTimeShadowManager::Update() { EAXJMP(0x706AB0); }
+
 RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData)
 {
 	// Check if to render this basing on settings
@@ -146,7 +148,7 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 
 RwTexture* CRealTimeShadow::Update()
 {
-	if ( m_pEntity->m_pRwObject && m_pEntity->bIveBeenRenderedOnce )
+	if ( m_pEntity->m_pRwObject /*&& m_pEntity->bIveBeenRenderedOnce*/ )
 	{
 		// Close enough to the object?
 		CVector*	pObjPos = m_pEntity->GetCoords();
@@ -595,6 +597,14 @@ static void BuildingShadowsKeep()
 	g_realTimeShadowMan.KeepBuildingShadowsAlive();
 }
 
+static void UpdateShadowsHack(RwCamera* camera)
+{
+	g_realTimeShadowMan.Update();
+	
+	//((void(*)())0x707F40)();
+	RwCameraBeginUpdate(camera);
+}
+
 static void __declspec(naked) ReturnShadowHack()
 {
 	_asm
@@ -623,13 +633,17 @@ static StaticPatcher	Patcher([](){
 						Memory::Patch<const void*>(0x53BE63, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x53C63F, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x53C9E5, &g_realTimeShadowMan);
-						Memory::Patch<const void*>(0x53EA09, &g_realTimeShadowMan);
+						//Memory::Patch<const void*>(0x53EA09, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x542487, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5B1F38, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5BA478, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5E68A4, &g_realTimeShadowMan);
 						//Memory::Patch<const void*>(0x854980, &g_realTimeShadowMan);
 						//Memory::Patch<const void*>(0x856AD0, &g_realTimeShadowMan);
+
+						// Shadows rendering AFTER RenderScene
+						Memory::InjectHook(0x53E0B9, UpdateShadowsHack);
+						Memory::Nop(0x53EA0D, 5);
 
 						Memory::Patch<const void*>(0x5BA12C, &g_realTimeShadowMan.m_bInitialised);
 						Memory::Patch<const void*>(0x5BA137, &g_realTimeShadowMan.m_bNeedsReinit);

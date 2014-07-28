@@ -9,8 +9,8 @@ CColModelPool*&				CPools::ms_pColModelPool = *(CColModelPool**)0xB744A4;
 CTaskPool*&					CPools::ms_pTaskPool = *(CTaskPool**)0xB744A8;
 
 CEmpireBuildingDataPool*	CPools::ms_pEmpireBuildingDataPool;
-CPedPoolAux*				CPools::ms_pPedPoolAux;
-CBuildingPoolAux*			CPools::ms_pBuildingPoolAux;
+CPedPoolEx*				CPools::ms_pPedPoolEx;
+CBuildingPoolEx*			CPools::ms_pBuildingPoolEx;
 
 void CPools::Initialise()
 {
@@ -21,10 +21,10 @@ void CPools::Initialise()
 
 	// Initialise children pools
 	if ( ms_pPedPool )
-		ms_pPedPoolAux = new CPedPoolAux(ms_pPedPool);
+		ms_pPedPoolEx = new CPedPoolEx(ms_pPedPool);
 
 	if ( ms_pBuildingPool )
-		ms_pBuildingPoolAux = new CBuildingPoolAux(ms_pBuildingPool);
+		ms_pBuildingPoolEx = new CBuildingPoolEx(ms_pBuildingPool);
 }
 
 void CPools::ShutDown()
@@ -35,6 +35,6 @@ void CPools::ShutDown()
 	delete ms_pEmpireBuildingDataPool;
 
 	// Shutdown children pools
-	delete ms_pPedPoolAux;
-	delete ms_pBuildingPoolAux;
+	delete ms_pPedPoolEx;
+	delete ms_pBuildingPoolEx;
 }

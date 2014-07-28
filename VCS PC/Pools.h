@@ -172,7 +172,6 @@ public:
 	~CChildrenPool()
 			{ operator delete(m_pSlots); }
 
-#ifndef DEVBUILD
 	inline T*		GetAtIndex(int nIndex)
 			{ return &m_pSlots[nIndex]; }
 
@@ -181,26 +180,6 @@ public:
 
 	inline T*		GetAt(int nIdentifier)
 			{ return m_pParentPool->IsHandleFullyValid(nIdentifier) ? GetAtIndex(nIdentifier >> 8) : nullptr; }
-#else
-	inline T*		GetAtIndex(int nIndex)
-	{
-		assert(m_pParentPool->IsValid(nIndex) == true);
-		return &m_pSlots[nIndex];
-	}
-
-	inline T*		GetAtPointer(Parent* pParent)
-	{
-		assert(m_pParentPool->IsValid(m_pParentPool->GetIndex(pParent)));
-		
-		return &m_pSlots[m_pParentPool->GetIndex(pParent)];
-	}
-
-	inline T*		GetAt(int nIdentifier)
-	{
-		assert(m_pParentPool->IsHandleFullyValid(nIdentifier));
-		return m_pParentPool->IsHandleFullyValid(nIdentifier) ? GetAtIndex(nIdentifier >> 8) : nullptr;
-	}
-#endif
 };
 
 
@@ -227,8 +206,8 @@ typedef CPool<CTask, FakeClass<128,CTask>>			CTaskPool;
 
 typedef CPool<CEmpireBuildingData>					CEmpireBuildingDataPool;
 
-typedef CChildrenPool<CPedEx,CPed,CPedPool>				CPedPoolAux;
-typedef CChildrenPool<CBuildingEx,CBuilding,CBuildingPool>	CBuildingPoolAux;
+typedef CChildrenPool<CPedEx,CPed,CPedPool>					CPedPoolEx;
+typedef CChildrenPool<CBuildingEx,CBuilding,CBuildingPool>	CBuildingPoolEx;
 
 class CPools
 {
@@ -242,8 +221,8 @@ private:
 
 	// VCS PC class extension
 	static CEmpireBuildingDataPool*			ms_pEmpireBuildingDataPool;
-	static CPedPoolAux*						ms_pPedPoolAux;
-	static CBuildingPoolAux*				ms_pBuildingPoolAux;
+	static CPedPoolEx*						ms_pPedPoolEx;
+	static CBuildingPoolEx*				ms_pBuildingPoolEx;
 
 public:
 	static inline CPedPool*					GetPedPool()
@@ -261,10 +240,10 @@ public:
 
 	static inline CEmpireBuildingDataPool*	GetEmpireBuildingDataPool()
 		{ return ms_pEmpireBuildingDataPool; }
-	static inline CPedPoolAux*				GetPedPoolAux()
-		{ return ms_pPedPoolAux; }
-	static inline CBuildingPoolAux*			GetBuildingPoolAux()
-		{ return ms_pBuildingPoolAux; }
+	static inline CPedPoolEx*				GetPedPoolAux()
+		{ return ms_pPedPoolEx; }
+	static inline CBuildingPoolEx*			GetBuildingPoolAux()
+		{ return ms_pBuildingPoolEx; }
 
 	static void								Initialise();
 	static void								ShutDown();

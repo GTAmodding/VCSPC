@@ -35,7 +35,7 @@ void CEntity::SetRealTimeShadow(class CRealTimeShadow* pShadow)
 		static_cast<CPhysical*>(this)->SetRealTimeShadow(pShadow);
 }
 
-static void __declspec(naked) EntityCtorHack()
+/*static void __declspec(naked) EntityCtorHack()
 {
 	_asm
 	{
@@ -57,10 +57,10 @@ static void __declspec(naked) EntityRenderHack()
 		pop		ecx
 		retn
 	}
-}
+}*/
 
 
-static StaticPatcher	Patcher([](){ 
+/*static StaticPatcher	Patcher([](){ 
 						Memory::InjectHook(0x532AD7, EntityCtorHack, PATCH_JUMP);
 						Memory::InjectHook(0x5343E4, EntityRenderHack, PATCH_JUMP);
-									});
+									});*/

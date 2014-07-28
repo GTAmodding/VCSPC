@@ -227,6 +227,7 @@ public:
 
 class NOVMT CPed : public CPhysical
 {
+	friend class		CPedEx;
 public:
 	BYTE				__pad1[820];
 	CPedFlags			pedFlags;
@@ -295,6 +296,8 @@ public:
 	inline void			SetTargetHeading(float fVal)
 		{ m_fTargetRotation = fVal; }
 
+	class CPedEx*		GetEx();
+
 	void				GiveWeapon(int WeaponType, int WeaponAmmo, bool bFlag=true);
 	void				GetBonePosition(RwV3d& vecOut, unsigned int nBone, bool bFlag);
 	unsigned char		GetWeaponSkill();
@@ -309,9 +312,8 @@ public:
 
 class CPedEx
 {
+	friend class		CPed;
 private:
-	friend class CPed;
-
 	BYTE				m_color1;
 	BYTE				m_color2;
 	BYTE				m_color3;

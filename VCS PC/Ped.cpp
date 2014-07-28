@@ -14,6 +14,11 @@ WRAPPER void CPed::SetCharCreatedBy(unsigned char bBy) { WRAPARG(bBy); EAXJMP(0x
 WRAPPER void CPed::SetCurrentWeapon(int nSlot) { WRAPARG(nSlot); EAXJMP(0x5E61F0); }
 WRAPPER void CPed::ResetGunFlashAlpha() { EAXJMP(0x5DF4E0); }
 
+CPedEx* CPed::GetEx()
+{
+	return CPools::GetPedPoolAux()->GetAtPointer(this);
+}
+
 long double CPed::GetCrosshairSize()
 {
 	CWeaponInfo* pWeapon = CWeaponInfo::GetWeaponInfo(weaponSlots[m_bActiveWeapon].m_eWeaponType, GetWeaponSkill());
@@ -26,7 +31,7 @@ long double CPed::GetCrosshairSize()
 
 void CPed::Remap()
 {
-	CPedEx*	pTempPedData = CPools::GetPedPoolAux()->GetAtPointer(this);//&CPedEx::pPedData[CPools::GetPedPool()->GetIndex(this)];
+	CPedEx*		pTempPedData = GetEx();
 	CPedModelInfoVCS::SetPedColour(pTempPedData->m_color1, pTempPedData->m_color2, pTempPedData->m_color3, pTempPedData->m_color4);
 	CPedModelInfoVCS::SetEditableMaterials(reinterpret_cast<RpClump*>(m_pRwObject));
 }
@@ -103,7 +108,7 @@ CPed* CPedEx::Initialise(CPed* pPed, short model)
 	if ( model == -1 )
 		model = pPed->GetModelIndex();
 
-	CPedEx*	pTempData = CPools::GetPedPoolAux()->GetAtPointer(pPed);//&pPedData[CPools::GetPedPool()->GetIndex(pPed)];
+	CPedEx*	pTempData = pPed->GetEx();
 	CPedModelInfoVCS* pModelInfo = (CPedModelInfoVCS*)CModelInfo::ms_modelInfoPtrs[model];
 	if ( pModelInfo )
 		pModelInfo->GetRandomPedColour(pTempData->m_color1, pTempData->m_color2, pTempData->m_color3, pTempData->m_color4);

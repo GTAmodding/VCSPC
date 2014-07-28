@@ -181,7 +181,7 @@ public:
     //********* END CEntityInfo ************//
 
 	// VCS PC class extension
-	bool			bIveBeenRenderedOnce : 1;		// for realtime shadows
+	//bool			bIveBeenRenderedOnce : 1;		// for realtime shadows
 
 public:
 	explicit inline CEntity(int dummy)
