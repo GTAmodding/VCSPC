@@ -977,9 +977,18 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				pTextToShow_RightColumn = TheText.Get(CVehicle::m_bEnableMouseFlying ? "FEM_ON" : "FEM_OFF");
 				break;
 			case 56:
-				strncpy(cReservedSpace, ((const char**(*)())0x745AF0)()[m_dwResolution], sizeof(cReservedSpace));
+			{
+				const char* pszResolution = ((const char**(*)())0x745AF0)()[m_dwResolution];
+
+				if (!pszResolution)
+				{
+					pszResolution = "";
+				}
+
+				strncpy(cReservedSpace, pszResolution, sizeof(cReservedSpace));
 				pTextToShow_RightColumn = cReservedSpace;
 				break;
+			}
 			case 44:
 				if ( m_dwAntiAliasingLevel <= 1 )
 					pTextToShow_RightColumn = TheText.Get("FEM_OFF");
