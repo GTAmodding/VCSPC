@@ -5766,7 +5766,7 @@ void __declspec(naked) PedDataConstructorInject_Civilian()
 		mov		edx, [esp+8]
 		push	edx
 		push	eax
-		call	CPedData::Initialise
+		call	CPedEx::Initialise
 		add		esp, 8
 		retn	8
 	}
@@ -5778,7 +5778,7 @@ void __declspec(naked) PedDataConstructorInject_Cop()
 	{
 		push	0FFFFh
 		push	eax
-		call	CPedData::Initialise
+		call	CPedEx::Initialise
 		add		esp, 18h
 		retn	4
 	}

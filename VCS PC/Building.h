@@ -5,6 +5,8 @@
 
 class NOVMT CBuilding : public CEntity
 {
+	friend class		CBuildingEx;
+
 public:
 	CBuilding()
 		: CEntity(0)
@@ -18,6 +20,8 @@ public:
 		}
 	}
 
+	class CBuildingEx*	GetEx();
+
 	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
@@ -25,6 +29,8 @@ public:
 	{ CBuilding::PreRender(); }
 
 	virtual void		PreRender() override;
+
+	void				ClearForRestart();
 };
 
 
@@ -39,7 +45,7 @@ public:
 	}
 };
 
-class CBuildingAux
+class CBuildingEx
 {
 	friend class				CBuilding;
 

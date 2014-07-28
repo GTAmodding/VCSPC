@@ -33,14 +33,14 @@ public:
 	RwRaster*		RasterGradient(RwRaster* pRaster);
 	void			InvertRaster();
 
-	RwCamera*		Update(RpAtomic* pAtomic, CEntity* pEntity);
+	RwCamera*		Update(RpAtomic* pAtomic);
 	RwCamera*		Update(RpClump* pClump, CEntity* pEntity);
 	void			ReInit();
 };
 
 class CRealTimeShadow
 {
-private:
+public:
 	CEntity*		m_pEntity;
 	bool			m_bRenderedThisFrame;
 	unsigned char	m_nIntensity;
@@ -87,7 +87,7 @@ public:
 	void			ReInit()
 	{
 		m_Camera.ReInit();
-		if ( m_bDrawResample ) m_ResampledCamera.ReInit();
+		m_ResampledCamera.ReInit();
 	}
 
 	void			Destroy();

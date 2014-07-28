@@ -424,7 +424,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			// set_actor %1d% colours_to %2d% %3d% %4d% %5d%
 			CollectParameters(5);
 			CPools::GetPedPoolAux()->GetAt(scriptParams[0].iParam)->SetColours(scriptParams[1].bParam, scriptParams[2].bParam, scriptParams[3].bParam, scriptParams[4].bParam);
-			//CPedData::pPedData[scriptParams[0].iParam >> 8].SetColours(scriptParams[1].bParam, scriptParams[2].bParam, scriptParams[3].bParam, scriptParams[4].bParam);
+			//CPedEx::pPedData[scriptParams[0].iParam >> 8].SetColours(scriptParams[1].bParam, scriptParams[2].bParam, scriptParams[3].bParam, scriptParams[4].bParam);
 			LogToFile("Opcode 0355 called with params: %d %d %d %d %d", scriptParams[0], scriptParams[1], scriptParams[2], scriptParams[3], scriptParams[4]);
 			return;
 		}

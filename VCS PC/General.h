@@ -180,6 +180,9 @@ public:
     BYTE			nStatus : 5;						// control status			// 0x36
     //********* END CEntityInfo ************//
 
+	// VCS PC class extension
+	bool			bIveBeenRenderedOnce : 1;		// for realtime shadows
+
 public:
 	explicit inline CEntity(int dummy)
 		: CPlaceable(dummy)

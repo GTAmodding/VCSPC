@@ -26,7 +26,7 @@ long double CPed::GetCrosshairSize()
 
 void CPed::Remap()
 {
-	CPedData*	pTempPedData = CPools::GetPedPoolAux()->GetAtPointer(this);//&CPedData::pPedData[CPools::GetPedPool()->GetIndex(this)];
+	CPedEx*	pTempPedData = CPools::GetPedPoolAux()->GetAtPointer(this);//&CPedEx::pPedData[CPools::GetPedPool()->GetIndex(this)];
 	CPedModelInfoVCS::SetPedColour(pTempPedData->m_color1, pTempPedData->m_color2, pTempPedData->m_color3, pTempPedData->m_color4);
 	CPedModelInfoVCS::SetEditableMaterials(reinterpret_cast<RpClump*>(m_pRwObject));
 }
@@ -98,12 +98,12 @@ void CPed::RenderForShadow(RpClump* pClump, bool bRenderWeapon)
 }
 
 
-CPed* CPedData::Initialise(CPed* pPed, short model)
+CPed* CPedEx::Initialise(CPed* pPed, short model)
 {
 	if ( model == -1 )
 		model = pPed->GetModelIndex();
 
-	CPedData*	pTempData = CPools::GetPedPoolAux()->GetAtPointer(pPed);//&pPedData[CPools::GetPedPool()->GetIndex(pPed)];
+	CPedEx*	pTempData = CPools::GetPedPoolAux()->GetAtPointer(pPed);//&pPedData[CPools::GetPedPool()->GetIndex(pPed)];
 	CPedModelInfoVCS* pModelInfo = (CPedModelInfoVCS*)CModelInfo::ms_modelInfoPtrs[model];
 	if ( pModelInfo )
 		pModelInfo->GetRandomPedColour(pTempData->m_color1, pTempData->m_color2, pTempData->m_color3, pTempData->m_color4);

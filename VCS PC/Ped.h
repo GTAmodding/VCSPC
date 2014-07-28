@@ -307,7 +307,7 @@ public:
 	void				RenderForShadow(RpClump* pClump, bool bRenderWeapon);
 };
 
-class CPedData
+class CPedEx
 {
 private:
 	friend class CPed;
@@ -318,7 +318,7 @@ private:
 	BYTE				m_color4;
 
 public:
-	CPedData()
+	CPedEx()
 		: m_color1(0), m_color2(0), m_color3(0), m_color4(0)
 	{}
 

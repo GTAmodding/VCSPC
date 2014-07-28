@@ -34,3 +34,33 @@ void CEntity::SetRealTimeShadow(class CRealTimeShadow* pShadow)
 	else
 		static_cast<CPhysical*>(this)->SetRealTimeShadow(pShadow);
 }
+
+static void __declspec(naked) EntityCtorHack()
+{
+	_asm
+	{
+		mov		[esi].bIveBeenRenderedOnce, bl
+		mov		eax, esi
+		pop		esi
+		pop		ebx
+		retn
+	}
+}
+
+static void __declspec(naked) EntityRenderHack()
+{
+	_asm
+	{
+		and		dword ptr [esi+1Ch], 0FFFFDFFFh
+		or		byte ptr [esi].bIveBeenRenderedOnce, 1
+		pop		esi
+		pop		ecx
+		retn
+	}
+}
+
+
+static StaticPatcher	Patcher([](){ 
+						Memory::InjectHook(0x532AD7, EntityCtorHack, PATCH_JUMP);
+						Memory::InjectHook(0x5343E4, EntityRenderHack, PATCH_JUMP);
+									});

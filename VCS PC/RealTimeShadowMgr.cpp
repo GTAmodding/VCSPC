@@ -42,7 +42,7 @@ RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData)
 	RpAtomicGetPipeline(pAtomic, &pOldPipe);
 	RpAtomicSetPipeline(pAtomic, RpAtomicGetDefaultPipeline());
 
-	ShadowCameraRenderCB(pAtomic, reinterpret_cast<void*>(TRUE));
+	ShadowCameraRenderCB(pAtomic, nullptr);
 
 	RpAtomicSetPipeline(pAtomic, pOldPipe);
 
@@ -58,17 +58,8 @@ RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 		RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
 		RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
-		if ( reinterpret_cast<BOOL>(pData) )
-		{
-			RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
-							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
-		}
-		else
-		{
-			// For CObject renders
-			RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|/*rpGEOMETRYPRELIT|*/
-							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
-		}
+		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
+						rpGEOMETRYNORMALS|rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
 
 		AtomicDefaultRenderCallBack(pAtomic);
 		RpGeometrySetFlags(pGeometry, geometryFlags);
@@ -78,17 +69,20 @@ RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 
 void CShadowCamera::ReInit()
 {
-	RwInt32 nRasterWidth = RwRasterGetWidth(RwCameraGetRaster(m_pCamera));
-	RwInt32	nRasterHeight = RwRasterGetHeight(RwCameraGetRaster(m_pCamera));
+	if ( m_pCamera )
+	{
+		RwInt32 nRasterWidth = RwRasterGetWidth(RwCameraGetRaster(m_pCamera));
+		RwInt32	nRasterHeight = RwRasterGetHeight(RwCameraGetRaster(m_pCamera));
 
-	RwRasterDestroy(RwCameraGetRaster(m_pCamera));
+		RwRasterDestroy(RwCameraGetRaster(m_pCamera));
 	
-	RwRaster*	pNewRaster = RwRasterCreate(nRasterWidth, nRasterHeight, 0, rwRASTERTYPECAMERATEXTURE);
-	RwCameraSetRaster(m_pCamera, pNewRaster);
-	RwTextureSetRaster(m_pTexture, pNewRaster);
+		RwRaster*	pNewRaster = RwRasterCreate(nRasterWidth, nRasterHeight, 0, rwRASTERTYPECAMERATEXTURE);
+		RwCameraSetRaster(m_pCamera, pNewRaster);
+		RwTextureSetRaster(m_pTexture, pNewRaster);
+	}
 }
 
-RwCamera* CShadowCamera::Update(RpAtomic* pAtomic, CEntity* pEntity)
+RwCamera* CShadowCamera::Update(RpAtomic* pAtomic)
 {
 	if ( RpAtomicGetFlags(pAtomic) & rpATOMICRENDER )
 	{
@@ -100,21 +94,20 @@ RwCamera* CShadowCamera::Update(RpAtomic* pAtomic, CEntity* pEntity)
 			RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
 			RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
-			// Disable prelighting if it's not CObject
-			if ( pEntity->nType != 4 )
-			{
-				RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
+			// Default pipeline
+			RxPipeline*	pOldPipe;
+			RpAtomicGetPipeline(pAtomic, &pOldPipe);
+			RpAtomicSetPipeline(pAtomic, RpAtomicGetDefaultPipeline());
+
+
+			RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
 							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
-			}
-			else
-			{
-				RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|/*rpGEOMETRYPRELIT|*/
-							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
-			}
 		
 			AtomicDefaultRenderCallBack(pAtomic);
 
+			RpAtomicSetPipeline(pAtomic, pOldPipe);
 			RpGeometrySetFlags(pGeometry, geometryFlags);
+
 			InvertRaster();
 			RwCameraEndUpdate(m_pCamera);
 		}
@@ -129,13 +122,6 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 
 	if ( RwCameraBeginUpdate(m_pCamera ) )
 	{
-		//std::pair<RwUInt32*, RwUInt32>		GeometryFlagsPair[32];
-
-		//RpGeometry*	pGeometry = RpAtomicGetGeometry(GetFirstAtomic(pClump));
-		//RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
-
-		//RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
-		//				rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
 		if ( pEntity )
 		{
 			if ( pEntity->nType == 3 )
@@ -143,7 +129,7 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 			else if ( pEntity->nType == 2 )
 				static_cast<CVehicle*>(pEntity)->RenderForShadow(pClump);
 			else if ( pEntity->nType == 4 )
-				RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, FALSE);
+				RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, nullptr);
 			else
 			{
 				assert(!"Baad, unknown entity type in CShadowCamera::Update!");
@@ -160,7 +146,7 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 
 RwTexture* CRealTimeShadow::Update()
 {
-	if ( m_pEntity->m_pRwObject )
+	if ( m_pEntity->m_pRwObject && m_pEntity->bIveBeenRenderedOnce )
 	{
 		// Close enough to the object?
 		CVector*	pObjPos = m_pEntity->GetCoords();
@@ -177,7 +163,7 @@ RwTexture* CRealTimeShadow::Update()
 
 		m_Camera.SetCenter(&m_BaseSphere.center);
 		if ( m_nRwObjectType == rpATOMIC )
-			m_Camera.Update(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject), m_pEntity);
+			m_Camera.Update(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject));
 		else if ( m_nRwObjectType == rpCLUMP )
 			m_Camera.Update(reinterpret_cast<RpClump*>(m_pEntity->m_pRwObject), m_pEntity);
 
@@ -382,12 +368,15 @@ void CRealTimeShadowManager::DoShadowThisFrame(CEntity* pEntity)
 	if ( nShadowQuality > SHADOW_QUALITY_LOW || (nShadowQuality == SHADOW_QUALITY_LOW && bRenderAtLowDetails) )
 	{
 		CRealTimeShadow*	pEntityShadow = pEntity->GetRealTimeShadow();
+		//assert(pEntityShadow < (CRealTimeShadow*)0x15000000);
 		if ( pEntityShadow )
 			pEntityShadow->SetRenderedThisFrame();
 		else
 			GetRealTimeShadow(pEntity);
 	}
 }
+
+BYTE	FakeBuilding[sizeof(CBuilding)];
 
 void CRealTimeShadowManager::GetRealTimeShadow(CEntity* pEntity)
 {
@@ -430,18 +419,10 @@ void CRealTimeShadowManager::GetRealTimeShadow(CEntity* pEntity)
 			}
 
 			// Debug
-#ifdef DEVBUILD
 			if ( !pOutShadow )
 			{
-				static bool		bLimitHit = false;
-
-				if ( !bLimitHit )
-				{
-					assert(!"Too many real time shadows at once, consider increasing limits.");
-					bLimitHit = true;
-				}
+				assert(!"Too many real time shadows at once, consider increasing limits.");
 			}
-#endif
 		}
 
 		if ( pOutShadow )

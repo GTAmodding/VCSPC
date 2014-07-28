@@ -15,6 +15,8 @@ public:
 public:
 	static void					Add(CEntity* pEntity);
 	static void					Remove(CEntity* pEntity);
+
+	static void					ClearForRestart();
 };
 
 #endif

@@ -170,16 +170,37 @@ public:
 			{ m_pSlots = static_cast<T*>(operator new(sizeof(T) * pParent->GetSize())); }
 
 	~CChildrenPool()
-			{ delete m_pSlots; }
+			{ operator delete(m_pSlots); }
 
+#ifndef DEVBUILD
 	inline T*		GetAtIndex(int nIndex)
 			{ return &m_pSlots[nIndex]; }
 
-	T*				GetAtPointer(Parent* pParent)
+	inline T*		GetAtPointer(Parent* pParent)
 			{ return &m_pSlots[m_pParentPool->GetIndex(pParent)]; }
 
-	T*				GetAt(int nIdentifier)
+	inline T*		GetAt(int nIdentifier)
 			{ return m_pParentPool->IsHandleFullyValid(nIdentifier) ? GetAtIndex(nIdentifier >> 8) : nullptr; }
+#else
+	inline T*		GetAtIndex(int nIndex)
+	{
+		assert(m_pParentPool->IsValid(nIndex) == true);
+		return &m_pSlots[nIndex];
+	}
+
+	inline T*		GetAtPointer(Parent* pParent)
+	{
+		assert(m_pParentPool->IsValid(m_pParentPool->GetIndex(pParent)));
+		
+		return &m_pSlots[m_pParentPool->GetIndex(pParent)];
+	}
+
+	inline T*		GetAt(int nIdentifier)
+	{
+		assert(m_pParentPool->IsHandleFullyValid(nIdentifier));
+		return m_pParentPool->IsHandleFullyValid(nIdentifier) ? GetAtIndex(nIdentifier >> 8) : nullptr;
+	}
+#endif
 };
 
 
@@ -206,8 +227,8 @@ typedef CPool<CTask, FakeClass<128,CTask>>			CTaskPool;
 
 typedef CPool<CEmpireBuildingData>					CEmpireBuildingDataPool;
 
-typedef CChildrenPool<CPedData,CPed,CPedPool>				CPedPoolAux;
-typedef CChildrenPool<CBuildingAux,CBuilding,CBuildingPool>	CBuildingPoolAux;
+typedef CChildrenPool<CPedEx,CPed,CPedPool>				CPedPoolAux;
+typedef CChildrenPool<CBuildingEx,CBuilding,CBuildingPool>	CBuildingPoolAux;
 
 class CPools
 {
