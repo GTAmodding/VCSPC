@@ -248,6 +248,22 @@ static void __declspec(naked) GetShadowHack()
 	}
 }
 
+static void __declspec(naked) SelfShadowingFix()
+{
+	_asm
+	{
+		jnz		SelfShadowingFix_DontCast
+		cmp		esi, [ebx]CRealTimeShadow.m_pEntity
+		jz		SelfShadowingFix_DontCast
+		push	70A841h
+		retn
+
+SelfShadowingFix_DontCast:
+		push	70A93Fh
+		retn
+	}
+}
+
 /*static void __declspec(naked) StoreRTPoleShadowHack()
 {
 	_asm
@@ -346,6 +362,7 @@ static StaticPatcher	Patcher([](){
 						Memory::InjectHook(0x70BDA4, StoreRTVehicleShadowHack);
 						Memory::InjectHook(0x59FEDB, StoreRTObjectShadowHack, PATCH_JUMP);
 						Memory::InjectHook(0x707CAA, GetShadowHack, PATCH_JUMP);
+						Memory::InjectHook(0x70A83B, SelfShadowingFix, PATCH_JUMP);
 						//Memory::InjectHook(0x70C753, StoreRTPoleShadowHack);
 
 						//Memory::InjectHook(0x705590, &CShadowCamera::SetCenter, PATCH_JUMP);

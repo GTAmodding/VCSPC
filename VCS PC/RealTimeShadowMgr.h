@@ -88,6 +88,8 @@ public:
 	{
 		m_Camera.ReInit();
 		m_ResampledCamera.ReInit();
+		if ( m_pEntity )
+			m_pEntity->bIveBeenRenderedOnce = false;
 	}
 
 	void			Destroy();
