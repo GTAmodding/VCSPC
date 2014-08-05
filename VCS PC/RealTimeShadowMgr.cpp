@@ -26,16 +26,17 @@ WRAPPER void CRealTimeShadowManager::Update() { EAXJMP(0x706AB0); }
 RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData)
 {
 	// Check if to render this basing on settings
+	const char*		pFrameName = GetFrameNodeName(RpAtomicGetFrame(pAtomic));
 	if ( reinterpret_cast<bool>(pData) )
 	{
-		// Reject if it's a LOD
-		if ( strstr(GetFrameNodeName(RpAtomicGetFrame(pAtomic)), "_vlo") )
+		// Reject if it's a LOD or moving rotor
+		if ( strstr(pFrameName, "_vlo") || !strncmp(pFrameName, "moving_rotor", 12) )
 			return pAtomic;
 	}
 	else
 	{
 		// Reject if it's not a LOD
-		if ( !strstr(GetFrameNodeName(RpAtomicGetFrame(pAtomic)), "_vlo") )
+		if ( !strstr(pFrameName, "_vlo") )
 			return pAtomic;
 	}
 
