@@ -19,8 +19,8 @@ void CWorld::ClearForRestart()
 	// Clear shadows from CBuildings
 	for ( int i = 0; i < 14400; i++ )
 	{
-		for ( auto it = ms_aSectors[i].building.sNode; it; it = it->next )
-			static_cast<CBuilding*>(it->entity)->ClearForRestart();
+		for ( auto it = ms_aSectors[i].building.m_psNodes; it; it = it->m_psNext )
+			static_cast<CBuilding*>(it->m_pPtr)->ClearForRestart();
 	}
 }
 

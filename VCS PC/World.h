@@ -3,39 +3,15 @@
 
 #include "General.h"
 #include "PlayerInfo.h"
+#include "PtrList.h"
 
 #define NUM_PLAYERS		2;
-
-class CPtrNodeSingle
-{
-public:
-	CEntity*		entity;
-	CPtrNodeSingle*	next;
-};
-
-class CPtrNodeDouble
-{
-public:
-	CEntity*		entity;
-	CPtrNodeDouble*	next;
-	CPtrNodeDouble*	prev;
-};
-
-class CPtrList
-{
-public:
-	union
-	{
-		CPtrNodeSingle* sNode;
-		CPtrNodeDouble* dNode;
-	};
-};
 
 class CSector
 {
 public:
-	CPtrList		building;
-	CPtrList		dummy;
+	CPtrListSingleLink		building;
+	CPtrListSingleLink		dummy;
 };
 
 

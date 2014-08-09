@@ -494,6 +494,9 @@
     <ClInclude Include="PostEffects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PtrList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="LoadVars.inc">

@@ -452,6 +452,7 @@ popd</Command>
     <ClInclude Include="Pools.h" />
     <ClInclude Include="PostEffects.h" />
     <ClInclude Include="Project2dfx.h" />
+    <ClInclude Include="PtrList.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="RealTimeShadowMgr.h" />
     <ClInclude Include="Replay.h" />
