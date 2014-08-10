@@ -50,7 +50,7 @@ bool CPed::Load()
 
 void CPed::RenderForShadow(RpClump* pClump, bool bRenderWeapon)
 {
-	RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, reinterpret_cast<void*>(TRUE));
+	RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, nullptr);
 
 	if ( bRenderWeapon )
 	{
@@ -70,14 +70,8 @@ void CPed::RenderForShadow(RpClump* pClump, bool bRenderWeapon)
 				RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 90.0f, rwCOMBINEPRECONCAT);
 			}
 
-			RpGeometry*	pWeaponGeometry = RpAtomicGetGeometry(GetFirstAtomic(reinterpret_cast<RpClump*>(m_pWeaponObject)));
-			RwUInt32	weaponGeometryFlags = RpGeometryGetFlags(pWeaponGeometry);
-			RpGeometrySetFlags(pWeaponGeometry, weaponGeometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
-					rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
-
 			RwFrameUpdateObjects(pFrame);
-			//AtomicDefaultRenderCallBack(GetFirstAtomic(reinterpret_cast<RpClump*>(pPed->m_pWeaponObject)));	
-			RpClumpRender(reinterpret_cast<RpClump*>(m_pWeaponObject));
+			RpClumpForAllAtomics(reinterpret_cast<RpClump*>(m_pWeaponObject), ShadowCameraRenderCB, nullptr);
 
 			// Dual weapons
 			if ( CWeaponInfo::GetWeaponInfo(weaponSlots[m_bActiveWeapon].m_eWeaponType, GetWeaponSkill())->hexFlags >> 11 & 1 )
@@ -89,10 +83,9 @@ void CPed::RenderForShadow(RpClump* pClump, bool bRenderWeapon)
 				RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 180.0f, rwCOMBINEPRECONCAT);
 				RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
 
-				RwFrameUpdateObjects(pFrame);	
-				RpClumpRender(reinterpret_cast<RpClump*>(m_pWeaponObject));
+				RwFrameUpdateObjects(pFrame);
+				RpClumpForAllAtomics(reinterpret_cast<RpClump*>(m_pWeaponObject), ShadowCameraRenderCB, nullptr);
 			}
-			RpGeometrySetFlags(pWeaponGeometry, weaponGeometryFlags);
 		}
 
 		// Render jetpack

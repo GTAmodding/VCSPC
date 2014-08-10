@@ -17,7 +17,10 @@ bool&	CVehicle::m_bEnableMouseFlying = *(bool*)0xC1CC03;
 static RwObject* GetCurrentAtomicObjectCB(RwObject* pObject, void* data)
 {
 	if ( RpAtomicGetFlags(pObject) & rpATOMICRENDER )
+	{
 		*static_cast<RwObject**>(data) = pObject;
+		return nullptr;
+	}
 	return pObject;
 }
 

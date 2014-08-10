@@ -10,7 +10,6 @@ private:
 	static BINK*				m_hBinkPlayer;
 	static RwRaster*			m_pVideoRaster;
 	static CRect				m_videoFrame;
-	static int					m_nRasterPitch;
 	static unsigned char		m_bSurfaceMask;
 	static unsigned char		m_bExtraThreadIndex;
 

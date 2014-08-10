@@ -148,6 +148,9 @@ RpHAnimHierarchy*	GetAnimHierarchyFromSkinClump(RpClump* pClump);
 void*			GtaOperatorNew(size_t size);
 void			GtaOperatorDelete(void* ptr);
 
+// This is a part of RW.cpp
+void			InjectRwEngineWrappers();
+
 extern RsGlobalType&		RsGlobal;
 extern const DWORD			RsGlobalFrameLimits[5];
 extern bool&				bAnisotSupported;

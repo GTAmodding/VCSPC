@@ -3,6 +3,7 @@
 
 #include "EmpireMgr.h"
 #include "General.h"
+#include "Audio.h"
 
 // Not used with CDynamicStore-based storages
 #define NUM_VEHICLE_MODELS									212
@@ -376,6 +377,14 @@ public:
 	{}
 };
 
+struct UpgradePosnDesc
+{
+	CVector				m_vPosition;
+	CVector				m_qRotation;
+	float				imag;
+	int					m_dwParentComponentId;
+};
+
 class CTempColModels
 {
 public:
@@ -441,8 +450,8 @@ public:
     virtual void					Shutdown();
     virtual void					DeleteRwObject()=0;
     virtual int						GetRwModelType()=0;
-	virtual RpAtomic*				CreateInstance_(RwMatrix* pMatrix)=0;
-    virtual RpAtomic*				CreateInstance()=0;
+	virtual RwObject*				CreateInstance_(RwMatrix* pMatrix)=0;
+    virtual RwObject*				CreateInstance()=0;
 	virtual void					SetAnimFile(const char* pName) { UNREFERENCED_PARAMETER(pName); }
 	virtual void					ConvertAnimFileIndex() {}
 	virtual int						GetAnimFileIndex() { return -1; }
@@ -464,18 +473,21 @@ public:
 class CClumpModelInfo : public CBaseModelInfo
 {
 public:
-	int						nAnimIndex;
+	union {
+		class CAnimBlock*	m_pAnimBlock;
+		signed int			m_nAnimIndex;
+	};
 
 public:
 	virtual unsigned char			GetModelType() override { return 5; }
 	virtual void					Init() override;
 	virtual void					DeleteRwObject() override;
 	virtual int						GetRwModelType() override { return rpCLUMP; }
-	virtual RpAtomic*				CreateInstance_(RwMatrix* pMatrix) override;
-	virtual RpAtomic*				CreateInstance() override;
+	virtual RwObject*				CreateInstance_(RwMatrix* pMatrix) override;
+	virtual RwObject*				CreateInstance() override;
 	virtual void					SetAnimFile(const char* pName) override;
 	virtual void					ConvertAnimFileIndex() override;
-	virtual int						GetAnimFileIndex() override { return nAnimIndex; }
+	virtual int						GetAnimFileIndex() override { return m_nAnimIndex; }
 	virtual CColModel*				GetBoundingBox() { return pColModel; }
 	virtual void					SetClump(RpClump* pClump);
 };
@@ -493,8 +505,8 @@ public:
 	virtual void					Shutdown() override;
 	virtual void					DeleteRwObject() override;
 	virtual int						GetRwModelType() override { return rpATOMIC; }
-	virtual RpAtomic*				CreateInstance_(RwMatrix* pMatrix) override;
-	virtual RpAtomic*				CreateInstance() override;
+	virtual RwObject*				CreateInstance_(RwMatrix* pMatrix) override;
+	virtual RwObject*				CreateInstance() override;
 	virtual void					SetAtomic(RpAtomic* pAtomic);
 
 	inline void						InitEmpireData()
@@ -521,8 +533,8 @@ public:
 	virtual CDamageAtomicModelInfo*	AsDamageAtomicModelInfoPtr() override { return this; }
 	virtual void					Init() override;
 	virtual void					DeleteRwObject() override;
-	virtual RpAtomic*				CreateInstance_(RwMatrix* pMatrix) override;
-	virtual RpAtomic*				CreateInstance() override;
+	virtual RwObject*				CreateInstance_(RwMatrix* pMatrix) override;
+	virtual RwObject*				CreateInstance() override;
 };
 
 class CTimeModelInfo : public CAtomicModelInfo
@@ -578,7 +590,65 @@ public:
 
 class CVehicleModelInfo : public CClumpModelInfo
 {
-	// TODO: Document
+public:
+	RpMaterial*				m_pPlateMaterial;
+	char					m_plateText[8];
+	char					field_30;
+	signed char				m_nPlateType;
+	char					m_nGameName[8];
+	signed int				m_dwType;
+	float					m_fWheelSizeFront;
+	float					m_fWheelSizeRear;
+	signed short			m_wWheelModelId;
+	unsigned short			m_wHandlingIndex;
+	unsigned char			m_nNumDoors;
+	unsigned char			m_nClass;
+	unsigned char			m_nFlags;
+	unsigned char			m_nWheelUpgradeClass;
+	unsigned short			m_wTimesUsed;
+	unsigned short			m_wFrq;
+	union{
+		unsigned int		m_dwCompRules;
+		struct{
+			unsigned int m_nExtraA_comp1 : 4;
+			unsigned int m_nExtraA_comp2 : 4;
+			unsigned int m_nExtraA_comp3 : 4;
+			unsigned int m_nExtraA_rule : 4;
+			unsigned int m_nExtraB_comp1 : 4;
+			unsigned int m_nExtraB_comp2 : 4;
+			unsigned int m_nExtraB_comp3 : 4;
+			unsigned int m_nExtraB_rule : 4;
+		};
+	};
+	float m_fBikeSteerAngle;
+
+	class CVehicleStructure{
+	public:
+		CVector				m_avDummyPosn[15];
+		UpgradePosnDesc		m_aUpgrades[18];
+		RpAtomic*			m_apExtras[6];
+		unsigned char		m_nNumExtras;
+		unsigned int		m_dwMaskComponentsDamagable;
+	}						*m_pVehicleStruct;
+
+	char					field_60[464];
+	RpMaterial*				m_apDirtMaterials[32];
+	unsigned char			m_anPrimaryColors[8];
+	unsigned char			m_anSecondaryColors[8];
+	unsigned char			m_anTertiaryColors[8];
+	unsigned char			m_anQuaternaryColors[8];
+	unsigned char			m_nNumColorVariations;
+	unsigned char			m_nLastColorVariation;
+	signed char				m_nPrimaryColor;
+	signed char				m_nSecondaryColor;
+	signed char				m_nTertiaryColor;
+	signed char				m_nQuaternaryColor;
+	short					m_awUpgrades[18];
+	short					m_awRemapTxds[4];
+	union {
+		class CAnimBlock*	m_pVehicleAnimBlock;
+		signed int			m_nVehicleAnimIndex;
+	};
 
 private:
 	static RwTexture*&				ms_pRemapTexture;
@@ -590,7 +660,7 @@ private:
 
 	static const char*&				ms_pCurrentCarcolsFile;
 
-public:
+private:
 	static void						LoadVehicleColours();
 
 public:
@@ -603,9 +673,35 @@ public:
 	static void						SetVehicleColour(unsigned char primaryColour, unsigned char secondaryColour, unsigned char tertiaryColour, unsigned char quaternaryColour);
 	static RpMaterial*				SetEditableMaterialsCB(RpMaterial* pMaterial, void* pData);
 	static void						LoadAllVehicleColours();
+
+
+	virtual unsigned char			GetModelType() override { return 6; }
+	virtual void					Init() override;
+	virtual void					DeleteRwObject() override;
+	virtual RwObject*				CreateInstance() override;
+	virtual void					SetAnimFile(const char* pName) override;
+	virtual void					ConvertAnimFileIndex() override;
+	virtual int						GetAnimFileIndex() override { return m_nVehicleAnimIndex; }
+	virtual void					SetClump(RpClump* pClump) override;
+
+
+	CVehicleModelInfo()
+		: m_pVehicleStruct(nullptr), m_nNumColorVariations(0), m_nFlags(0), m_nVehicleAnimIndex(-1)
+	{
+		for ( int i = 0; i < 18; i++ )
+			m_awUpgrades[i] = -1;
+
+		for ( int i = 0; i < 4; i++ )
+			m_awRemapTxds[i] = -1;
+
+		// Temp as dirt code is messed up and unitialised m_apDirtMaterials corrupts the game
+		// TODO: When fixed dirt code is ported from SilentPatch, remove this
+		for ( int i = 0; i < 32; i++ )
+			m_apDirtMaterials[i] = nullptr;
+	}
 };
 
-class CPedModelInfoVCS : public CPedModelInfo // VCS PC class extension
+class CPedModelInfoVCS : public CPedModelInfo	// VCS PC class extension
 {
 public:
 	unsigned char			m_primaryPedColours[NUM_POSSIBLE_COLOURS_FOR_PED];
@@ -626,6 +722,16 @@ public:
 	static RpMaterial*		SetEditableMaterialsCB(RpMaterial* pMaterial, void* pData);
 
 	void					GetRandomPedColour(BYTE& colour1, BYTE& colour2, BYTE& colour3, BYTE& colour4);
+};
+
+class CVehicleModelInfoVCS : public CVehicleModelInfo	// VCS PC class extension
+{
+private:
+	tVehicleAudioSettings	m_AudioSettings;
+
+public:
+	tVehicleAudioSettings&	GetAudioSettings()
+		{ return m_AudioSettings; }
 };
 
 class CModelInfoDrawDistStorage
@@ -665,6 +771,7 @@ public:
 #if NUM_VEHICLES > 212
 	ModelCarsData*		ModelCarsMalloc;
 #endif
+	static CDynamicStore<CVehicleModelInfoVCS>			ms_vehicleModelStore;
 	static CDynamicStore<CPedModelInfoVCS>				ms_pedModelStore;
 	static CDynamicStore<CAtomicModelInfo>				ms_atomicModelStore;
 	static CDynamicStore<CDamageAtomicModelInfo>		ms_damageAtomicModelStore;
@@ -683,6 +790,7 @@ public:
 	static CBaseModelInfo*								GetModelInfo(const char* pName, int* pOutID = nullptr);
 	static CAtomicModelInfo*							AddAtomicModel(int nModelID);
 	static bool											IsBikeModel(int modelID);
+	static CVehicleModelInfoVCS*						AddVehicleModel(int nModelID);
 	static CPedModelInfoVCS*							AddPedModel(int nModelID);
 	static CDamageAtomicModelInfo*						AddDamageAtomicModel(int nModelID);
 	static CTimeModelInfo*								AddTimeModel(int nModelID);
@@ -696,5 +804,6 @@ extern std::pair<void*,int>* const materialRestoreData;
 
 static_assert(sizeof(CBaseModelInfo) == 0x20, "Wrong size: CBaseModelInfo");
 static_assert(sizeof(CPedModelInfo) == 0x44, "Wrong size: CPedModelInfo");
+static_assert(sizeof(CVehicleModelInfo) == 0x308, "Wrong size: CVehicleModelInfo");
 
 #endif

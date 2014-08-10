@@ -128,31 +128,16 @@ static float gB;
 
 static CEntity *gCurrentEntityStoresShadow;
 
-void * __fastcall SetLightParameters(int shd, int edx0, float a, float b, bool set)
-{
-	//gA = a;
-	gB = b;
-	return ((void *(__thiscall *)(int, float, float, bool))0x705900)(shd, a, b, set);
-}
 
-void RotateLightFrame(RwFrame *frame, RwV3d *axis, float angle, int combine)
-{
-	((void (__cdecl *)(RwFrame *, RwV3d *, float, int))0x7F1010)(frame, axis, gB, combine);
-}
 
-void TranlateShdMatrix(RwMatrix *matrix, RwV3d *translation, int combineOp)
-{
-	translation->y = 0.5f;
-	((void (__cdecl *)(RwMatrix *, RwV3d *, int))0x7F2450)(matrix, translation, combineOp);
-}
 
-void CastShadow(void *a1, float a2, float a3, float a4, float a5, void *a6, float a7, float a8, float a9, float a10, short a11, char a12, char a13, char a14, float a15, 
+/*void CastShadow(void *a1, float a2, float a3, float a4, float a5, void *a6, float a7, float a8, float a9, float a10, short a11, char a12, char a13, char a14, float a15, 
 						 float a16, void **a17, CRealTimeShadow* a18, char *a19)
 {
 	gCurrentEntityStoresShadow = a18->GetOwner();;
 	((void (__cdecl *)(void *, float, float, float, float, void *, float, float, float, float, short, char, char, char, float, float, void **, CRealTimeShadow *, char *))0x70A7E0)
 		(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19);
-}
+}*/
 
 /*void __fastcall SetupShadowBoundSphere(void *sphere, int edx0, float size, CVector  const& center, unsigned char material, unsigned char flags, unsigned char lighting)
 {

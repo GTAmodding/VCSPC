@@ -7,7 +7,6 @@
 BINK*				CVideoPlayer::m_hBinkPlayer;
 RwRaster*			CVideoPlayer::m_pVideoRaster;
 CRect				CVideoPlayer::m_videoFrame;
-int					CVideoPlayer::m_nRasterPitch;
 unsigned char		CVideoPlayer::m_bSurfaceMask;
 unsigned char		CVideoPlayer::m_bExtraThreadIndex;
 
@@ -80,9 +79,8 @@ void CVideoPlayer::Create(const char* pFileName, const CRect* pVideoFrame, bool 
 			vecOutScale.y = abs(pVideoFrame->y2 - pVideoFrame->y1);
 		}
 
-		m_pVideoRaster = RwRasterCreate(m_hBinkPlayer->Width, m_hBinkPlayer->Height, 0, rwRASTERTYPECAMERATEXTURE);
+		m_pVideoRaster = RwRasterCreate(m_hBinkPlayer->Width, m_hBinkPlayer->Height, 0, rwRASTERFORMATDEFAULT | rwRASTERTYPECAMERATEXTURE);
 		m_bSurfaceMask = ( RwRasterGetFormat(m_pVideoRaster) == rwRASTERFORMAT565 ) ? BINKSURFACE565 : BINKSURFACE32;
-		m_nRasterPitch = RwRasterGetWidth(m_pVideoRaster) * (RwRasterGetDepth(m_pVideoRaster)/8);
 
 		UpdateVideoFrame(pVideoFrame, vecOutScale);
 	}
@@ -116,9 +114,9 @@ bool CVideoPlayer::PlayNextFullscreenFrame()
 			{
 				if ( RsCameraBeginUpdate(Scene) )
 				{
-					if ( RwRasterLock(m_pVideoRaster, 0, rwRASTERLOCKREADWRITE) )
+					if ( RwUInt8* pPixels = RwRasterLock(m_pVideoRaster, 0, rwRASTERLOCKREADWRITE) )
 					{
-						BinkCopyToBuffer(m_hBinkPlayer, m_pVideoRaster->cpPixels, m_nRasterPitch, RwRasterGetHeight(m_pVideoRaster), 0, 0, m_bSurfaceMask);
+						BinkCopyToBuffer(m_hBinkPlayer, pPixels, RwRasterGetStride(m_pVideoRaster), RwRasterGetHeight(m_pVideoRaster), 0, 0, m_bSurfaceMask);
 						RwRasterUnlock(m_pVideoRaster);
 					}
 
@@ -160,9 +158,9 @@ void CVideoPlayer::PlayNextFrame()
 		{
 			if ( BinkDoFrameAsyncWait(m_hBinkPlayer, 1000) )
 			{
-				if ( RwRasterLock(m_pVideoRaster, 0, rwRASTERLOCKREADWRITE) )
+				if ( RwUInt8* pPixels = RwRasterLock(m_pVideoRaster, 0, rwRASTERLOCKREADWRITE) )
 				{
-					BinkCopyToBuffer(m_hBinkPlayer, m_pVideoRaster->cpPixels, m_nRasterPitch, RwRasterGetHeight(m_pVideoRaster), 0, 0, m_bSurfaceMask);
+					BinkCopyToBuffer(m_hBinkPlayer, pPixels, RwRasterGetStride(m_pVideoRaster), RwRasterGetHeight(m_pVideoRaster), 0, 0, m_bSurfaceMask);
 					RwRasterUnlock(m_pVideoRaster);
 				}
 

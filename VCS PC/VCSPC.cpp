@@ -370,7 +370,6 @@ RwIm2DVertex* const			aSpriteVertices = (RwIm2DVertex*)0xC80468;
 RwTexture** const			gpCoronaTexture = (RwTexture**)0xC3E000;
 RwCamera*&					Scene = *(RwCamera**)0xC1703C;
 DWORD*						gameState;
-void**						rwengine = (void**)0xC97B24;
 
 CControllerConfigManager&	ControlsManager = *(CControllerConfigManager*)0xB70198;
 CMousePointerStateHelper&	MousePointerStateHelper = *(CMousePointerStateHelper*)0xBA6744;
@@ -561,7 +560,7 @@ BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
 
 #include "SpeechRecognition.h"
 
-void OnGameTermination()
+void /*__declspec(noreturn)*/ OnGameTermination()
 {
 	CUpdateManager::InstallIfNeeded();
 
@@ -572,7 +571,7 @@ void OnGameTermination()
 	LogToFile("Logging ended\n");
 
 	// WORKAROUND
-	ExitProcess(0);
+	//ExitProcess(0);
 }
 
 DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
@@ -652,16 +651,15 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 
 	LogToFile("Process has been killed on user request");
 	OnGameTermination();
-	return TRUE;
+	ExitProcess(0);
 }
 
 extern "C" __declspec(dllexport) BOOL OnGameLaunch()
 {
 	LogToFile("Launching GTA: Vice City Stories PC Edition "MOD_VERSION" \""VERSION_NAME"\" build "BUILDNUMBER_STR"...");
-#ifdef DEVBUILD
+#if defined DEVBUILD
 	LogToFile("This is a closed dev build!");
-#endif
-#ifdef COMPILE_RC
+#elif COMPILE_RC
 	LogToFile("This is a Release Candidate "RELEASE_CANDIDATE" build");
 #endif
 	LogToFile("Logging started");
@@ -3080,11 +3078,12 @@ __forceinline void Main_Patches()
 	Nop(0x5D1EA9, 2);
 
 	// Frame Limiter
-	Patch<DWORD>(0x53E923, 0x42EB56);
+	Patch<WORD>(0x53E923, 0x43EB);
 	Patch<WORD>(0x748D81, 0x1B0);
 	Patch<WORD>(0x748D98, 0xC030);
 	InjectHook(0x748D83, &MaxosFrameLimitHack, PATCH_JUMP);
 	InjectHook(0x748D9A, &MaxosFrameLimitHack, PATCH_JUMP);
+	Nop(0x53E9A5, 1);
 
 	//InjectHook(0x57CECA, &FrameLimit_SwitchInject, PATCH_JUMP);
 	//InjectHook(0x579EF3, &FrameLimit_StringInject);
@@ -3320,7 +3319,7 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x576F8A, 0xEB);
 
 	// Make sure DirectInput mouse device is set non-exclusive (may not be needed?)
-	Patch<DWORD>(0x7469A0, 0x909000B0);
+	Patch<DWORD>(0x7469A0, 0x9090C030);
 
 	// Commandline arguments
 	Patch<const void*>(0x619C40, &CommandlineEventHack);
@@ -4378,6 +4377,8 @@ __forceinline void UserFiles()
 
 void InjectDelayedPatches()
 {
+	InjectRwEngineWrappers();
+
 	if ( *(BYTE*)0x6A0050 == 0xE9 )
 		CLEOGetTextFunc = (const char*(__thiscall*)(CText*, const char*))(*(int*)0x6A0051 + 0x6A0050 + 5);
 	else
@@ -4454,7 +4455,7 @@ void InjectArrowMarker()
 	CStreaming::RequestModel(modelID, 2);
 	CStreaming::LoadAllRequestedModels(false);
 
-	RpAtomic*	atomic = modelInfo->CreateInstance();
+	RpAtomic*	atomic = reinterpret_cast<RpAtomic*>(modelInfo->CreateInstance());
 	modelInfo->AddRef();
 
 	RwFrame*	frame = RpAtomicGetFrame(atomic);
@@ -6690,7 +6691,7 @@ MaxosFrameLimitHack_LimitFrames:
 		{
 			static int			nSyncDiff;
 
-			nSyncDiff = static_cast<int>(fOne - fTwo) - 5;
+			nSyncDiff = static_cast<int>(fOne - fTwo) - 3;
 
 			if( nSyncDiff > 0 )
  				MsgWaitForMultipleObjects(0, nullptr, FALSE, nSyncDiff, QS_ALLEVENTS);

@@ -222,7 +222,7 @@ private:
 	// VCS PC class extension
 	static CEmpireBuildingDataPool*			ms_pEmpireBuildingDataPool;
 	static CPedPoolEx*						ms_pPedPoolEx;
-	static CBuildingPoolEx*				ms_pBuildingPoolEx;
+	static CBuildingPoolEx*					ms_pBuildingPoolEx;
 
 public:
 	static inline CPedPool*					GetPedPool()

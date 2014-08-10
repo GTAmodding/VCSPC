@@ -6,8 +6,6 @@
 
 signed char	CAERadioTrackManager::bTracksPlayedRecently[NUM_RADIOSTATIONS];
 
-static std::map<short,tVehicleAudioSettings>	AudioSettingsMap;
-
 WRAPPER void CAudioEngine::ReportFrontendAudioEvent(long nSoundID, float fUnk, float fVolume) { WRAPARG(nSoundID); WRAPARG(fUnk); WRAPARG(fVolume); EAXJMP(0x506EA0); }
 WRAPPER void CAudioEngine::SetMusicMasterVolume(signed char nVolume) { WRAPARG(nVolume); EAXJMP(0x506DE0); };
 WRAPPER void CAudioEngine::SetEffectsMasterVolume(signed char nVolume) { WRAPARG(nVolume); EAXJMP(0x506E10); }
@@ -46,7 +44,7 @@ bool CAERadioTrackManager::Load()
 
 void CAEVehicleAudioEntity::GetVehicleAudioSettings(short nModelID)
 {
-   	AudioSettings = AudioSettingsMap[nModelID];
+	AudioSettings = static_cast<CVehicleModelInfoVCS*>(CModelInfo::ms_modelInfoPtrs[nModelID])->GetAudioSettings();
 }
 
 void CAEVehicleAudioEntity::LoadVehicleAudioSettings()
@@ -68,28 +66,30 @@ void CAEVehicleAudioEntity::LoadVehicleAudioSettings(const char* pFilename)
 		{
 			if ( pLine[0] && pLine[0] != '#' )
 			{
-				signed int				nModelID, nVehType, nEngineOn, nEngineOff, nRadioSound, nHornTon, nDoorSound, nUnk, nRadioNum, nRadioType, nScannerName;
-				tVehicleAudioSettings	NewEntry;
-				char					ModelName[40];
+				signed int				nVehType, nEngineOn, nEngineOff, nRadioSound, nHornTon, nDoorSound, nUnk, nRadioNum, nRadioType, nScannerName;
+				float					BassDepth, unk1, HornFreq, EngineVolumeBoost;
+				char					ModelName[24];
 
 				sscanf(pLine, "%s %d %d %d %d %f %f %d %f %d %d %d %d %d %f", ModelName, &nVehType, &nEngineOn, &nEngineOff, &nRadioSound,
-					&NewEntry.BassDepth, &NewEntry.unk1, &nHornTon, &NewEntry.HornFreq, &nDoorSound, &nUnk, &nRadioNum, &nRadioType, &nScannerName,
-					&NewEntry.EngineVolumeBoost);
+					&BassDepth, &unk1, &nHornTon, &HornFreq, &nDoorSound, &nUnk, &nRadioNum, &nRadioType, &nScannerName,
+					&EngineVolumeBoost);
 
-				CModelInfo::GetModelInfo(ModelName, &nModelID);
+				tVehicleAudioSettings&	NewEntry = static_cast<CVehicleModelInfoVCS*>(CModelInfo::GetModelInfo(ModelName, nullptr))->GetAudioSettings();
 
 				NewEntry.VehicleType = static_cast<signed char>(nVehType);
 				NewEntry.EngineOnSound = static_cast<short>(nEngineOn);
 				NewEntry.EngineOffSound = static_cast<short>(nEngineOff);
 				NewEntry.RadioSoundType = static_cast<signed char>(nRadioSound);
+				NewEntry.BassDepth = BassDepth;
+				NewEntry.unk1 = unk1;
 				NewEntry.HornTon = static_cast<signed char>(nHornTon);
+				NewEntry.HornFreq = HornFreq;
 				NewEntry.DoorSound = static_cast<signed char>(nDoorSound);
 				NewEntry.unk2 = static_cast<signed char>(nUnk);
 				NewEntry.RadioNum = static_cast<signed char>(nRadioNum);
 				NewEntry.RadioType = static_cast<signed char>(nRadioType);
 				NewEntry.PoliceScannerName = static_cast<signed char>(nScannerName);
-
-				AudioSettingsMap[static_cast<short>(nModelID)] = NewEntry;
+				NewEntry.EngineVolumeBoost = EngineVolumeBoost;
 			}
 		}
 		CFileMgr::CloseFile(hFile);

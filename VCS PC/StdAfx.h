@@ -135,8 +135,6 @@ inline int round(double value)
 void			EnterAmazingScreenshotMode(bool bEnable);
 #endif
 
-#define RwEngineInstance (*rwengine)
-#define RWFRAMESTATICPLUGINSSIZE 24
 
 #include <rwsdk\rwcore.h>
 #include <rwsdk\rpworld.h>
@@ -180,7 +178,6 @@ extern BYTE*				radarGrey;
 extern bool*				bHideStyledTextWhileFading;
 extern float*				currentFPS;
 //extern CGridref*			gridref;
-extern void**				rwengine;
 //extern CSprite2d*			texFonts;
 extern void					(*TheScriptsInitFunc)();
 

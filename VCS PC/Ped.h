@@ -238,7 +238,8 @@ public:
 	int					iMoveAnimGroup;
 	BYTE				__pad2[28];
 	RwObject*			m_pWeaponObject;
-	BYTE				__pad10[72];
+	RwFrame*			m_pMuzzleFlashFrame;
+	BYTE				__pad10[68];
 	float				fHealth;
 	float				fMaxHealth;
 	float				fArmour;

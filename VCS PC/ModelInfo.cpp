@@ -18,6 +18,7 @@ unsigned char* const					CVehicleModelInfo::ms_currentCol = (unsigned char*)0xB4
 CRGBA* const							CVehicleModelInfo::ms_vehicleColourTable = (CRGBA*)0xB4E480;
 const char*&							CVehicleModelInfo::ms_pCurrentCarcolsFile = *(const char**)0x5B68A1;
 
+CDynamicStore<CVehicleModelInfoVCS>		CModelInfo::ms_vehicleModelStore;
 CDynamicStore<CPedModelInfoVCS>			CModelInfo::ms_pedModelStore;
 CDynamicStore<CAtomicModelInfo>			CModelInfo::ms_atomicModelStore;
 CDynamicStore<CDamageAtomicModelInfo>	CModelInfo::ms_damageAtomicModelStore;
@@ -38,21 +39,27 @@ WRAPPER void CBaseModelInfo::Shutdown() { EAXJMP(0x4C4D50); }
 WRAPPER void CBaseModelInfo::SetColModel(CColModel* pModel, bool bInitPaired) { WRAPARG(pModel); WRAPARG(bInitPaired);  EAXJMP(0x4C4BC0); }
 
 WRAPPER void CClumpModelInfo::DeleteRwObject() { EAXJMP(0x4C4E70); }
-WRAPPER RpAtomic* CClumpModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C5110); }
-WRAPPER RpAtomic* CClumpModelInfo::CreateInstance() { EAXJMP(0x4C5140); }
+WRAPPER RwObject* CClumpModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C5110); }
+WRAPPER RwObject* CClumpModelInfo::CreateInstance() { EAXJMP(0x4C5140); }
 WRAPPER void CClumpModelInfo::SetAnimFile(const char* pName) { WRAPARG(pName); EAXJMP(0x4C5200); }
 WRAPPER void CClumpModelInfo::ConvertAnimFileIndex() { EAXJMP(0x4C5250); }
 WRAPPER void CClumpModelInfo::SetClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x4C4F70); }
 
 WRAPPER void CAtomicModelInfo::DeleteRwObject() { EAXJMP(0x4C4440); }
-WRAPPER RpAtomic* CAtomicModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C44D0); }
-WRAPPER RpAtomic* CAtomicModelInfo::CreateInstance() { EAXJMP(0x4C4530); }
+WRAPPER RwObject* CAtomicModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C44D0); }
+WRAPPER RwObject* CAtomicModelInfo::CreateInstance() { EAXJMP(0x4C4530); }
 WRAPPER void CAtomicModelInfo::SetAtomic(RpAtomic* pAtomic) { WRAPARG(pAtomic); EAXJMP(0x4C4360); }
 
-WRAPPER RpAtomic* CDamageAtomicModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C4910); }
-WRAPPER RpAtomic* CDamageAtomicModelInfo::CreateInstance() { EAXJMP(0x4C4960); }
+WRAPPER RwObject* CDamageAtomicModelInfo::CreateInstance_(RwMatrix* pMatrix) { WRAPARG(pMatrix); EAXJMP(0x4C4910); }
+WRAPPER RwObject* CDamageAtomicModelInfo::CreateInstance() { EAXJMP(0x4C4960); }
 
 WRAPPER void CPedModelInfo::SetClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x4C7340); }
+
+WRAPPER void CVehicleModelInfo::DeleteRwObject() { EAXJMP(0x4C9890); }
+WRAPPER RwObject* CVehicleModelInfo::CreateInstance() { EAXJMP(0x4C9680); }
+WRAPPER void CVehicleModelInfo::SetAnimFile(const char* pName) { WRAPARG(pName); EAXJMP(0x4C7670); }
+WRAPPER void CVehicleModelInfo::ConvertAnimFileIndex() { EAXJMP(0x4C76D0); }
+WRAPPER void CVehicleModelInfo::SetClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x4C95C0); }
 
 WRAPPER RpAtomic* CVehicleModelInfo::SetEditableMaterialsCB(RpAtomic* pMaterial, void* pData) { WRAPARG(pMaterial); WRAPARG(pData); EAXJMP(0x4C83E0); }
 WRAPPER void CVehicleModelInfo::LoadVehicleColours() { EAXJMP(0x5B6890); }
@@ -106,6 +113,14 @@ bool CModelInfo::IsBikeModel(int modelID)
 	// Temp
 	CBaseModelInfo*		pModel = ms_modelInfoPtrs[modelID];
 	return pModel && pModel->GetModelType() == 6 && *(DWORD*)((BYTE*)pModel+0x3C) == 9;
+}
+
+CVehicleModelInfoVCS* CModelInfo::AddVehicleModel(int nModelID)
+{
+	auto	pNewEntry = ms_vehicleModelStore.Add();
+	pNewEntry->Init();
+	ms_modelInfoPtrs[nModelID] = pNewEntry;
+	return pNewEntry;
 }
 
 CPedModelInfoVCS* CModelInfo::AddPedModel(int nModelID)
@@ -205,6 +220,7 @@ void CModelInfo::Inject()
 	Memory::Patch<WORD>(0x4C6517, 0x22EB);
 	Memory::Nop(0x4C6857, 7);
 
+	Memory::InjectHook(0x5B6FD1, AddVehicleModel);
 	Memory::InjectHook(0x5B74A7, AddPedModel);
 	Memory::InjectHook(0x5B3F32, AddTimeModel);
 
@@ -254,7 +270,7 @@ void CBaseModelInfo::RecalcDrawDistance(float fOldDist)
 void CClumpModelInfo::Init()
 {
 	CBaseModelInfo::Init();
-	nAnimIndex = -1;
+	m_nAnimIndex = -1;
 }
 
 void CAtomicModelInfo::Shutdown()
@@ -285,6 +301,14 @@ void CPedModelInfo::DeleteRwObject()
 	CClumpModelInfo::DeleteRwObject();
 	delete HitColModel;
 	HitColModel = nullptr;
+}
+
+void CVehicleModelInfo::Init()
+{
+	CClumpModelInfo::Init();
+	m_dwType = -1;
+	m_wWheelModelId = -1;
+	m_fBikeSteerAngle = 999.99f;
 }
 
 void CVehicleModelInfo::SetVehicleColour(unsigned char primaryColour, unsigned char secondaryColour, unsigned char tertiaryColour, unsigned char quaternaryColour)

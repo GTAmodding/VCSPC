@@ -2007,18 +2007,16 @@ void CMenuManager::DrawBackEnd()
 	CFont::SetColor(BaseColors[11]);
 	CFont::PrintString(_xleft(2.5f), _ydown(13.0f), MOD_VERSION" BUILD "BUILDNUMBER_STR);
 
-#ifdef DEVBUILD
+#if defined DEVBUILD
 	#ifdef MAKE_ZZCOOL_MOVIE_DEMO
 		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEMONSTRATION BUILD");
 	#else
 		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEV BUILD");
 	#endif
+#elif defined COMPILE_RC
+	CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
 #else
-	#ifdef COMPILE_RC
-		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
-	#else
-		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), VERSION_NAME_UPPERCASE);
-	#endif
+	CFont::PrintString(_xleft(2.5f), _ydown(20.5f), VERSION_NAME_UPPERCASE);
 #endif
 
 	if ( m_bCurrentMenuPage != 44 )
