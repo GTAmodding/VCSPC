@@ -9,6 +9,7 @@
 #include "GroupedBuildings.h"
 #include "TxdStore.h"
 #include "Object.h"
+#include "ColAccel.h"
 
 tFileLoaderList_IMG*	CFileLoader::m_pImagesList;
 tFileLoaderList*		CFileLoader::m_pObjectsList;
@@ -369,7 +370,9 @@ void CFileLoader::LoadLevels()
 	if ( CDLCManager::GetDLC(DLC_2DFX)->IsEnabled() )
 		CProject2dfx::EndRegistering();
 
-	//CColAccel::endCache();
+#ifdef USE_COLACCEL
+	CColAccel::endCache();
+#endif
 }
 
 bool CFileLoader::ParseLevelFile(const char* pFileName, char* pDLCName)

@@ -3348,10 +3348,6 @@ __forceinline void Main_Patches()
 	Nop(0x5BBACF, 5);
 	Nop(0x5BBAEA, 5);
 
-	// ColAccel
-	//InjectHook(0x53BC8B, &CColAccel::startCache);
-	//Patch<WORD>(0x5B2BA1, 0x30EB);
-
 	// Pools fixes
 	InjectHook(0x4048E0, &VehiclePoolGetAt, PATCH_JUMP);
 	InjectHook(0x404910, &PedPoolGetAt, PATCH_JUMP);

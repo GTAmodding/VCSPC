@@ -752,7 +752,7 @@ public:
 	inline void		Shrink()
 	{	unsigned short* pNewMalloc = new unsigned short[m_nMax-m_nMin];
 		memcpy(pNewMalloc, &m_pMalloc[m_nMin], (m_nMax-m_nMin) * sizeof(unsigned short));
-		delete m_pMalloc;
+		delete[] m_pMalloc;
 		m_pMalloc = pNewMalloc;
 	}
 

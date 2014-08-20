@@ -5,6 +5,7 @@
 
 const char*&	CColAccel::mp_cCacheName = *(const char**)0x8D0F84;
 int&			CColAccel::m_iCachingColSize = *(int*)0xBC409C;
+int&			CColAccel::m_iCachingIPLSize = *(int*)0x8D0F88;
 int&			CColAccel::m_iCacheState = *(int*)0xBC40A0;
 int&			CColAccel::m_iNumColItems = *(int*)0xBC40A8;
 int&			CColAccel::m_iNumSections = *(int*)0xBC40B4;
@@ -41,6 +42,9 @@ void CColAccel::startCache()
 		mp_caccIPLItems = new char[m_iNumIPLItems * 20];
 		CFileMgr::Read(hFile, mp_caccIPLItems, m_iNumIPLItems * 20);
 
+		m_iNumSections = 0;
+		m_iNumIPLItems = 0;
+		m_iNumColBounds = 0;
 		m_iCacheState = 2;
 
 		CFileMgr::CloseFile(hFile);
@@ -48,14 +52,10 @@ void CColAccel::startCache()
 	else
 	{
 		// Generate a new one
-		m_iNumSections = 0;
-		m_iNumColBounds = 0;
-		m_iNumColItems = 0;
-		m_iNumIPLItems = 0;
-
 		mp_caccColItems = new char[m_iCachingColSize * 48];
-		mp_caccIPLItems = new char[20][64];
+		mp_caccIPLItems = new char[20*m_iCachingIPLSize];	// Taken from xbox
 
+		m_iNumIPLItems = 0;
 		m_iCacheState = 1;
 	}
 }
@@ -67,3 +67,12 @@ void CColAccel::endCache()
 	delete mp_caccColItems;
 	delete mp_caccIPLItems;
 }
+
+#ifdef USE_COLACCEL
+
+static StaticPatcher	Patcher([](){ 
+						Memory::InjectHook(0x53BC8B, &CColAccel::startCache);
+						Memory::Patch<WORD>(0x5B2BA1, 0x30EB);
+									});
+
+#endif

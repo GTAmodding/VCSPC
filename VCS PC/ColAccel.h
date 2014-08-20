@@ -1,11 +1,15 @@
 #ifndef __COLACCEL
 #define __COLACCEL
 
+// Do we want colaccel to compile?
+#define USE_COLACCEL
+
 class CColAccel
 {
 private:
 	static const char*&		mp_cCacheName;
 	static int&				m_iCachingColSize;
+	static int&				m_iCachingIPLSize;
 	static int&				m_iCacheState;
 	static int&				m_iNumColItems;
 	static int&				m_iNumSections;

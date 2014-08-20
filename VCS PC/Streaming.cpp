@@ -4,6 +4,7 @@
 #include "ModelInfo.h"
 #include "CWanted.h"
 #include "PlayerInfo.h"
+#include "ModelInfoAccelerator.h"
 
 CStreamingInfo* const	CStreaming::ms_aInfoForModel = (CStreamingInfo*)0x8E4CC0;
 
@@ -204,9 +205,12 @@ void CStreaming::MakeSpaceFor(int neededMemory)
 
 void CStreaming::LoadCdDirectory()
 {
+#ifdef USE_MODELACCEL
+	gModelAccel.Begin("MODELS\\MINFO.BIN");
+#endif
+
 	if ( ms_cdImages[0].cName[0] )
 	{
-
 		for ( int i = 0; i < NUM_IMG_FILES && ms_cdImages[i].cName[0]; ++i )
 		{
 			unsigned char	encKey[2][24] = {	{	0x81, 0x45, 0x26, 0xFA, 0xDA, 0x7C, 0x6C, 0x11,
@@ -224,5 +228,9 @@ void CStreaming::LoadCdDirectory()
 			}
 		}
 	}
+
+#ifdef USE_MODELACCEL
+	gModelAccel.End();
+#endif
 }
 
