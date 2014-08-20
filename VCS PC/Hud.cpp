@@ -818,7 +818,7 @@ void CHud::DrawVehicleName()
 			CFont::SetDropShadowPosition(2);
 #ifdef COMPILE_SLANTED_TEXT
 #pragma message ("INFO: Compiling slanted text...")
-			CFont::SetSlantRefPoint(RsGlobal.MaximumWidth, _y(340.0));
+			CFont::SetSlantRefPoint(RsGlobal.MaximumWidth, _ydown(108.0));
 			CFont::SetSlant(0.15);
 #endif
 			CFont::SetDropColor(CRGBA(0, 0, 0, (BYTE)alpha));
@@ -954,13 +954,13 @@ void CHud::DrawAreaName()
 				CFont::SetFontStyle(FONT_RageItalic);
 				CFont::SetDropShadowPosition(2);
 #ifdef COMPILE_SLANTED_TEXT
-				CFont::SetSlantRefPoint(RsGlobal.MaximumWidth, _y(360.0));
+				CFont::SetSlantRefPoint(RsGlobal.MaximumWidth, _ydown(88.0));
 				CFont::SetSlant(0.15);
 #endif
 				CFont::SetDropColor(CRGBA(0, 0, 0, alpha));
 				CFont::SetScale(_width(1.2f), _height(1.7f));
 				CFont::SetColor(CRGBA(BaseColors[4], alpha));
-				CFont::PrintString(_x(42.5f), _ydown(49.0f), m_ZoneToPrint);
+				CFont::PrintStringFromBottom(_x(42.5f), _ydown(19.0f), m_ZoneToPrint);
 				CFont::SetDropShadowPosition(0);
 #ifdef COMPILE_SLANTED_TEXT
 				CFont::SetSlant(0.0);

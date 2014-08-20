@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "CWanted.h"
 
-bool CWanted::ShouldSendViceSquad()
+bool CWanted::AreMiamiViceRequired()
 {
-	return m_WantedLevel >= 3; //|| this->flags & m_viceSquadRequired;
+	return m_WantedLevel >= 3;
 }

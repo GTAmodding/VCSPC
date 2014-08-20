@@ -44,6 +44,7 @@
 #include "FxSystem.h"
 #include "RealTimeShadowMgr.h"
 #include "Shadows.h"
+#include "ColormodController.h"
 #include "VCSPC_SDK_Internal.h"
 
 // Regular functions
@@ -574,6 +575,10 @@ void /*__declspec(noreturn)*/ OnGameTermination()
 	//ExitProcess(0);
 }
 
+#ifdef LITTLE_COLORMOD_CONTROLLER_EXTRA
+#include "ColormodController.h"
+#endif
+
 DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 {
 #ifdef DEVBUILD
@@ -639,6 +644,12 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 			Memory::Patch<const void*>(0x522F5D, &fCurrentFOV);
 			Memory::Patch<float>(0x522F7A, fCurrentFOV);
 		}
+
+#ifdef LITTLE_COLORMOD_CONTROLLER_EXTRA
+		if ( GetKeyState(VK_INSERT) & 0x8000 )
+			CColormodController::Desaturate();
+#endif
+
 #endif
 
 #if !defined DEVBUILD && !defined COMPILE_RC
@@ -808,9 +819,6 @@ __forceinline void DetermineGameVer()
 	}
 	if ( GameVersion != GAMEVER_10US_noCD && MessageBox(0, "WARNING: We've detected that you are trying to use an incompatible EXE. You can still try to play the game but we do not accept error reports or feedback from this version. We recommend you try to use one of these EXE's instead:\n\n\t- 1.0 US HOODLUM (14 383 616 bytes)\n\t- 1.0 US compact (5 189 632 bytes)\n\nDo you want to launch the game anyway?", "GTA: Vice City Stories", MB_ICONERROR | MB_YESNO | MB_DEFBUTTON2 ) == IDNO )
 		ExitProcess(0);*/
-
-	// Colormod check
-	LogToFile("Color Mod loaded: %s", GetModuleHandle("colormod") != 0 ? "YES" : "NO");
 }
 
 __forceinline void DefineVariables()
@@ -4039,6 +4047,10 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x505036, 0xFF);
 	Patch<BYTE>(0x505038, 0xFF);
 
+	// Mac 10 (temp)
+	Patch<BYTE>(0x50505D, 0xFF);
+	Patch<BYTE>(0x50505F, 0xFF);
+
 	// M16
 	Patch<const void*>(0x505268, &WeaponSounds_M16);
 
@@ -4385,6 +4397,7 @@ void InjectDelayedPatches()
 	Memory::InjectHook(0x6A0050, &CText::Get, PATCH_JUMP);
 
 	CUpdateManager::Init();
+	CColormodController::Attach();
 //	CDLCManager::InitialiseWithUpdater();
 
 	//SpeechInject();
@@ -4417,7 +4430,7 @@ void ViceSquadCheckInjectA(int townID)
 {
 	CStreaming::StreamCopModels(townID);
 	CWanted* pWanted = FindPlayerWanted(-1);
-	if ( pWanted->ShouldSendViceSquad() )
+	if ( pWanted->AreMiamiViceRequired() )
 	{
 		CStreaming::RequestModel(506, 2);
 		CStreaming::RequestModel(215, 2);
@@ -4433,7 +4446,7 @@ void ViceSquadCheckInjectA(int townID)
 int ViceSquadCheckInjectB()
 {
 	CWanted* pWanted = FindPlayerWanted(-1);
-	if ( pWanted->ShouldSendViceSquad()
+	if ( pWanted->AreMiamiViceRequired()
 		&& CStreaming::ms_aInfoForModel[215].uLoadStatus == StreamingModelLoaded
 		&& CStreaming::ms_aInfoForModel[506].uLoadStatus == StreamingModelLoaded )
 	{

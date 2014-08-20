@@ -62,6 +62,9 @@ public:
 		{ return CVector(vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z); }
 	friend inline CVector operator-(const CVector& vec)
 		{ return CVector(-vec.x, -vec.y, -vec.z); }
+
+	inline CVector&		FromMultiply(const class CMatrix& mat, const CVector& vec);
+	inline CVector&		FromMultiply3X3(const class CMatrix& mat, const CVector& vec);
 };
 
 class CVector2D
@@ -76,6 +79,10 @@ public:
 		: x(fX), y(fY)
 	{}
 
+	CVector2D(const RwV2d& rwVec)
+		: x(rwVec.x), y(rwVec.y)
+	{}
+
 	CVector2D&		operator+=(const CVector2D& vec)
 			{ x += vec.x; y += vec.y;
 			return *this; }
@@ -87,8 +94,10 @@ public:
 		{ return sqrt(x * x + y * y); }
 	inline float	MagnitudeSqr()
 		{ return x * x + y * y; }
-	inline CVector2D&	Normalize()
+	inline CVector2D&	Normalise()
 		{ float	fInvLen = 1.0f / Magnitude(); x *= fInvLen; y *= fInvLen; return *this; }
+	inline float	NormaliseAndMag()
+		{ float fLen = Magnitude(); float fInvLen = 1.0f / fLen; x *= fInvLen; y *= fInvLen; return fLen; }
 
 	friend inline float DotProduct(const CVector2D& vec1, const CVector2D& vec2)
 		{ return vec1.x * vec2.x + vec1.x * vec2.y; }
@@ -101,6 +110,21 @@ public:
 		{ return CVector2D(vec1.x - vec2.x, vec1.y - vec2.y); }
 	friend inline CVector2D operator-(const CVector2D& vec)
 		{ return CVector2D(-vec.x, -vec.y); }
+};
+
+class CSphere
+{
+public:
+	RwSphere	sphere;
+
+public:
+	void		Set(float fRadius, const CVector& vecCenter)
+	{
+		sphere.center.x = vecCenter.x;
+		sphere.center.y = vecCenter.y;
+		sphere.center.z = vecCenter.z;
+		sphere.radius = fRadius;
+	}
 };
 
 class CMatrix
@@ -165,6 +189,90 @@ public:
 								matrix.matrix.up.y * vec.y + matrix.matrix.right.y * vec.x + matrix.matrix.at.y * vec.z + matrix.matrix.pos.y,
 								matrix.matrix.up.z * vec.y + matrix.matrix.right.z * vec.x + matrix.matrix.at.z * vec.z + matrix.matrix.pos.z); };
 
+	friend inline CMatrix operator+(const CMatrix& Rot1, const CMatrix& Rot2)
+	{ return CMatrix(	CVector(Rot1.matrix.right.x + Rot2.matrix.right.x, Rot1.matrix.right.y + Rot2.matrix.right.y, Rot1.matrix.right.z + Rot2.matrix.right.z),
+						CVector(Rot1.matrix.up.x + Rot2.matrix.up.x, Rot1.matrix.up.y + Rot2.matrix.up.y, Rot1.matrix.up.z + Rot2.matrix.up.z),
+						CVector(Rot1.matrix.at.x + Rot2.matrix.at.x, Rot1.matrix.at.y + Rot2.matrix.at.y, Rot1.matrix.at.z + Rot2.matrix.at.z),
+						CVector(Rot1.matrix.pos.x + Rot2.matrix.pos.x, Rot1.matrix.pos.y + Rot2.matrix.pos.y, Rot1.matrix.pos.z + Rot2.matrix.pos.z)); }
+
+	inline CMatrix& operator=(const CMatrix& mat)
+	{
+		matrix = mat.matrix;
+		if ( this->pMatrix )
+			UpdateRwMatrix(pMatrix);
+		return *this;
+	}
+
+	inline CMatrix& operator+=(const CMatrix& mat)
+	{
+		matrix.right.x += mat.matrix.right.x;
+		matrix.right.y += mat.matrix.right.y;
+		matrix.right.z += mat.matrix.right.z;
+
+		matrix.up.x += mat.matrix.up.x;
+		matrix.up.y += mat.matrix.up.y;
+		matrix.up.z += mat.matrix.up.z;
+
+		matrix.at.x += mat.matrix.at.x;
+		matrix.at.y += mat.matrix.at.y;
+		matrix.at.z += mat.matrix.at.z;
+
+		matrix.pos.x += mat.matrix.pos.x;
+		matrix.pos.y += mat.matrix.pos.y;
+		matrix.pos.z += mat.matrix.pos.z;
+
+		return *this;
+	}
+
+	friend inline CMatrix& Invert(const CMatrix& src, CMatrix& dst)
+	{
+		dst.matrix.right.x = src.matrix.right.x;
+		dst.matrix.right.y = src.matrix.up.x;
+		dst.matrix.right.z = src.matrix.at.x;
+
+		dst.matrix.up.x = src.matrix.right.y;
+		dst.matrix.up.y = src.matrix.up.y;
+		dst.matrix.up.z = src.matrix.at.y;
+
+		dst.matrix.at.x = src.matrix.right.z;
+		dst.matrix.at.y = src.matrix.up.z;
+		dst.matrix.at.z = src.matrix.at.z;
+
+		dst.matrix.pos.x = dst.matrix.right.x * src.matrix.pos.x;
+		dst.matrix.pos.y = dst.matrix.right.y * src.matrix.pos.x;
+		dst.matrix.pos.z = dst.matrix.right.z * src.matrix.pos.x;
+
+		dst.matrix.pos.x += dst.matrix.up.x * src.matrix.pos.y;
+		dst.matrix.pos.y += dst.matrix.up.y * src.matrix.pos.y;
+		dst.matrix.pos.z += dst.matrix.up.z * src.matrix.pos.y;
+
+		dst.matrix.pos.x += dst.matrix.at.x * src.matrix.pos.z;
+		dst.matrix.pos.y += dst.matrix.at.y * src.matrix.pos.z;
+		dst.matrix.pos.z += dst.matrix.at.z * src.matrix.pos.z;
+
+		dst.matrix.pos.x = -dst.matrix.pos.x;
+		dst.matrix.pos.y = -dst.matrix.pos.y;
+		dst.matrix.pos.z = -dst.matrix.pos.z;
+
+		return dst;
+	}
+
+	friend inline CMatrix Invert(const CMatrix& src)
+	{
+		CMatrix		NewMatrix;
+		return CMatrix(Invert(src, NewMatrix));
+	}
+
+	friend inline CVector Multiply3x3(const CMatrix& matrix, const CVector& vec)
+			{ return CVector(matrix.matrix.up.x * vec.y + matrix.matrix.right.x * vec.x + matrix.matrix.at.x * vec.z,
+								matrix.matrix.up.y * vec.y + matrix.matrix.right.y * vec.x + matrix.matrix.at.y * vec.z,
+								matrix.matrix.up.z * vec.y + matrix.matrix.right.z * vec.x + matrix.matrix.at.z * vec.z); };
+
+	friend inline CVector Multiply3x3(const CVector& vec, const CMatrix& matrix)
+			{ return CVector(matrix.matrix.right.x * vec.x + matrix.matrix.right.y * vec.y + matrix.matrix.right.z * vec.z,
+								matrix.matrix.up.x * vec.x + matrix.matrix.up.y * vec.y + matrix.matrix.up.z * vec.z,
+								matrix.matrix.at.x * vec.x + matrix.matrix.at.y * vec.y + matrix.matrix.at.z * vec.z); };
+
 	inline CVector*	GetRight()
 		{ return reinterpret_cast<CVector*>(&matrix.right); }
 	inline CVector*	GetUp()
@@ -190,6 +298,13 @@ public:
 			matrix.up.x = 0.0f; matrix.up.y = 1.0f; matrix.up.z = 0.0f;
 			matrix.at.x = 0.0f; matrix.at.y = 0.0f; matrix.at.z = 1.0f;
 			SetTranslateOnly(fX, fY, fZ); }
+
+	inline void		ResetOrientation()
+	{	
+		matrix.right.x = 1.0f; matrix.right.y = 0.0f; matrix.right.z = 0.0f;
+		matrix.up.x = 0.0f; matrix.up.y = 1.0f; matrix.up.z = 0.0f;
+		matrix.at.x = 0.0f; matrix.at.y = 0.0f; matrix.at.z = 1.0f;
+	}
 
 	inline void		SetUnity()
 	{	
@@ -369,5 +484,16 @@ public:
 		matrix = from.matrix;
 	}
 };
+
+// These need to land here
+inline CVector& CVector::FromMultiply(const CMatrix& mat, const CVector& vec)
+{
+	return *this = mat * vec;
+}
+
+inline CVector& CVector::FromMultiply3X3(const CMatrix& mat, const CVector& vec)
+{
+	return *this = Multiply3x3(mat, vec);
+}
 
 #endif

@@ -4,7 +4,7 @@
 template <class T, class U = T>
 class CPool
 {
-public:
+private:
 	U*				m_pSlots;
 	union			tSlotInfos
 	{

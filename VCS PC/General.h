@@ -10,6 +10,42 @@ class CSimpleTransform
 public:
     CVector                         m_translate;
     float                           m_heading;
+
+public:
+	void							UpdateMatrix(CMatrix* pMatrix) const
+	{
+		pMatrix->SetTranslate(m_translate.x, m_translate.y, m_translate.z);
+		pMatrix->SetRotateZOnly(m_heading);
+	}
+
+	void							UpdateRwMatrix(RwMatrix* pMatrix) const
+	{
+		pMatrix->right.x = cos(m_heading);
+		pMatrix->right.y = sin(m_heading);
+		pMatrix->right.z = 0.0f;
+
+		pMatrix->at.x = 0.0f;
+		pMatrix->at.y = 0.0f;
+		pMatrix->at.z = 1.0f;
+
+		pMatrix->up.x = -sin(m_heading);
+		pMatrix->up.y = cos(m_heading);
+		pMatrix->up.z = 0.0f;
+
+		pMatrix->pos.x = m_translate.x;
+		pMatrix->pos.y = m_translate.y;
+		pMatrix->pos.z = m_translate.z;
+
+		RwMatrixUpdate(pMatrix);
+	}
+
+	void							Invert(const CSimpleTransform& src)
+	{
+		m_translate.x = -(cos(src.m_heading) * src.m_translate.x - sin(src.m_heading) * src.m_translate.y);;
+		m_translate.y = sin(src.m_heading) * src.m_translate.x - cos(m_heading) * src.m_translate.y;
+		m_translate.z = -src.m_translate.z;
+		m_heading = -src.m_heading;
+	}
 };
 
 class CRGBA

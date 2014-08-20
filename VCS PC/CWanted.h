@@ -34,7 +34,7 @@ public:
 	inline int		GetWantedLevelBeforeParole() { return m_WantedLevelBeforeParole; }
 	inline int		GetTimeWantedLevelChanged() { return m_LastTimeWantedLevelChanged; }
 
-	bool			ShouldSendViceSquad();
+	bool			AreMiamiViceRequired();
 };
 
 static_assert(sizeof(CWanted) == 0x29C, "Wrong size: CWanted");

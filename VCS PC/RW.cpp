@@ -215,6 +215,8 @@ RpClump* RpClumpForAllAtomics(RpClump* clump, RpAtomicCallBack callback, void* p
 
 RpClump* RpClumpRender(RpClump* clump)
 {
+	RpClump*	retClump = clump;
+
 	for ( RwLLLink* link = rwLinkListGetFirstLLLink(&clump->atomicList); link != rwLinkListGetTerminator(&clump->atomicList); link = rwLLLinkGetNext(link) )
 	{
 		RpAtomic* curAtomic = rwLLLinkGetData(link, RpAtomic, inClumpLink);
@@ -223,11 +225,10 @@ RpClump* RpClumpRender(RpClump* clump)
 			// Not sure why they need this
 			RwFrameGetLTM(RpAtomicGetFrame(curAtomic));
 			if ( !RpAtomicRender(curAtomic) )
-				return NULL;
+				retClump = NULL;
 		}
 	}
-	return clump;
-
+	return retClump;
 }
 
 RpGeometry* RpGeometryForAllMaterials(RpGeometry* geometry, RpMaterialCallBack fpCallBack, void* pData)
