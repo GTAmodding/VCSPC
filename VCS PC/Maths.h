@@ -101,6 +101,8 @@ public:
 
 	friend inline float DotProduct(const CVector2D& vec1, const CVector2D& vec2)
 		{ return vec1.x * vec2.x + vec1.x * vec2.y; }
+	friend inline float CrossProduct(const CVector2D& vec1, const CVector2D& vec2)
+	    { return vec1.x * vec2.y - vec1.y * vec2.x; }
 
 	friend inline CVector2D operator*(const CVector2D& in, float fMul)
 		{ return CVector2D(in.x * fMul, in.y * fMul); }
