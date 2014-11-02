@@ -198,7 +198,7 @@ void CHud::DrawHUD()
 
 	// 2nd player healthbar
 	if ( secondPlayerPed )
-		PrintHealthForPlayer(1, _x(HUD_POS_X), _y(HUD_POS_Y - 147.0f));
+		PrintHealthForPlayer(1, _x(HUD_POS_X), _y(HUD_POS_Y + 20.5f + HUD_POS_Y_2P_OFFSET));
 
 	BYTE		bDraw1stPlayerOxygenBar = 0;
 	BYTE		bDraw2ndPlayerOxygenBar = 0;
@@ -239,9 +239,9 @@ void CHud::DrawHUD()
 	if ( secondPlayerPed )
 	{
 		if ( !bDraw2ndPlayerOxygenBar )
-			PrintArmourForPlayer(1, _x(HUD_POS_X), _y(HUD_POS_Y + 129.0f));
+			PrintArmourForPlayer(1, _x(HUD_POS_X), _y(HUD_POS_Y + HUD_POS_Y_2P_OFFSET));
 		else
-			PrintBreathForPlayer(1, _x(HUD_POS_X), _y(HUD_POS_Y + 129.0f));
+			PrintBreathForPlayer(1, _x(HUD_POS_X), _y(HUD_POS_Y + HUD_POS_Y_2P_OFFSET));
 	}
 
 	// Money
@@ -280,10 +280,10 @@ void CHud::DrawHUD()
 	// 2nd player weapon icon
 	if ( secondPlayerPed )
 	{
-		DrawWeaponIcon(secondPlayerPed, _x(HUD_POS_X - 58.5f), _y(HUD_POS_Y - 138.0f));
+		DrawWeaponIcon(secondPlayerPed, _x(HUD_POS_X - 58.5f), _y(HUD_POS_Y - 21.0f + HUD_POS_Y_2P_OFFSET));
 
 		// 2nd player weapon ammo
-		DrawWeaponAmmo(secondPlayerPed, _x(HUD_POS_X - 89.5f), _y(HUD_POS_Y));
+		DrawWeaponAmmo(secondPlayerPed, _x(HUD_POS_X - 89.5f), _y(HUD_POS_Y + 24.0 + HUD_POS_Y_2P_OFFSET));
 	}
 
 	// Pager

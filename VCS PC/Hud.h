@@ -30,6 +30,9 @@ enum eHudTextures
 #define HUD_POS_X						148.5f
 #define HUD_POS_Y						38.0f
 
+// For 2p HUD
+#define HUD_POS_Y_2P_OFFSET				100.0f
+
 //#define COMPILE_SLANTED_TEXT
 //#define DRAW_OVERSCAN_720P
 

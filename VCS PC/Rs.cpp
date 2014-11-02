@@ -177,8 +177,8 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 	// Force filtering by menu settings
 	if ( setsFilterMode >= 1 )	// Trilinear or more?
 	{
-		if ( textureFilter == rwFILTERMIPLINEAR )
-			textureFilter = rwFILTERLINEARMIPLINEAR;	// Bilinear -> Trilinear
+		/*if ( textureFilter == rwFILTERMIPLINEAR )
+			textureFilter = rwFILTERLINEARMIPLINEAR;	// Bilinear -> Trilinear*/
 	}
 	else
 	{

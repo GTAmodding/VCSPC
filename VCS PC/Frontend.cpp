@@ -414,6 +414,7 @@ static inline const char* GetTitlePCByLanguage()
 	return cTitlePCNames[FrontEndMenuManager.GetLanguage()];
 }
 
+WRAPPER void CMenuManager::DrawWindow(const CRect& rect, const char* pKey, unsigned char nColour, CRGBA backColour, bool bUnused, bool bBackground) { WRAPARG(rect); WRAPARG(pKey); WRAPARG(nColour); WRAPARG(backColour); WRAPARG(bUnused); WRAPARG(bBackground); EAXJMP(0x573EE0); }
 WRAPPER void CMenuManager::SmallMessageScreen(const char* pMessage) { WRAPARG(pMessage); EAXJMP(0x574010); }
 WRAPPER void CMenuManager::SwitchToNewScreen(signed char bScreen) { WRAPARG(bScreen); EAXJMP(0x573680); }
 WRAPPER void CMenuManager::InitialiseChangedLanguageSettings(bool bRemapButtons) { WRAPARG(bRemapButtons); EAXJMP(0x573260); }
@@ -647,9 +648,9 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	case MENU_PAGE_DLC:
 		PrintDLCScreen();
 		break;
-	case MENU_PAGE_ACTIVATE_SERIAL:
+	/*case MENU_PAGE_ACTIVATE_SERIAL:
 		PrintActivationScreen();
-		break;
+		break;*/
 	}
 
 	// Header
@@ -726,9 +727,16 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 		CFont::SetWrapx(RsGlobal.MaximumWidth - 10);
 	}
 
-	// Controller Redefine
-	if ( m_bCurrentMenuPage == 38 )
+	// Special menu draws - post header and action 1 text
+	switch ( m_bCurrentMenuPage )
+	{
+	case 38:
 		DrawContollerScreenExtraText(-8);
+		break;
+	case MENU_PAGE_ACTIVATE_SERIAL:
+		PrintActivationScreen();
+		break;
+	}
 
 	// Menu drawing loop
 	for ( unsigned int i = 0; i < NUM_ENTRIES_PER_MENU; i++ )
@@ -1968,14 +1976,11 @@ void CMenuManager::DrawBackEnd()
 	// Displayed image is 16:9
 	CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(16.0f/9.0f, ScreenAspectRatio, false);
 	
-	CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, RsGlobal.MaximumHeight * 0.95f - 5.0f), CRGBA(7, 7, 7, 255));
-	m_apBackgroundTextures[0].Draw(CRect(-2.5f - (vecSplashScale.x-RsGlobal.MaximumWidth), RsGlobal.MaximumHeight * 0.95f, RsGlobal.MaximumWidth + 2.5f, -2.5f - (vecSplashScale.y-RsGlobal.MaximumHeight)), CRGBA(255, 255, 255, 255));
+	CSprite2d::DrawRect(CRect(-1.0f, RsGlobal.MaximumHeight + 1.0f, RsGlobal.MaximumWidth + 1.0f, RsGlobal.MaximumHeight * 0.95f - 1.0f), CRGBA(7, 7, 7, 255));
+	m_apBackgroundTextures[0].Draw(CRect(-1.0f - (vecSplashScale.x-RsGlobal.MaximumWidth), RsGlobal.MaximumHeight * 0.95f, RsGlobal.MaximumWidth + 1.0f, -1.0f - (vecSplashScale.y-RsGlobal.MaximumHeight)), CRGBA(255, 255, 255, 255));
 
 	if ( m_bCurrentMenuPage == 44 )
-	{
 		m_apBackgroundTextures[1].Draw(CRect(_x(245.0f), _y(85.0f), _x(25.0f), _y(30.0f)), CRGBA(255, 255, 255, 255));
-		CUpdateManager::ReportUpdaterScreenSeen();	// Wrong place
-	}
 
 #ifdef FANCY_FRONTEND_CONTROLLERS_TEST
 	int					nColourCycle = CTimer::m_snTimeInMillisecondsPauseMode % 15000;
@@ -2061,7 +2066,7 @@ void CMenuManager::DrawRadioStationIcons()
 	BYTE	bLoopCounter = 1;
 
 	float	fPosition = (0.5f*WidescreenSupport::GetScreenWidthMultiplier()) + 300.0f;
-	static	DWORD LastTimeIconsWereUpdated = 0;
+	static	int LastTimeIconsWereUpdated = 0;
 
 #if defined COMPILE_BOUNCING_ICONS || defined COMPILE_SMOOTHBEATING_ICONS || defined COMPILE_BEATING_ICONS
 	static signed char	bLastRadioStation = -1;
@@ -2445,7 +2450,10 @@ void CMenuManager::PrintDLCScreen()
 void CMenuManager::PrintActivationScreen()
 {
 	if ( m_nDLCMessageTimer > CTimer::m_snTimeInMillisecondsPauseMode )
+	{
+		CFont::RenderFontBuffer();
 		SmallMessageScreen(m_pDLCMessage);
+	}
 	else
 	{
 		if ( !CDLCManager::IsContactingWebsite() )
@@ -2474,7 +2482,10 @@ void CMenuManager::PrintActivationScreen()
 			CFont::SetProportional(true);
 		}
 		else
-			SmallMessageScreen("LOADCOL");
+		{
+			CFont::RenderFontBuffer();
+			SmallMessageScreen("FEE_W8");
+		}
 	}
 }
 
@@ -2546,8 +2557,10 @@ void CMenuManager::ReadFrontendTextures()
 
 void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 {
-	if ( !bScreen )
+	if ( bScreen == 0 )
 		m_fStatsScrollPos = -120.0f;
+	else if ( bScreen == 44 )
+		CUpdateManager::ReportUpdaterScreenSeen();
 	else if ( bScreen == 45 )
 	{
 		if ( CDLCManager::AnyDLCsAvailable() )
@@ -2572,13 +2585,17 @@ void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 		m_nLastFocusedDLC = -1;
 		CVideoPlayer::Release();
 
-		for ( int i = 0; i < NUM_DLC_PACKS; i++ )
+		// Display a message only if one does not want to install a DLC
+		if ( bScreen != 48 )
 		{
-			if ( m_bLastDLCState[i] != CDLCManager::GetDLC(i)->IsActive() )
+			for ( int i = 0; i < NUM_DLC_PACKS; i++ )
 			{
-				m_bCurrentMenuPage = 47;
-				m_dwSelectedMenuItem = 1;
-				break;
+				if ( m_bLastDLCState[i] != CDLCManager::GetDLC(i)->IsActive() )
+				{
+					m_bCurrentMenuPage = 47;
+					m_dwSelectedMenuItem = 1;
+					break;
+				}
 			}
 		}
 	}

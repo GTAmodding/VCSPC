@@ -2,7 +2,7 @@
 #define __COLACCEL
 
 // Do we want colaccel to compile?
-#define USE_COLACCEL
+//#define USE_COLACCEL
 
 class CColAccel
 {

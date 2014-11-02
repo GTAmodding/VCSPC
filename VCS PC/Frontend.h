@@ -426,6 +426,7 @@ public:
 	static void		RegisterDLCMessage(const char* pMessage);
 	static void		LookIntoClipboardForSerial();
 
+	void			DrawWindow(const CRect& rect, const char* pKey, unsigned char nColour, CRGBA backColour, bool bUnused=false, bool bBackground=false);
 	void			SmallMessageScreen(const char* pMessage);
 	void			SwitchToNewScreen(signed char bScreen);
 	void			InitialiseChangedLanguageSettings(bool bRemapButtons);

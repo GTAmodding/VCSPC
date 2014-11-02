@@ -4,7 +4,7 @@
 #include "ModelInfo.h"
 
 // Do we want modelaccel to compile?
-#define USE_MODELACCEL
+//#define USE_MODELACCEL
 
 //#define MINFO_ALLOCATION_SIZE		20550		// Why the extra 550?
 #define MINFO_ALLOCATION_SIZE		20000

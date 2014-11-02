@@ -7,6 +7,7 @@
 #include "Timer.h"
 #include "Messages.h"
 #include "Text.h"
+#include "World.h"
 
 bool&			CDarkel::bNeedHeadShot = *(bool*)0x969A49;
 bool&			CDarkel::bStandardSoundAndMessages = *(bool*)0x969A4A;
@@ -56,6 +57,8 @@ void CDarkel::DrawMessages()
 	case 1:
 	case 4:
 		{
+			bool	bIs2pRampage = CWorld::Players[1].GetPed() != nullptr;
+
 			if ( pStartMessage )
 			{
 				if ( bStandardSoundAndMessages )
@@ -84,7 +87,7 @@ void CDarkel::DrawMessages()
 				float	fPosXOffset;
 				int		nTextLength;
 
-				_snprintf(gString, sizeof(gString), "%d:%02d", nTimeLeft / 60000, (nTimeLeft % 60000) / 1000);
+				sprintf(gString, "%d:%02d", nTimeLeft / 60000, (nTimeLeft % 60000) / 1000);
 				nTextLength = strlen(gString);
 				if ( nTextLength > 4 )
 					fPosXOffset = 12.5f * (nTextLength - 4);
@@ -93,11 +96,11 @@ void CDarkel::DrawMessages()
 
 				// TODO: Flashing
 				CFont::SetProportional(true);
-				CFont::PrintString(_x(88.0f + fPosXOffset), _y(148.0f), TheText.Get("TIME"));
+				CFont::PrintString(_x(88.0f + fPosXOffset), _y(!bIs2pRampage ? 148.0 : 148.0 + 50.0f), TheText.Get("TIME"));
 
 				CFont::SetProportional(false);
 				CFont::SetColor(BaseColors[11]);
-				CFont::PrintString(_x(32.0f), _y(148.0f), gString);
+				CFont::PrintString(_x(32.0f), _y(!bIs2pRampage ? 148.0 : 148.0 + 50.0), gString);
 			}
 
 			float	fPosXOffset;
@@ -112,10 +115,10 @@ void CDarkel::DrawMessages()
 
 			CFont::SetProportional(true);
 			CFont::SetColor(BaseColors[8]);
-			CFont::PrintString(_x(88.0f + fPosXOffset), _y(175.0f), TheText.Get("RAMP_KL"));
+			CFont::PrintString(_x(88.0f + fPosXOffset), _y(!bIs2pRampage ? 175.0f : 175.0f + 50.0f), TheText.Get("RAMP_KL"));
 
 			CFont::SetProportional(false);
-			CFont::PrintString(_x(32.0f), _y(175.0f), gString);
+			CFont::PrintString(_x(32.0f), _y(!bIs2pRampage ? 175.0f : 175.0f + 50.0f), gString);
 			return;
 		}
 	case 2:

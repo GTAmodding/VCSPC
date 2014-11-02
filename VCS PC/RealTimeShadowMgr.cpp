@@ -42,14 +42,7 @@ RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData)
 				return pAtomic;
 		}
 
-		RxPipeline*		pOldPipe;
-
-		RpAtomicGetPipeline(pAtomic, &pOldPipe);
-		RpAtomicSetPipeline(pAtomic, RpAtomicGetDefaultPipeline());
-
-		ShadowCameraRenderCB(pAtomic, nullptr);
-
-		RpAtomicSetPipeline(pAtomic, pOldPipe);
+		ShadowCameraRenderCB(pAtomic, RpAtomicGetDefaultPipeline());
 	}
 
 	return pAtomic;
@@ -57,8 +50,6 @@ RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData)
 
 RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 {
-	UNREFERENCED_PARAMETER(pData);
-
 	if ( RpAtomicGetFlags(pAtomic) & rpATOMICRENDER )
 	{
 		RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
@@ -67,7 +58,10 @@ RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
 						/*rpGEOMETRYNORMALS|*/rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
 
-		AtomicDefaultRenderCallBack(pAtomic);
+		if ( pData )
+			RxPipelineExecute(static_cast<RxPipeline*>(pData), pAtomic, TRUE);
+		else
+			AtomicDefaultRenderCallBack(pAtomic);
 		RpGeometrySetFlags(pGeometry, geometryFlags);
 	}
 	return pAtomic;

@@ -623,7 +623,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 				bKeyState = false;
 		}
 
-		if ( GetKeyState(VK_OEM_4) & 0x8000 )
+		/*if ( GetKeyState(VK_OEM_4) & 0x8000 )
 		{
 			fCurrentFOV -= 1.0f;
 			if ( fCurrentFOV < 15.0f )
@@ -643,7 +643,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 			Memory::Patch<const void*>(0x522F3A, &fCurrentFOV);
 			Memory::Patch<const void*>(0x522F5D, &fCurrentFOV);
 			Memory::Patch<float>(0x522F7A, fCurrentFOV);
-		}
+		}*/
 
 #ifdef LITTLE_COLORMOD_CONTROLLER_EXTRA
 		if ( GetKeyState(VK_INSERT) & 0x8000 )
@@ -2344,6 +2344,9 @@ __forceinline void Main_Patches()
 	Patch<DWORD>(0x5F12CA, 0x901CC483);	// add esp, 1Ch; Nop
 	Nop(0x5F12CA + 4, 1);
 
+	// GetBikeRidingSkill returning 0 so it's easier to fall off from bike
+	Patch<DWORD>(0x5DF510, 0x90C3EED9);
+
 	// Garages capacity tweak
 	InjectHook(0x44BD8D, &GarageCapacityA, PATCH_JUMP);
 	InjectHook(0x44BF1B, &GarageCapacityB, PATCH_JUMP);
@@ -2405,9 +2408,10 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x48581F, 0x67);
 	Patch<void*>(0x485854, func_03DF);
 
-	// 051F, 0520, 0521, 052E and 052F opcodes
+	// 051F, 0520, 0521, 052D, 052E and 052F opcodes
 	Patch<WORD>(0x48DDDE, 0x4141);
-	Patch<WORD>(0x48DDE0, 0x41);
+	Patch<BYTE>(0x48DDE0, 0x41);
+	Patch<BYTE>(0x48DDEC, 0x41);
 	Patch<WORD>(0x48DDED, 0x4141);
 	Patch<void*>(0x48DE38, func_052E);
 

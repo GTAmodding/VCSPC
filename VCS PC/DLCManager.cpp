@@ -167,6 +167,11 @@ void CDLCManager::OnFinishedRequest(const std::string& strOut)
 			}
 		}
 	}
+	else
+	{
+		FrontEndMenuManager.RegisterDLCMessage("FEE_ERR");
+		FrontEndMenuManager.SwitchToScreenAfterMessage(45);
+	}
 
 	m_bContactingTheSite = false;
 }

@@ -14,6 +14,7 @@
 #include "EmpireMgr.h"
 #include "PcSave.h"
 #include "GroupedBuildings.h"
+#include "DLCManager.h"
 
 CScriptFunction		CRunningScript::ms_scriptFunction[NUM_SCRIPTS];
 
@@ -553,6 +554,13 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			scriptParams[1].fParam = WidescreenSupport::GetScreenHeightMultiplier();
 
 			StoreParameters(2);
+			return;
+		}
+	case 0x052D:
+		{
+			//	is_dlc_active %1d%
+			CollectParameters(1);
+			UpdateCompareFlag(CDLCManager::GetDLC(scriptParams[0].iParam)->IsEnabled());
 			return;
 		}
 	case 0x052E:

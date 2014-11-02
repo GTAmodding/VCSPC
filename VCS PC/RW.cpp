@@ -36,6 +36,7 @@ WRAPPER RwImage* RwImageResample(RwImage* dstImage, const RwImage* srcImage) { W
 WRAPPER RwImage* RwImageWrite(RwImage* image, const RwChar* imageName) { WRAPARG(image); WRAPARG(imageName); EAXJMP(0x803530); }
 WRAPPER const RwChar* RwImageSetPath(const RwChar * path) { WRAPARG(path); EAXJMP(0x802EA0); }
 WRAPPER RwImage* RwImageResize(RwImage* image, RwInt32 width, RwInt32 height) { WRAPARG(image); WRAPARG(width); WRAPARG(height); EAXJMP(0x802890); }
+WRAPPER RxPipeline* RxPipelineExecute(RxPipeline* pipeline, void* data, RwBool heapReset) { WRAPARG(pipeline); WRAPARG(data); WRAPARG(heapReset); EAXJMP(0x805710); }
 
 WRAPPER RwError* RwErrorSet(RwError* code) { WRAPARG(code); EAXJMP(0x808820); }
 

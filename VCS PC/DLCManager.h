@@ -80,7 +80,7 @@ public:
 class CPaidExpansionPack : public CExpansionPack
 {
 public:
-	virtual bool			IsShady()
+	virtual bool			IsShady() override
 			{ return true; }
 
 	CPaidExpansionPack(const char* pName)
