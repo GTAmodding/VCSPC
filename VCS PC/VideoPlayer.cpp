@@ -27,7 +27,7 @@ void CVideoPlayer::UpdateVideoFrame(const CRect* pVideoFrame, const CVector2D& v
 		m_videoFrame.x2 = 0.5f * (RsGlobal.MaximumWidth + vecScale.x);
 		m_videoFrame.y2 = 0.5f * (RsGlobal.MaximumHeight - vecScale.y);
 
-		RwCameraClear(Scene, &colour, rwCAMERACLEARIMAGE);
+		RwCameraClear(Camera, &colour, rwCAMERACLEARIMAGE);
 	}
 	else
 	{
@@ -112,7 +112,7 @@ bool CVideoPlayer::PlayNextFullscreenFrame()
 		{
 			if ( BinkDoFrameAsyncWait(m_hBinkPlayer, 1000) )
 			{
-				if ( RsCameraBeginUpdate(Scene) )
+				if ( RsCameraBeginUpdate(Camera) )
 				{
 					if ( RwUInt8* pPixels = RwRasterLock(m_pVideoRaster, 0, rwRASTERLOCKREADWRITE) )
 					{

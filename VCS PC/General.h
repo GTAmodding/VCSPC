@@ -349,7 +349,7 @@ bool CalcScreenCoors(const CVector& vecIn, CVector* vecOut);
 void LoadingScreenLoadingFile(const char* pText);
 
 extern CRGBA*				BaseColors;
-extern RwCamera*&			Scene;
+extern RwCamera*&			Camera;
 extern CCRC32				HashHelper;
 
 static_assert(sizeof(CEntity) == 0x38, "Wrong size: CEntity");

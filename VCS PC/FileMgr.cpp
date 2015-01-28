@@ -10,6 +10,7 @@
 #include "TxdStore.h"
 #include "Object.h"
 #include "ColAccel.h"
+#include "Rs.h"
 
 tFileLoaderList_IMG*	CFileLoader::m_pImagesList;
 tFileLoaderList*		CFileLoader::m_pObjectsList;
@@ -372,6 +373,11 @@ void CFileLoader::LoadLevels()
 
 #ifdef USE_COLACCEL
 	CColAccel::endCache();
+#endif
+
+	// Dumping native mesh
+#ifdef NATIVE_MESH_CONVERTER
+	ConvertAndDumpNativeMesh();
 #endif
 }
 

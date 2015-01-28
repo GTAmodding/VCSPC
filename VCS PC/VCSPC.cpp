@@ -369,7 +369,7 @@ CRunningScript**			pActiveScripts;
 CRunningScript*				ScriptsArray;
 RwIm2DVertex* const			aSpriteVertices = (RwIm2DVertex*)0xC80468;
 RwTexture** const			gpCoronaTexture = (RwTexture**)0xC3E000;
-RwCamera*&					Scene = *(RwCamera**)0xC1703C;
+RwCamera*&					Camera = *(RwCamera**)0xC1703C;
 DWORD*						gameState;
 
 CControllerConfigManager&	ControlsManager = *(CControllerConfigManager*)0xB70198;
@@ -623,7 +623,8 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 				bKeyState = false;
 		}
 
-		/*if ( GetKeyState(VK_OEM_4) & 0x8000 )
+#ifdef CONTROLLABLE_FOV
+		if ( GetKeyState(VK_OEM_4) & 0x8000 )
 		{
 			fCurrentFOV -= 1.0f;
 			if ( fCurrentFOV < 15.0f )
@@ -643,7 +644,8 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 			Memory::Patch<const void*>(0x522F3A, &fCurrentFOV);
 			Memory::Patch<const void*>(0x522F5D, &fCurrentFOV);
 			Memory::Patch<float>(0x522F7A, fCurrentFOV);
-		}*/
+		}
+#endif
 
 #ifdef LITTLE_COLORMOD_CONTROLLER_EXTRA
 		if ( GetKeyState(VK_INSERT) & 0x8000 )
@@ -1980,6 +1982,49 @@ void TempExitFix()
 	ExitProcess(0);
 }
 
+void __declspec(naked) DrawFrame()
+{
+	_asm
+	{
+		sub		esp, 8
+		push	53EA17h
+		retn
+	}
+}
+
+DWORD APIENTRY RenderThread(LPVOID lpParam)
+{
+	while ( true )
+	{
+		DrawFrame();
+
+	}
+
+	return TRUE;
+}
+
+void LaunchRenderThread2()
+{
+	CreateThread(nullptr, 0, RenderThread, nullptr, 0, nullptr);
+}
+
+void __declspec(naked) LaunchRenderThread()
+{
+	static bool		bLaunched = false;
+	_asm
+	{
+		mov		al, bLaunched
+		test	al, al
+		jnz		LaunchRenderThread_Ret
+		mov		[bLaunched], 1
+		call	LaunchRenderThread2
+
+LaunchRenderThread_Ret:
+		add		esp, 8
+		retn
+	}
+}
+
 /*static const RwMatrix* pMat;
 static const RwSphere* pSphere;
 
@@ -2268,30 +2313,6 @@ __forceinline void Main_Patches()
 	// Crash fix
 //	call(0x552CD0, &NodeCrashFix, PATCH_JUMP);
 
-#ifdef NEW_SHADOWS_TEST
-	Patch<BYTE>(0x706825, 8);
-	Patch<BYTE>(0x706832, 8);
-	Patch<BYTE>(0x7064C2, 9);
-	Patch<BYTE>(0x7064F9, 8);
-	Patch<BYTE>(0x53E159, 0xC3);
-	//Patch<DWORD>(0x70BDA0, 0x042474FF);
-	//Patch<DWORD>(0x70BDA4, 0xC40350B9);
-	//Patch<DWORD>(0x70BDA8, 0xADF2E800);
-	//Patch<DWORD>(0x70BDAC, 0x90C3FFFF);
-	Patch<DWORD>(0x707E09, 0x9090C031);
-	Patch<BYTE>(0x707E0D, 0x90);
-	//Patch<DWORD>(0x707E4F, 0x900CC483);
-	//Patch<BYTE>(0x707E53, 0x90);
-	Patch<const void*>(0x707E14, &FakeSunValues);
-	Patch<const void*>(0x707E1B, &FakeSunValues);
-	InjectHook(0x70663A, &CheckRenderingSrc);
-	//InjectHook(0x706573, &RescaleHook);
-	InjectHook(0x70664C, &CShadowCamera::SetCenter, PATCH_NOTHING);
-	InjectHook(0x705981, &CShadowCamera::Rescale, PATCH_NOTHING);
-	//static const float		fFrustumSize = 2.0f;
-	//Patch<const void*>(0x7065CC, &fFrustumSize);
-#endif
-
 #ifdef MULTITHREADING_TEST
 	Patch<DWORD>(0x53E9A3, 0x8C4835E);
 	Patch<BYTE>(0x53E9A7, 0xC3);
@@ -2314,6 +2335,15 @@ __forceinline void Main_Patches()
 #ifdef RWERRORSET_HOOK
 	InjectHook(0x808820, &RwErrorSetHook, PATCH_JUMP);
 	//InjectHook(0x7491C0, &AtomicDefaultRenderCallBack_Wireframe, PATCH_JUMP);
+#endif
+
+#ifdef RENDER_THREAD_TEST
+	// No LODs - temp
+	Patch<BYTE>(0x553CAB, 0xEB);
+
+	// No draws in main thread
+	//Patch<DWORD>(0x53EA12, 0xC308C483);
+	InjectHook(0x53EA12, LaunchRenderThread, PATCH_JUMP);
 #endif
 
 	InjectHook(0x748EDA, &OnGameTermination);
@@ -4402,6 +4432,7 @@ void InjectDelayedPatches()
 
 	CUpdateManager::Init();
 	CColormodController::Attach();
+
 //	CDLCManager::InitialiseWithUpdater();
 
 	//SpeechInject();

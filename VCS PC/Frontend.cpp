@@ -2718,7 +2718,7 @@ void CMenuManager::MessageScreen(const char* pMessage, bool bFullscreen, bool bW
 {
 	if ( !bWithinFrame )
 	{
-		if ( !RsCameraBeginUpdate(Scene) )
+		if ( !RsCameraBeginUpdate(Camera) )
 			return;
 	}
 
@@ -2729,7 +2729,7 @@ void CMenuManager::MessageScreen(const char* pMessage, bool bFullscreen, bool bW
 	if ( bFullscreen )
 	{
 		RwRGBA		colour = { 0, 0, 0, 255 };
-		RwCameraClear(Scene, &colour, rwCAMERACLEARIMAGE);
+		RwCameraClear(Camera, &colour, rwCAMERACLEARIMAGE);
 	}
 
 	SmallMessageScreen(pMessage);

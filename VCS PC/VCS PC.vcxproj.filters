@@ -31,6 +31,9 @@
     <Filter Include="Source Files\DLC">
       <UniqueIdentifier>{69f0b480-6152-4934-815f-5bbf556410ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{543cb81b-cd8c-4a23-ab39-529efd68d134}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CConfiscatedWeapons.cpp">
@@ -255,6 +258,12 @@
     <ClCompile Include="MenuSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Breakable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomBuildingRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CConfiscatedWeapons.h">
@@ -274,9 +283,6 @@
     </ClInclude>
     <ClInclude Include="StdAfx.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="handlingIDs.h">
-      <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="Rs.h">
       <Filter>Header Files</Filter>
@@ -515,6 +521,15 @@
     <ClInclude Include="MenuSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomBuildingRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="LoadVars.inc">
@@ -528,5 +543,15 @@
     <MASM Include="..\common\win2000.asm">
       <Filter>Source Files</Filter>
     </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Shaders\RTShadowPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Shaders.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

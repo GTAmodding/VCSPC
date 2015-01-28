@@ -10,6 +10,9 @@ WRAPPER RwTexture* RwTextureSetName(RwTexture* texture, const RwChar* name) { WR
 WRAPPER RwRaster* RwRasterCreate(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags) { WRAPARG(width); WRAPARG(height); WRAPARG(depth); WRAPARG(flags); EAXJMP(0x7FB230); }
 WRAPPER RwBool RwRasterDestroy(RwRaster* raster) { WRAPARG(raster); EAXJMP(0x7FB020); }
 WRAPPER RpClump* RpClumpCreate() { EAXJMP(0x74A290); }
+WRAPPER RwBool RpClumpDestroy(RpClump* clump) { EAXJMP(0x74A310); }
+WRAPPER RpClump* RpClumpStreamRead(RwStream* stream) { EAXJMP(0x74B420); }
+WRAPPER RpClump* RpClumpStreamWrite(RpClump* clump, RwStream* stream) { EAXJMP(0x74AA10); }
 WRAPPER RwBool RwImageDestroy(RwImage* image) { WRAPARG(image); EAXJMP(0x802740); }
 WRAPPER RwImage* RtPNGImageRead(const RwChar* imageName) { WRAPARG(imageName); EAXJMP(0x7CF9B0); }
 WRAPPER RwBool RwFrameDestroy(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F05A0); }
@@ -37,7 +40,15 @@ WRAPPER RwImage* RwImageWrite(RwImage* image, const RwChar* imageName) { WRAPARG
 WRAPPER const RwChar* RwImageSetPath(const RwChar * path) { WRAPARG(path); EAXJMP(0x802EA0); }
 WRAPPER RwImage* RwImageResize(RwImage* image, RwInt32 width, RwInt32 height) { WRAPARG(image); WRAPARG(width); WRAPARG(height); EAXJMP(0x802890); }
 WRAPPER RxPipeline* RxPipelineExecute(RxPipeline* pipeline, void* data, RwBool heapReset) { WRAPARG(pipeline); WRAPARG(data); WRAPARG(heapReset); EAXJMP(0x805710); }
-
+WRAPPER RwRaster* RwRasterPushContext(RwRaster* raster) { EAXJMP(0x7FB060); }
+WRAPPER RwRaster* RwRasterPopContext(void) { EAXJMP(0x7FB110); }
+WRAPPER RwRaster* RwRasterRenderFast(RwRaster* raster, RwInt32 x, RwInt32 y) { EAXJMP(0x7FAF50); }
+WRAPPER RwBool RpAtomicInstance(RpAtomic* atomic) { EAXJMP(0x74BF40); }
+WRAPPER RpAtomic* RpAtomicStreamWrite(RpAtomic* atomic, RwStream* stream) { EAXJMP(0x74A850); }
+WRAPPER RwStream* RwStreamOpen(RwStreamType type, RwStreamAccessType accessType, const void *pData) { EAXJMP(0x7ECEF0); }
+WRAPPER RwBool RwStreamClose(RwStream* stream, void *pData) { EAXJMP(0x7ECE20); }
+WRAPPER RwUInt32 RwStreamRead(RwStream* stream, void *buffer, RwUInt32 length) { EAXJMP(0x7EC9D0); }
+WRAPPER RwStream* RwStreamWrite(RwStream* stream, const void* buffer, RwUInt32 length) { EAXJMP(0x7ECB30); }
 WRAPPER RwError* RwErrorSet(RwError* code) { WRAPARG(code); EAXJMP(0x808820); }
 
 WRAPPER RwV3d* RwV3dTransformPoints(RwV3d* pointsOut, const RwV3d* pointsIn, RwInt32 numPoints, const RwMatrix* matrix) { WRAPARG(pointsOut); WRAPARG(pointsIn); WRAPARG(numPoints); WRAPARG(matrix); EAXJMP(0x7EDD90); }
@@ -46,6 +57,7 @@ WRAPPER RwVideoMode* RwEngineGetVideoModeInfo(RwVideoMode* modeinfo, RwInt32 mod
 WRAPPER RwInt32 RwEngineGetCurrentVideoMode() { EAXJMP(0x7F2D20); }
 WRAPPER RwInt32 RwEngineGetCurrentSubSystem() { EAXJMP(0x7F2C60); }
 WRAPPER RwInt32 RwEngineGetNumVideoModes() { EAXJMP(0x7F2CC0); }
+WRAPPER void RwD3D9EngineSetMultiThreadSafe(RwBool enable) { EAXJMP(0x7F8620); }
 
 WRAPPER RwInt8 RpAnisotGetMaxSupportedMaxAnisotropy() { EAXJMP(0x748F20); }
 WRAPPER RwTexture* RpAnisotTextureSetMaxAnisotropy(RwTexture* tex, RwInt8 val) { WRAPARG(tex); WRAPARG(val); EAXJMP(0x748F30); }
@@ -54,6 +66,9 @@ WRAPPER RwInt8 RpAnisotTextureGetMaxAnisotropy(RwTexture* tex) { WRAPARG(tex); E
 WRAPPER RwBool RwD3D9ChangeMultiSamplingLevels(RwUInt32 numLevels) { WRAPARG(numLevels); EAXJMP(0x7F8A90); }
 WRAPPER RwUInt32 RwD3D9EngineGetMaxMultiSamplingLevels() { EAXJMP(0x7F84E0); }
 WRAPPER RwBool RwD3D9SetRenderTarget(RwUInt32 index, RwRaster* raster) { WRAPARG(index); WRAPARG(raster); EAXJMP(0x7F9E90); }
+WRAPPER RwBool RwD3D9CreatePixelShader(const RwUInt32 *function, void **shader) { EAXJMP(0x7FACC0); }
+WRAPPER void RwD3D9DeletePixelShader(void *shader) { EAXJMP(0x7FACF0); }
+WRAPPER void _rwD3D9SetPixelShader(void *shader) { EAXJMP(0x7F9FF0); }
 
 // Reversed RW functions
 RwCamera* RwCameraBeginUpdate(RwCamera* camera)
@@ -299,6 +314,10 @@ static RwBool RwEngineOpen_VCS(RwEngineOpenParams *initParams)
 {
 	RwBool result = varRwEngineOpen(initParams);
 	RwEngineInstance = *(void**)0xC97B24;
+
+#ifdef RENDER_THREAD_TEST
+	RwD3D9EngineSetMultiThreadSafe(TRUE);
+#endif
 	return result;
 }
 

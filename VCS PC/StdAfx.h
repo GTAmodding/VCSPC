@@ -29,6 +29,7 @@
 #pragma warning(default:4512)
 
 #include "buildnumber.h"
+#include "resource.h"
 
 
 //#define INCLUDE_AUDIO_DEBUG
@@ -61,17 +62,18 @@
 //#define V_RADAR_TEST
 //#define DEBUG_GETMODELINFO_WRAPPER
 //#define FANCY_FRONTEND_CONTROLLERS_TEST
-#define SHOW_FOV_FANCY_RHYME
+//#define SHOW_FOV_FANCY_RHYME
 #define NO_REPLAY_TEXT
 #define SKIP_DEBUG_TEXTS
+//#define RENDER_THREAD_TEST
 //#define TRACE_TEXTURE_FILTERMODES
 //#define RWERRORSET_HOOK
 //#define CONTROLLABLE_WINDOWS_TEST
 //#define MULTITHREADING_TEST
+#define NATIVE_MESH_CONVERTER
 
 #define LITTLE_COLORMOD_CONTROLLER_EXTRA
-
-//#define NEW_SHADOWS_TEST
+//#define CONTROLLABLE_FOV
 
 //#define MAKE_ZZCOOL_MOVIE_DEMO
 
@@ -143,6 +145,8 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include <rwsdk\rtpng.h>
 #include <rwsdk\rpanisot.h>
 #include <rwsdk\rphanim.h>
+
+#include <d3d9.h>
 
 #undef RXPIPELINEGLOBAL
 #define RXPIPELINEGLOBAL(var) (RWPLUGINOFFSET(rwPipeGlobals, RwEngineInstance, *(RwInt32*)0xC9BC60)->var)

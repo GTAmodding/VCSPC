@@ -86,29 +86,25 @@ RwCamera* CShadowCamera::Update(RpAtomic* pAtomic)
 {
 	if ( RpAtomicGetFlags(pAtomic) & rpATOMICRENDER )
 	{
-		RwRGBA	ClearColour = { 255, 255, 255, 0 };
+		RwRGBA	ClearColour = { 0, 0, 0, 0 };
 		RwCameraClear(m_pCamera, &ClearColour, rwCAMERACLEARIMAGE|rwCAMERACLEARZ);
 
 		if ( RwCameraBeginUpdate(m_pCamera ) )
 		{
+			gpCurrentShaderForDefaultCallbacks = g_realTimeShadowMan.GetShadowPixelShader();
 			RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
 			RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
-			// Default pipeline
-			RxPipeline*	pOldPipe;
-			RpAtomicGetPipeline(pAtomic, &pOldPipe);
-			RpAtomicSetPipeline(pAtomic, RpAtomicGetDefaultPipeline());
-
-
-			RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
+			RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|/*rpGEOMETRYPRELIT|*/
 							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
 		
-			AtomicDefaultRenderCallBack(pAtomic);
+			RxPipelineExecute(RpAtomicGetDefaultPipeline(), pAtomic, TRUE);
 
-			RpAtomicSetPipeline(pAtomic, pOldPipe);
 			RpGeometrySetFlags(pGeometry, geometryFlags);
 
-			InvertRaster();
+			gpCurrentShaderForDefaultCallbacks = nullptr;
+			//InvertRaster();
+			RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
 			RwCameraEndUpdate(m_pCamera);
 		}
 	}
@@ -117,13 +113,14 @@ RwCamera* CShadowCamera::Update(RpAtomic* pAtomic)
 
 RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 {
-	RwRGBA	ClearColour = { 255, 255, 255, 0 };
+	RwRGBA	ClearColour = { 0, 0, 0, 0 };
 	RwCameraClear(m_pCamera, &ClearColour, rwCAMERACLEARIMAGE|rwCAMERACLEARZ);
 
 	if ( RwCameraBeginUpdate(m_pCamera ) )
 	{
 		if ( pEntity )
 		{
+			gpCurrentShaderForDefaultCallbacks = g_realTimeShadowMan.GetShadowPixelShader();
 			if ( pEntity->nType == 3 )
 				static_cast<CPed*>(pEntity)->RenderForShadow(pClump, true);
 			else if ( pEntity->nType == 2 )
@@ -134,15 +131,16 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 			{
 				assert(!"Baad, unknown entity type in CShadowCamera::Update!");
 			}
+			gpCurrentShaderForDefaultCallbacks = nullptr;
 		}
 
-		InvertRaster();
+		//InvertRaster();
+		// InvertRaster did it but never informed...
+		RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
 		RwCameraEndUpdate(m_pCamera);
 	}
 	return m_pCamera;
 }
-
-#include "Coronas.h"
 
 RwTexture* CRealTimeShadow::Update()
 {
@@ -166,26 +164,6 @@ RwTexture* CRealTimeShadow::Update()
 			m_Camera.Update(reinterpret_cast<RpAtomic*>(m_pEntity->m_pRwObject));
 		else if ( m_nRwObjectType == rpCLUMP )
 			m_Camera.Update(reinterpret_cast<RpClump*>(m_pEntity->m_pRwObject), m_pEntity);
-
-
-		/*CMatrix		Helper(RwFrameGetMatrix(RwCameraGetFrame(m_Camera.m_pCamera)));
-		CVector		vecPos = *Helper.GetPos();
-		CVector		vecRight = *Helper.GetPos() + *Helper.GetRight();
-		CVector		vecUp = *Helper.GetPos() + *Helper.GetUp();
-		CVector		vecAt = *Helper.GetPos() + *Helper.GetAt();
-
-		// pos
-		CCoronas::RegisterCorona((int)m_pEntity + 69, nullptr, 255, 255, 0, 255, vecPos, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
-
-		// right
-		CCoronas::RegisterCorona((int)m_pEntity + 69 + 1, nullptr, 255, 0, 0, 255, vecRight, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
-
-		// up
-		CCoronas::RegisterCorona((int)m_pEntity + 69 + 2, nullptr, 0, 255, 0, 255, vecUp, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);
-
-		// at
-		CCoronas::RegisterCorona((int)m_pEntity + 69 + 3, nullptr, 0, 0, 255, 255, vecAt, 0.25f, 1000.0f, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, 255, false, true);*/
-
 
 		RwRaster*	pRaster = RwCameraGetRaster(m_Camera.m_pCamera);
 
@@ -326,6 +304,8 @@ void CRealTimeShadowManager::Init()
 			}
 			else
 				m_bPlayerHelperCamsInUse = false;
+
+			InitShaders();
 		}
 
 		m_bInitialised = true;
@@ -348,6 +328,7 @@ void CRealTimeShadowManager::Exit()
 			m_GradientCamera_Player.Destroy();
 			m_bPlayerHelperCamsInUse = false;
 		}
+		ReleaseShaders();
 		m_bInitialised = false;
 	}
 }
@@ -450,6 +431,9 @@ void CRealTimeShadowManager::ReInit()
 			m_GradientCamera_Player.ReInit();
 			m_GradientCamera_Player.MakeGradientRaster();
 		}
+
+		// Reinit the shaders
+		InitShaders();
 	}
 	else
 	{
@@ -588,6 +572,28 @@ void CRealTimeShadowManager::ReturnRealTimeShadow(CRealTimeShadow* pShadow)
 	}
 }
 
+void CRealTimeShadowManager::InitShaders()
+{
+	HMODULE thisModule;
+	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)ShadowCameraRenderCB, &thisModule);
+
+	HRSRC		resource = FindResource(thisModule, MAKEINTRESOURCE(IDR_RTSHADOWPIXELSHADER), RT_RCDATA);
+	RwUInt32*	shader = static_cast<RwUInt32*>(LoadResource(thisModule, resource));
+
+	RwD3D9CreatePixelShader(shader, reinterpret_cast<void**>(&m_pShadowPixelShader));
+
+	FreeResource(shader);
+}
+
+void CRealTimeShadowManager::ReleaseShaders()
+{
+	if ( m_pShadowPixelShader )
+	{
+		RwD3D9DeletePixelShader(m_pShadowPixelShader);
+		m_pShadowPixelShader = nullptr;
+	}
+}
+
 static void BuildingShadowsKeep()
 {
 	g_realTimeShadowMan.KeepBuildingShadowsAlive();
@@ -640,6 +646,7 @@ static StaticPatcher	Patcher([](){
 						// Shadows rendering AFTER RenderScene
 						//Memory::InjectHook(0x53E0B9, UpdateShadowsHack);
 						//Memory::Nop(0x53EA0D, 5);
+
 
 						Memory::Patch<const void*>(0x5BA12C, &g_realTimeShadowMan.m_bInitialised);
 						Memory::Patch<const void*>(0x5BA137, &g_realTimeShadowMan.m_bNeedsReinit);

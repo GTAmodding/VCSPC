@@ -115,12 +115,17 @@ public:
 	CShadowCamera			m_BlurCamera_Player;
 	CShadowCamera			m_GradientCamera_Player;
 
+	void*	m_pShadowPixelShader;
+
 public:
 	CRealTimeShadowManager()
-		: m_bInitialised(false), m_bNeedsReinit(false), m_bPlayerHelperCamsInUse(false), m_bNewSettings(false)
+		: m_bInitialised(false), m_bNeedsReinit(false), m_bPlayerHelperCamsInUse(false), m_bNewSettings(false), m_pShadowPixelShader(nullptr)
 	{
 		memset(m_pShadows, 0, sizeof(m_pShadows));
 	}
+
+	inline void*			GetShadowPixelShader()
+		{ return m_pShadowPixelShader; }
 
 	void					ResetForChangedSettings()
 		{ m_bNeedsReinit = true; m_bNewSettings = true; }
@@ -133,6 +138,8 @@ public:
 	void					DoShadowThisFrame(CEntity* pEntity);
 	void					GetRealTimeShadow(CEntity* pEntity);	
 	void					ReInit();
+	void					InitShaders();
+	void					ReleaseShaders();
 
 	void					KeepBuildingShadowsAlive();
 };

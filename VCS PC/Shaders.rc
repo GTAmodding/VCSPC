@@ -1,0 +1,3 @@
+#include "resource.h"
+
+IDR_RTSHADOWPIXELSHADER	RCDATA	"Shaders\\bin\RTShadowPixelShader.cso"

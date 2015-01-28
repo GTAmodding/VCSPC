@@ -110,7 +110,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)VCSPC.dll</OutputFile>
       <Version>
       </Version>
@@ -145,6 +145,17 @@ popd</Command>
       <Command>
       </Command>
     </PreLinkEvent>
+    <ResourceCompile>
+      <PreprocessorDefinitions>
+      </PreprocessorDefinitions>
+      <Culture>
+      </Culture>
+      <SuppressStartupBanner>
+      </SuppressStartupBanner>
+      <ResourceOutputFileName>
+      </ResourceOutputFileName>
+      <AdditionalOptions>/D CONFIGURATION=\"Debug\" /l 0x0409 /nologo /fo"Debug\%(Filename).res" %(AdditionalOptions)</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
     <ClCompile>
@@ -165,7 +176,7 @@ popd</Command>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)VCSPC.dll</OutputFile>
       <Version>
       </Version>
@@ -200,6 +211,7 @@ popd</Command>
       <Command>
       </Command>
     </PreLinkEvent>
+    <ResourceCompile />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -221,7 +233,7 @@ popd</Command>
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <Version>
@@ -254,6 +266,17 @@ popd</Command>
       <Command>
       </Command>
     </PreLinkEvent>
+    <ResourceCompile>
+      <PreprocessorDefinitions>
+      </PreprocessorDefinitions>
+      <Culture>
+      </Culture>
+      <SuppressStartupBanner>
+      </SuppressStartupBanner>
+      <ResourceOutputFileName>
+      </ResourceOutputFileName>
+      <AdditionalOptions>/D CONFIGURATION=\"Release\" /l 0x0409 /nologo /fo"Release\%(Filename).res" %(AdditionalOptions)</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
     <ClCompile>
@@ -275,7 +298,7 @@ popd</Command>
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <Version>
@@ -307,11 +330,16 @@ popd</Command>
       <Command>
       </Command>
     </PreLinkEvent>
+    <ResourceCompile>
+      <PreprocessorDefinitions>
+      </PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="3DMarkers.cpp" />
     <ClCompile Include="Antennas.cpp" />
     <ClCompile Include="BlowFish.cpp" />
+    <ClCompile Include="Breakable.cpp" />
     <ClCompile Include="Building.cpp" />
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -319,6 +347,7 @@ popd</Command>
     <ClCompile Include="CCRC32.Cpp" />
     <ClCompile Include="CDraw.cpp" />
     <ClCompile Include="ColormodController.cpp" />
+    <ClCompile Include="CustomBuildingRenderer.cpp" />
     <ClCompile Include="FxSystem.cpp" />
     <ClCompile Include="Gangs.cpp" />
     <ClCompile Include="CGridref.cpp">
@@ -417,6 +446,7 @@ popd</Command>
     <ClInclude Include="AnimMgr.h" />
     <ClInclude Include="Antennas.h" />
     <ClInclude Include="BankLoader.h" />
+    <ClInclude Include="Breakable.h" />
     <ClInclude Include="Building.h" />
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Camera.h" />
@@ -427,6 +457,7 @@ popd</Command>
     <ClInclude Include="ColormodController.h" />
     <ClInclude Include="ControlsMgr.h" />
     <ClInclude Include="Coronas.h" />
+    <ClInclude Include="CustomBuildingRenderer.h" />
     <ClInclude Include="CutsceneManager.h" />
     <ClInclude Include="FxSystem.h" />
     <ClInclude Include="Gangs.h" />
@@ -460,6 +491,7 @@ popd</Command>
     <ClInclude Include="Queue.h" />
     <ClInclude Include="RealTimeShadowMgr.h" />
     <ClInclude Include="Replay.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Shadows.h" />
     <ClInclude Include="SpeechRecognition.h" />
@@ -481,7 +513,6 @@ popd</Command>
     <ClInclude Include="PcSave.h" />
     <ClInclude Include="Rs.h" />
     <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="handlingIDs.h" />
     <ClInclude Include="General.h" />
     <ClInclude Include="VCSPC_SDK_Internal.h" />
     <ClInclude Include="VCSPC_SDK.h" />
@@ -495,9 +526,35 @@ popd</Command>
   <ItemGroup>
     <None Include="LoadVars.inc" />
     <None Include="SaveVars.inc" />
+    <CustomBuild Include="Shaders\RTShadowPixelShader.hlsl">
+      <FileType>Document</FileType>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Shaders\bin\%(Filename)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\common\win2000.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Shaders.rc">
+      <Culture Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">0x0409</Culture>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</SuppressStartupBanner>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">$(IntDir)%(Filename).res</ResourceOutputFileName>
+    </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

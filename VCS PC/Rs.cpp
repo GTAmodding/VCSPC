@@ -8,6 +8,8 @@ const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 
 bool& bAnisotSupported = *(bool*)0xC87FFC;
 
+void*		gpCurrentShaderForDefaultCallbacks = nullptr;
+
 WRAPPER RsEventStatus RsEventHandler(RsEvent eventID, void* param) { WRAPARG(eventID); WRAPARG(param); EAXJMP(0x619B60); }
 WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
 WRAPPER void DefinedState2d() { EAXJMP(0x734750); }
@@ -21,6 +23,13 @@ static RpAtomic* GetFirstAtomicCallback(RpAtomic* pAtomic, void* pData)
 {
 	*static_cast<RpAtomic**>(pData) = pAtomic;
 	return nullptr;
+}
+
+RpAtomic* AtomicInstanceCB(RpAtomic* pAtomic, void* pData)
+{
+	UNREFERENCED_PARAMETER(pData);
+	RpAtomicInstance(pAtomic);
+	return pAtomic;
 }
 
 RwChar* RsPathnameCreate(const RwChar* srcBuffer)
@@ -220,7 +229,140 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 	return pTexture;
 }
 
+RwBool MyClose(void* data)
+{
+	return fclose((FILE*)data) == 0;
+}
+
+RwUInt32 MyRead(void* data, void* buffer, RwUInt32 length)
+{
+	return fread(buffer, 1, length, (FILE*)data);
+}
+
+RwBool MyWrite(void* data, const void* buffer, RwUInt32 length)
+{
+	return fwrite(buffer, 1, length, (FILE*)data) == length;
+}
+
+RwBool MySkip(void* data, RwUInt32 offset)
+{
+	return fseek((FILE*)data, offset, SEEK_CUR) == 0;
+}
+
+void ConvertAndDumpNativeMesh()
+{
+	WIN32_FIND_DATA		findData;
+
+	HANDLE	hFoundFiles = FindFirstFile("meshdump\\in\\*.dff", &findData);
+	if ( hFoundFiles != INVALID_HANDLE_VALUE )
+	{
+		do
+		{
+			RwStream*	pStream;
+			RpClump*	pClump = nullptr;
+
+			// Read DFF
+			std::string	strDffName = "meshdump\\in\\";
+			strDffName += findData.cFileName;
+
+			/*char		path[MAX_PATH];
+			GetCurrentDirectory(MAX_PATH, path);
+
+			RwStreamCustom		customReader;
+
+			customReader.data = fopen(strDffName.c_str(), "rb");
+			customReader.sfnclose = MyClose;
+			customReader.sfnread = MyRead;
+			customReader.sfnskip = MySkip;
+			customReader.sfnwrite = MyWrite;*/
+
+			pStream = RwStreamOpen(rwSTREAMFILENAME, rwSTREAMREAD, strDffName.c_str());
+			if ( pStream )
+			{
+				if ( RwStreamFindChunk(pStream, rwID_CLUMP, nullptr, nullptr) )
+					pClump = RpClumpStreamRead(pStream);
+
+				RwStreamClose(pStream, nullptr);
+				if ( pClump )
+				{
+					// Instance the model
+					RwCameraBeginUpdate(Camera);
+					RpClumpForAllAtomics(pClump, AtomicInstanceCB, nullptr);
+					RwCameraEndUpdate(Camera);
+
+					strDffName = "meshdump\\out\\";
+					strDffName += findData.cFileName;
+
+					pStream = RwStreamOpen(rwSTREAMFILENAME, rwSTREAMWRITE, strDffName.c_str());
+					if ( pStream )
+					{
+						RpClumpForAllAtomics(pClump, (RpAtomic*(*)(RpAtomic*,void*))0x4C4F30, nullptr);
+						RpAtomicStreamWrite(GetFirstAtomic(pClump), pStream);
+						//RpClumpStreamWrite(pClump, pStream);
+						RwStreamClose(pStream, nullptr);
+					}
+					RpClumpDestroy(pClump);
+				}
+			}
+		}
+		while ( FindNextFile(hFoundFiles, &findData) );
+		FindClose(hFoundFiles);
+	}
+}
+
+void SetPixelShaderHooked(void* shader)
+{
+	UNREFERENCED_PARAMETER(shader);
+	RwD3D9SetPixelShader(gpCurrentShaderForDefaultCallbacks);
+}
+
+void __declspec(naked) rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook()
+{
+	_asm
+	{
+		mov		eax, [gpCurrentShaderForDefaultCallbacks] 
+		cmp		eax, dword ptr ds:[8E244Ch]	// _rwD3D9LastPixelShaderUsed
+		je		rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook_Return
+		mov		dword ptr ds:[8E244Ch], eax
+		push	eax
+		mov		eax, dword ptr ds:[0C97C28h]	// RwD3D9Device
+		push	eax
+		mov		ecx, [eax]
+		call	dword ptr [ecx+1ACh]
+
+rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook_Return:
+		push	761053h
+		retn
+	}
+}
+
+void __declspec(naked) rxD3D9DefaultRenderCallback_Hook()
+{
+	_asm
+	{
+		mov		ecx, [gpCurrentShaderForDefaultCallbacks] 
+		cmp		eax, ecx	// _rwD3D9LastPixelShaderUsed
+		je		rxD3D9DefaultRenderCallback_Hook_Return
+		mov		dword ptr ds:[8E244Ch], ecx
+		push	ecx
+		mov		eax, dword ptr ds:[0C97C28h]	// RwD3D9Device
+		push	eax
+		mov		ecx, [eax]
+		call	dword ptr [ecx+1ACh]
+
+rxD3D9DefaultRenderCallback_Hook_Return:
+		push	756E17h
+		retn
+	}
+}
+
 
 static StaticPatcher	Patcher([](){ 
 						Memory::InjectHook(0x730E60, &RwTextureGtaStreamRead, PATCH_JUMP);
+
+						// Make _rxD3D9VertexShaderDefaultMeshRenderCallBack use our own pixel shader
+						Memory::Patch(0x7CB276, rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook);
+						Memory::InjectHook(0x756DFE, rxD3D9DefaultRenderCallback_Hook, PATCH_JUMP);
+						//Memory::InjectHook(0x5DA643, SetPixelShaderHooked);
+						//Memory::InjectHook(0x5DA736, SetPixelShaderHooked);
 									});

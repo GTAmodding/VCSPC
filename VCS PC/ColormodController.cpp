@@ -12,7 +12,7 @@ CColormodController::tBloomSpecs* CColormodController::BloomSpecs;
 
 void CColormodController::Attach()
 {
-	HMODULE		hColormodModule = GetModuleHandle("colormod");
+	HMODULE		hColormodModule = LoadLibrary("colormod");
 
 	LogToFile("Color Mod loaded: %s", hColormodModule != nullptr ? "YES" : "NO");
 
