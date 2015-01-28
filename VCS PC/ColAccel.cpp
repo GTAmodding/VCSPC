@@ -63,9 +63,11 @@ void CColAccel::startCache()
 void CColAccel::endCache()
 {
 	((void(*)())0x5B2AD0)();
-	
-	delete mp_caccColItems;
-	delete mp_caccIPLItems;
+
+#ifdef USE_COLACCEL
+	delete[] mp_caccColItems;
+	delete[] mp_caccIPLItems;
+#endif
 }
 
 #ifdef USE_COLACCEL
