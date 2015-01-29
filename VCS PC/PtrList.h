@@ -51,6 +51,12 @@ public:
 
 		CPtrNode*				m_pNodes;	// for CPtrList methods
 	};
+	
+public:
+	CPtrList()
+		: m_pNodes(nullptr)
+	{
+	}
 
 	bool						IsMemberOfList(void* pItem)
 	{

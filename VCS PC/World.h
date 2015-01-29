@@ -11,7 +11,7 @@ class CSector
 {
 public:
 	CPtrListSingleLink		building;
-	CPtrListSingleLink		dummy;
+	CPtrListDoubleLink		dummy;
 };
 
 

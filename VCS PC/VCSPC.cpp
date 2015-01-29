@@ -402,6 +402,7 @@ const float					fRefZVal = 1.0f;
 //const float					fBrightnessMax = 192.0f;
 //const float					fBriefTextHeight = 0.7/448.0;
 const float					fNewDrawDistance = MAX_DRAW_DISTANCE;
+//const float					fNewDrawDistance2 = MAX_DRAW_DISTANCE + 50.0f;
 const float					fSkyMultFix = 3.5f;
 const float					fRadarTileDimensions = 2000.0f;
 const float					fMinusRadarTileDimensions = -2000.0f;
@@ -3876,21 +3877,42 @@ __forceinline void Main_Patches()
 #endif
 
 	/*To change when increasing streaming upper limit:
-	0x5B527A
-	0x5545E6 and nearby
-	0x555172 and nearby (NOT SURE)
-	0x555B1C and nearby (NOT SURE)
-	0x71BE74 (NOT SURE)
-
-	Another:
-	0x450A60 and nearby
-	0x554D8D*/
+	0x71BE74 (NOT SURE)*/
 	Patch<const void*>(0x5B527C, &fNewDrawDistance);
 	Patch<const void*>(0x5545E8, &fNewDrawDistance);
 	Patch<const void*>(0x554602, &fNewDrawDistance);
 	Patch<const void*>(0x55462C, &fNewDrawDistance);
+
+	Patch<const void*>(0x555174, &fNewDrawDistance);
+	Patch<const void*>(0x55519A, &fNewDrawDistance);
+	Patch<const void*>(0x5551BD, &fNewDrawDistance);
+	Patch<const void*>(0x555230, &fNewDrawDistance);
+	Patch<const void*>(0x55523A, &fNewDrawDistance);
+	Patch<const void*>(0x555244, &fNewDrawDistance);
+	Patch<const void*>(0x5552F6, &fNewDrawDistance);
+	Patch<const void*>(0x555300, &fNewDrawDistance);
+	Patch<const void*>(0x55530A, &fNewDrawDistance);
+	Patch<const void*>(0x555364, &fNewDrawDistance);
+	Patch<const void*>(0x55537C, &fNewDrawDistance);
+	Patch<const void*>(0x55538A, &fNewDrawDistance);
+
+	Patch<const void*>(0x555A97, &fNewDrawDistance);
+	Patch<const void*>(0x555AA5, &fNewDrawDistance);
+	Patch<const void*>(0x555AB3, &fNewDrawDistance);
+	Patch<const void*>(0x555AFD, &fNewDrawDistance);
+	Patch<const void*>(0x555B07, &fNewDrawDistance);
+	Patch<const void*>(0x555B1E, &fNewDrawDistance);
+	Patch<const void*>(0x555B2C, &fNewDrawDistance);
+	Patch<const void*>(0x555B3A, &fNewDrawDistance);
+	Patch<const void*>(0x555B84, &fNewDrawDistance);
+	Patch<const void*>(0x555B8E, &fNewDrawDistance);
+	Patch<const void*>(0x555B9C, &fNewDrawDistance);
+
 	Patch<float>(0x554D93, MAX_DRAW_DISTANCE);
 	Patch<float>(0x555A74, MAX_DRAW_DISTANCE);
+	Patch<float>(0x450B01, MAX_DRAW_DISTANCE);
+	Patch<float>(0x450B92, MAX_DRAW_DISTANCE);
+	Patch<float>(0x450ACE, MAX_DRAW_DISTANCE + 50.0f);
 
 	// 12 save slots
 	Patch<void*>(0x619166, SlotSaveDate);

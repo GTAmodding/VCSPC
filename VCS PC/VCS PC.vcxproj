@@ -91,6 +91,8 @@
     <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</PostBuildEventUseInBuild>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VCSPC</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">VCSPC</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">VCSPC</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VCSPC</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -362,7 +364,6 @@ popd</Command>
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ColAccel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="ControlsMgr.cpp" />
     <ClCompile Include="Coronas.cpp" />
