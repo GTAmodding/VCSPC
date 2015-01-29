@@ -3,13 +3,16 @@
 
 #include "X360Pad.h"
 #include "Timer.h"
+#include "ControlsMgr.h"
+#include "Frontend.h"
+
+CMouseControllerState&	CPad::PCTempMouseControllerState = *(CMouseControllerState*)0xB73404;
+CMouseControllerState&	CPad::NewMouseControllerState = *(CMouseControllerState*)0xB73418;
+CMouseControllerState&	CPad::OldMouseControllerState = *(CMouseControllerState*)0xB7342C;
 
 static CPad* const	Pads = (CPad*)0xB73458;
 
 static CX360Pad*	pXboxPad = nullptr;
-
-static StaticPatcher	Patcher([](){ 
-						CPad::Inject(); });
 
 WRAPPER void CPad::UpdatePads() { EAXJMP(0x541DD0); }
 
@@ -264,6 +267,31 @@ CControllerState CPad::ReconcileTwoControllersInput(const CControllerState& rDev
 	return PadOut;
 }
 
+void CPad::UpdateMouse()
+{
+	if ( IsForeground() )
+	{
+		OldMouseControllerState = NewMouseControllerState;
+		NewMouseControllerState = PCTempMouseControllerState;
+
+		// As TempMouseControllerState contains only raw data now, handle movement inversion here
+		if ( !FrontEndMenuManager.m_bMenuActive )
+		{
+			if ( MousePointerStateHelper.m_bVerticalInvert )
+				NewMouseControllerState.X = -NewMouseControllerState.X;
+			if ( MousePointerStateHelper.m_bHorizontalInvert )
+				NewMouseControllerState.Y = -NewMouseControllerState.Y;
+		}
+		
+		// Clear mouse movement data and scroll data in temp buffer
+		PCTempMouseControllerState.X = PCTempMouseControllerState.Y = PCTempMouseControllerState.Z = 0.0f;
+		PCTempMouseControllerState.wheelDown = PCTempMouseControllerState.wheelUp = false;
+		
+		if ( NewMouseControllerState.CheckForInput() )
+			LastTimeTouched = CTimer::m_snTimeInMilliseconds;
+	}
+}
+
 CPad* CPad::GetPad(int nPad)
 {
 	return &Pads[nPad];
@@ -273,6 +301,8 @@ void CPad::Inject()
 {
 	using namespace Memory;
 
+	InjectHook(0x541DD7, &UpdateMouse);
+
 #ifdef DEVBUILD
 	InjectHook(0x541DDE, &CapturePad);
 	InjectHook(0x53F530, &ReconcileTwoControllersInput, PATCH_JUMP);
@@ -280,3 +310,7 @@ void CPad::Inject()
 	Nop(0x748813, 5);
 #endif
 }
+
+static StaticPatcher	Patcher([](){ 
+						CPad::Inject();
+						});

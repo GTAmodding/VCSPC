@@ -128,6 +128,11 @@ enum RsKeyCodes
 };
 typedef enum RsKeyCodes RsKeyCodes;
 
+inline bool IsForeground()
+{
+	return *(BOOL*)0x8D621C != FALSE;
+}
+
 // R* RW function extensions
 RwTexture*		RwTextureGtaStreamRead(RwStream* stream);
 

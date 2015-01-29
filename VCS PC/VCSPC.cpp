@@ -3361,8 +3361,8 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x576EBA, 0xEB);
 	Patch<BYTE>(0x576F8A, 0xEB);
 
-	// Make sure DirectInput mouse device is set non-exclusive (may not be needed?)
-	Patch<DWORD>(0x7469A0, 0x9090C030);
+	//// Make sure DirectInput mouse device is set non-exclusive (may not be needed?)
+	//Patch<DWORD>(0x7469A0, 0x9090C030);
 
 	// Commandline arguments
 	Patch<const void*>(0x619C40, &CommandlineEventHack);
@@ -4806,11 +4806,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch ( uMsg )
 	{
 	case WM_CHAR:
-		FrontEndMenuManager.TypingKeyboardInput(wParam);
-		return 0;
-	default:
-		return ((LRESULT(CALLBACK*)(HWND,UINT,WPARAM,LPARAM))0x747EB0)(hwnd, uMsg, wParam, lParam);
+		{
+			FrontEndMenuManager.TypingKeyboardInput(wParam);
+			return 0;
+		}
+	case WM_INPUT:
+		{
+			RAWINPUT	raw;
+			UINT		dwSize = sizeof(raw);
+
+			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT,  &raw, &dwSize, sizeof(RAWINPUTHEADER));
+    
+			if ( raw.header.dwType == RIM_TYPEMOUSE )
+			{
+				RegisterMouseMovement(&raw);
+				break;
+			}
+		}
 	}
+	return ((LRESULT(CALLBACK*)(HWND,UINT,WPARAM,LPARAM))0x747EB0)(hwnd, uMsg, wParam, lParam);
 }
 
 void SaveLanguageHack(FILE* stream, const char* ptr, size_t len)

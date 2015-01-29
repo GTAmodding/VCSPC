@@ -53,6 +53,25 @@ struct CKeyState
 	WORD				apps;
 };	
 
+class CMouseControllerState
+{
+public:
+	bool	lmb;
+	bool	rmb;
+	bool	mmb;
+	bool	wheelUp;
+	bool	wheelDown;
+	bool	bmx1;
+	bool	bmx2;
+	float	Z;
+	float	X;
+	float	Y;
+
+public:
+	inline bool		CheckForInput()
+		{ return lmb || rmb || mmb || wheelUp || wheelDown || bmx1 || bmx2 || X != 0.0f || Y != 0.0f; }
+};
+
 class CControllerState
 {
 public:
@@ -121,11 +140,18 @@ public:
 	DWORD				NoShakeBeforeThis;
 	BYTE				NoShakeFreq;
 
+private:
+	static CMouseControllerState&	PCTempMouseControllerState;
+	static CMouseControllerState&	NewMouseControllerState;
+	static CMouseControllerState&	OldMouseControllerState;
+
 public:
-	inline bool			CrossJustDown() { return NewState.CROSS && !OldState.CROSS; }
-	inline bool			RightShockJustDown() { return NewState.RIGHTSHOCK && !OldState.RIGHTSHOCK; }
+	inline bool								CrossJustDown() { return NewState.CROSS && !OldState.CROSS; }
+	inline bool								RightShockJustDown() { return NewState.RIGHTSHOCK && !OldState.RIGHTSHOCK; }
+	static inline CMouseControllerState&	GetMouseStateBuffer() { return PCTempMouseControllerState; }
 
 	CControllerState	ReconcileTwoControllersInput(const CControllerState& rDevice1, const CControllerState& rDevice2);
+	void				UpdateMouse();
 
 	static CPad*		GetPad(int nPad);
 	static void			UpdatePads();
@@ -140,5 +166,6 @@ extern CKeyState*					prevKeyState;
 
 static_assert(sizeof(CPad) == 0x134, "Wrong size: CPad");
 static_assert(sizeof(CKeyState) == 0x270, "Wrong size: CKeyState");
+static_assert(sizeof(CMouseControllerState) == 0x14, "Wrong size: CMouseControllerState");
 
 #endif

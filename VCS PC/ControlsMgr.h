@@ -24,6 +24,10 @@ public:
 	static void			ReinitControls();
 };
 
+// RawInput mouse handler
+void RegisterRawInputMouse();
+void RegisterMouseMovement(RAWINPUT* raw);
+
 
 extern CControllerConfigManager&	ControlsManager;
 extern CMousePointerStateHelper&	MousePointerStateHelper;
