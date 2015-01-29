@@ -201,9 +201,9 @@ CControllerState CPad::ReconcileTwoControllersInput(const CControllerState& rDev
 	else
 	{
 		if ( rDevice1.LEFTSTICKX >= 0 && rDevice2.LEFTSTICKX >= 0 )
-			PadOut.LEFTSTICKX = max(rDevice1.LEFTSTICKX, rDevice2.LEFTSTICKX);
+			PadOut.LEFTSTICKX = std::max(rDevice1.LEFTSTICKX, rDevice2.LEFTSTICKX);
 		else
-			PadOut.LEFTSTICKX = min(rDevice1.LEFTSTICKX, rDevice2.LEFTSTICKX);
+			PadOut.LEFTSTICKX = std::min(rDevice1.LEFTSTICKX, rDevice2.LEFTSTICKX);
 	}
 
 	if ( (rDevice1.LEFTSTICKY > 0 && rDevice2.LEFTSTICKY < 0) || (rDevice1.LEFTSTICKY < 0 && rDevice2.LEFTSTICKY > 0) )
@@ -211,9 +211,9 @@ CControllerState CPad::ReconcileTwoControllersInput(const CControllerState& rDev
 	else
 	{
 		if ( rDevice1.LEFTSTICKY >= 0 && rDevice2.LEFTSTICKY >= 0 )
-			PadOut.LEFTSTICKY = max(rDevice1.LEFTSTICKY, rDevice2.LEFTSTICKY);
+			PadOut.LEFTSTICKY = std::max(rDevice1.LEFTSTICKY, rDevice2.LEFTSTICKY);
 		else
-			PadOut.LEFTSTICKY = min(rDevice1.LEFTSTICKY, rDevice2.LEFTSTICKY);
+			PadOut.LEFTSTICKY = std::min(rDevice1.LEFTSTICKY, rDevice2.LEFTSTICKY);
 	}
 
 	if ( (rDevice1.RIGHTSTICKX > 0 && rDevice2.RIGHTSTICKX < 0) || (rDevice1.RIGHTSTICKX < 0 && rDevice2.RIGHTSTICKX > 0) )
@@ -221,9 +221,9 @@ CControllerState CPad::ReconcileTwoControllersInput(const CControllerState& rDev
 	else
 	{
 		if ( rDevice1.RIGHTSTICKX >= 0 && rDevice2.RIGHTSTICKX >= 0 )
-			PadOut.RIGHTSTICKX = max(rDevice1.RIGHTSTICKX, rDevice2.RIGHTSTICKX);
+			PadOut.RIGHTSTICKX = std::max(rDevice1.RIGHTSTICKX, rDevice2.RIGHTSTICKX);
 		else
-			PadOut.RIGHTSTICKX = min(rDevice1.RIGHTSTICKX, rDevice2.RIGHTSTICKX);
+			PadOut.RIGHTSTICKX = std::min(rDevice1.RIGHTSTICKX, rDevice2.RIGHTSTICKX);
 	}
 
 	if ( (rDevice1.RIGHTSTICKY > 0 && rDevice2.RIGHTSTICKY < 0) || (rDevice1.RIGHTSTICKY < 0 && rDevice2.RIGHTSTICKY > 0) )
@@ -231,13 +231,13 @@ CControllerState CPad::ReconcileTwoControllersInput(const CControllerState& rDev
 	else
 	{
 		if ( rDevice1.RIGHTSTICKY >= 0 && rDevice2.RIGHTSTICKY >= 0 )
-			PadOut.RIGHTSTICKY = max(rDevice1.RIGHTSTICKY, rDevice2.RIGHTSTICKY);
+			PadOut.RIGHTSTICKY = std::max(rDevice1.RIGHTSTICKY, rDevice2.RIGHTSTICKY);
 		else
-			PadOut.RIGHTSTICKY = min(rDevice1.RIGHTSTICKY, rDevice2.RIGHTSTICKY);
+			PadOut.RIGHTSTICKY = std::min(rDevice1.RIGHTSTICKY, rDevice2.RIGHTSTICKY);
 	}
 
-	PadOut.LEFTSHOULDER2 = max(rDevice1.LEFTSHOULDER2, rDevice2.LEFTSHOULDER2);
-	PadOut.RIGHTSHOULDER2 = max(rDevice1.RIGHTSHOULDER2, rDevice2.RIGHTSHOULDER2);
+	PadOut.LEFTSHOULDER2 = std::max(rDevice1.LEFTSHOULDER2, rDevice2.LEFTSHOULDER2);
+	PadOut.RIGHTSHOULDER2 = std::max(rDevice1.RIGHTSHOULDER2, rDevice2.RIGHTSHOULDER2);
 
 	PadOut.LEFTSHOULDER1 = (rDevice1.LEFTSHOULDER1 != 0 || rDevice2.LEFTSHOULDER1 != 0) ? 255 : 0;
 	PadOut.RIGHTSHOULDER1 = (rDevice1.RIGHTSHOULDER1 != 0 || rDevice2.RIGHTSHOULDER1 != 0) ? 255 : 0;

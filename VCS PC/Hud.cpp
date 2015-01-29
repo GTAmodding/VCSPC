@@ -306,10 +306,10 @@ void CHud::DrawHUD()
 		{
 			if ( PagerXOffset > 0.0f )
 			{
-				float	fStep = PagerXOffset * 0.1f;
-				if ( fStep > 10.0f )
-					fStep = 10.0f;
-				PagerXOffset -= fStep;
+				float	fStep = PagerXOffset * 0.06f;
+				if ( fStep > 6.0f )
+					fStep = 6.0f;
+				PagerXOffset -= fStep * CTimer::ms_fTimeStep;
 			}
 			if ( !PagerSoundPlayed )
 			{
@@ -321,10 +321,10 @@ void CHud::DrawHUD()
 		{
 			if ( PagerOn == 2 )
 			{
-				float	fStep = PagerXOffset * 0.1f;
-				if ( fStep < 2.0f )
-					fStep = 2.0f;
-				PagerXOffset += fStep;
+				float	fStep = PagerXOffset * 0.06f;
+				if ( fStep < 1.2f )
+					fStep = 1.2f;
+				PagerXOffset += fStep * CTimer::ms_fTimeStep;
 				if ( PagerXOffset > 200.0f )
 				{
 					PagerOn = 0;

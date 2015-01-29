@@ -129,7 +129,7 @@ void CHeli::Render()
 	m_nTimeTillWeNeedThisCar = CTimer::m_snTimeInMilliseconds + 3000;
 
 	if ( m_fRotorSpeed > 0.0 )
-		dRotorsSpeed = min(1.7 * (1.0/0.22) * m_fRotorSpeed, 1.5);
+		dRotorsSpeed = std::min(1.7 * (1.0/0.22) * m_fRotorSpeed, 1.5);
 	else
 		dRotorsSpeed = 0.0;
 
@@ -137,8 +137,8 @@ void CHeli::Render()
 	if ( dMovingRotorSpeed < 0.0 )
 		dMovingRotorSpeed = 0.0;
 
-	int			nStaticRotorAlpha = min(static_cast<int>((1.5-dRotorsSpeed) * 255.0), 255);
-	int			nMovingRotorAlpha = min(static_cast<int>(dMovingRotorSpeed * 150.0), 150);
+	int			nStaticRotorAlpha = std::min(static_cast<int>((1.5-dRotorsSpeed) * 255.0), 255);
+	int			nMovingRotorAlpha = std::min(static_cast<int>(dMovingRotorSpeed * 150.0), 150);
 
 	if ( m_pCarNode[11] )
 	{

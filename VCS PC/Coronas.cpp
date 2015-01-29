@@ -168,7 +168,7 @@ void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned cha
 
 void CCoronas::Update()
 {
-	ScreenMult = min(1.0f, CTimer::ms_fTimeStep * 0.03f + ScreenMult);
+	ScreenMult = std::min(1.0f, CTimer::ms_fTimeStep * 0.03f + ScreenMult);
 
 	static unsigned int		nSomeHackyMask = 0;
 	unsigned int			nThisHackyMask = 0;
@@ -186,7 +186,7 @@ void CCoronas::Update()
 		nThisHackyMask |= 8;
 
 	if ( nSomeHackyMask == nThisHackyMask )
-		bChangeBrightnessImmediately = max(0, bChangeBrightnessImmediately - 1);
+		bChangeBrightnessImmediately = std::max(0, bChangeBrightnessImmediately - 1);
 	else
 	{
 		bChangeBrightnessImmediately = 3;

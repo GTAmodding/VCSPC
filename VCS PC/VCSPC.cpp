@@ -4672,6 +4672,7 @@ void CdStreamClearNames()
 }
 
 static bool		bNoTimeFix = false;
+static bool		bBenchmarkUncap = false;
 
 void ParseCommandlineFile()
 {
@@ -4696,28 +4697,33 @@ char* ParseCommandlineArgument(char* pArg)
 {
 	if ( pArg )
 	{
-		if ( !_strnicmp(pArg, "-novcsname", 10) )
+		if ( !stricmp(pArg, "-novcsname") )
 		{
 			SetWindowTextW(RsGlobal.ps->window, L"GTA: San Andreas");
 			RsGlobal.AppName = "GTA: San Andreas";
 			return pArg;
 		}
 
-		if ( !_strnicmp(pArg, "-nointro", 8) )
+		if ( !stricmp(pArg, "-nointro") )
 		{
 			// TODO: Define this variable properly
 			*(DWORD*)0xC8D4C0 = 5;
 			return pArg;
 		}
 
-		if ( !_strnicmp(pArg, "-notimefix", 10) )
+		if ( !stricmp(pArg, "-notimefix") )
 		{
 			bNoTimeFix = true;
 			return pArg;
 		}
 
+		if ( !stricmp(pArg, "-uncap") )
+		{
+			bBenchmarkUncap = true;
+			return pArg;
+		}
 
-		if ( !_strnicmp(pArg, "-nopostfx", 9) )
+		if ( !stricmp(pArg, "-nopostfx") )
 		{
 			// TODO: Define this variable properly
 			*(bool*)0xC402CF = true;
@@ -4752,13 +4758,13 @@ char* ParseCommandlineArgument(char* pArg)
 		}*/
 
 #ifdef DEVBUILD
-		if ( !_strnicmp(pArg, "-noautocheck", 13) )
+		if ( !stricmp(pArg, "-noautocheck") )
 		{
 			CUpdateManager::DisableAutoCheck();
 			return pArg;
 		}
 
-		if ( !_strnicmp(pArg, "-zombiedlc", 10) )
+		if ( !stricmp(pArg, "-zombiedlc") )
 		{
 			CDLCManager::ToggleDebugOverride(DLC_HALLOWEEN);
 			return pArg;
@@ -6744,7 +6750,13 @@ void __declspec(naked) MaxosFrameLimitHack()
 		jmp		MaxosFrameLimitHack_LimitFrames
 
 MaxosFrameLimitHack_NoLimit:
+		cmp		bBenchmarkUncap, 0
+		jne		MaxosFrameLimitHack_TotalUncap
 		mov		fOne, 41000000h
+		jmp		MaxosFrameLimitHack_LimitFrames
+
+MaxosFrameLimitHack_TotalUncap:
+		mov		fOne, 0
 
 MaxosFrameLimitHack_LimitFrames:
 		mov		eax, [esp+20h+14h]

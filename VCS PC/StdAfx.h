@@ -5,6 +5,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #define _CRT_SECURE_NO_WARNINGS
+#define NOMINMAX
 #define _USE_MATH_DEFINES
 
 #define WINVER 0x0501

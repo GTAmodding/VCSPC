@@ -264,7 +264,7 @@ void CBaseModelInfo::AddRef()
 
 void CBaseModelInfo::RecalcDrawDistance(float fOldDist)
 {
-	fLodDistanceUnscaled = min(fOldDist, 1371.5f * ms_lodDistScale - 668.5f);
+	fLodDistanceUnscaled = std::min(fOldDist, 1371.5f * ms_lodDistScale - 668.5f);
 }
 
 void CClumpModelInfo::Init()

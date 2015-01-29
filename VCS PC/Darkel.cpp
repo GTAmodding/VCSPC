@@ -96,17 +96,17 @@ void CDarkel::DrawMessages()
 
 				// TODO: Flashing
 				CFont::SetProportional(true);
-				CFont::PrintString(_x(88.0f + fPosXOffset), _y(!bIs2pRampage ? 148.0 : 148.0 + 50.0f), TheText.Get("TIME"));
+				CFont::PrintString(_x(88.0f + fPosXOffset), _y(!bIs2pRampage ? 148.0f : 148.0f + 50.0f), TheText.Get("TIME"));
 
 				CFont::SetProportional(false);
 				CFont::SetColor(BaseColors[11]);
-				CFont::PrintString(_x(32.0f), _y(!bIs2pRampage ? 148.0 : 148.0 + 50.0), gString);
+				CFont::PrintString(_x(32.0f), _y(!bIs2pRampage ? 148.0f : 148.0f + 50.0f), gString);
 			}
 
 			float	fPosXOffset;
 			int		nTextLength;
 
-			_snprintf(gString, sizeof(gString), "%d/%d", TotalKillsNeeded - max(0, KillsNeeded), TotalKillsNeeded);
+			_snprintf(gString, sizeof(gString), "%d/%d", TotalKillsNeeded - std::max<unsigned int>(0, KillsNeeded), TotalKillsNeeded);
 			nTextLength = strlen(gString);
 			if ( nTextLength > 4 )
 				fPosXOffset = 12.5f * (nTextLength - 4);
