@@ -2,6 +2,15 @@
 #include "Sprite.h"
 
 // Wrappers
+WRAPPER bool CSprite::CalcScreenCoors(const RwV3d& vecIn, RwV3d* vecOut, float* fWidth, float* fHeight, bool bCheckFarClip, bool bCheckNearClip) { EAXJMP(0x70CE30); }
+WRAPPER void CSprite::FlushSpriteBuffer() { EAXJMP(0x70CF20); }
+WRAPPER void CSprite::RenderOneXLUSprite_Rotate_Aspect(float x, float y, float z, float halfWidth, float halfHeight, 
+						unsigned char red, unsigned char green, unsigned char blue, short alpha, float rhw, 
+						float rotate, unsigned char aspect) { EAXJMP(0x70D490); }
+WRAPPER void CSprite::RenderBufferedOneXLUSprite_Rotate_Aspect(float x, float y, float z, float halfWidth, float halfHeight, 
+						unsigned char red, unsigned char green, unsigned char blue, short alpha, float rhw, 
+						float rotate, unsigned char aspect) { EAXJMP(0x70E780); }
+
 WRAPPER void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4)
 { WRAPARG(rect); WRAPARG(rgb1); WRAPARG(rgb2); WRAPARG(rgb3); WRAPARG(rgb4); EAXJMP(0x727420); }
 // TODO: Name params

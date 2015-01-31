@@ -72,7 +72,7 @@ void CShadows::StoreRealTimeShadowForBuilding(CBuilding* pBuilding)
 	if ( m_bShadowQuality > SHADOW_QUALITY_MEDIUM && ThisPropCanHaveShadow(pBuilding) )
 	{
 		float		fMaxDist = GetRealTimeShadowDistances(pBuilding) * 1.1f;
-		if ( (*pBuilding->GetCoords() - *TheCamera.GetCoords()).MagnitudeSqr() < fMaxDist*fMaxDist )
+		if ( (pBuilding->GetCoords() - TheCamera.GetCoords()).MagnitudeSqr() < fMaxDist*fMaxDist )
 		{
 			g_realTimeShadowMan.DoShadowThisFrame(pBuilding);
 		}

@@ -106,7 +106,7 @@ void CDarkel::DrawMessages()
 			float	fPosXOffset;
 			int		nTextLength;
 
-			_snprintf(gString, sizeof(gString), "%d/%d", TotalKillsNeeded - std::max<unsigned int>(0, KillsNeeded), TotalKillsNeeded);
+			_snprintf(gString, sizeof(gString), "%d/%d", TotalKillsNeeded - Max<unsigned int>(0, KillsNeeded), TotalKillsNeeded);
 			nTextLength = strlen(gString);
 			if ( nTextLength > 4 )
 				fPosXOffset = 12.5f * (nTextLength - 4);

@@ -3545,7 +3545,7 @@ __forceinline void Main_Patches()
 	//call(0x57A190, &MenuEntriesLeftColumnHack2, PATCH_JUMP);
 	//InjectHook(0x579BBF, &MenuEntriesPlaceSave, PATCH_JUMP);
 	//InjectHook(0x579C7F, &MenuEntriesPlaceSave2, PATCH_JUMP);
-	InjectHook(0x72FD75, &WidescreenSupportRecalculateHack, PATCH_JUMP);
+	//InjectHook(0x72FD75, &WidescreenSupportRecalculateHack, PATCH_JUMP);
 	InjectHook(0x745C99, &WidescreenSupportRecalculateHack2, PATCH_JUMP);
 	InjectHook(0x746341, &WidescreenSupportRecalculateHack3, PATCH_CALL);
 	InjectHook(0x6FF420, &WidescreenSupport::SetAspectRatio, PATCH_JUMP);

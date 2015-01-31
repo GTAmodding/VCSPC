@@ -117,8 +117,8 @@ public:
 		UNREFERENCED_PARAMETER(dummy);
 	}
 
-	inline CVector*					GetCoords()
-		{ return m_pCoords ? reinterpret_cast<CVector*>(&m_pCoords->matrix.pos) : &m_transform.m_translate; }
+	inline CVector&					GetCoords()
+		{ return m_pCoords ? reinterpret_cast<CVector&>(m_pCoords->matrix.pos) : m_transform.m_translate; }
 	inline CMatrix*					GetMatrix()
 		{ return m_pCoords; }
 	inline CSimpleTransform&		GetTransform()
@@ -131,6 +131,8 @@ public:
 		else m_transform.m_translate = pos; }
 	inline void						SetHeading(float fHeading)
 		{ if ( m_pCoords ) m_pCoords->SetRotateZOnly(fHeading); else m_transform.m_heading = fHeading; }
+
+	void							AllocateMatrix();
 };
 
 // TODO: May not be the best place to put it?

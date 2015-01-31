@@ -814,7 +814,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			CollectParameters(4);
 
 			CPed*		pThePed = CPools::GetPedPool()->GetAt(scriptParams[0].iParam);
-			CVector		vecFaceVector = CVector(scriptParams[1].fParam, scriptParams[2].fParam) - *pThePed->GetCoords();
+			CVector		vecFaceVector = CVector(scriptParams[1].fParam, scriptParams[2].fParam) - pThePed->GetCoords();
 			float		fHeading = atan2(-vecFaceVector.x, vecFaceVector.y);
 
 			pThePed->SetCurrentHeading(fHeading);

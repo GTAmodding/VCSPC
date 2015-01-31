@@ -127,7 +127,7 @@ void CProject2dfx::Render()
 
 				if ( fDistSqr > 280.0f*280.0f && fDistSqr < CORONAS_FARCLIP*CORONAS_FARCLIP )
 				{
-					float	fRadius = std::min((fDistSqr < 290.0f*290.0f) ? (1.0f/ 4.0f)*sqrt(fDistSqr) - 70.0f : (3.0f/164.0f)*sqrt(fDistSqr) - (5.0f/41.0f), 20.0f);
+					float	fRadius = Min((fDistSqr < 290.0f*290.0f) ? (1.0f/ 4.0f)*sqrt(fDistSqr) - 70.0f : (3.0f/164.0f)*sqrt(fDistSqr) - (5.0f/41.0f), 20.0f);
 
 					CCoronas::RegisterCorona(reinterpret_cast<unsigned int>(&*it), nullptr, it->colour.r, it->colour.g, it->colour.b, bAlpha, it->vecPos, fRadius * it->fCustomSizeMult, CORONAS_FARCLIP, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, bAlpha, false, true);
 				}

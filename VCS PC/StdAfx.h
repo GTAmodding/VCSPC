@@ -122,7 +122,19 @@ inline void		ToLower(char* str, BYTE len)
 template<typename T>
 inline T random(T a, T b)
 {
-	return a + static_cast<T>(rand() * (1.0f/(RAND_MAX+1)) * (b - a));
+	return a + static_cast<T>(rand() * (1.0f/RAND_MAX) * (b - a));
+}
+
+template<typename T>
+inline T Min(const T& a, const T& b)
+{
+	return a > b ? b : a;
+}
+
+template<typename T>
+inline T Max(const T& a, const T& b)
+{
+	return a > b ? a : b;
 }
 
 inline int round(double value)

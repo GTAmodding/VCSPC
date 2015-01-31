@@ -89,6 +89,10 @@ public:
 	static void							UpdateCoronaCoors(unsigned int nID, const CVector& vecPosition, float fMaxDist, float fNormalAngle);
 	static void							Init();
 
+	static void							Render();
+	static void							RenderBuffered();
+	static void							RenderDebug();
+
 	// Hacky hacky
 	/*static inline void					PrepareForSizeChange()
 	{ if ( aCoronas.size() == aCoronas.capacity() )

@@ -113,7 +113,6 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>binkw32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)VCSPC.dll</OutputFile>
       <Version>
       </Version>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -179,7 +178,6 @@ popd</Command>
     </ClCompile>
     <Link>
       <AdditionalDependencies>binkw32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)VCSPC.dll</OutputFile>
       <Version>
       </Version>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -237,7 +235,6 @@ popd</Command>
     <Link>
       <AdditionalDependencies>binkw32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <Version>
       </Version>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -302,7 +299,6 @@ popd</Command>
     <Link>
       <AdditionalDependencies>binkw32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <Version>
       </Version>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -430,6 +426,7 @@ popd</Command>
     <ClCompile Include="Vehicle.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
     <ClCompile Include="VisibilityPlugins.cpp" />
+    <ClCompile Include="Weather.cpp" />
     <ClCompile Include="WidescreenSupport.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="X360Pad.cpp" />
@@ -520,6 +517,7 @@ popd</Command>
     <ClInclude Include="Vehicle.h" />
     <ClInclude Include="VideoPlayer.h" />
     <ClInclude Include="VisibilityPlugins.h" />
+    <ClInclude Include="Weather.h" />
     <ClInclude Include="WidescreenSupport.h" />
     <ClInclude Include="World.h" />
     <ClInclude Include="X360Pad.h" />

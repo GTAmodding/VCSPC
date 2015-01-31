@@ -147,11 +147,11 @@ RwTexture* CRealTimeShadow::Update()
 	if ( m_pEntity->m_pRwObject && m_pEntity->bIveBeenRenderedOnce )
 	{
 		// Close enough to the object?
-		CVector*	pObjPos = m_pEntity->GetCoords();
-		CVector*	pCamPos = TheCamera.GetCoords();
+		CVector&	pObjPos = m_pEntity->GetCoords();
+		CVector&	pCamPos = TheCamera.GetCoords();
 		float		fMaxDist = CShadows::GetRealTimeShadowDistances(m_pEntity) * 1.1f;
 		
-		if ( (*pObjPos-*pCamPos).MagnitudeSqr() > fMaxDist*fMaxDist )
+		if ( (pObjPos-pCamPos).MagnitudeSqr() > fMaxDist*fMaxDist )
 			return nullptr;
 
 		if ( m_nRwObjectType == rpATOMIC )
@@ -544,7 +544,7 @@ void CRealTimeShadowManager::KeepBuildingShadowsAlive()
 {
 	if ( m_bInitialised && CShadows::GetShadowQuality() > SHADOW_QUALITY_MEDIUM )
 	{
-		CVector		vecCamCoords = *TheCamera.GetCoords();
+		CVector&	vecCamCoords = TheCamera.GetCoords();
 		for ( int i = 0; i < NUM_MAX_REALTIME_SHADOWS; i++ )
 		{
 			if ( !m_pShadows[i]->GetRenderedThisFrame() )
@@ -554,7 +554,7 @@ void CRealTimeShadowManager::KeepBuildingShadowsAlive()
 				{
 					if ( pShadowOwner->nType == 1 )
 					{
-						if ( (*pShadowOwner->GetCoords() - vecCamCoords).MagnitudeSqr() < 45.0*45.0 )
+						if ( (pShadowOwner->GetCoords() - vecCamCoords).MagnitudeSqr() < 45.0f*45.0f )
 							m_pShadows[i]->SetRenderedThisFrame();
 					}
 				}

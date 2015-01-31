@@ -107,7 +107,7 @@ const char* CGenericGameStorage::GetNameOfSavedGame(int nSlot)
 
 DEPRECATED void CPedSaveStructure::CPedSaveStructure001::Construct(CPed* pPed)
 {
-	Coords = *pPed->GetCoords();
+	Coords = pPed->GetCoords();
 	fHealth = pPed->fHealth;
 	fArmour = pPed->fArmour;
 	bCreatedBy = pPed->PedCreatedBy;
@@ -181,7 +181,7 @@ void CPedSaveStructure::CPedSaveStructure001::Extract(CPed* pPed)
 
 void CPedSaveStructure::CPedSaveStructure002::Construct(CPed* pPed)
 {
-	Coords = *pPed->GetCoords();
+	Coords = pPed->GetCoords();
 	fHealth = pPed->fHealth;
 	fArmour = pPed->fArmour;
 	bCreatedBy = pPed->PedCreatedBy;

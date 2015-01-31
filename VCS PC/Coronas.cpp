@@ -3,6 +3,8 @@
 
 #include "Camera.h"
 #include "Timer.h"
+#include "Sprite.h"
+#include "Weather.h"
 
 std::map<unsigned int,CCoronasLinkedListNode*>	CCoronas::UsedMap;
 CCoronasLinkedListNode							CCoronas::FreeList, CCoronas::UsedList;		
@@ -20,13 +22,17 @@ void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned cha
 	CVector		vecPosToCheck;
 	if ( pAttachTo )
 	{
-		// TODO: AllocateMatrix
+		if ( !pAttachTo->GetMatrix() )
+		{
+			pAttachTo->AllocateMatrix();
+			pAttachTo->GetTransform().UpdateMatrix(pAttachTo->GetMatrix());
+		}
 		vecPosToCheck = *pAttachTo->GetMatrix() * Position;
 	}
 	else
 		vecPosToCheck = Position;
 
-	CVector*	pCamPos = TheCamera.GetCoords();
+	CVector*	pCamPos = &TheCamera.GetCoords();
 	if ( Range * Range >= (pCamPos->x - vecPosToCheck.x)*(pCamPos->x - vecPosToCheck.x) + (pCamPos->y - vecPosToCheck.y)*(pCamPos->y - vecPosToCheck.y) )
 	{
 		if ( bNeonFade )
@@ -168,7 +174,7 @@ void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned cha
 
 void CCoronas::Update()
 {
-	ScreenMult = std::min(1.0f, CTimer::ms_fTimeStep * 0.03f + ScreenMult);
+	ScreenMult = Min(1.0f, CTimer::ms_fTimeStep * 0.03f + ScreenMult);
 
 	static unsigned int		nSomeHackyMask = 0;
 	unsigned int			nThisHackyMask = 0;
@@ -186,7 +192,7 @@ void CCoronas::Update()
 		nThisHackyMask |= 8;
 
 	if ( nSomeHackyMask == nThisHackyMask )
-		bChangeBrightnessImmediately = std::max(0, bChangeBrightnessImmediately - 1);
+		bChangeBrightnessImmediately = Max(0, bChangeBrightnessImmediately - 1);
 	else
 	{
 		bChangeBrightnessImmediately = 3;
@@ -218,7 +224,7 @@ void CCoronas::Update()
 
 void CCoronas::UpdateCoronaCoors(unsigned int nID, const CVector& vecPosition, float fMaxDist, float fNormalAngle)
 {
-	CVector*	pCamPos = TheCamera.GetCoords();
+	CVector*	pCamPos = &TheCamera.GetCoords();
 	if ( fMaxDist * fMaxDist >= (pCamPos->x - vecPosition.x)*(pCamPos->x - vecPosition.x) + (pCamPos->y - vecPosition.y)*(pCamPos->y - vecPosition.y) )
 	{
 		auto	it = UsedMap.find(nID);
@@ -242,6 +248,229 @@ void CCoronas::Init()
 		aLinkedList[i].Add(&FreeList);
 		aLinkedList[i].SetEntry(&aCoronas[i]);
 	}
+}
+
+void CCoronas::Render()
+{
+	int		nWidth = RwRasterGetWidth(RwCameraGetRaster(Camera));
+	int		nHeight = RwRasterGetHeight(RwCameraGetRaster(Camera));
+
+	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, FALSE);
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDONE);
+	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDONE);
+	//RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
+
+	for ( int i = 0; i < NUM_CORONAS; i++ )
+	{
+		if ( aCoronas[i].Identifier )
+		{
+			if ( aCoronas[i].FadedIntensity > 0 || aCoronas[i].Intensity > 0 )
+			{
+				RwV3d	vecCoronaCoords, vecTransformedCoords;
+				float	fComputedWidth, fComputedHeight;
+
+				if ( CEntity* pEntity = aCoronas[i].pEntityAttachedTo )
+				{
+					// TODO: CBike version
+					if ( !pEntity->GetMatrix() )
+					{
+						pEntity->AllocateMatrix();
+						pEntity->GetTransform().UpdateMatrix(pEntity->GetMatrix());
+					}
+					CVector	vecEntityPos = *pEntity->GetMatrix() * aCoronas[i].Coordinates;
+					vecCoronaCoords.x = vecEntityPos.x;
+					vecCoronaCoords.y = vecEntityPos.y;
+					vecCoronaCoords.z = vecEntityPos.z;
+				}
+				else
+				{
+					vecCoronaCoords.x = aCoronas[i].Coordinates.x;
+					vecCoronaCoords.y = aCoronas[i].Coordinates.y;
+					vecCoronaCoords.z = aCoronas[i].Coordinates.z;
+				}
+
+				if ( CSprite::CalcScreenCoors(vecCoronaCoords, &vecTransformedCoords, &fComputedWidth, &fComputedHeight, true, true) )
+				{
+					aCoronas[i].OffScreen = !( vecTransformedCoords.x >= 0.0 && vecTransformedCoords.x <= nWidth &&
+											vecTransformedCoords.y >= 0.0 && vecTransformedCoords.y <= nHeight);
+
+					if ( aCoronas[i].FadedIntensity > 0 && vecTransformedCoords.z <= aCoronas[i].Range )
+					{
+						float	fInvFarClip = 1.0f / vecTransformedCoords.z;
+						float	fHalfRange = aCoronas[i].Range * 0.5f;
+					
+						short	nFadeIntensity = aCoronas[i].FadedIntensity * (vecTransformedCoords.z > fHalfRange ? 1.0f - (vecTransformedCoords.z - fHalfRange) / fHalfRange : 1.0f);
+
+						RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)(aCoronas[i].LOSCheck == false));
+
+						if ( aCoronas[i].pTex )
+						{
+							float	fColourFogMult = Min(40.0f, vecTransformedCoords.z) * CWeather::Foggyness * 0.025f + 1.0f;	// TODO: Check
+
+							if ( aCoronas[i].Identifier == 1 )	// Sun core
+								vecTransformedCoords.z = RwCameraGetFarClipPlane(Camera) * 0.95f;
+
+							// This R* tweak broke the sun
+							//RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
+							RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwTextureGetRaster(aCoronas[i].pTex));
+
+							RwV3d		vecCoronaCoordsAfterPull = vecCoronaCoords;
+							CVector		vecTempVector(vecCoronaCoordsAfterPull);
+							vecTempVector -= TheCamera.GetCoords();
+							vecTempVector.Normalise();
+
+							vecCoronaCoordsAfterPull.x -= (vecTempVector.x * aCoronas[i].PullTowardsCam);
+							vecCoronaCoordsAfterPull.y -= (vecTempVector.y * aCoronas[i].PullTowardsCam);
+							vecCoronaCoordsAfterPull.z -= (vecTempVector.z * aCoronas[i].PullTowardsCam);
+
+							if ( CSprite::CalcScreenCoors(vecCoronaCoordsAfterPull, &vecTransformedCoords, &fComputedWidth, &fComputedHeight, true, true) )
+								CSprite::RenderOneXLUSprite_Rotate_Aspect(vecTransformedCoords.x, vecTransformedCoords.y, vecTransformedCoords.z,
+								aCoronas[i].Size * fComputedWidth, aCoronas[i].Size * fComputedHeight * fColourFogMult,
+								aCoronas[i].Red / fColourFogMult, aCoronas[i].Green / fColourFogMult, aCoronas[i].Blue / fColourFogMult, nFadeIntensity,
+								fInvFarClip * 20.0f, 0.0, 0xFF);
+
+						}
+					
+						// TODO: Flare effect
+					}
+				}
+				else
+					aCoronas[i].OffScreen = true;
+			}
+		}
+	}
+
+	CSprite::FlushSpriteBuffer();
+}
+
+void CCoronas::RenderBuffered()
+{
+	int		nWidth = RwRasterGetWidth(RwCameraGetRaster(Camera));
+	int		nHeight = RwRasterGetHeight(RwCameraGetRaster(Camera));
+
+	// For buffered render
+	RwRaster*	pLastRaster = nullptr;
+	bool		bLastZWriteRenderState = true;
+
+	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, FALSE);
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDONE);
+	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDONE);
+	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
+
+	for ( int i = 0; i < NUM_CORONAS; i++ )
+	{
+		bool	bFlushThisFrame = false;
+
+		if ( aCoronas[i].Identifier )
+		{
+			if ( aCoronas[i].FadedIntensity > 0 || aCoronas[i].Intensity > 0 )
+			{
+				RwV3d	vecCoronaCoords, vecTransformedCoords;
+				float	fComputedWidth, fComputedHeight;
+
+				if ( CEntity* pEntity = aCoronas[i].pEntityAttachedTo )
+				{
+					// TODO: CBike version
+					if ( !pEntity->GetMatrix() )
+					{
+						pEntity->AllocateMatrix();
+						pEntity->GetTransform().UpdateMatrix(pEntity->GetMatrix());
+					}
+					CVector	vecEntityPos = *pEntity->GetMatrix() * aCoronas[i].Coordinates;
+					vecCoronaCoords.x = vecEntityPos.x;
+					vecCoronaCoords.y = vecEntityPos.y;
+					vecCoronaCoords.z = vecEntityPos.z;
+				}
+				else
+				{
+					vecCoronaCoords.x = aCoronas[i].Coordinates.x;
+					vecCoronaCoords.y = aCoronas[i].Coordinates.y;
+					vecCoronaCoords.z = aCoronas[i].Coordinates.z;
+				}
+
+				if ( CSprite::CalcScreenCoors(vecCoronaCoords, &vecTransformedCoords, &fComputedWidth, &fComputedHeight, true, true) )
+				{
+					aCoronas[i].OffScreen = !( vecTransformedCoords.x >= 0.0 && vecTransformedCoords.x <= nWidth &&
+											vecTransformedCoords.y >= 0.0 && vecTransformedCoords.y <= nHeight);
+
+					if ( aCoronas[i].FadedIntensity > 0 && vecTransformedCoords.z <= aCoronas[i].Range )
+					{
+						float	fInvFarClip = 1.0f / vecTransformedCoords.z;
+						float	fHalfRange = aCoronas[i].Range * 0.5f;
+					
+						short	nFadeIntensity = aCoronas[i].FadedIntensity * (vecTransformedCoords.z > fHalfRange ? 1.0f - (vecTransformedCoords.z - fHalfRange) / fHalfRange : 1.0f);
+
+						if ( bLastZWriteRenderState != aCoronas[i].LOSCheck == false )
+						{
+							bLastZWriteRenderState = aCoronas[i].LOSCheck == false;
+							bFlushThisFrame = true;
+
+							RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)bLastZWriteRenderState);
+						}
+				
+						if ( aCoronas[i].pTex )
+						{
+							float	fColourFogMult = Min(40.0f, vecTransformedCoords.z) * CWeather::Foggyness * 0.025f + 1.0f;	// TODO: Check
+
+							if ( aCoronas[i].Identifier == 1 )	// Sun core
+								vecTransformedCoords.z = RwCameraGetFarClipPlane(Camera) * 0.95f;
+
+							// This R* tweak broke the sun
+							//RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
+							if ( pLastRaster != RwTextureGetRaster(aCoronas[i].pTex) )
+							{
+								pLastRaster = RwTextureGetRaster(aCoronas[i].pTex);
+								bFlushThisFrame = true;
+
+								RwRenderStateSet(rwRENDERSTATETEXTURERASTER, pLastRaster);
+							}
+
+							RwV3d		vecCoronaCoordsAfterPull = vecCoronaCoords;
+							CVector		vecTempVector(vecCoronaCoordsAfterPull);
+							vecTempVector -= TheCamera.GetCoords();
+							vecTempVector.Normalise();
+
+							vecCoronaCoordsAfterPull.x -= (vecTempVector.x * aCoronas[i].PullTowardsCam);
+							vecCoronaCoordsAfterPull.y -= (vecTempVector.y * aCoronas[i].PullTowardsCam);
+							vecCoronaCoordsAfterPull.z -= (vecTempVector.z * aCoronas[i].PullTowardsCam);
+
+							if ( CSprite::CalcScreenCoors(vecCoronaCoordsAfterPull, &vecTransformedCoords, &fComputedWidth, &fComputedHeight, true, true) )
+							{
+								if ( bFlushThisFrame )
+									CSprite::FlushSpriteBuffer();
+
+								CSprite::RenderBufferedOneXLUSprite_Rotate_Aspect(vecTransformedCoords.x, vecTransformedCoords.y, vecTransformedCoords.z,
+								aCoronas[i].Size * fComputedWidth, aCoronas[i].Size * fComputedHeight * fColourFogMult,
+								aCoronas[i].Red / fColourFogMult, aCoronas[i].Green / fColourFogMult, aCoronas[i].Blue / fColourFogMult, nFadeIntensity,
+								fInvFarClip * 20.0f, 0.0, 0xFF);
+							}
+
+						}
+					
+						// TODO: Flare effect
+					}
+				}
+				else
+					aCoronas[i].OffScreen = true;
+			}
+		}
+	}
+
+	CSprite::FlushSpriteBuffer();
+}
+
+void CCoronas::RenderDebug()
+{
+	D3DPERF_BeginEvent(D3DCOLOR_ARGB(0xFF, 0xFF, 0, 0), L"coronas render");
+
+	if ( GetAsyncKeyState(VK_F4) & 0x8000 )
+		Render();
+	else
+		RenderBuffered();
+
+	D3DPERF_EndEvent();
 }
 
 /*void CCoronas::InvalidateAllReferences()
@@ -292,20 +521,15 @@ void CCoronas::Inject()
 	Memory::Patch<void*>(0x6FB648, &aCoronas->JustCreated + 1);
 	Memory::Patch<void*>(0x6FB6CF, &aCoronas->FadedIntensity);
 
-	// CCoronas::Render
-	Memory::Patch<void*>(0x6FAF42, &aCoronas->pEntityAttachedTo);
-
 	// CCoronas::RenderReflections
 	Memory::Patch<void*>(0x6FB657, &aCoronas[NUM_CORONAS].JustCreated + 1);
 	Memory::Patch<void*>(0x6FB9B8, &aCoronas[NUM_CORONAS].FadedIntensity);
-
-	// CCoronas::Render
-	Memory::Patch<DWORD>(0x6FAF4A, NUM_CORONAS);
 
 	Memory::InjectHook(0x6FC180, CCoronas::RegisterCorona, PATCH_JUMP);
 	Memory::InjectHook(0x6FC4D0, CCoronas::UpdateCoronaCoors, PATCH_JUMP);
 	Memory::InjectHook(0x6FAAD9, CCoronas::Init, PATCH_JUMP);
 	Memory::InjectHook(0x53C13B, CCoronas::Update);
+	Memory::InjectHook(0x53E18E, CCoronas::RenderBuffered);
 }
 
 static StaticPatcher	Patcher([](){ 
