@@ -361,8 +361,6 @@ void CCoronas::RenderBuffered()
 
 	for ( int i = 0; i < NUM_CORONAS; i++ )
 	{
-		bool	bFlushThisFrame = false;
-
 		if ( aCoronas[i].Identifier )
 		{
 			if ( aCoronas[i].FadedIntensity > 0 || aCoronas[i].Intensity > 0 )
@@ -405,7 +403,7 @@ void CCoronas::RenderBuffered()
 						if ( bLastZWriteRenderState != aCoronas[i].LOSCheck == false )
 						{
 							bLastZWriteRenderState = aCoronas[i].LOSCheck == false;
-							bFlushThisFrame = true;
+							CSprite::FlushSpriteBuffer();
 
 							RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)bLastZWriteRenderState);
 						}
@@ -422,7 +420,7 @@ void CCoronas::RenderBuffered()
 							if ( pLastRaster != RwTextureGetRaster(aCoronas[i].pTex) )
 							{
 								pLastRaster = RwTextureGetRaster(aCoronas[i].pTex);
-								bFlushThisFrame = true;
+								CSprite::FlushSpriteBuffer();
 
 								RwRenderStateSet(rwRENDERSTATETEXTURERASTER, pLastRaster);
 							}
@@ -438,13 +436,10 @@ void CCoronas::RenderBuffered()
 
 							if ( CSprite::CalcScreenCoors(vecCoronaCoordsAfterPull, &vecTransformedCoords, &fComputedWidth, &fComputedHeight, true, true) )
 							{
-								if ( bFlushThisFrame )
-									CSprite::FlushSpriteBuffer();
-
 								CSprite::RenderBufferedOneXLUSprite_Rotate_Aspect(vecTransformedCoords.x, vecTransformedCoords.y, vecTransformedCoords.z,
-								aCoronas[i].Size * fComputedWidth, aCoronas[i].Size * fComputedHeight * fColourFogMult,
-								aCoronas[i].Red / fColourFogMult, aCoronas[i].Green / fColourFogMult, aCoronas[i].Blue / fColourFogMult, nFadeIntensity,
-								fInvFarClip * 20.0f, 0.0, 0xFF);
+									aCoronas[i].Size * fComputedWidth, aCoronas[i].Size * fComputedHeight * fColourFogMult,
+									aCoronas[i].Red / fColourFogMult, aCoronas[i].Green / fColourFogMult, aCoronas[i].Blue / fColourFogMult, nFadeIntensity,
+									fInvFarClip * 20.0f, 0.0, 0xFF);
 							}
 
 						}
