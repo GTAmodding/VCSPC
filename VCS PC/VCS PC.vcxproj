@@ -127,9 +127,9 @@
       </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>%40echo off
+      <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
-copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\VCSPC.dll"
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
@@ -192,9 +192,9 @@ popd</Command>
       </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>%40echo off
+      <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
-copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\VCSPC.dll"
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
@@ -249,10 +249,13 @@ popd</Command>
       </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>%40echo off
-"$(SolutionDir)encrypt" "$(TargetPath)"
+      <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
-copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\VCSPC.dll"
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
+)
+
+if "%COMPUTERNAME%" == "FALLARBOR" (
+copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -313,9 +316,13 @@ popd</Command>
       </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>%40echo off
+      <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
-copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\VCSPC.dll"
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
+)
+
+if "%COMPUTERNAME%" == "FALLARBOR" (
+copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>

@@ -95,9 +95,12 @@
     </Link>
     <PostBuildEvent>
       <Command>@echo off
-
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
-  copy /y "$(OutDir)$(ProjectName).exe" "D:\gry\gtavcs zzcool n updater\updater\updater.exe"
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\updater\updater.exe"
+)
+
+if "%COMPUTERNAME%" == "FALLARBOR" (
+copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\updater\updater.exe"
 )</Command>
     </PostBuildEvent>
     <ResourceCompile />
@@ -118,9 +121,12 @@ if "%COMPUTERNAME%" == "ADRIAN-PC" (
     </Link>
     <PostBuildEvent>
       <Command>@echo off
-
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
-  copy /y "$(OutDir)$(ProjectName).exe" "D:\gry\gtavcs zzcool n updater\updater\updater.exe"
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\updater\updater.exe"
+)
+
+if "%COMPUTERNAME%" == "FALLARBOR" (
+copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\updater\updater.exe"
 )</Command>
     </PostBuildEvent>
     <ResourceCompile />
@@ -148,7 +154,14 @@ if "%COMPUTERNAME%" == "ADRIAN-PC" (
       <AdditionalDependencies>comctl32.lib;..\Release\UptModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(OutDir)$(ProjectName).exe" "D:\gry\gtavcs zzcool n updater\updater\updater.exe"</Command>
+      <Command>@echo off
+if "%COMPUTERNAME%" == "ADRIAN-PC" (
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\updater\updater.exe"
+)
+
+if "%COMPUTERNAME%" == "FALLARBOR" (
+copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\updater\updater.exe"
+)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -76,9 +76,12 @@
     </Link>
     <PostBuildEvent>
       <Command>@echo off
-
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
-copy /y "$(OutDir)$(ProjectName).dll" "D:\gry\gtavcs zzcool n updater\updater\UptModule.dll"
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\updater\UptModule.dll"
+)
+
+if "%COMPUTERNAME%" == "FALLARBOR" (
+copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\updater\UptModule.dll"
 )</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -101,9 +104,12 @@ copy /y "$(OutDir)$(ProjectName).dll" "D:\gry\gtavcs zzcool n updater\updater\Up
     </Link>
     <PostBuildEvent>
       <Command>@echo off
-
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
-copy /y "$(OutDir)$(ProjectName).dll" "D:\gry\gtavcs zzcool n updater\updater\UptModule.dll"
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\updater\UptModule.dll"
+)
+
+if "%COMPUTERNAME%" == "FALLARBOR" (
+copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\updater\UptModule.dll"
 )</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -132,7 +138,14 @@ copy /y "$(OutDir)$(ProjectName).dll" "D:\gry\gtavcs zzcool n updater\updater\Up
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(OutDir)$(ProjectName).dll" "D:\gry\gtavcs zzcool n updater\updater\UptModule.dll"</Command>
+      <Command>@echo off
+if "%COMPUTERNAME%" == "ADRIAN-PC" (
+copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\updater\UptModule.dll"
+)
+
+if "%COMPUTERNAME%" == "FALLARBOR" (
+copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\updater\UptModule.dll"
+)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

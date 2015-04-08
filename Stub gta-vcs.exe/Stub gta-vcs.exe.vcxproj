@@ -50,10 +50,8 @@
       <EntryPointSymbol>wWinMain@16</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>@echo off
-if "%COMPUTERNAME%" == "ADRIAN-PC" (
-copy /y "$(TargetPath)" "D:\gry\gtavcs zzcool n updater\stub-gta-vcs.exe"
-)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
