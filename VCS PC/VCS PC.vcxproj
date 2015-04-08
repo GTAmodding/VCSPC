@@ -149,13 +149,6 @@ popd</Command>
     <ResourceCompile>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
-      <Culture>
-      </Culture>
-      <SuppressStartupBanner>
-      </SuppressStartupBanner>
-      <ResourceOutputFileName>
-      </ResourceOutputFileName>
-      <AdditionalOptions>/D CONFIGURATION=\"Debug\" /l 0x0409 /nologo /fo"Debug\%(Filename).res" %(AdditionalOptions)</AdditionalOptions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
@@ -271,13 +264,6 @@ popd</Command>
     <ResourceCompile>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
-      <Culture>
-      </Culture>
-      <SuppressStartupBanner>
-      </SuppressStartupBanner>
-      <ResourceOutputFileName>
-      </ResourceOutputFileName>
-      <AdditionalOptions>/D CONFIGURATION=\"Release\" /l 0x0409 /nologo /fo"Release\%(Filename).res" %(AdditionalOptions)</AdditionalOptions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
@@ -556,11 +542,7 @@ popd</Command>
     <MASM Include="..\common\win2000.asm" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Shaders.rc">
-      <Culture Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">0x0409</Culture>
-      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">true</SuppressStartupBanner>
-      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">$(IntDir)%(Filename).res</ResourceOutputFileName>
-    </ResourceCompile>
+    <ResourceCompile Include="Shaders.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
