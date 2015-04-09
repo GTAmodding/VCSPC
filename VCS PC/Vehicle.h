@@ -129,6 +129,8 @@ public:
 						{ return m_nVehicleFlags; }
 	CEntity*		GetDamagingEntity()
 						{ return pDamagingEntity; }
+	eVehicleType	GetClass()
+		{ return m_dwVehicleClass; }
 	eVehicleType	GetSubClass()
 		{ return m_dwVehicleSubClass; }
 
@@ -175,6 +177,14 @@ public:
 		{ CPlane::Render(); }
 
 	virtual void		Render() override;
+};
+
+class NOVMT CBike : public CVehicle
+{
+public:
+	RwFrame*			m_pBikeNode[10];
+	DWORD				dwUnkk;
+	CMatrix				m_bodyRollMatrix;
 };
 
 static_assert(sizeof(CVehicle) == 0x5A0, "Wrong size: CVehicle");

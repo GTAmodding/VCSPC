@@ -5,6 +5,7 @@
 #include "Timer.h"
 #include "Sprite.h"
 #include "Weather.h"
+#include "Vehicle.h"
 
 std::map<unsigned int,CCoronasLinkedListNode*>	CCoronas::UsedMap;
 CCoronasLinkedListNode							CCoronas::FreeList, CCoronas::UsedList;		
@@ -272,13 +273,21 @@ void CCoronas::Render()
 
 				if ( CEntity* pEntity = aCoronas[i].pEntityAttachedTo )
 				{
-					// TODO: CBike version
-					if ( !pEntity->GetMatrix() )
+					CMatrix*		MatrixWeWant;
+					if ( pEntity->nType == 2 && static_cast<CVehicle*>(pEntity)->GetClass() == VEHICLE_BIKE )
 					{
-						pEntity->AllocateMatrix();
-						pEntity->GetTransform().UpdateMatrix(pEntity->GetMatrix());
+						MatrixWeWant = &static_cast<CBike*>(pEntity)->m_bodyRollMatrix;
 					}
-					CVector	vecEntityPos = *pEntity->GetMatrix() * aCoronas[i].Coordinates;
+					else
+					{
+						if ( !pEntity->GetMatrix() )
+						{
+							pEntity->AllocateMatrix();
+							pEntity->GetTransform().UpdateMatrix(pEntity->GetMatrix());
+						}
+						MatrixWeWant = pEntity->GetMatrix();
+					}
+					CVector	vecEntityPos = *MatrixWeWant * aCoronas[i].Coordinates;
 					vecCoronaCoords.x = vecEntityPos.x;
 					vecCoronaCoords.y = vecEntityPos.y;
 					vecCoronaCoords.z = vecEntityPos.z;
@@ -370,13 +379,21 @@ void CCoronas::RenderBuffered()
 
 				if ( CEntity* pEntity = aCoronas[i].pEntityAttachedTo )
 				{
-					// TODO: CBike version
-					if ( !pEntity->GetMatrix() )
+					CMatrix*		MatrixWeWant;
+					if ( pEntity->nType == 2 && static_cast<CVehicle*>(pEntity)->GetClass() == VEHICLE_BIKE )
 					{
-						pEntity->AllocateMatrix();
-						pEntity->GetTransform().UpdateMatrix(pEntity->GetMatrix());
+						MatrixWeWant = &static_cast<CBike*>(pEntity)->m_bodyRollMatrix;
 					}
-					CVector	vecEntityPos = *pEntity->GetMatrix() * aCoronas[i].Coordinates;
+					else
+					{
+						if ( !pEntity->GetMatrix() )
+						{
+							pEntity->AllocateMatrix();
+							pEntity->GetTransform().UpdateMatrix(pEntity->GetMatrix());
+						}
+						MatrixWeWant = pEntity->GetMatrix();
+					}
+					CVector	vecEntityPos = *MatrixWeWant * aCoronas[i].Coordinates;
 					vecCoronaCoords.x = vecEntityPos.x;
 					vecCoronaCoords.y = vecEntityPos.y;
 					vecCoronaCoords.z = vecEntityPos.z;
