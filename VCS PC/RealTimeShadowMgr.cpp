@@ -53,6 +53,7 @@ RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 	if ( RpAtomicGetFlags(pAtomic) & rpATOMICRENDER )
 	{
 		RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
+		assert(pGeometry != nullptr);
 		RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
 		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|

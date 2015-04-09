@@ -105,7 +105,7 @@ RwFrame* RwFrameForAllChildren(RwFrame* frame, RwFrameCallBack callBack, void* d
 {
 	for ( RwFrame* curFrame = frame->child; curFrame; curFrame = curFrame->next )
 	{
-		if ( !callBack(curFrame, data) )
+		if ( callBack(curFrame, data) == nullptr )
 			break;
 	}
 	return frame;
@@ -115,7 +115,7 @@ RwFrame* RwFrameForAllObjects(RwFrame* frame, RwObjectCallBack callBack, void* d
 {
 	for ( RwLLLink* link = rwLinkListGetFirstLLLink(&frame->objectList); link != rwLinkListGetTerminator(&frame->objectList); link = rwLLLinkGetNext(link) )
 	{
-		if ( !callBack(&rwLLLinkGetData(link, RwObjectHasFrame, lFrame)->object, data) )
+		if ( callBack(&rwLLLinkGetData(link, RwObjectHasFrame, lFrame)->object, data) == nullptr )
 			break;
 	}
 
@@ -223,7 +223,7 @@ RpClump* RpClumpForAllAtomics(RpClump* clump, RpAtomicCallBack callback, void* p
 {
 	for ( RwLLLink* link = rwLinkListGetFirstLLLink(&clump->atomicList); link != rwLinkListGetTerminator(&clump->atomicList); link = rwLLLinkGetNext(link) )
 	{
-		if ( !callback(rwLLLinkGetData(link, RpAtomic, inClumpLink), pData) )
+		if ( callback(rwLLLinkGetData(link, RpAtomic, inClumpLink), pData) == nullptr )
 			break;
 	}
 	return clump;
@@ -251,7 +251,7 @@ RpGeometry* RpGeometryForAllMaterials(RpGeometry* geometry, RpMaterialCallBack f
 {
 	for ( RwInt32 i = 0, j = geometry->matList.numMaterials; i < j; i++ )
 	{
-		if ( !fpCallBack(geometry->matList.materials[i], pData) )
+		if ( fpCallBack(geometry->matList.materials[i], pData) == nullptr )
 			break;
 	}
 	return geometry;

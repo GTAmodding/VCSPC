@@ -34,6 +34,7 @@ const char*				CHud::m_ZoneToPrint;
 float					CHud::BigMessage2Alpha;
 float					CHud::BigMessage3Alpha;
 int&					CHud::m_HelpMessageState = *(int*)0xBAA474;
+short&					CHud::m_ItemToFlash = *(short*)0xBAB1DC;
 char					CHud::m_PagerMessage[16];
 CSprite2d* const		CHud::Sprites = (CSprite2d*)0xBAB1FC;
 
@@ -509,7 +510,7 @@ void CHud::DrawOnscreenTimer()
 
 void CHud::DrawPermanentTexts()
 {
-#if !defined _NDEBUG && !defined SKIP_DEBUG_TEXTS
+#if !defined NDEBUG && !defined SKIP_DEBUG_TEXTS
 #if !defined COMPILE_RC && !defined MAKE_ZZCOOL_MOVIE_DEMO
 	if ( bShouldFPSBeDisplayed && !InAmazingScreenshotMode )
 	{
@@ -528,16 +529,21 @@ void CHud::DrawPermanentTexts()
 			CFont::PrintString(_x(15.0f), _y(3.5f), debugText);
 		}
 
-#if defined(INCLUDE_STREAMING_TEXT)
+#if defined INCLUDE_STREAMING_TEXT
 		long double	percentUsage = ((long double)(*memoryUsed) / * memoryAvailable) * 100.0;
 
-		_snprintf(debugText, sizeof(debugText), "STREAMING %dKB/%dKB (%d%% USED)", *memoryUsed / 1024, *memoryAvailable / 1024, (int)percentUsage);
+		sprintf(debugText, "STREAMING %dKB/%dKB (%d%% USED)", *memoryUsed / 1024, *memoryAvailable / 1024, (int)percentUsage);
+		CFont::SetScale(_width(0.35f), _height(0.65f));
 		CFont::SetProportional(true);
 		CFont::SetOrientation(ALIGN_Left);
 		CFont::SetColor(CRGBA(DEBUG_ORANGE_R, DEBUG_ORANGE_G, DEBUG_ORANGE_B));
-		CFont::PrintString(_width(5.0), _y(7.5), debugText);
-#elif defined(SHOW_FOV_FANCY_RHYME)
-		_snprintf(debugText, sizeof(debugText), "FOV: %d", static_cast<int>(TheCamera.Cams[TheCamera.ActiveCam].FOV));
+		CFont::PrintString(_xleft(5.0f), _y(3.5f), debugText);
+
+		sprintf(debugText, "MODELS REQUESTED: %u", *(DWORD*)0x8E4CB8);
+		CFont::PrintString(_xleft(5.0f), _y(13.5f), debugText);
+#elif defined SHOW_FOV_FANCY_RHYME
+		sprintf(debugText, "FOV: %d", static_cast<int>(TheCamera.Cams[TheCamera.ActiveCam].FOV));
+		CFont::SetScale(_width(0.35f), _height(0.65f));
 		CFont::SetProportional(true);
 		CFont::SetOrientation(ALIGN_Left);
 		CFont::SetColor(CRGBA(DEBUG_ORANGE_R, DEBUG_ORANGE_G, DEBUG_ORANGE_B));
@@ -546,9 +552,9 @@ void CHud::DrawPermanentTexts()
 
 		if ( CPed* pPlayerPed = CWorld::Players[0].GetPed() )
 		{
-			CVector*	coords = pPlayerPed->GetCoords();
+			CVector&	coords = pPlayerPed->GetCoords();
 
-			_snprintf(debugText, sizeof(debugText), "%.3f %.3f %.3f", coords->x, coords->y, coords->z);
+			_snprintf(debugText, sizeof(debugText), "%.3f %.3f %.3f", coords.x, coords.y, coords.z);
 			CFont::SetProportional(true);
 			CFont::SetOrientation(ALIGN_Right);
 			CFont::SetColor(CRGBA(0x0A, 0x57, 0x82));
@@ -592,7 +598,7 @@ void CHud::DrawPermanentTexts()
 
 void CHud::PrintHealthForPlayer(int playerID, float posX, float posY)
 {
-	if ( *wFlashingComponentID != FLASH_Healthbar || ShowFlashingItem(300, 300)/*CTimer::m_FrameCounter & 8*/ )
+	if ( m_ItemToFlash != FLASH_Healthbar || ShowFlashingItem(300, 300)/*CTimer::m_FrameCounter & 8*/ )
 	{
 		if ( CWorld::Players[playerID].GetLastTimeArmourLost() == CWorld::Players[playerID].GetLastTimeEnergyLost() || CWorld::Players[playerID].GetLastTimeEnergyLost() + BAR_ENERGY_LOSS_FLASH_DURATION < CTimer::m_snTimeInMilliseconds || ShowFlashingItem(150, 150)/*CTimer::m_FrameCounter & 4*/ )
 		{
@@ -613,7 +619,7 @@ void CHud::PrintHealthForPlayer(int playerID, float posX, float posY)
 
 void CHud::PrintArmourForPlayer(int playerID, float posX, float posY)
 {
-	if ( *wFlashingComponentID != FLASH_Armourbar || ShowFlashingItem(300, 300)/*CTimer::m_FrameCounter & 8*/ )
+	if ( m_ItemToFlash != FLASH_Armourbar || ShowFlashingItem(300, 300)/*CTimer::m_FrameCounter & 8*/ )
 	{
 		if ( CWorld::Players[playerID].GetLastTimeArmourLost() == 0 || CWorld::Players[playerID].GetLastTimeArmourLost() + BAR_ENERGY_LOSS_FLASH_DURATION < CTimer::m_snTimeInMilliseconds || ShowFlashingItem(150, 150)/*CTimer::m_FrameCounter & 4*/ )
 		{
@@ -634,7 +640,7 @@ void CHud::PrintArmourForPlayer(int playerID, float posX, float posY)
 
 void CHud::PrintBreathForPlayer(int playerID, float posX, float posY)
 {
-	if ( *wFlashingComponentID != FLASH_Breathbar || ShowFlashingItem(300, 300)/*CTimer::m_FrameCounter & 8*/ )
+	if ( m_ItemToFlash != FLASH_Breathbar || ShowFlashingItem(300, 300)/*CTimer::m_FrameCounter & 8*/ )
 	{
 		if ( bLCSPS2Style )
 			DrawBarChart(	posX, posY, _width(53.0f), _height(14.5f),
@@ -655,12 +661,10 @@ void CHud::DrawWeaponAmmo(CPed* ped, float fX, float fY)
 	eWeaponType		weapType = ped->GetWeaponSlots()[ped->GetActiveWeapon()].m_eWeaponType;
 	int		weapAmmoInClip = ped->GetWeaponSlots()[ped->GetActiveWeapon()].m_nAmmoInClip;
 
-	BYTE	somethingUnknown = ped->GetWeaponSkill();
-
-	short	clipSize = CWeaponInfo::GetWeaponInfo(weapType, somethingUnknown)->GetClipSize();
+	short	clipSize = CWeaponInfo::GetWeaponInfo(weapType, ped->GetWeaponSkill())->GetClipSize();
 
 	if ( clipSize <= 1 || clipSize >= 1000 )
-		_snprintf(AmmoText, sizeof(AmmoText), "%d", weapAmmo);
+		sprintf(AmmoText, "%d", weapAmmo);
 	else
 	{
 		int		ammoClipToShow;
@@ -684,7 +688,7 @@ void CHud::DrawWeaponAmmo(CPed* ped, float fX, float fY)
 			ammoClipToShow = weapAmmoInClip;
 			ammoRestToShow = tempAmmoValue;
 		}
-		_snprintf(AmmoText, sizeof(AmmoText), "%d-%d", ammoRestToShow, ammoClipToShow);
+		sprintf(AmmoText, "%d-%d", ammoRestToShow, ammoClipToShow);
 	}
 	CFont::SetBackground(0, 0);
 	CFont::SetScale(_width(0.25f), _height(0.58f));
@@ -724,7 +728,7 @@ void CHud::DrawRadioName(void* object, const char* radioName)
 	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 
 	CFont::SetColor(BaseColors[*((DWORD*)object + 27) || *((DWORD*)object + 28) ? 12 : 2]);
-	CFont::PrintString(RsGlobal.MaximumWidth / 2, _y(13.0f), radioName);
+	CFont::PrintString(RsGlobal.MaximumWidth * 0.5f, _y(13.0f), radioName);
 	CFont::RenderFontBuffer();
 }
 

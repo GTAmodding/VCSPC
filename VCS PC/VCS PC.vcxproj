@@ -230,7 +230,7 @@ popd</Command>
       <ShowProgress>NotSet</ShowProgress>
       <Version>
       </Version>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -240,6 +240,7 @@ popd</Command>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
+      <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
       <Command>@echo off

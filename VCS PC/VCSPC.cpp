@@ -330,7 +330,6 @@ DWORD*						PlayerEnexEntryStage;
 DWORD*						activeInterior;
 DWORD*						memoryAvailable;
 DWORD*						memoryUsed;
-eFlash*						wFlashingComponentID;
 BYTE*						bWants_To_Draw_Hud;
 BYTE*						radarGrey;
 float*						WidthAspectRatio;
@@ -591,7 +590,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 
 	LogToFile("Emergency key thread created");
 
-	while ( !(GetKeyState(VK_PAUSE) & 0x8000) )
+	while ( !(GetAsyncKeyState(VK_PAUSE) & 0x8000) )
 	{
 		Sleep(250);
 
@@ -600,7 +599,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 
 		if ( !bInitThread )
 		{
-			if ( GetKeyState(VK_F2) & 0x8000 )
+			if ( GetAsyncKeyState(VK_F2) & 0x8000 )
 			{
 				CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)0x53E9AC, nullptr, 0, nullptr);
 				bInitThread = true;
@@ -609,7 +608,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 #endif
 
 #ifdef DEVBUILD
-		if ( GetKeyState(VK_F9) & 0x8000 )
+		if ( GetAsyncKeyState(VK_F9) & 0x8000 )
 		{
 			if ( !bKeyState )
 			{
@@ -625,7 +624,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 		}
 
 #ifdef CONTROLLABLE_FOV
-		if ( GetKeyState(VK_OEM_4) & 0x8000 )
+		if ( GetAsyncKeyState(VK_OEM_4) & 0x8000 )
 		{
 			fCurrentFOV -= 1.0f;
 			if ( fCurrentFOV < 15.0f )
@@ -636,7 +635,7 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 			Memory::Patch<float>(0x522F7A, fCurrentFOV);
 		}
 
-		if ( GetKeyState(VK_OEM_6) & 0x8000 )
+		if ( GetAsyncKeyState(VK_OEM_6) & 0x8000 )
 		{
 			fCurrentFOV += 1.0f;
 			if ( fCurrentFOV > 170.0f )
@@ -649,18 +648,18 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 #endif
 
 #ifdef LITTLE_COLORMOD_CONTROLLER_EXTRA
-		if ( GetKeyState(VK_INSERT) & 0x8000 )
+		if ( GetAsyncKeyState(VK_INSERT) & 0x8000 )
 			CColormodController::Desaturate();
 #endif
 
 #endif
 
-#if !defined DEVBUILD && !defined COMPILE_RC
+/*#if !defined DEVBUILD && !defined COMPILE_RC
 		if ( IsDebuggerPresent() )
 			break;
 
 		EnumWindows(CECheck, NULL);
-#endif
+#endif*/
 	}
 
 	LogToFile("Process has been killed on user request");
@@ -673,7 +672,7 @@ extern "C" __declspec(dllexport) BOOL OnGameLaunch()
 	LogToFile("Launching GTA: Vice City Stories PC Edition "MOD_VERSION" \""VERSION_NAME"\" build "BUILDNUMBER_STR"...");
 #if defined DEVBUILD
 	LogToFile("This is a closed dev build!");
-#elif COMPILE_RC
+#elif defined COMPILE_RC
 	LogToFile("This is a Release Candidate "RELEASE_CANDIDATE" build");
 #endif
 	LogToFile("Logging started");
@@ -894,7 +893,6 @@ __forceinline void DefineVariables()
 	activeInterior = (DWORD*)0xB72914;
 	memoryAvailable = (DWORD*)0x8A5A80;
 	memoryUsed = (DWORD*)0x8E4CB4;
-	wFlashingComponentID = (eFlash*)0xBAB1DC;
 	bWants_To_Draw_Hud = (BYTE*)0xA444A0;
 	radarGrey = (BYTE*)0xA444A4;
 	WidthAspectRatio = (float*)0x859520;

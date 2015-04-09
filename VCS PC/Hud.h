@@ -5,7 +5,7 @@
 #include "Ped.h"
 #include "Sprite.h"
 
-enum eFlash
+enum
 {
 	FLASH_Armourbar = 3,
 	FLASH_Healthbar = 4,
@@ -62,6 +62,7 @@ private:
 	static float		BigMessage3Alpha;
 
 	static int&			m_HelpMessageState;
+	static short&		m_ItemToFlash;
 
 	static char		m_PagerMessage[16];
 	//float			BigMessage3PosY;
@@ -106,7 +107,5 @@ public:
 	static void		DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor);
 	static float	GetYPosBasedOnHealth(unsigned char plrID, float position, signed char offset);
 };
-
-extern eFlash*				wFlashingComponentID;
 
 #endif
