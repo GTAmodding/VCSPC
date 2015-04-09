@@ -13,6 +13,7 @@ void*		gpCurrentShaderForDefaultCallbacks = nullptr;
 WRAPPER RsEventStatus RsEventHandler(RsEvent eventID, void* param) { WRAPARG(eventID); WRAPARG(param); EAXJMP(0x619B60); }
 WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
 WRAPPER void DefinedState2d() { EAXJMP(0x734750); }
+WRAPPER void RsCameraShowRaster(RwCamera* pCamera) { EAXJMP(0x745240); }
 WRAPPER RpHAnimHierarchy* GetAnimHierarchyFromSkinClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x734A40); }
 
 WRAPPER void* GtaOperatorNew(size_t size) { WRAPARG(size); EAXJMP(0x82119A); }
@@ -227,6 +228,19 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 	}
 
 	return pTexture;
+}
+
+void DoPreMenuBlackout()
+{
+	RwRGBA		color;
+
+	color.red = 0;
+	color.green = 0;
+	color.blue = 0;
+	color.alpha = 255;
+	RwCameraClear(Camera, &color, rwCAMERACLEARIMAGE);
+
+	RsCameraShowRaster(Camera);
 }
 
 RwBool MyClose(void* data)

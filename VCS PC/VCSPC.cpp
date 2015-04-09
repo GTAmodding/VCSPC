@@ -3043,6 +3043,14 @@ __forceinline void Main_Patches()
 	InjectHook(0x572ED8, 0x57308A, PATCH_JUMP);
 	InjectHook(0x57308A, &CMenuManager::ReadFrontendTextures);
 
+	// Better menu switching
+	InjectHook(0x576E13, DoPreMenuBlackout, PATCH_CALL);
+	Patch<WORD>(0x576E18, 0x23EB);
+	Patch<BYTE>(0x576E66, 8);
+
+	InjectHook(0x576EFA, DoPreMenuBlackout, PATCH_CALL);
+	Patch<WORD>(0x576EFF, 0x26EB);
+
 	/*_asm
 	{
 		mov		eax, offset CSprite2d::SetTextureNoMask
