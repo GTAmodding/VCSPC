@@ -231,6 +231,39 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 	return pTexture;
 }
 
+static HMODULE thisModule = nullptr;
+
+void* RwD3D9CreatePixelShaderFromResource(WORD wResource)
+{
+	if ( thisModule == nullptr )
+		GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)RwD3D9CreatePixelShaderFromResource, &thisModule);
+
+	void*		pPixelShader;
+
+	HRSRC		resource = FindResource(thisModule, MAKEINTRESOURCE(wResource), RT_RCDATA);
+	RwUInt32*	pRawShader = static_cast<RwUInt32*>(LoadResource(thisModule, resource));
+	RwD3D9CreatePixelShader(pRawShader, reinterpret_cast<void**>(&pPixelShader));
+	FreeResource(pRawShader);
+
+	return pPixelShader;
+}
+
+
+void* RwD3D9CreateVertexShaderFromResource(WORD wResource)
+{
+	if ( thisModule == nullptr )
+		GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)RwD3D9CreatePixelShaderFromResource, &thisModule);
+
+	void*		pVertexShader;
+
+	HRSRC		resource = FindResource(thisModule, MAKEINTRESOURCE(wResource), RT_RCDATA);
+	RwUInt32*	pRawShader = static_cast<RwUInt32*>(LoadResource(thisModule, resource));
+	RwD3D9CreateVertexShader(pRawShader, reinterpret_cast<void**>(&pVertexShader));
+	FreeResource(pRawShader);
+
+	return pVertexShader;
+}
+
 void DoPreMenuBlackout()
 {
 	RwRGBA		color;

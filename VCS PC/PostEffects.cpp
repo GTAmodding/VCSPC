@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "PostEffects.h"
 
+#include "Rs.h"
+
 WRAPPER void CPostEffects::DoScreenModeDependentInitializations() { EAXJMP(0x7046D0); }
 
 struct QuadVertex
@@ -43,22 +45,14 @@ void Radiosity(int col1, int nSubdivs, int unknown, int col2)
 	float uOffsets[] = { -1.0f, 1.0f, 0.0f, 0.0f };
 	float vOffsets[] = { 0.0f, 0.0f, -1.0f, 1.0f };
 
+#ifdef _DEBUG
 	D3DPERF_BeginEvent(0xFFFFFFFF, L"radiosity");
+#endif
 
 	if ( target1 == nullptr )
 	{
-		HMODULE thisModule;
-		GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)Radiosity, &thisModule);
-
-		HRSRC		resource = FindResource(thisModule, MAKEINTRESOURCE(IDR_RADIOSITYPS), RT_RCDATA);
-		RwUInt32*	shader = static_cast<RwUInt32*>(LoadResource(thisModule, resource));
-		RwD3D9CreatePixelShader(shader, reinterpret_cast<void**>(&radiosityPS));
-		FreeResource(shader);
-
-		resource = FindResource(thisModule, MAKEINTRESOURCE(IDR_POSTFXVS), RT_RCDATA);
-		shader = static_cast<RwUInt32*>(LoadResource(thisModule, resource));
-		RwD3D9CreateVertexShader(shader, reinterpret_cast<void**>(&postfxVS));
-		FreeResource(shader);
+		radiosityPS = RwD3D9CreatePixelShaderFromResource(IDR_RADIOSITYPS);
+		postfxVS = RwD3D9CreateVertexShaderFromResource(IDR_POSTFXVS);
 
 		static const D3DVERTEXELEMENT9 vertexElements[] =
 		{
@@ -265,13 +259,17 @@ void Radiosity(int col1, int nSubdivs, int unknown, int col2)
 	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)destblend);
 	RwD3D9SetVertexShader(NULL);
 
+#ifdef _DEBUG
 	D3DPERF_EndEvent();
+#endif
 }
 
 void CPostEffects::Render()
 {
+#ifdef _DEBUG
 	if ( GetAsyncKeyState(VK_F3) & 0x8000 )
 		return;
+#endif
 	Radiosity(200, 0, 0, 200);
 }
 

@@ -152,6 +152,10 @@ RpAtomic*			AtomicInstanceCB(RpAtomic* pAtomic);
 void*			GtaOperatorNew(size_t size);
 void			GtaOperatorDelete(void* ptr);
 
+// Shader helpers
+void*			RwD3D9CreatePixelShaderFromResource(WORD wResource);
+void*			RwD3D9CreateVertexShaderFromResource(WORD wResource);
+
 // This is a part of RW.cpp
 void			InjectRwEngineWrappers();
 

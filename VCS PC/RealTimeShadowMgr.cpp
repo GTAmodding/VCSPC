@@ -575,15 +575,7 @@ void CRealTimeShadowManager::ReturnRealTimeShadow(CRealTimeShadow* pShadow)
 
 void CRealTimeShadowManager::InitShaders()
 {
-	HMODULE thisModule;
-	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)ShadowCameraRenderCB, &thisModule);
-
-	HRSRC		resource = FindResource(thisModule, MAKEINTRESOURCE(IDR_RTSHADOWPIXELSHADER), RT_RCDATA);
-	RwUInt32*	shader = static_cast<RwUInt32*>(LoadResource(thisModule, resource));
-
-	RwD3D9CreatePixelShader(shader, reinterpret_cast<void**>(&m_pShadowPixelShader));
-
-	FreeResource(shader);
+	m_pShadowPixelShader = RwD3D9CreatePixelShaderFromResource(IDR_RTSHADOWPIXELSHADER);
 }
 
 void CRealTimeShadowManager::ReleaseShaders()
