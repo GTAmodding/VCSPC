@@ -252,9 +252,6 @@
     <ClCompile Include="ModelInfoAccelerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ColormodController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MenuSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -518,9 +515,6 @@
     <ClInclude Include="ModelInfoAccelerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ColormodController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MenuSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -552,6 +546,12 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Shaders\RTShadowPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\radiosityPS.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\postfxVS.hlsl">
       <Filter>Shaders</Filter>
     </CustomBuild>
   </ItemGroup>

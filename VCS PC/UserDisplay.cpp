@@ -209,7 +209,7 @@ void COnscreenTimer::ProcessForDisplay()
 	{
 		m_bEnabled = true;
 		m_timer.m_bShown = true;
-		_snprintf(m_timer.m_cDisplayedText, sizeof(m_timer.m_cDisplayedText), "%d:%02d", *m_timer.m_pVariable / 1000 / 60 % 100, *m_timer.m_pVariable / 1000 % 60);
+		sprintf(m_timer.m_cDisplayedText, "%d:%02d", *m_timer.m_pVariable / 1000 / 60 % 100, *m_timer.m_pVariable / 1000 % 60);
 	}
 	else
 		m_timer.m_bShown = false;
@@ -230,10 +230,10 @@ void COnscreenTimer::ProcessForDisplay()
 				m_counter[i].m_counterData.nBarFill = nNum;
 				break;
 			case 2:
-				_snprintf(m_counter[i].m_counterData.cDisplayedText, sizeof(m_counter[i].m_counterData.cDisplayedText), "%d/%d", nNum, nSecondNum);
+				sprintf(m_counter[i].m_counterData.cDisplayedText, "%d/%d", nNum, nSecondNum);
 				break;
 			default:
-				_snprintf(m_counter[i].m_counterData.cDisplayedText, sizeof(m_counter[i].m_counterData.cDisplayedText), m_counter[i].m_bShowsDollar ? "$%d" : "%d", nNum);
+				sprintf(m_counter[i].m_counterData.cDisplayedText, m_counter[i].m_bShowsDollar ? "$%d" : "%d", nNum);
 				break;
 			}
 

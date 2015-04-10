@@ -338,7 +338,6 @@ popd</Command>
     <ClCompile Include="CConfiscatedWeapons.cpp" />
     <ClCompile Include="CCRC32.Cpp" />
     <ClCompile Include="CDraw.cpp" />
-    <ClCompile Include="ColormodController.cpp" />
     <ClCompile Include="CustomBuildingRenderer.cpp" />
     <ClCompile Include="FxSystem.cpp" />
     <ClCompile Include="Gangs.cpp" />
@@ -446,7 +445,6 @@ popd</Command>
     <ClInclude Include="CCRC32.H" />
     <ClInclude Include="Clock.h" />
     <ClInclude Include="ColAccel.h" />
-    <ClInclude Include="ColormodController.h" />
     <ClInclude Include="ControlsMgr.h" />
     <ClInclude Include="Coronas.h" />
     <ClInclude Include="CustomBuildingRenderer.h" />
@@ -537,6 +535,52 @@ popd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Shaders\bin\%(Filename)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Shaders\bin\%(Filename)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Shaders\bin\%(Filename)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\radiosityPS.hlsl">
+      <FileType>Document</FileType>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\postfxVS.hlsl">
+      <FileType>Document</FileType>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
+      </AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
+      </AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Shaders\bin\%(Filename)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,8 @@ class CPostEffects
 {
 public:
 	static void			DoScreenModeDependentInitializations();
+
+	static void			Render();
 };
 
 #endif

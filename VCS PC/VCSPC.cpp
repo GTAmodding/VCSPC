@@ -4459,7 +4459,7 @@ void InjectDelayedPatches()
 	Memory::InjectHook(0x6A0050, &CText::Get, PATCH_JUMP);
 
 	CUpdateManager::Init();
-	CColormodController::Attach();
+	//CColormodController::Attach();
 
 //	CDLCManager::InitialiseWithUpdater();
 
