@@ -44,7 +44,7 @@ public:
 		bool					bBackgroundType;
 		bool					bPropOn;
 		bool					bUnk4;
-		float					fUnk4;
+		float					fAlphaFade;
 		CRGBA					rgbaColour;
 		long					nUnk1, nUnk2, nUnk3;
 		unsigned char			bSpriteToUse;
@@ -95,6 +95,7 @@ public:
 	static void				PrintStringFromBottom(float posX, float posY, const char* pText);
 	static void				SetWrapx(float fWrap);
 	static void				InitPerFrame();
+	static void				SetAlphaFade(float fAlpha);
 	static int				GetNumberLines(float, float, const char* pText);
 
 	static void				Initialise();

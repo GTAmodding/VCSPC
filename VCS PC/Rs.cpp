@@ -3,6 +3,7 @@
 
 #include "Camera.h"
 #include "FxSystem.h"
+#include "Font.h"
 
 const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 
@@ -239,6 +240,8 @@ void DoPreMenuBlackout()
 	color.blue = 0;
 	color.alpha = 255;
 	RwCameraClear(Camera, &color, rwCAMERACLEARIMAGE);
+
+	CFont::SetAlphaFade(255.0f);
 
 	RsCameraShowRaster(Camera);
 }

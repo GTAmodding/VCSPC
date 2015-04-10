@@ -112,6 +112,11 @@ void CFont::SetScale(float scaleX, float scaleY)
 	Details.textLetterSizeY = scaleY;
 }
 
+void CFont::SetAlphaFade(float fAlpha)
+{
+	Details.fAlphaFade = fAlpha;
+}
+
 void CFont::SetScaleLang(float scaleX, float scaleY)
 {
 	Details.textLetterSizeY = scaleY;
