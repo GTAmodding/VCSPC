@@ -70,6 +70,7 @@ WRAPPER RwBool RwD3D9SetRenderTarget(RwUInt32 index, RwRaster* raster) { WRAPARG
 WRAPPER RwBool RwD3D9CreatePixelShader(const RwUInt32 *function, void **shader) { EAXJMP(0x7FACC0); }
 WRAPPER void RwD3D9DeletePixelShader(void *shader) { EAXJMP(0x7FACF0); }
 WRAPPER RwBool RwD3D9CreateVertexShader(const RwUInt32 *function, void **shader) { EAXJMP(0x7FAC60); }
+WRAPPER void RwD3D9DeleteVertexShader(void *shader) { EAXJMP(0x7FAC90); }
 WRAPPER void _rwD3D9SetPixelShader(void *shader) { EAXJMP(0x7F9FF0); }
 WRAPPER RwBool RwD3D9SetTexture(RwTexture *texture, RwUInt32 stage) { EAXJMP(0x7FDE70); }
 WRAPPER void _rwD3D9DrawIndexedPrimitiveUP(RwUInt32 primitiveType, RwUInt32 minIndex, RwUInt32 numVertices, RwUInt32 primitiveCount,
@@ -81,6 +82,21 @@ WRAPPER void _rwD3D9SetPixelShaderConstant(RwUInt32 i, const void *data, RwUInt3
 WRAPPER RwBool RwD3D9CreateVertexDeclaration(const void *elements, void **vertexdeclaration) { EAXJMP(0x7FAA30); }
 WRAPPER void _rwD3D9SetVertexShader(void *shader) { EAXJMP(0x7F9FB0); }
 WRAPPER void RwD3D9SetTextureStageState(RwUInt32 stage, RwUInt32 type, RwUInt32 value) { EAXJMP(0x7FC340); }
+WRAPPER void RwD3D9DeleteVertexDeclaration(void *vertexdeclaration) { EAXJMP(0x7FAC10); }
+WRAPPER void RwD3D9DestroyVertexBuffer(RwUInt32 stride, RwUInt32 size, void *vertexBuffer, RwUInt32 offset) { EAXJMP(0x7F56A0); }
+WRAPPER void _rwD3D9SetIndices(void *indexBuffer) { EAXJMP(0x7FA1C0); }
+WRAPPER void _rwD3D9SetStreams(const RxD3D9VertexStream *streams, RwBool useOffsets) { EAXJMP(0x7FA090); }
+WRAPPER void _rwD3D9DrawIndexedPrimitive(RwUInt32 primitiveType, RwInt32 baseVertexIndex, RwUInt32 minIndex,
+		RwUInt32 numVertices, RwUInt32 startIndex, RwUInt32 primitiveCount) { EAXJMP(0x7FA320); }
+WRAPPER RwBool RwD3D9IndexBufferCreate(RwUInt32 numIndices, void **indexBuffer) { EAXJMP(0x4C9970); }
+WRAPPER void RwD3D9SetStreamSource(RwUInt32 streamNumber,
+                      void *streamData,
+                      RwUInt32 offset,
+					  RwUInt32 stride) { EAXJMP(0x7FA030); }
+WRAPPER RwBool RwD3D9CreateVertexBuffer(RwUInt32 stride,
+                         RwUInt32 size,
+                         void **vertexBuffer,
+						 RwUInt32 *offset) { EAXJMP(0x7F5500); }
 
 // Reversed RW functions
 RwCamera* RwCameraBeginUpdate(RwCamera* camera)
