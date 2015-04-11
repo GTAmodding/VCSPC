@@ -71,11 +71,11 @@ void CPostEffects::SetUpShaders()
 	if ( m_pPostEffectsVertexBuffer )
 		RwD3D9DestroyVertexBuffer(m_dwVertexBufferStride, m_dwVertexBufferSize, m_pPostEffectsVertexBuffer, m_dwVertexBufferOffset);
 
-	RwD3D9Vertex*	m_postEffectsVerts;
-	RwD3D9CreateVertexBuffer(sizeof(m_postEffectsVerts[0]), sizeof(m_postEffectsVerts[0]) * NUM_POSTFX_VERTICES,
+	RwD3D9Vertex*	pPostEffectsVerts;
+	RwD3D9CreateVertexBuffer(sizeof(pPostEffectsVerts[0]), sizeof(pPostEffectsVerts[0]) * NUM_POSTFX_VERTICES,
 		reinterpret_cast<void**>(&m_pPostEffectsVertexBuffer), &m_dwVertexBufferOffset);
 
-	m_dwVertexBufferStride = sizeof(m_postEffectsVerts[0]);
+	m_dwVertexBufferStride = sizeof(pPostEffectsVerts[0]);
 	m_dwVertexBufferSize = m_dwVertexBufferStride * NUM_POSTFX_VERTICES;
 
 	int		nWidth = RsGlobal.MaximumWidth*256/640;
@@ -97,99 +97,99 @@ void CPostEffects::SetUpShaders()
 	const float vOffsets[] = { 0.0f, 0.0f, -1.0f, 1.0f };
 
 	// Lock the vertex buffer
-	m_pPostEffectsVertexBuffer->Lock(m_dwVertexBufferOffset, sizeof(m_postEffectsVerts[0]) * NUM_POSTFX_VERTICES,
-		reinterpret_cast<void**>(&m_postEffectsVerts), 0);
+	m_pPostEffectsVertexBuffer->Lock(m_dwVertexBufferOffset, sizeof(pPostEffectsVerts[0]) * NUM_POSTFX_VERTICES,
+		reinterpret_cast<void**>(&pPostEffectsVerts), 0);
 
-	m_postEffectsVerts[0].x = -1.0f;
-	m_postEffectsVerts[0].y = 1.0f;
-	m_postEffectsVerts[0].z = 0.0f;
-	m_postEffectsVerts[0].rhw = 1.0f;
-	m_postEffectsVerts[0].u = 0.0f + halfU;
-	m_postEffectsVerts[0].v = 0.0f + halfV;
-	m_postEffectsVerts[0].emissiveColor = 0xFFFFFFFF;
+	pPostEffectsVerts[0].x = -1.0f;
+	pPostEffectsVerts[0].y = 1.0f;
+	pPostEffectsVerts[0].z = 0.0f;
+	pPostEffectsVerts[0].rhw = 1.0f;
+	pPostEffectsVerts[0].u = 0.0f + halfU;
+	pPostEffectsVerts[0].v = 0.0f + halfV;
+	pPostEffectsVerts[0].emissiveColor = 0xFFFFFFFF;
 
-	m_postEffectsVerts[1].x = -1.0f;
-	m_postEffectsVerts[1].y = yMax;
-	m_postEffectsVerts[1].z = 0.0f;
-	m_postEffectsVerts[1].rhw = 1.0f;
-	m_postEffectsVerts[1].u = 0.0f + halfU;
-	m_postEffectsVerts[1].v = vMax + halfV;
-	m_postEffectsVerts[1].emissiveColor = 0xFFFFFFFF;
+	pPostEffectsVerts[1].x = -1.0f;
+	pPostEffectsVerts[1].y = yMax;
+	pPostEffectsVerts[1].z = 0.0f;
+	pPostEffectsVerts[1].rhw = 1.0f;
+	pPostEffectsVerts[1].u = 0.0f + halfU;
+	pPostEffectsVerts[1].v = vMax + halfV;
+	pPostEffectsVerts[1].emissiveColor = 0xFFFFFFFF;
 
-	m_postEffectsVerts[2].x = xMax;
-	m_postEffectsVerts[2].y = 1.0f;
-	m_postEffectsVerts[2].z = 0.0f;
-	m_postEffectsVerts[2].rhw = 1.0f;
-	m_postEffectsVerts[2].u = uMax + halfU;
-	m_postEffectsVerts[2].v = 0.0f + halfV;
-	m_postEffectsVerts[2].emissiveColor = 0xFFFFFFFF;
+	pPostEffectsVerts[2].x = xMax;
+	pPostEffectsVerts[2].y = 1.0f;
+	pPostEffectsVerts[2].z = 0.0f;
+	pPostEffectsVerts[2].rhw = 1.0f;
+	pPostEffectsVerts[2].u = uMax + halfU;
+	pPostEffectsVerts[2].v = 0.0f + halfV;
+	pPostEffectsVerts[2].emissiveColor = 0xFFFFFFFF;
 
-	m_postEffectsVerts[3].x = xMax;
-	m_postEffectsVerts[3].y = yMax;
-	m_postEffectsVerts[3].z = 0.0f;
-	m_postEffectsVerts[3].rhw = 1.0f;
-	m_postEffectsVerts[3].u = uMax + halfU;
-	m_postEffectsVerts[3].v = vMax + halfV;
-	m_postEffectsVerts[3].emissiveColor = 0xFFFFFFFF;
+	pPostEffectsVerts[3].x = xMax;
+	pPostEffectsVerts[3].y = yMax;
+	pPostEffectsVerts[3].z = 0.0f;
+	pPostEffectsVerts[3].rhw = 1.0f;
+	pPostEffectsVerts[3].u = uMax + halfU;
+	pPostEffectsVerts[3].v = vMax + halfV;
+	pPostEffectsVerts[3].emissiveColor = 0xFFFFFFFF;
 
-	m_postEffectsVerts[4].x = -1.0f;
-	m_postEffectsVerts[4].y = 1.0f;
-	m_postEffectsVerts[4].z = 0.0f;
-	m_postEffectsVerts[4].rhw = 1.0f;
-	m_postEffectsVerts[4].u = 0.0f + halfU;
-	m_postEffectsVerts[4].v = 0.0f + halfV;
-	m_postEffectsVerts[4].emissiveColor = 0xFFFFFFFF;
+	pPostEffectsVerts[4].x = -1.0f;
+	pPostEffectsVerts[4].y = 1.0f;
+	pPostEffectsVerts[4].z = 0.0f;
+	pPostEffectsVerts[4].rhw = 1.0f;
+	pPostEffectsVerts[4].u = 0.0f + halfU;
+	pPostEffectsVerts[4].v = 0.0f + halfV;
+	pPostEffectsVerts[4].emissiveColor = 0xFFFFFFFF;
 
-	m_postEffectsVerts[5].x = -1.0f;
-	m_postEffectsVerts[5].y = -1.0f;
-	m_postEffectsVerts[5].z = 0.0f;
-	m_postEffectsVerts[5].rhw = 1.0f;
-	m_postEffectsVerts[5].u = 0.0f + halfU;
-	m_postEffectsVerts[5].v = vMax + halfV;
-	m_postEffectsVerts[5].emissiveColor = 0xFFFFFFFF;
+	pPostEffectsVerts[5].x = -1.0f;
+	pPostEffectsVerts[5].y = -1.0f;
+	pPostEffectsVerts[5].z = 0.0f;
+	pPostEffectsVerts[5].rhw = 1.0f;
+	pPostEffectsVerts[5].u = 0.0f + halfU;
+	pPostEffectsVerts[5].v = vMax + halfV;
+	pPostEffectsVerts[5].emissiveColor = 0xFFFFFFFF;
 
-	m_postEffectsVerts[6].x = 1.0f;
-	m_postEffectsVerts[6].y = 1.0f;
-	m_postEffectsVerts[6].z = 0.0f;
-	m_postEffectsVerts[6].rhw = 1.0f;
-	m_postEffectsVerts[6].u = uMax + halfU;
-	m_postEffectsVerts[6].v = 0.0f + halfV;
-	m_postEffectsVerts[6].emissiveColor = 0xFFFFFFFF;
+	pPostEffectsVerts[6].x = 1.0f;
+	pPostEffectsVerts[6].y = 1.0f;
+	pPostEffectsVerts[6].z = 0.0f;
+	pPostEffectsVerts[6].rhw = 1.0f;
+	pPostEffectsVerts[6].u = uMax + halfU;
+	pPostEffectsVerts[6].v = 0.0f + halfV;
+	pPostEffectsVerts[6].emissiveColor = 0xFFFFFFFF;
 
-	m_postEffectsVerts[7].x = 1.0f;
-	m_postEffectsVerts[7].y = -1.0f;
-	m_postEffectsVerts[7].z = 0.0f;
-	m_postEffectsVerts[7].rhw = 1.0f;
-	m_postEffectsVerts[7].u = uMax + halfU;
-	m_postEffectsVerts[7].v = vMax + halfV;
-	m_postEffectsVerts[7].emissiveColor = 0xFFFFFFFF;
+	pPostEffectsVerts[7].x = 1.0f;
+	pPostEffectsVerts[7].y = -1.0f;
+	pPostEffectsVerts[7].z = 0.0f;
+	pPostEffectsVerts[7].rhw = 1.0f;
+	pPostEffectsVerts[7].u = uMax + halfU;
+	pPostEffectsVerts[7].v = vMax + halfV;
+	pPostEffectsVerts[7].emissiveColor = 0xFFFFFFFF;
 
 	RwUInt32 c = 0xFF000000 | 0x010101 * 38;
 	for(int i = 8; i < 24; i++){
 		int idx = (i-8)/4;
-		m_postEffectsVerts[i].x = m_postEffectsVerts[i%4].x;
-		m_postEffectsVerts[i].y = m_postEffectsVerts[i%4].y;
-		m_postEffectsVerts[i].z = 0.0f;
-		m_postEffectsVerts[i].rhw = 1.0f;
+		pPostEffectsVerts[i].x = pPostEffectsVerts[i%4].x;
+		pPostEffectsVerts[i].y = pPostEffectsVerts[i%4].y;
+		pPostEffectsVerts[i].z = 0.0f;
+		pPostEffectsVerts[i].rhw = 1.0f;
 		switch(i%4){
 		case 0:
-			m_postEffectsVerts[i].u = 0.0f + xOffsetScale*uOffsets[idx]/rasterWidth + halfU;
-			m_postEffectsVerts[i].v = 0.0f + yOffsetScale*vOffsets[idx]/rasterHeight + halfV;
+			pPostEffectsVerts[i].u = 0.0f + xOffsetScale*uOffsets[idx]/rasterWidth + halfU;
+			pPostEffectsVerts[i].v = 0.0f + yOffsetScale*vOffsets[idx]/rasterHeight + halfV;
 			break;
 		case 1:
-			m_postEffectsVerts[i].u = 0.0f + xOffsetScale*uOffsets[idx]/rasterWidth + halfU;
-			m_postEffectsVerts[i].v = vMax + yOffsetScale*vOffsets[idx]/rasterHeight + halfV;
+			pPostEffectsVerts[i].u = 0.0f + xOffsetScale*uOffsets[idx]/rasterWidth + halfU;
+			pPostEffectsVerts[i].v = vMax + yOffsetScale*vOffsets[idx]/rasterHeight + halfV;
 			break;
 		case 2:
-			m_postEffectsVerts[i].u = uMax + xOffsetScale*uOffsets[idx]/rasterWidth + halfU;
-			m_postEffectsVerts[i].v = 0.0f + yOffsetScale*vOffsets[idx]/rasterHeight + halfV;
+			pPostEffectsVerts[i].u = uMax + xOffsetScale*uOffsets[idx]/rasterWidth + halfU;
+			pPostEffectsVerts[i].v = 0.0f + yOffsetScale*vOffsets[idx]/rasterHeight + halfV;
 			break;
 		case 3:
-			m_postEffectsVerts[i].u = uMax + xOffsetScale*uOffsets[idx]/rasterWidth + halfU;
-			m_postEffectsVerts[i].v = vMax + yOffsetScale*vOffsets[idx]/rasterHeight + halfV;
+			pPostEffectsVerts[i].u = uMax + xOffsetScale*uOffsets[idx]/rasterWidth + halfU;
+			pPostEffectsVerts[i].v = vMax + yOffsetScale*vOffsets[idx]/rasterHeight + halfV;
 			break;
 		}
-		m_postEffectsVerts[i].emissiveColor = c;
+		pPostEffectsVerts[i].emissiveColor = c;
 	}
 
 	m_pPostEffectsVertexBuffer->Unlock();
@@ -254,7 +254,6 @@ void CPostEffects::Trails()
 	vcsRect.h = RsGlobal.MaximumHeight*128/480;
 
 	// First pass - render downsampled and darkened frame to buffer2
-
 	RwCameraEndUpdate(Camera);
 	RwRasterPushContext(pTempRaster1);
 	RwRasterRenderScaled(RwCameraGetRaster(Camera), &vcsRect);
@@ -278,12 +277,13 @@ void CPostEffects::Trails()
 	radiosityColors[2] = 1.0f;
 	RwD3D9SetPixelShaderConstant(0, radiosityColors, 1);
 
-	int blend, srcblend, destblend, depthtest;
-	RwRenderStateGet(rwRENDERSTATEZTESTENABLE, &depthtest);
-	RwRenderStateGet(rwRENDERSTATEVERTEXALPHAENABLE, &blend);
-	RwRenderStateGet(rwRENDERSTATESRCBLEND, &srcblend);
-	RwRenderStateGet(rwRENDERSTATEDESTBLEND, &destblend);
-
+	//int blend, srcblend, destblend, depthtest;
+	//RwRenderStateGet(rwRENDERSTATEZTESTENABLE, &depthtest);
+	//RwRenderStateGet(rwRENDERSTATEVERTEXALPHAENABLE, &blend);
+	//RwRenderStateGet(rwRENDERSTATESRCBLEND, &srcblend);
+	//RwRenderStateGet(rwRENDERSTATEDESTBLEND, &destblend);
+	
+	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)FALSE);
 	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)FALSE);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)0);
 	RwD3D9SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
@@ -298,7 +298,8 @@ void CPostEffects::Trails()
 	RwD3D9SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
 	RwD3D9SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
 
-	for(int i = 0; i < 4; i++){
+	for(int i = 0; i < 4; i++)
+	{
 		RwD3D9SetRenderTarget(0, pTempRaster1);
 
 		RwD3D9SetPixelShader(m_pRadiosityPS);
@@ -327,10 +328,10 @@ void CPostEffects::Trails()
 	RwD3D9DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 4, 0, 6, 0, 2);
 	//RwD3D9DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 6, 2, vcsIndices1, m_postEffectsVerts+4, sizeof(m_postEffectsVerts[0]));
 
-	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)depthtest);
-	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)blend);
-	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)srcblend);
-	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)destblend);
+	//RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)depthtest);
+	//RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)blend);
+	//RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)srcblend);
+	//RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)destblend);
 	RwD3D9SetVertexShader(NULL);
 
 #ifndef NDEBUG
