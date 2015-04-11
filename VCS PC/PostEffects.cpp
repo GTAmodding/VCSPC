@@ -23,8 +23,9 @@ void CPostEffects::DoScreenModeDependentInitializations()
 
 bool CPostEffects::SetUpBackBuffers()
 {
-	RwInt32		nWidth = RwRasterGetWidth(RwCameraGetRaster(Camera));
-	RwInt32		nHeight = RwRasterGetHeight(RwCameraGetRaster(Camera));
+	RwInt32		nWidth = RwRasterGetWidth(RwCameraGetRaster(Camera))*(256.0f/640.0f) + 2;
+	RwInt32		nHeight = RwRasterGetHeight(RwCameraGetRaster(Camera))*(128.0f/480.0f) + 2;
+
 	if ( ms_pTrailsRaster1 && ms_pTrailsRaster2 )
 	{
 		// Recreate if needed
@@ -68,18 +69,19 @@ void CPostEffects::SetUpShaders()
 
 	// Set up verts
 	// This DOES need to be reinit
-	if ( m_pPostEffectsVertexBuffer )
-		RwD3D9DestroyVertexBuffer(m_dwVertexBufferStride, m_dwVertexBufferSize, m_pPostEffectsVertexBuffer, m_dwVertexBufferOffset);
 
 	RwD3D9Vertex*	pPostEffectsVerts;
-	RwD3D9CreateVertexBuffer(sizeof(pPostEffectsVerts[0]), sizeof(pPostEffectsVerts[0]) * NUM_POSTFX_VERTICES,
-		reinterpret_cast<void**>(&m_pPostEffectsVertexBuffer), &m_dwVertexBufferOffset);
+	if ( !m_pPostEffectsVertexBuffer )
+	{
+		RwD3D9CreateVertexBuffer(sizeof(pPostEffectsVerts[0]), sizeof(pPostEffectsVerts[0]) * NUM_POSTFX_VERTICES,
+			reinterpret_cast<void**>(&m_pPostEffectsVertexBuffer), &m_dwVertexBufferOffset);
 
-	m_dwVertexBufferStride = sizeof(pPostEffectsVerts[0]);
-	m_dwVertexBufferSize = m_dwVertexBufferStride * NUM_POSTFX_VERTICES;
+		m_dwVertexBufferStride = sizeof(pPostEffectsVerts[0]);
+		m_dwVertexBufferSize = m_dwVertexBufferStride * NUM_POSTFX_VERTICES;
+	}
 
-	int		nWidth = RsGlobal.MaximumWidth*256/640;
-	int		nHeight = RsGlobal.MaximumHeight*128/480;
+	int		nWidth = RwRasterGetWidth(RwCameraGetRaster(Camera))*(256.0f/640.0f);
+	int		nHeight = RwRasterGetHeight(RwCameraGetRaster(Camera))*(128.0f/480.0f);
 
 	float rasterWidth = static_cast<float>(RwRasterGetWidth(ms_pTrailsRaster1));
 	float rasterHeight = static_cast<float>(RwRasterGetHeight(ms_pTrailsRaster1));
@@ -250,8 +252,8 @@ void CPostEffects::Trails()
 
 	vcsRect.x = 0;
 	vcsRect.y = 0;
-	vcsRect.w = RsGlobal.MaximumWidth*256/640;
-	vcsRect.h = RsGlobal.MaximumHeight*128/480;
+	vcsRect.w = RsGlobal.MaximumWidth*(256.0f/640.0f);
+	vcsRect.h = RsGlobal.MaximumHeight*(128.0f/480.0f);
 
 	// First pass - render downsampled and darkened frame to buffer2
 	RwCameraEndUpdate(Camera);
@@ -273,8 +275,8 @@ void CPostEffects::Trails()
 	RwD3D9SetPixelShader(m_pRadiosityPS);
 
 	radiosityColors[0] = 80.0f/255.0f;
-	radiosityColors[1] = 1.0f;
-	radiosityColors[2] = 1.0f;
+	//radiosityColors[1] = 1.0f;
+	//radiosityColors[2] = 1.0f;
 	RwD3D9SetPixelShaderConstant(0, radiosityColors, 1);
 
 	//int blend, srcblend, destblend, depthtest;
