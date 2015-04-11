@@ -62,7 +62,7 @@
 #define MENU_RED_B				0x4D
 
 #define						MAX_AA				8
-#define						SET_FILE_VERSION	10
+#define						SET_FILE_VERSION	11
 
 #ifdef DEVBUILD
 #define						SET_FILE_NAME		"gta_vcsd.set"
@@ -102,6 +102,7 @@ enum eMenuActions
 	MENUACTION_TEXTURE_FILTERMODE,
 	MENUACTION_EFFECTS_QUALITY,
 	MENUACTION_SHADOWS_DISTANCE,
+	MENUACTION_TRAILS,
 
 	NUM_MENU_ACTIONS
 };

@@ -246,7 +246,8 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		MENUACTION_SHADOWS_DISTANCE, "FED_SHD", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TEXTURE_FILTERMODE, "FED_TXF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		5, "FET_DEF", ACTION_STANDARD, 50, 0, 141, 3, 0, 0,
+		MENUACTION_TRAILS, "FED_TRA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		5, "FET_DEF", ACTION_STANDARD, 50, 0, 152, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 33, 0, 0, 3, 0, 0 },
 
 	// Language
@@ -477,6 +478,7 @@ void CMenuManager::SaveSettings()
 		const eShadowQuality	nShadowQuality = CShadows::GetShadowQuality();
 		const float				fShadowDist = CShadows::GetShadowDistance();
 		const RwInt32			nSubSystem = RwEngineGetCurrentSubSystem();
+		const bool				bTrailsEnabled = CPostEffects::TrailsEnabled();
 
 		//CFileMgr::Write(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
 		CFileMgr::Write(hFile, &m_dwAppliedAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
@@ -488,6 +490,7 @@ void CMenuManager::SaveSettings()
 		CFileMgr::Write(hFile, &m_fDrawDistance, sizeof(m_fDrawDistance));
 		CFileMgr::Write(hFile, &m_bAspectRatioMode, sizeof(m_bAspectRatioMode));
 		CFileMgr::Write(hFile, &m_bFrameLimiterMode, sizeof(m_bFrameLimiterMode));
+		CFileMgr::Write(hFile, &bTrailsEnabled, sizeof(bTrailsEnabled));
 		CFileMgr::Write(hFile, &m_dwAppliedResolution, sizeof(m_dwAppliedResolution));
 		CFileMgr::Write(hFile, &nSubSystem, sizeof(nSubSystem));
 
@@ -550,6 +553,7 @@ void CMenuManager::LoadSettings()
 			eShadowQuality		nShadowQuality;
 			float				fShadowDist;
 			unsigned char		nFilterQuality;
+			bool				bTrailsEnabled;
 
 			//CFileMgr::Read(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
 			CFileMgr::Read(hFile, &m_dwAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
@@ -561,6 +565,7 @@ void CMenuManager::LoadSettings()
 			CFileMgr::Read(hFile, &m_fDrawDistance, sizeof(m_fDrawDistance));
 			CFileMgr::Read(hFile, &m_bAspectRatioMode, sizeof(m_bAspectRatioMode));
 			CFileMgr::Read(hFile, &m_bFrameLimiterMode, sizeof(m_bFrameLimiterMode));
+			CFileMgr::Read(hFile, &bTrailsEnabled, sizeof(bTrailsEnabled));
 			CFileMgr::Read(hFile, &m_dwResolution, sizeof(m_dwAppliedResolution));
 			CFileMgr::Read(hFile, &field_DC, sizeof(field_DC));
 
@@ -577,6 +582,8 @@ void CMenuManager::LoadSettings()
 			//g_fx.SetFxQuality(nFxQuality);
 			Fx_c::SetEffectsQuality(nEffectsQuality);
 			Fx_c::SetTextureFilteringQuality(nFilterQuality);
+
+			CPostEffects::SetTrailsState(bTrailsEnabled);
 
 			CShadows::SetShadowQuality(nShadowQuality);
 			CShadows::SetShadowDistance(fShadowDist);
@@ -1047,6 +1054,9 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case MENUACTION_SHADOWS_DISTANCE:
 				if ( CShadows::GetShadowQuality() == SHADOW_QUALITY_OFF )
 					CFont::SetColor(CRGBA(MENU_LOCKED_R, MENU_LOCKED_G, MENU_LOCKED_B));
+				break;
+			case MENUACTION_TRAILS:
+				pTextToShow_RightColumn = TheText.Get(CPostEffects::TrailsEnabled() ? "FEM_ON" : "FEM_OFF");
 				break;
 			}
 
@@ -1857,6 +1867,19 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 				Fx_c::SetEffectsQuality(FXQUALITY_MEDIUM);
 				break;
 			}
+		}
+		SaveSettings();
+		return;
+	case MENUACTION_TRAILS:
+		if ( CPostEffects::TrailsEnabled() )
+		{
+			CPostEffects::SetTrailsState(false);
+			CPostEffects::Close_Trails();
+		}
+		else
+		{
+			CPostEffects::SetTrailsState(true);
+			CPostEffects::Init_Trails();
 		}
 		SaveSettings();
 		return;
@@ -2858,6 +2881,7 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 		CShadows::SetShadowQuality(SHADOW_QUALITY_MEDIUM);
 		CShadows::SetShadowDistance(6.0f/16.0f);
 		CShadows::InitialiseChangedSettings();
+		CPostEffects::SetTrailsState(true);
 
 		// Reinit widescreen and framelimit stuff
 		WidescreenSupport::Recalculate(RsGlobal.MaximumWidth, RsGlobal.MaximumHeight, true);

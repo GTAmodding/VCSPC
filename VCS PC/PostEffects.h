@@ -9,10 +9,7 @@
 class CPostEffects
 {
 private:
-	static bool			SetUpBackBuffers();
-	static void			SetUpShaders();
-
-	static void			Trails();
+	static void			Render_Trails();
 
 public:
 	static void			DoScreenModeDependentInitializations();
@@ -21,7 +18,20 @@ public:
 	static void			Initialise();
 	static void			Close();
 
+	static void			Init_Trails();
+	static void			Close_Trails();
+
+	static inline void	SetTrailsState(bool bEnable)
+		{ m_bTrailsEnabled = bEnable; }
+	static inline void	SwitchTrailsOnOff()
+		{ m_bTrailsEnabled = m_bTrailsEnabled == false; }
+	static inline bool	TrailsEnabled()
+		{ return m_bTrailsEnabled; }
+
 private:
+	static bool			m_bTrailsEnabled;
+
+	static bool			m_bTrailsInitialised;
 	static RwRaster*	ms_pTrailsRaster1;
 	static RwRaster*	ms_pTrailsRaster2;
 

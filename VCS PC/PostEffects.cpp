@@ -3,6 +3,9 @@
 
 #include "Rs.h"
 
+bool			CPostEffects::m_bTrailsEnabled;
+bool			CPostEffects::m_bTrailsInitialised;
+
 RwRaster*		CPostEffects::ms_pTrailsRaster1;
 RwRaster*		CPostEffects::ms_pTrailsRaster2;
 void*			CPostEffects::m_pRadiosityPS;
@@ -21,8 +24,18 @@ void CPostEffects::DoScreenModeDependentInitializations()
 	// So far we don't need this
 }
 
-bool CPostEffects::SetUpBackBuffers()
+void CPostEffects::Close()
 {
+	Close_Trails();
+}
+
+void CPostEffects::Init_Trails()
+{
+	if ( m_bTrailsInitialised )
+		return;
+
+	m_bTrailsInitialised = true;
+
 	RwInt32		nWidth = RwRasterGetWidth(RwCameraGetRaster(Camera))*(256.0f/640.0f) + 2;
 	RwInt32		nHeight = RwRasterGetHeight(RwCameraGetRaster(Camera))*(128.0f/480.0f) + 2;
 
@@ -37,18 +50,16 @@ bool CPostEffects::SetUpBackBuffers()
 		else
 		{
 			// No need to recreate, just exit
-			return false;
+			return;
 		}
 	}
 
 	ms_pTrailsRaster1 = RwRasterCreate(nWidth, nHeight, RwRasterGetDepth(RwCameraGetRaster(Camera)), rwRASTERTYPECAMERATEXTURE);
 	ms_pTrailsRaster2 = RwRasterCreate(nWidth, nHeight, RwRasterGetDepth(RwCameraGetRaster(Camera)), rwRASTERTYPECAMERATEXTURE);
 
-	return true;
-}
+	nWidth -= 2;
+	nHeight -= 2;
 
-void CPostEffects::SetUpShaders()
-{
 	if ( !m_pRadiosityPS )
 		m_pRadiosityPS = RwD3D9CreatePixelShaderFromResource(IDR_RADIOSITYPS);
 	if ( !m_pPostEffectsVS )
@@ -79,9 +90,6 @@ void CPostEffects::SetUpShaders()
 		m_dwVertexBufferStride = sizeof(pPostEffectsVerts[0]);
 		m_dwVertexBufferSize = m_dwVertexBufferStride * NUM_POSTFX_VERTICES;
 	}
-
-	int		nWidth = RwRasterGetWidth(RwCameraGetRaster(Camera))*(256.0f/640.0f);
-	int		nHeight = RwRasterGetHeight(RwCameraGetRaster(Camera))*(128.0f/480.0f);
 
 	float rasterWidth = static_cast<float>(RwRasterGetWidth(ms_pTrailsRaster1));
 	float rasterHeight = static_cast<float>(RwRasterGetHeight(ms_pTrailsRaster1));
@@ -219,8 +227,11 @@ void CPostEffects::SetUpShaders()
 	}
 }
 
-void CPostEffects::Close()
+void CPostEffects::Close_Trails()
 {
+	if ( !m_bTrailsInitialised )
+		return;
+
 	if ( ms_pTrailsRaster1 )
 	{
 		RwRasterDestroy(ms_pTrailsRaster1);
@@ -233,13 +244,24 @@ void CPostEffects::Close()
 	}
 
 	RwD3D9DeletePixelShader(m_pRadiosityPS);
+	m_pRadiosityPS = nullptr;
+
 	RwD3D9DeleteVertexShader(m_pPostEffectsVS);
+	m_pPostEffectsVS = nullptr;
+
 	RwD3D9DeleteVertexDeclaration(m_pPostEffectsVertDecl);
+	m_pPostEffectsVertDecl = nullptr;
+
 	RwD3D9DestroyVertexBuffer(m_dwVertexBufferStride, m_dwVertexBufferSize, m_pPostEffectsVertexBuffer, m_dwVertexBufferOffset);
+	m_pPostEffectsVertexBuffer = nullptr;
+
 	m_pPostEffectsIndexBuffer->Release();
+	m_pPostEffectsIndexBuffer = nullptr;
+
+	m_bTrailsInitialised = false;
 }
 
-void CPostEffects::Trails()
+void CPostEffects::Render_Trails()
 {
 	RwRaster*	pTempRaster1 = ms_pTrailsRaster1;
 	RwRaster*	pTempRaster2 = ms_pTrailsRaster2;
@@ -347,13 +369,14 @@ void CPostEffects::Render()
 	if ( GetAsyncKeyState(VK_F3) & 0x8000 )
 		return;
 #endif
-	Trails();
+	if ( m_bTrailsEnabled )
+		Render_Trails();
 }
 
 void CPostEffects::Initialise()
 {
-	if ( SetUpBackBuffers() )	// Returns true if reinit is needed
-		SetUpShaders();
+	if ( m_bTrailsEnabled )
+		Init_Trails();
 }
 
 static StaticPatcher	Patcher([](){ 
