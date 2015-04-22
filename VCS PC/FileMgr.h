@@ -9,7 +9,9 @@ class CFileMgr
 public:
 	static inline FILE*		OpenFile(const char* path, const char* mode)
 				{ return fopen(path, mode); }
-	static inline  int		CloseFile(FILE* stream)
+	static inline FILE*		OpenFileW(const wchar_t* path, const wchar_t* mode)
+				{ return _wfopen(path, mode); }
+	static inline int		CloseFile(FILE* stream)
 				{ return fclose(stream); }
 	static inline bool		ReadLine(FILE* stream, char* str, int num)
 				{ return fgets(str, num, stream) != nullptr; }
@@ -22,6 +24,9 @@ public:
 
 	static void				SetDirMyDocuments();
 	static void				SetDir(const char* pDir);
+
+	static wchar_t*			GetMyDocumentsDir();
+	static char*			GetMyDocumentsDirMB();
 };
 
 // Now uses multiple lists

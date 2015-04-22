@@ -24,6 +24,8 @@
 #include <map>
 #include <cassert>
 #include <xinput.h>
+#include <Shlwapi.h>
+#include <ShlObj.h>
 
 #pragma warning(disable:4512)
 #include <boost\bimap.hpp>

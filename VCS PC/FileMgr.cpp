@@ -52,6 +52,45 @@ void SetAtomicModelInfoFlags(CAtomicModelInfo* pInfo, unsigned int dwFlags)
 		pInfo->SetCastShadowFlag();
 }
 
+wchar_t* CFileMgr::GetMyDocumentsDir()
+{
+	static wchar_t	cUserFilesPath[MAX_PATH];
+
+	if ( cUserFilesPath[0] == '\0' )
+	{
+		SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, cUserFilesPath);
+
+		// Now append the dir name and init the directories
+		PathAppendW(cUserFilesPath, L"GTA Vice City Stories User Files");
+		CreateDirectoryW(cUserFilesPath, nullptr);
+
+		// Initialize subdirs
+		wchar_t		wcTempPath[MAX_PATH];
+
+		wcscpy(wcTempPath, cUserFilesPath);
+		PathAppendW(wcTempPath, L"Gallery");
+		CreateDirectoryW(wcTempPath, nullptr);
+
+		wcscpy(wcTempPath, cUserFilesPath);
+		PathAppendW(wcTempPath, L"User Tracks");
+		CreateDirectoryW(wcTempPath, nullptr);
+	}
+	return cUserFilesPath;
+}
+
+char* CFileMgr::GetMyDocumentsDirMB()
+{
+	static char	cUserFilesPath[MAX_PATH];
+
+	if ( cUserFilesPath[0] == '\0' )
+	{
+		const wchar_t*	pWidePath = GetMyDocumentsDir();
+
+		WideCharToMultiByte(CP_ACP, 0, pWidePath, -1, cUserFilesPath, sizeof(cUserFilesPath), nullptr, nullptr);
+	}
+	return cUserFilesPath;
+}
+
 std::string CFileLoader::TranslatePath(const char* pFileName, const char* pDLCName)
 {
 	// Find known device classes
@@ -428,4 +467,9 @@ bool CFileLoader::ParseLevelFile(const char* pFileName, char* pDLCName)
 
 static StaticPatcher	Patcher([](){ 
 						Memory::InjectHook(0x5B3F7B, SetAtomicModelInfoFlags);
+
+						// Migration to wide paths
+						Memory::InjectHook(0x538860, CFileMgr::GetMyDocumentsDirMB);
+						Memory::InjectHook(0x747470, CFileMgr::GetMyDocumentsDirMB);
+						Memory::InjectHook(0x619075, CFileMgr::GetMyDocumentsDir);
 									});

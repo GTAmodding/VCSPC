@@ -120,11 +120,11 @@ static void CleanupDirectory(const wchar_t* pDirName)
 
 static void MakeSureDirExists(const wchar_t* pDirName)
 {
-	HANDLE hDir = CreateFile(pDirName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-	if ( hDir == INVALID_HANDLE_VALUE )
-		CreateDirectory(pDirName, NULL);
-	else
-		CloseHandle(hDir);
+	//HANDLE hDir = CreateFile(pDirName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+	//if ( hDir == INVALID_HANDLE_VALUE )
+		CreateDirectory(pDirName, nullptr);
+	//else
+	//	CloseHandle(hDir);
 }
 
 static size_t WriteData(char* ptr, size_t size, size_t nmemb, void* userdata)
@@ -544,43 +544,52 @@ long CUpdater::Process()
 	return nStatus;
 }
 
+static std::wstring GetFullMyDocumentsPath()
+{
+	// This function fries to use SHGetKnownFolderPath and falls back to SHGetFolderPath if not found
+	static bool	bLoaded = false;
+	static HRESULT (WINAPI *GetKnownFolderPath)(REFKNOWNFOLDERID, DWORD, HANDLE, PWSTR*);
+
+	if ( !bLoaded )
+	{
+		HMODULE	hShellLib = GetModuleHandle(L"shell32.dll");
+		GetKnownFolderPath = reinterpret_cast<HRESULT(WINAPI*)(REFKNOWNFOLDERID, DWORD, HANDLE, PWSTR*)>(GetProcAddress(hShellLib, "SHGetKnownFolderPath"));
+		bLoaded = true;
+	}
+
+	if ( GetKnownFolderPath != nullptr )
+	{
+		PWSTR	pString;
+		GetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &pString);
+
+		std::wstring	strRetString = pString;
+		CoTaskMemFree(pString);
+		return strRetString;
+	}
+
+	// Fall back to SHGetFolderPath
+	wchar_t		wcPathBuf[MAX_PATH];
+	SHGetFolderPath(nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, wcPathBuf);
+	return wcPathBuf;
+}
+
 void CUpdater::Initialize()
 {
 	if ( !bInitialized )
 	{
-		wchar_t			wcTempPath[MAX_PATH];
-		GetCurrentDirectory(MAX_PATH, wcTempPath);
-		//GetModuleFileName(nullptr, wcTempPath, MAX_PATH);
+		DWORD		dwPathLength = GetCurrentDirectory(0, nullptr);
+		wchar_t*	pTempPath = new wchar_t[dwPathLength];
 
-		// Cut last 2 \'s from the string
-		/*wchar_t*		pSlashPos = wcsrchr(wcTempPath, '\\');
-		if ( pSlashPos )
-		{
-			if ( !bFromMainDir )
-			{
-				pSlashPos = '\0';
-				pSlashPos = wcsrchr(wcTempPath, '\\');
-			}*/
-		szFullGamePath = wcTempPath;
+		GetCurrentDirectory(dwPathLength, pTempPath);
+		szFullGamePath = pTempPath;
+		delete[] pTempPath;
 
-		HKEY	hRegKey;
+		// GTA Vice City Stories User Files path
+		szFullCachePath = GetFullMyDocumentsPath();
+		StrPathAppend(szFullCachePath, L"GTA Vice City Stories User Files");
 
-		if ( RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hRegKey) == ERROR_SUCCESS )
-		{
-			DWORD	dwType;
-			DWORD	dwSize = MAX_PATH;
-
-			memset(wcTempPath, 0, sizeof(wcTempPath));
-
-			RegQueryValueEx(hRegKey, L"Personal", 0, &dwType, reinterpret_cast<unsigned char*>(wcTempPath), &dwSize);
-			RegCloseKey(hRegKey);
-
-			PathAppend(wcTempPath, L"GTA Vice City Stories User Files");
-			szFullCachePath = wcTempPath;
-
-			// Read updater.set
-			ReadSettingsFile();
-		}
+		// Read updater.set
+		ReadSettingsFile();
 
 		bInitialized = true;
 	}

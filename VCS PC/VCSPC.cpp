@@ -4430,8 +4430,8 @@ __forceinline void UserFiles()
 	Patch<const char*>(0x619608, "GTA: Vice City Stories");
 #endif
 
-	Patch<BYTE>(0x74503A, 0x9);
-	Patch<const char*>(0x74503F, "\\GTA Vice City Stories User Files");
+	//Patch<BYTE>(0x74503A, 0x9);
+	//Patch<const char*>(0x74503F, "\\GTA Vice City Stories User Files");
 
 /*#ifdef DEVBUILD
 	Patch<const char*>(0x57C672, "gta_vcsd.set");

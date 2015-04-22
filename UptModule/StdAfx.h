@@ -11,5 +11,6 @@
 #include <string>
 #include <windows.h>
 #include <shlwapi.h>
+#include <ShlObj.h>
 #include <shellapi.h>
 #include <Iphlpapi.h>
