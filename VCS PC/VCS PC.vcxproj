@@ -501,7 +501,6 @@ popd</Command>
     <ClInclude Include="Queue.h" />
     <ClInclude Include="RealTimeShadowMgr.h" />
     <ClInclude Include="Replay.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Shadows.h" />
     <ClInclude Include="SpeechRecognition.h" />
@@ -609,8 +608,6 @@ popd</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-  <ItemGroup>
-    <ResourceCompile Include="Shaders.rc" />
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Vertex</ShaderType>

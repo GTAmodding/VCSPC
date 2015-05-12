@@ -575,7 +575,7 @@ void CRealTimeShadowManager::ReturnRealTimeShadow(CRealTimeShadow* pShadow)
 
 void CRealTimeShadowManager::InitShaders()
 {
-	m_pShadowPixelShader = RwD3D9CreatePixelShaderFromResource(IDR_RTSHADOWPIXELSHADER);
+	m_pShadowPixelShader = RwD3D9CreatePixelShaderFromFile("rtshadow");
 }
 
 void CRealTimeShadowManager::ReleaseShaders()

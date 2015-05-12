@@ -32,7 +32,6 @@
 #pragma warning(default:4512)
 
 #include "buildnumber.h"
-#include "resource.h"
 
 
 //#define INCLUDE_AUDIO_DEBUG

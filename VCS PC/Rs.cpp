@@ -242,6 +242,7 @@ void* RwD3D9CreatePixelShaderFromResource(WORD wResource)
 
 	HRSRC		resource = FindResource(thisModule, MAKEINTRESOURCE(wResource), RT_RCDATA);
 	RwUInt32*	pRawShader = static_cast<RwUInt32*>(LoadResource(thisModule, resource));
+	assert(pRawShader != nullptr);
 	RwD3D9CreatePixelShader(pRawShader, reinterpret_cast<void**>(&pPixelShader));
 	FreeResource(pRawShader);
 
@@ -258,8 +259,52 @@ void* RwD3D9CreateVertexShaderFromResource(WORD wResource)
 
 	HRSRC		resource = FindResource(thisModule, MAKEINTRESOURCE(wResource), RT_RCDATA);
 	RwUInt32*	pRawShader = static_cast<RwUInt32*>(LoadResource(thisModule, resource));
+	assert(pRawShader != nullptr);
 	RwD3D9CreateVertexShader(pRawShader, reinterpret_cast<void**>(&pVertexShader));
 	FreeResource(pRawShader);
+
+	return pVertexShader;
+}
+
+
+void* RwD3D9CreatePixelShaderFromFile(const char* pFileName)
+{
+	sprintf(gString, "data\\shaders\\%sPS.cso", pFileName);
+
+	HANDLE	hFile = CreateFile(gString, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	HANDLE	hMapping = CreateFileMapping(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
+	void*	pMem = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
+
+	if ( pMem == nullptr )
+		return nullptr;
+
+	void*		pPixelShader;
+
+	RwD3D9CreatePixelShader(static_cast<RwUInt32*>(pMem), &pPixelShader);
+	UnmapViewOfFile(pMem);
+	CloseHandle(hMapping);
+	CloseHandle(hFile);
+
+	return pPixelShader;
+}
+
+void* RwD3D9CreateVertexShaderFromFile(const char* pFileName)
+{
+	sprintf(gString, "data\\shaders\\%sVS.cso", pFileName);
+
+	HANDLE	hFile = CreateFile(gString, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	HANDLE	hMapping = CreateFileMapping(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
+	void*	pMem = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
+
+	if ( pMem == nullptr )
+		return nullptr;
+
+	void*		pVertexShader;
+
+	RwD3D9CreateVertexShader(static_cast<RwUInt32*>(pMem), &pVertexShader);
+	UnmapViewOfFile(pMem);
+	CloseHandle(hMapping);
+	CloseHandle(hFile);
 
 	return pVertexShader;
 }
@@ -415,4 +460,8 @@ static StaticPatcher	Patcher([](){
 						Memory::InjectHook(0x756DFE, rxD3D9DefaultRenderCallback_Hook, PATCH_JUMP);
 						//Memory::InjectHook(0x5DA643, SetPixelShaderHooked);
 						//Memory::InjectHook(0x5DA736, SetPixelShaderHooked);
+
+						// No DirectPlay dependency
+						Memory::Patch<BYTE>(0x74754A, 0xB8);
+						Memory::Patch<DWORD>(0x74754B, 0x900);
 									});

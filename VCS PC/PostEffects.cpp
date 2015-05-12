@@ -61,9 +61,9 @@ void CPostEffects::Init_Trails()
 	nHeight -= 2;
 
 	if ( !m_pRadiosityPS )
-		m_pRadiosityPS = RwD3D9CreatePixelShaderFromResource(IDR_RADIOSITYPS);
+		m_pRadiosityPS = RwD3D9CreatePixelShaderFromFile("radiosity");
 	if ( !m_pPostEffectsVS )
-		m_pPostEffectsVS = RwD3D9CreateVertexShaderFromResource(IDR_POSTFXVS);
+		m_pPostEffectsVS = RwD3D9CreateVertexShaderFromFile("postfx");
 
 	static const D3DVERTEXELEMENT9 vertexElements[] =
 	{

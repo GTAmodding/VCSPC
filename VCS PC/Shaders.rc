@@ -1,5 +1,0 @@
-#include "resource.h"
-
-IDR_RTSHADOWPIXELSHADER	RCDATA	"Shaders\\bin\RTShadowPixelShader.cso"
-IDR_RADIOSITYPS	RCDATA	"Shaders\\bin\\radiosityPS.cso"
-IDR_POSTFXVS	RCDATA	"Shaders\\bin\\postfxVS.cso"

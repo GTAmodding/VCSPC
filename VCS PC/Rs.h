@@ -156,6 +156,9 @@ void			GtaOperatorDelete(void* ptr);
 void*			RwD3D9CreatePixelShaderFromResource(WORD wResource);
 void*			RwD3D9CreateVertexShaderFromResource(WORD wResource);
 
+void*			RwD3D9CreatePixelShaderFromFile(const char* pFileName);
+void*			RwD3D9CreateVertexShaderFromFile(const char* pFileName);
+
 // This is a part of RW.cpp
 void			InjectRwEngineWrappers();
 
