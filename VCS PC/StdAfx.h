@@ -139,11 +139,6 @@ inline T Max(const T& a, const T& b)
 	return a > b ? a : b;
 }
 
-inline int round(double value)
-{
-	return static_cast<int>(value + 0.5);
-}
-
 #ifdef MAKE_CONSOLE
 #define echo(x, ...) printf(x, __VA_ARGS__)
 #else

@@ -540,24 +540,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="..\common\win2000.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="Shaders\RTShadowPixelShader.hlsl">
+    <FxCompile Include="Shaders\postfxVS.hlsl">
       <Filter>Shaders</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Shaders\radiosityPS.hlsl">
+    </FxCompile>
+    <FxCompile Include="Shaders\radiosityPS.hlsl">
       <Filter>Shaders</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Shaders\postfxVS.hlsl">
+    </FxCompile>
+    <FxCompile Include="Shaders\rtshadowPS.hlsl">
       <Filter>Shaders</Filter>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Shaders.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
+    </FxCompile>
   </ItemGroup>
 </Project>

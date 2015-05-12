@@ -346,7 +346,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex;
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.cbSize = sizeof(wcex);
 
 	wcex.style			= CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc	= WndProc;
@@ -356,9 +356,9 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
-	wcex.lpszMenuName	= NULL;
+	wcex.lpszMenuName	= nullptr;
 	wcex.lpszClassName	= L"VCSPCAPUP";
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ICON1));
+	wcex.hIconSm		= nullptr;//LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 
 	return RegisterClassEx(&wcex);
 }

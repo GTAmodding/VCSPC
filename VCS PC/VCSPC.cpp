@@ -263,7 +263,6 @@ char				gUString[552];
 CSprite2d			DevLogos[1];
 #endif
 
-void*						_ProcessEnexMarkers_JumpBack;
 //void*						CGameLogic__Update_Busted_JumpBack;
 //void*						CGameLogic__Update_Wasted_JumpBack;
 void*						CMenu__DrawRadioStationIconsIconBreak_ElseJump;
@@ -827,7 +826,6 @@ __forceinline void DefineVariables()
 {
 	LogToFile("Assigning variables...");
 
-	_ProcessEnexMarkers_JumpBack = (void*)0x440F43;
 	//CGameLogic__Update_Busted_JumpBack = (void*)0x442D34;
 	//CGameLogic__Update_Wasted_JumpBack = (void*)0x442D0B;
 	CMenu__DrawRadioStationIconsIconBreak_ElseJump = (void*)0x5747E8;
@@ -2747,7 +2745,7 @@ __forceinline void Main_Patches()
 	InjectHook(0x725BA0, &C3DMarkers::PlaceMarkerSet, PATCH_JUMP);
 
 	// Enex markers RGB
-	InjectHook(0x440F38, &EnexMarkersColorBreak, PATCH_JUMP);
+	InjectHook(0x440F38, EnexMarkersColorBreak, PATCH_JUMP);
 
 	// Font scale fix
 	InjectHook(0x7193A0, &CFont::SetScaleLang, PATCH_JUMP);
@@ -3873,7 +3871,7 @@ __forceinline void Main_Patches()
 	Patch<const void*>(0x4066C7, gStreamNames);
 	Patch<const void*>(0x406882, gStreamNames);
 	Patch<const void*>(0x406B81, gStreamNames);
-	Patch<const void*>(0x406B98, &gStreamNames[NUM_STREAMS+1]);
+	Patch<const void*>(0x406B98, &gStreamNames[NUM_STREAMS]);
 	Patch<const char*>(0x406C2B, "ANIM\\ANIM.IMG");
 	Nop(0x5B927D, 5);
 //	Nop(0x43E65D, 2);
@@ -4965,7 +4963,8 @@ void __declspec(naked) EnexMarkersColorBreak()
 		push	64h
 		push	ebx
 		//push	00h
-		jmp		_ProcessEnexMarkers_JumpBack
+		mov		eax, 440F43h
+		jmp		eax
 	}
 }
 

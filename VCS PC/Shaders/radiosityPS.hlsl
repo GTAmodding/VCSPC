@@ -1,4 +1,4 @@
-float4 mainPS(uniform sampler2D frameSmall : register(s0),
+float4 main(uniform sampler2D frameSmall : register(s0),
             uniform float3 colors : register(c0),
 
             in float2 Tex0 : TEXCOORD0) : COLOR0

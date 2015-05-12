@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -27,25 +27,27 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -117,7 +119,6 @@
       </Version>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
       <NoEntryPoint>false</NoEntryPoint>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -130,10 +131,12 @@
       <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
 copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
+copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\data\shaders\*.cso"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
 copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
+copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\data\shaders\*.cso"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -150,6 +153,9 @@ popd</Command>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
     </ResourceCompile>
+    <FxCompile>
+      <ShaderModel>2.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
     <ClCompile>
@@ -173,9 +179,7 @@ popd</Command>
       <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
       <NoEntryPoint>false</NoEntryPoint>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -183,15 +187,18 @@ popd</Command>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
 copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
+copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\data\shaders\*.cso"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
 copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
+copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\data\shaders\*.cso"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -205,6 +212,11 @@ popd</Command>
       </Command>
     </PreLinkEvent>
     <ResourceCompile />
+    <FxCompile>
+      <ShaderModel>2.0</ShaderModel>
+      <DisableOptimizations>true</DisableOptimizations>
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -236,7 +248,6 @@ popd</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <TargetMachine>MachineX86</TargetMachine>
-      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -246,10 +257,12 @@ popd</Command>
       <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
 copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
+copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\data\shaders\*.cso"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
 copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
+copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\data\shaders\*.cso"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -266,6 +279,9 @@ popd</Command>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
     </ResourceCompile>
+    <FxCompile>
+      <ShaderModel>2.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
     <ClCompile>
@@ -297,7 +313,6 @@ popd</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <TargetMachine>MachineX86</TargetMachine>
-      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -306,10 +321,12 @@ popd</Command>
       <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
 copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
+copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\data\shaders\*.cso"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
 copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
+copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\data\shaders\*.cso"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -326,6 +343,9 @@ popd</Command>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
     </ResourceCompile>
+    <FxCompile>
+      <ShaderModel>2.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="3DMarkers.cpp" />
@@ -517,7 +537,7 @@ popd</Command>
   <ItemGroup>
     <None Include="LoadVars.inc" />
     <None Include="SaveVars.inc" />
-    <CustomBuild Include="Shaders\RTShadowPixelShader.hlsl">
+    <FxCompile Include="Shaders\rtshadowPS.hlsl">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
@@ -535,8 +555,12 @@ popd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Shaders\bin\%(Filename)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Shaders\bin\%(Filename)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Shaders\bin\%(Filename)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="Shaders\radiosityPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\radiosityPS.hlsl">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
@@ -554,8 +578,12 @@ popd</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-    </CustomBuild>
-    <CustomBuild Include="Shaders\postfxVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\postfxVS.hlsl">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
@@ -581,13 +609,13 @@ popd</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="..\common\win2000.asm" />
-  </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Shaders.rc" />
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
