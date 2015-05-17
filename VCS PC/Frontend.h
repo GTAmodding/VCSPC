@@ -166,7 +166,7 @@ public:
 	float               m_fStatsScrollSpeed;
 	__int8 field_8;
 	__int8 field_9[23];
-	bool				m_bVibration;
+	bool				m_bVibrationEnabled;
 	unsigned char		m_bHudOn;
 	__int8 field_22[2];
 	__int32             m_dwRadarMode;

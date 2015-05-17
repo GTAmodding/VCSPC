@@ -83,6 +83,12 @@ public:
 	void			RenderJetPack(class CPed* pPed);
 };
 
+class CTaskManager
+{
+public:
+	CTask*					GetSimplestActiveTask() const;
+};
+
 //static_assert(sizeof(CTaskSimpleJetPack) == 0x70, "Wrong size: CTaskSimpleJetPack");
 
 #endif

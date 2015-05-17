@@ -34,6 +34,9 @@ public:
 	inline ~CSprite2d()
 		{ /*Delete();*/ }
 
+	inline RwTexture*	GetTexture()
+		{ return m_pTexture; }
+
 	inline void			SetAddressing(int nAddressing)
 		{ if ( m_pTexture ) RwTextureSetAddressing(m_pTexture, nAddressing); }
 

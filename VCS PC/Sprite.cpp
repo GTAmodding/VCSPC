@@ -22,15 +22,10 @@ void CSprite2d::SetTexture(const char* name, const char* maskName)
 {
 	if ( name )
 	{
-		if ( maskName )
-		{
-			if ( m_pTexture )
-				RwTextureDestroy(m_pTexture);
+		if ( m_pTexture )
+			RwTextureDestroy(m_pTexture);
 
-			m_pTexture = RwTextureRead(name, maskName);
-		}
-		else
-			SetTextureNoMask(name);
+		m_pTexture = RwTextureRead(name, nullptr);
 	}
 }
 

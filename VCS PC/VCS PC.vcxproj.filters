@@ -48,9 +48,6 @@
     <ClCompile Include="CWanted.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CWeaponInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VCSPC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -264,6 +261,9 @@
     <ClCompile Include="Weather.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Weapon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CConfiscatedWeapons.h">
@@ -276,9 +276,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CWanted.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CWeaponInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StdAfx.h">
@@ -525,6 +522,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Weather.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

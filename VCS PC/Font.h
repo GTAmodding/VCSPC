@@ -28,6 +28,64 @@ enum eFontFileIDs
 	NUM_FONTFILES
 };
 
+enum eButtonSprites
+{
+	BUTTON_NONE = 0,
+
+	BUTTON_UP,
+	BUTTON_DOWN,
+	BUTTON_LEFT,
+	BUTTON_RIGHT,
+
+	BUTTON_CROSS,
+	BUTTON_CIRCLE,
+	BUTTON_SQUARE,
+	BUTTON_TRIANGLE,
+
+	BUTTON_L1,
+	BUTTON_L2,
+	BUTTON_L3,
+	BUTTON_R1,
+	BUTTON_R2,
+	BUTTON_R3,
+
+	BUTTON_UPDOWN,
+	BUTTON_LEFTRIGHT,
+
+	BUTTON_THUMBL,
+	BUTTON_THUMBLX,
+	BUTTON_THUMBLXL,
+	BUTTON_THUMBLXR,
+	BUTTON_THUMBLY,
+	BUTTON_THUMBLYU,
+	BUTTON_THUMBLYD,
+
+	BUTTON_THUMBR,
+	BUTTON_THUMBRX,
+	BUTTON_THUMBRXL,
+	BUTTON_THUMBRXR,
+	BUTTON_THUMBRY,
+	BUTTON_THUMBRYU,
+	BUTTON_THUMBRYD,
+
+	/*BUTTON_SIXAXIS_1,
+	BUTTON_SIXAXIS_2,
+	BUTTON_SIXAXIS_3,
+	BUTTON_SIXAXIS_4,*/
+
+	BUTTON_PC_UP,
+	BUTTON_PC_DOWN,
+	BUTTON_PC_LEFT,
+	BUTTON_PC_RIGHT,
+
+	NUM_BUTTON_SPRITES,
+
+	// Sprite-less buttons
+	BUTTON_START,
+	BUTTON_SELECT,
+	BUTTON_PS
+};
+
 #define NUM_FONT_SHEETS 4
 
 class CFont
@@ -69,9 +127,16 @@ public:
 	static CSprite2d		Sprite[NUM_FONT_SHEETS];
 	static sFontSizes		Size[NUM_FONT_SHEETS];
 	static tDetails&		Details;
+	static BYTE&			PS2Symbol;
+
+	static float			PS2SpriteWidth[NUM_BUTTON_SPRITES];
+	static CSprite2d		PS2Sprite[NUM_BUTTON_SPRITES];
+	static bool				bX360Buttons;
 
 private:
 	static void				LoadFontValues();
+	static void				GetButtonByIndex(int wButton, char* wcBuf, size_t& nStartPoint);
+	static void				GetButtonByIndex(int wButton1, int wButton2, char* wcBuf, size_t& nStartPoint);
 
 public:
 	static unsigned char	FindSubFontCharacter(char character, unsigned char bFontType);
@@ -98,8 +163,12 @@ public:
 	static void				SetAlphaFade(float fAlpha);
 	static int				GetNumberLines(float, float, const char* pText);
 
+	static void	__stdcall	GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused);
+	static char*			ParseToken(char* pText, CRGBA& rColor, bool bIgnoreColors, char* pChar);
 	static void				Initialise();
 	static void				Shutdown();
+
+	static void				Inject();
 };
 
 const char*		GetFontsDATByLanguage();

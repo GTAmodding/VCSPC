@@ -13,6 +13,9 @@ WRAPPER unsigned char CPed::GetWeaponSkill() { EAXJMP(0x5E6580); }
 WRAPPER void CPed::SetCharCreatedBy(unsigned char bBy) { WRAPARG(bBy); EAXJMP(0x5E47E0); }
 WRAPPER void CPed::SetCurrentWeapon(int nSlot) { WRAPARG(nSlot); EAXJMP(0x5E61F0); }
 WRAPPER void CPed::ResetGunFlashAlpha() { EAXJMP(0x5DF4E0); }
+WRAPPER void CPed::FindWeaponLockOnTarget() { EAXJMP(0x60DC50); }
+
+WRAPPER CPed* FindPlayerPed(int nIndex) { EAXJMP(0x56E210); }
 
 CPedEx* CPed::GetEx()
 {
