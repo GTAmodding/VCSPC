@@ -275,6 +275,7 @@ void* RwD3D9CreatePixelShaderFromFile(const char* pFileName)
 	HANDLE	hMapping = CreateFileMapping(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
 	void*	pMem = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
 
+	assert(pMem != nullptr);
 	if ( pMem == nullptr )
 		return nullptr;
 
@@ -296,6 +297,7 @@ void* RwD3D9CreateVertexShaderFromFile(const char* pFileName)
 	HANDLE	hMapping = CreateFileMapping(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
 	void*	pMem = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
 
+	assert(pMem != nullptr);
 	if ( pMem == nullptr )
 		return nullptr;
 

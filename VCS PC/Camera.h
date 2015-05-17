@@ -405,9 +405,9 @@ public:
 
 	// These ones are static so that they don't get cleared in CCamera::Init()
 	static  float& m_fMouseAccelHorzntl;// acceleration multiplier for 1st person controls
-	static  float m_fMouseAccelVertical;// acceleration multiplier for 1st person controls
-	static  float m_f3rdPersonCHairMultX;
-	static  float m_f3rdPersonCHairMultY;
+	static  float& m_fMouseAccelVertical;// acceleration multiplier for 1st person controls
+	static  float& m_f3rdPersonCHairMultX;
+	static  float& m_f3rdPersonCHairMultY;
 
 	CCam	Cams[3];
 

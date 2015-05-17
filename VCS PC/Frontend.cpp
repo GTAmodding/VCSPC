@@ -222,7 +222,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		57, "FEM_YES", ACTION_STANDARD, 3, 0, 16, 3, 0, 0 },
 
 	// Restore defaults - Controller Setup
-	{ "FET_CTL", 36, 3,
+	{ "FET_CTL", 36, 2,
 		1, "FED_RDP", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 36, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 36, 0, 16, 3, 0, 0 },
@@ -305,14 +305,14 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 
 	{ "FET_CTL", 33, 0,
-		58, "FEC_CFG", ACTION_CLICKORARROWS, 36, 0, -74, 2, 0, 0,
 		5, "FEC_RED", ACTION_STANDARD, 37, 0, -29, 3, 0, 0,
-		7, "FEC_CFG", ACTION_JOYMOUSE, 36, 0, 0, 3, 0, 0,
+		7, "FEC_MOU", ACTION_STANDARD, 39, 0, 0, 3, 0, 0,
 		5, "FET_DEF", ACTION_STANDARD, 25, 0, 51, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 0, 3, 0, 0 },
 
 
-	{ "FET_CTL", 36, 1,
+	// Redefine Controls
+	{ "FET_CTL", 36, 0,
 		8, "FET_CFT", ACTION_STANDARD, 38, 0, -34, 3, 0, 0,
 		9, "FET_CCR", ACTION_STANDARD, 38, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 36, 0, 46, 3, 0, 0 },
@@ -321,7 +321,8 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	{ "FET_CTL", 37, 0 },
 
 
-	{ "FEM_MOU", 36, 2,
+	// Mouse Settings
+	{ "FEM_MOU", 36, 1,
 		62, "FEC_MSH", ACTION_CLICKORARROWS, 39, 0, -94, 2, 0, 0,
 		46, "FEC_IVV", ACTION_CLICKORARROWS, 39, 0, 0, 2, 0, 0,
 		59, "FET_MST", ACTION_CLICKORARROWS, 39, 0, 0, 2, 0, 0,
@@ -841,10 +842,10 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				// TODO: MPACK name
 
 			}
-			else if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_JOYMOUSE )
+			/*else if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_JOYMOUSE )
 			{
 				pTextToShow = TheText.Get(m_nController ? "FEJ_TIT" : "FEC_MOU");
-			}
+			}*/
 			else if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_UPDATER )
 			{
 				pTextToShow = CUpdateManager::GetGXTEntryForButton();
