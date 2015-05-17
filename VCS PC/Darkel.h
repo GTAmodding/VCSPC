@@ -2,7 +2,7 @@
 #define __DARKEL
 
 #include "Ped.h"
-#include "CWeaponInfo.h"
+#include "Weapon.h"
 
 class CDarkel
 {

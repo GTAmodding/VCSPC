@@ -4,6 +4,7 @@
 #include "Pools.h"
 
 WRAPPER void CTaskSimpleJetPack::RenderJetPack(CPed* pPed) { WRAPARG(pPed); EAXJMP(0x67F6A0); }
+WRAPPER CTask* CTaskManager::GetSimplestActiveTask() const { EAXJMP(0x6819D0); }
 
 void* CTask::operator new(size_t size)
 {

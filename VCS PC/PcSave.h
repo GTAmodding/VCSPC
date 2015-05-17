@@ -2,7 +2,7 @@
 #define __CPCSAV
 
 #include "General.h"
-#include "CWeaponInfo.h"
+#include "Weapon.h"
 #include "Ped.h"
 
 // Special Block 0 handling
@@ -44,7 +44,7 @@ private:
 		CVector			Coords;
 		float			fHealth;
 		float			fArmour;
-		CWeaponSlot		Weapons[13];
+		CWeapon			Weapons[13];
 		unsigned char	bCreatedBy;
 		unsigned char	bActiveWeapon;
 		unsigned char	nAreaID;

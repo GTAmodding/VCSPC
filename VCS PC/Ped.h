@@ -4,7 +4,7 @@
 #include "CWanted.h"
 #include "General.h"
 #include "PedIntelligence.h"
-#include "CWeaponInfo.h"
+#include "Weapon.h"
 
 class CEntryExit;
 
@@ -251,7 +251,7 @@ public:
 	BYTE				__pad9[8];
 	DWORD				pedType;
 	BYTE				__pad4[4];
-	CWeaponSlot			weaponSlots[13];
+	CWeapon				weaponSlots[13];
 	BYTE				__pad5[12];
 	BYTE				m_bActiveWeapon;
 	BYTE				__pad65[20];
@@ -275,7 +275,7 @@ public:
 							{ return pedFlags; };
 	inline CVehicle*	GetVehiclePtr() 
 							{ return pVehicle; };
-	inline CWeaponSlot*	GetWeaponSlots() 
+	inline CWeapon*		GetWeaponSlots() 
 							{ return weaponSlots; };
 	inline int			GetMoveAnimGroup() 
 							{ return iMoveAnimGroup; };
@@ -309,6 +309,7 @@ public:
 	long double			GetCrosshairSize();
 	void				Remap();
 	void				RenderForShadow(RpClump* pClump, bool bRenderWeapon);
+	void				FindWeaponLockOnTarget();
 };
 
 class CPedEx
@@ -331,5 +332,7 @@ public:
 };
 
 static_assert(sizeof(CPed) == 0x79C, "Wrong size: CPed");
+
+CPed* FindPlayerPed(int nIndex);
 
 #endif

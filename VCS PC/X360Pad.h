@@ -1,82 +1,87 @@
 #ifndef __X360PAD
 #define __X360PAD
 
-#define BUTTON_UP		XINPUT_GAMEPAD_DPAD_UP
-#define BUTTON_DOWN		XINPUT_GAMEPAD_DPAD_DOWN
-#define BUTTON_LEFT		XINPUT_GAMEPAD_DPAD_LEFT
-#define BUTTON_RIGHT	XINPUT_GAMEPAD_DPAD_RIGHT
-#define BUTTON_START	XINPUT_GAMEPAD_START
-#define BUTTON_SELECT	XINPUT_GAMEPAD_BACK
-#define BUTTON_L3		XINPUT_GAMEPAD_LEFT_THUMB
-#define BUTTON_R3		XINPUT_GAMEPAD_RIGHT_THUMB
-#define BUTTON_L1		XINPUT_GAMEPAD_LEFT_SHOULDER
-#define BUTTON_R1		XINPUT_GAMEPAD_RIGHT_SHOULDER
-#define BUTTON_PS		0x0400
-#define BUTTON_CROSS	XINPUT_GAMEPAD_A
-#define BUTTON_CIRCLE	XINPUT_GAMEPAD_B
-#define BUTTON_SQUARE	XINPUT_GAMEPAD_X
-#define BUTTON_TRIANGLE	XINPUT_GAMEPAD_Y
-#define BUTTON_L2		-1
-#define BUTTON_R2		-2
+#include "XInput_SCP.h"
+#include <xinput.h>
 
-#define BUTTON_THUMBLXL -10
-#define BUTTON_THUMBLXR -11
-#define BUTTON_THUMBLYU -12
-#define BUTTON_THUMBLYD -13
-#define BUTTON_THUMBRXL -14
-#define BUTTON_THUMBRXR -15
-#define BUTTON_THUMBRYU -16
-#define BUTTON_THUMBRYD -17
+#define SIXAXIS_IDLE_X		512
+#define SIXAXIS_IDLE_Y		512
+#define SIXAXIS_IDLE_Z		400
+#define	SIXAXIS_IDLE_GYRO	500
+
+#define SIXAXIS_X_DEADZONE		20
+#define SIXAXIS_Y_DEADZONE		20
+#define SIXAXIS_Z_DEADZONE		20
+#define SIXAXIS_GYRO_DEADZONE	10
+
+typedef struct
+{
+	WORD				sAccelerometerX;
+	WORD				sAccelerometerY;
+	WORD				sAccelerometerZ;
+
+	WORD				sGyroscope;
+} SCP_SIXAXIS;
 
 class CX360Pad
 {
 private:
 	DWORD				dwPadIndex;
-	DWORD				dwSavedPacket;
 	XINPUT_STATE		sPadState;
-	unsigned short		wSavedLeftMotorSpeed, wSavedRightMotorSpeed;
-	bool				bIsConnected, bHasPadInHands;
 
-	static DWORD		dwReferences;
-	static HMODULE		hXinputLibrary;
-	static DWORD		(WINAPI *XInputGetState)(DWORD dwUserIndex, XINPUT_STATE *pState);
-	static DWORD		(WINAPI *XInputSetState)(DWORD dwUserIndex, XINPUT_VIBRATION *pVibration);
+	SCP_EXTN			sExtendedPadState;
+
+	// GInput custom hooks
+	//SCP_SIXAXIS			sSixaxisState;
+
+	unsigned short		wSavedLeftMotorSpeed, wSavedRightMotorSpeed;
+	bool				bIsConnected, bHasPadInHands, bSCPSupported, bSixaxisWorking;
+
+	static DWORD		(WINAPI *XInputGetState_GInput)(DWORD dwUserIndex, XINPUT_STATE *pState);
+	// SCP Driver extension
+	static DWORD		(WINAPI *XInputGetExtended_GInput)(DWORD dwUserIndex, SCP_EXTN* pPressure);
+	static bool			bInitialised;
 
 private:
-	void				InitializeLibrary();
+	static void			InitializeLibrary();
 
 public:
 	CX360Pad(DWORD dwPad)
-		:	dwPadIndex(dwPad), dwSavedPacket(1), wSavedLeftMotorSpeed(0), wSavedRightMotorSpeed(0),
-			bIsConnected(false),  bHasPadInHands(false)
+		:	dwPadIndex(dwPad), wSavedLeftMotorSpeed(0), wSavedRightMotorSpeed(0),
+			bIsConnected(false),  bHasPadInHands(false), bSCPSupported(false), bSixaxisWorking(false)
 	{
-		++dwReferences;
+	};
+
+	virtual ~CX360Pad()
+	{
+		Vibrate(0, 0);
 	}
 
-	~CX360Pad()
-	{
-		if ( RetrieveState() )
-			Vibrate(0, 0);
+	bool			IsPadConnected() const
+				{ return bIsConnected; };
 
-		if ( !(--dwReferences) )
-		{
-			FreeLibrary(hXinputLibrary);
-			hXinputLibrary = nullptr;
-		}
-	}
+	bool			HasPadInHands() const
+				{ return bHasPadInHands; };
 
-	inline bool		IsPadConnected()
-				{ return bIsConnected; }
-
-	inline bool		HasPadInHands()
-				{ return bHasPadInHands; }
-
-	bool					AnyNewInput();
+	bool					CheckForInput();
 	void					SetHasPadInHands(bool bHasIt);
-	bool					RetrieveState();
-	short					GetButtonState(int nButton);
-	void					GetThumbstickState(int nWhich, float* pOut);
+	DWORD					RetrieveState();
+
 	void					Vibrate(unsigned short wLeftMotorSpeed, unsigned short wRightMotorSpeed);
+	//void					RetrieveSixaxisState_BT(UCHAR* Buffer, UCHAR Model);
+
+	inline XINPUT_GAMEPAD*	GetPadState()
+		{ return &sPadState.Gamepad; }
+
+	// SCP Driver extension
+	bool					CheckForInput_SCP();
+	DWORD					RetrieveState_SCP();
+	SCP_EXTN*				GetPadState_SCP()
+		{ return &sExtendedPadState; }
+	/*SCP_SIXAXIS*			GetSixaxisState()
+		{ return &sSixaxisState; }*/
+
+	static void				FinalShutdown();
 };
 
 #endif

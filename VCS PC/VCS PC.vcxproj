@@ -114,7 +114,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -176,7 +176,7 @@ popd</Command>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -238,7 +238,7 @@ popd</Command>
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <Version>
       </Version>
@@ -303,7 +303,7 @@ popd</Command>
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <Version>
       </Version>
@@ -414,7 +414,7 @@ popd</Command>
     <ClCompile Include="Radar.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="CWanted.cpp" />
-    <ClCompile Include="CWeaponInfo.cpp" />
+    <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="PcSave.cpp" />
     <ClCompile Include="Rs.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -518,7 +518,7 @@ popd</Command>
     <ClInclude Include="Radar.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="CWanted.h" />
-    <ClInclude Include="CWeaponInfo.h" />
+    <ClInclude Include="Weapon.h" />
     <ClInclude Include="PcSave.h" />
     <ClInclude Include="Rs.h" />
     <ClInclude Include="StdAfx.h" />

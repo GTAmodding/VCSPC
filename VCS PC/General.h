@@ -323,6 +323,8 @@ public:
 		{ return m_pShadow; }
 	inline CVector&					GetLinearVelocity()
 		{ return m_vecLinearVelocity; }
+	inline CEntity*					GetAttachedEntity()
+		{ return pAttachedEntity; }
 
 	inline void						SetRealTimeShadow(class CRealTimeShadow* pShadow)
 		{ m_pShadow = pShadow; }
