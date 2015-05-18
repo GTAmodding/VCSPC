@@ -1692,6 +1692,11 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 
 		if ( aScreens[m_bCurrentMenuPage].entryList[2].targetMenu == 36 )
 			CControllerConfigManager::ReinitControls();
+		else if ( aScreens[m_bCurrentMenuPage].entryList[2].targetMenu == 27 )
+		{
+			CPostEffects::Close();
+			CPostEffects::Initialise();
+		}
 
 		SaveSettings();
 		SwitchToNewScreen(aScreens[m_bCurrentMenuPage].entryList[2].targetMenu);

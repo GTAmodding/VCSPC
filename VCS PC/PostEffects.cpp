@@ -376,7 +376,10 @@ void CPostEffects::Render()
 void CPostEffects::Initialise()
 {
 	if ( m_bTrailsEnabled )
+	{
+		Close_Trails();	// For resolution changes
 		Init_Trails();
+	}
 }
 
 static StaticPatcher	Patcher([](){ 
