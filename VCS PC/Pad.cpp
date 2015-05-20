@@ -1098,8 +1098,11 @@ short CPad::CarGunJustDown()
 	case 0:
 		if ( NewState.CIRCLE != 0 && OldState.CIRCLE == 0 )
 			return 1;
-		if ( !bDisablePlayerFireWeaponWithL1 && NewState.LEFTSHOULDER1 != 0 && OldState.LEFTSHOULDER1 == 0 )
-			return 2;
+		if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+		{
+			if ( !bDisablePlayerFireWeaponWithL1 && NewState.LEFTSHOULDER1 != 0 && OldState.LEFTSHOULDER1 == 0 )
+				return 2;
+		}
 		return 0;
 	case 1:
 		// This function is used only for cars, so never returns 2 in IV controls mode
@@ -1118,8 +1121,11 @@ short CPad::PlaneGunJustDown()
 	case 0:
 		if ( NewState.CIRCLE != 0 && OldState.CIRCLE == 0 )
 			return 1;
-		if ( !bDisablePlayerFireWeaponWithL1 && NewState.LEFTSHOULDER1 != 0 && OldState.LEFTSHOULDER1 == 0 )
-			return 2;
+		if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+		{
+			if ( !bDisablePlayerFireWeaponWithL1 && NewState.LEFTSHOULDER1 != 0 && OldState.LEFTSHOULDER1 == 0 )
+				return 2;
+		}
 		return 0;
 	case 1:
 		if ( NewState.CIRCLE != 0 && OldState.CIRCLE == 0 )
@@ -1170,8 +1176,11 @@ short CPad::GetCarGunFired()
 	case 0:
 		if ( NewState.CIRCLE != 0 )
 			return 1;
-		if ( !bDisablePlayerFireWeaponWithL1 && NewState.LEFTSHOULDER1 != 0 )
-			return 2;
+		if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+		{
+			if ( !bDisablePlayerFireWeaponWithL1 && NewState.LEFTSHOULDER1 != 0 )
+				return 2;
+		}
 		return 0;
 	case 1:
 		return NewState.CIRCLE != 0 ? 1 : 0;
@@ -1189,8 +1198,11 @@ short CPad::GetPlaneGunFired()
 	case 0:
 		if ( NewState.CIRCLE != 0 )
 			return 1;
-		if ( !bDisablePlayerFireWeaponWithL1 && NewState.LEFTSHOULDER1 != 0 )
-			return 2;
+		if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+		{
+			if ( !bDisablePlayerFireWeaponWithL1 && NewState.LEFTSHOULDER1 != 0 )
+				return 2;
+		}
 		return 0;
 	case 1:
 		if ( NewState.CIRCLE != 0 )
@@ -1210,6 +1222,8 @@ bool CPad::ChangeStationDownJustUp()
 	switch ( Mode )
 	{
 	case 0:
+		if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+			return false;
 		return NewState.DPADDOWN == 0 && OldState.DPADDOWN != 0;
 	case 1:
 		return NewState.DPADLEFT == 0 && OldState.DPADLEFT != 0;
@@ -1225,7 +1239,10 @@ bool CPad::ChangeStationUpJustUp()
 	switch ( Mode )
 	{
 	case 0:
-		return NewState.DPADUP == 0 && OldState.DPADUP != 0;
+		if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+			return NewState.LEFTSHOULDER1 == 0 && OldState.LEFTSHOULDER1 != 0;
+		else
+			return NewState.DPADUP == 0 && OldState.DPADUP != 0;
 	case 1:
 		return NewState.DPADRIGHT == 0 && OldState.DPADRIGHT != 0;
 	}
@@ -1242,7 +1259,7 @@ bool CPad::WeaponJustDown(CPed* pPed)
 	case 0:
 		{
 			bool	bCanUseSecondary = false;
-			if ( !bDisablePlayerFireWeaponWithL1 )
+			if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() && !bDisablePlayerFireWeaponWithL1 )
 			{
 				if ( pPed )
 					bCanUseSecondary = pPed->GetPedIntelligencePtr()->GetTaskUseGun() || pPed->GetPedIntelligencePtr()->GetTaskGangDriveby() || pPed->GetAttachedEntity();
@@ -1272,7 +1289,7 @@ int CPad::GetWeapon(CPed* pPed)
 	case 0:
 		{
 			bool	bCanUseSecondary = false;
-			if ( !bDisablePlayerFireWeaponWithL1 )
+			if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() && !bDisablePlayerFireWeaponWithL1 )
 			{
 				if ( pPed )
 					bCanUseSecondary = pPed->GetPedIntelligencePtr()->GetTaskUseGun() || pPed->GetPedIntelligencePtr()->GetTaskGangDriveby() || pPed->GetAttachedEntity();
@@ -1593,7 +1610,13 @@ short CPad::GetPedWalkLeftRight()
 	if ( DisablePlayerControls )
 		return 0;
 
-	return bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
+	if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+		return NewState.LEFTSTICKX;
+
+	short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
+	short	nDPadInput = (NewState.DPADRIGHT - NewState.DPADLEFT) / 2;
+
+	return std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
 }
 
 short CPad::GetPedWalkUpDown()
@@ -1601,7 +1624,13 @@ short CPad::GetPedWalkUpDown()
 	if ( DisablePlayerControls )
 		return 0;
 
-	return bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
+	if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+		return NewState.LEFTSTICKY;
+
+	short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
+	short	nDPadInput = (NewState.DPADDOWN - NewState.DPADUP) / 2;
+
+	return std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
 }
 
 short CPad::GetSteeringLeftRight()
@@ -1611,20 +1640,10 @@ short CPad::GetSteeringLeftRight()
 
 	if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 	{
-		short	nStickInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
-		short	nSixaxisInput = 0;//ShouldSixaxisLeftRight() ? NewSixaxisState[CURRENT_XINPUT_PAD].ACCEL_X * fSixaxisSteeringSensitivity[CURRENT_XINPUT_PAD] : 0;
+		short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
+		short	nDPadInput = (NewState.DPADRIGHT - NewState.DPADLEFT) / 2;
 
-		if ( nSixaxisInput > 127 )
-			nSixaxisInput = 127;
-		else if ( nSixaxisInput < -127 )
-			nSixaxisInput = -127;
-
-		if ( nStickInput >= 0 && nSixaxisInput >= 0 )
-			SteeringLeftRightBuffer[0] = Max(nStickInput, nSixaxisInput);
-		else if ( nStickInput <= 0 && nSixaxisInput <= 0 )
-			SteeringLeftRightBuffer[0] = Min(nStickInput, nSixaxisInput);
-		else
-			SteeringLeftRightBuffer[0] = nStickInput;	// If there's a conflict, analog takes the lead
+		SteeringLeftRightBuffer[0] = std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
 	}
 	else
 		SteeringLeftRightBuffer[0] = NewState.LEFTSTICKX;
@@ -1639,20 +1658,10 @@ short CPad::GetSteeringUpDown()
 
 	if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 	{
-		short	nStickInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
-		short	nSixaxisInput = 0;//ShouldSixaxisUpDown() ? NewSixaxisState[CURRENT_XINPUT_PAD].ACCEL_Y * fSixaxisSteeringSensitivity[CURRENT_XINPUT_PAD] : 0;
+		short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
+		short	nDPadInput = (NewState.DPADDOWN - NewState.DPADUP) / 2;
 
-		if ( nSixaxisInput > 127 )
-			nSixaxisInput = 127;
-		else if ( nSixaxisInput < -127 )
-			nSixaxisInput = -127;
-
-		if ( nStickInput >= 0 && nSixaxisInput >= 0 )
-			return Max(nStickInput, nSixaxisInput);
-		else if ( nStickInput <= 0 && nSixaxisInput <= 0 )
-			return Min(nStickInput, nSixaxisInput);
-		
-		return nStickInput;
+		return std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
 	}
 	
 	return NewState.LEFTSTICKY;
