@@ -15,34 +15,35 @@ unsigned char Fx_c::GetMaxTextureFilteringQuality()
 {
 	static unsigned char		bCachedMaxQuality = 0;
 
+	if ( !bAnisotSupported )
+	{
+		// Trilinear is max
+		// Can't cache the value as this var can be 0 if anisotropy is not supported OR it hasn't been checked yet
+		return 1;
+	}
+
 	if ( bCachedMaxQuality == 0 )
 	{
-		if ( !bAnisotSupported )
-			// Trilinear is max
-			bCachedMaxQuality = 1;
+		auto	maxAnisot = RpAnisotGetMaxSupportedMaxAnisotropy();
+	
+		if ( maxAnisot >= 16 )
+			// 16x is max
+			bCachedMaxQuality = 5;
+	
+		else if ( maxAnisot >= 8 )
+			// 8x is max
+			bCachedMaxQuality = 4;
+
+		else if ( maxAnisot >= 4 )
+			// 3x is max
+			bCachedMaxQuality = 3;
+
+		else if ( maxAnisot >= 2 )
+			// 2x is max
+			bCachedMaxQuality = 2;
 		else
-		{
-			auto	maxAnisot = RpAnisotGetMaxSupportedMaxAnisotropy();
-	
-			if ( maxAnisot >= 16 )
-				// 16x is max
-				bCachedMaxQuality = 5;
-	
-			else if ( maxAnisot >= 8 )
-				// 8x is max
-				bCachedMaxQuality = 4;
-
-			else if ( maxAnisot >= 4 )
-				// 3x is max
-				bCachedMaxQuality = 3;
-
-			else if ( maxAnisot >= 2 )
-				// 2x is max
-				bCachedMaxQuality = 2;
-			else
-				// No 2x even? Shi
-				bCachedMaxQuality = 1;
-		}
+			// No 2x even? Shi
+			bCachedMaxQuality = 1;
 	}
 	return bCachedMaxQuality;
 }
