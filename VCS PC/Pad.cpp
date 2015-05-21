@@ -1614,7 +1614,7 @@ short CPad::GetPedWalkLeftRight()
 		return NewState.LEFTSTICKX;
 
 	short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
-	short	nDPadInput = (NewState.DPADRIGHT - NewState.DPADLEFT) / 2;
+	short	nDPadInput = Mode != PAD_IV_CONTROLS_MODE ? (NewState.DPADRIGHT - NewState.DPADLEFT) / 2 : 0;
 
 	return std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
 }
@@ -1628,7 +1628,7 @@ short CPad::GetPedWalkUpDown()
 		return NewState.LEFTSTICKY;
 
 	short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
-	short	nDPadInput = (NewState.DPADDOWN - NewState.DPADUP) / 2;
+	short	nDPadInput = Mode != PAD_IV_CONTROLS_MODE ? (NewState.DPADDOWN - NewState.DPADUP) / 2 : 0;
 
 	return std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
 }
@@ -1641,7 +1641,7 @@ short CPad::GetSteeringLeftRight()
 	if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 	{
 		short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
-		short	nDPadInput = (NewState.DPADRIGHT - NewState.DPADLEFT) / 2;
+		short	nDPadInput = Mode != PAD_IV_CONTROLS_MODE ? (NewState.DPADRIGHT - NewState.DPADLEFT) / 2 : 0;
 
 		SteeringLeftRightBuffer[0] = std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
 	}
@@ -1659,7 +1659,7 @@ short CPad::GetSteeringUpDown()
 	if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 	{
 		short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
-		short	nDPadInput = (NewState.DPADDOWN - NewState.DPADUP) / 2;
+		short	nDPadInput = Mode != PAD_IV_CONTROLS_MODE ? (NewState.DPADDOWN - NewState.DPADUP) / 2 : 0;
 
 		return std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
 	}
@@ -2466,11 +2466,6 @@ void CPad::Inject()
 	
 	// Joypad handler removed
 	Nop(0x744A33, 5);
-
-	// SCM fixes
-	//InjectHook(0x485B10, &CRunningScript::GetPadState, PATCH_JUMP);
-	//InjectHook(0x47F39B, GetPadMode, PATCH_CALL);
-	//Nop(0x47F3A0, 7);
 
 	// Dancing button
 	// mov		ecx, esi
