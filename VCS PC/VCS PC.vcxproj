@@ -114,7 +114,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -176,7 +176,7 @@ popd</Command>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -238,7 +238,7 @@ popd</Command>
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <Version>
       </Version>
@@ -303,7 +303,7 @@ popd</Command>
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <Version>
       </Version>

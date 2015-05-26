@@ -422,7 +422,6 @@ WRAPPER void CMenuManager::SwitchToNewScreen(signed char bScreen) { WRAPARG(bScr
 WRAPPER void CMenuManager::InitialiseChangedLanguageSettings(bool bRemapButtons) { WRAPARG(bRemapButtons); EAXJMP(0x573260); }
 WRAPPER void CMenuManager::PrintBrief() { EAXJMP(0x576320); }
 WRAPPER void CMenuManager::DrawContollerScreenExtraText(int nUnk) { WRAPARG(nUnk); EAXJMP(0x57D8D0); }
-WRAPPER void CMenuManager::DisplayHelperText(const char* pText) { WRAPARG(pText); EAXJMP(0x57E240); }
 WRAPPER bool CMenuManager::CheckHover(int, int, int, int) { EAXJMP(0x57C4F0); }
 WRAPPER void CMenuManager::ProcessMissionPackNewGame() { EAXJMP(0x57D520); }
 WRAPPER void CMenuManager::DoSettingsBeforeStartingAGame() { EAXJMP(0x573330); }
@@ -1275,6 +1274,139 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	case 40:
 		DisplayHelperText(nullptr);
 		break;
+	}
+}
+
+void CMenuManager::DisplayHelperText(const char* pText)
+{
+	CFont::SetScale(_width(0.4f), _height(m_bCurrentMenuPage != 5 ? 0.6f : 0.5f));
+	CFont::SetFontStyle(FONT_Eurostile);
+	CFont::SetEdge(0);
+	CFont::SetOrientation(ALIGN_Right);
+
+	if ( pText != nullptr )
+	{
+		CFont::SetColor(CRGBA(0xFF, 0xFF, 0xFF, 0xFF));
+		CFont::PrintStringFromBottom(_x(30.0f), _ydown(10.0f), TheText.Get(pText));
+	}
+	else
+	{
+		int		nTextAlpha;
+
+		if ( m_nHelperTextIndex != 0 && m_nHelperTextIndex != 1 )
+		{
+			// Fade
+			if ( CTimer::m_snTimeInMillisecondsPauseMode - m_nLastTimeHelperUpdated > 10 )
+			{
+				// TODO: Timestep?
+				m_nLastTimeHelperUpdated = CTimer::m_snTimeInMillisecondsPauseMode;
+				m_nHelperAlpha -= 2;
+
+				if ( m_nHelperAlpha < 1 )
+					ResetHelperText();
+
+				nTextAlpha = Min(m_nHelperAlpha, 0xFF);
+			}
+		}
+		else
+			nTextAlpha = 0xFF;
+
+		CFont::SetColor(CRGBA(0xFF, 0xFF, 0xFF, nTextAlpha));
+
+		const char*		pTextToDisplay;
+
+		if ( pXboxPad[0]->HasPadInHands() )
+		{
+			// Pad helps
+			switch ( m_nHelperTextIndex )
+			{
+			case 5:
+				pTextToDisplay = "FEA_SCS";
+				break;
+			case 4:
+				pTextToDisplay = "FEA_SCF";
+				break;
+			case 2:
+				pTextToDisplay = "FET_HRD";
+				break;
+			case 3:
+				pTextToDisplay = "FET_RSO";
+				break;
+			case 6:
+				pTextToDisplay = "FET_STS";
+				break;
+			case 1:
+				pTextToDisplay = "FET_AP2";
+				break;
+			default:
+				switch ( aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].action )
+				{
+				case 6:
+					pTextToDisplay = "FEH_SN2";
+					break;
+				case 5:
+				case 7:
+				case 8:
+				case 9:
+					pTextToDisplay = "FEH_JM2";
+					break;
+				case 2:
+					pTextToDisplay = "FEH_BP2";
+					break;
+				default:
+					pTextToDisplay = m_bCurrentMenuPage != 0 ? "FET_MI2" : "FEH_SS2";
+					break;
+				}
+				break;
+			}
+		}
+		else
+		{
+			// Keyboard & mouse helps
+			switch ( m_nHelperTextIndex )
+			{
+			case 5:
+				pTextToDisplay = "FEA_SCS";
+				break;
+			case 4:
+				pTextToDisplay = "FEA_SCF";
+				break;
+			case 2:
+				pTextToDisplay = "FET_HRD";
+				break;
+			case 3:
+				pTextToDisplay = "FET_RSO";
+				break;
+			case 6:
+				pTextToDisplay = "FET_STS";
+				break;
+			case 1:
+				pTextToDisplay = "FET_APP";
+				break;
+			default:
+				switch ( aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].action )
+				{
+				case 6:
+					pTextToDisplay = "FEH_SNC";
+					break;
+				case 5:
+				case 7:
+				case 8:
+				case 9:
+					pTextToDisplay = "FEH_JMP";
+					break;
+				case 2:
+					pTextToDisplay = "FEH_BPO";
+					break;
+				default:
+					pTextToDisplay = m_bCurrentMenuPage != 0 ? "FET_MIG" : "FEH_SSA";
+					break;
+				}
+				break;
+			}
+		}
+
+		CFont::PrintStringFromBottom(_x(30.0f), _ydown(m_bCurrentMenuPage != 5 ? 10.0f : 2.0f), TheText.Get(pTextToDisplay));
 	}
 }
 
@@ -2963,6 +3095,32 @@ float CMenuManager::GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition)
 	return _ymiddle(pPosition.posY + 26);
 }
 
+bool CMenuManager::NeedsToRefreshHelps()
+{
+	bool	bLangChanged = false, bPadModeChanged = false;
+
+	if ( m_nLanguage != m_nPrevLanguage )
+	{
+		m_nPrevLanguage = m_nLanguage;
+		bLangChanged = true;
+	}
+
+	static bool		bPadWasInHands = false;
+	bool			bDisplayPadNow = pXboxPad[0]->HasPadInHands();
+	if ( bDisplayPadNow != bPadWasInHands )
+	{
+		bPadWasInHands = bDisplayPadNow;
+		bPadModeChanged = true;
+	}
+	return bPadModeChanged || bLangChanged;
+}
+
+static void __stdcall DisplayHelperText_Wrap1(const char*)
+{
+	FrontEndMenuManager.DisplayHelperText(pXboxPad[0]->HasPadInHands() ? "FET_CI2" : "FET_CIG");
+}
+
+
 void CMenuManager::Inject()
 {
 	Memory::InjectHook(0x57BA58, &DrawStandardMenus);
@@ -2971,6 +3129,11 @@ void CMenuManager::Inject()
 
 	Memory::InjectHook(0x57B70A, &CheckSliderMovement);
 	Memory::InjectHook(0x580215, &CheckSliderMovement);
+	Memory::InjectHook(0x57E240, &DisplayHelperText, PATCH_JUMP);
+
+	// Hook helpers
+	Memory::InjectHook(0x57ED7F, DisplayHelperText_Wrap1);
+	Memory::InjectHook(0x57ED94, DisplayHelperText_Wrap1);
 }
 
 // TODO: CLoadingScreen
@@ -3107,6 +3270,7 @@ static StaticPatcher	Patcher([](){
 
 				Memory::InjectHook(0x57C660, &CMenuManager::SaveSettings, PATCH_JUMP);
 				Memory::InjectHook(0x747545, &CMenuManager::LoadSettings);
+				Memory::InjectHook(0x47B8B2, &CMenuManager::NeedsToRefreshHelps);
 
 				CMenuManager::Inject();
 			});

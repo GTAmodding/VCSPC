@@ -1074,8 +1074,19 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 			break;
 		}
 		break;
-	case 46:	// NETWORK_TALK
+	/*case 46:	// NETWORK_TALK
 		GetButtonByIndex(BUTTON_PS, wcBuf, nStartPoint);
+		break;*/
+	case 46:	// FRONTEND_BACK
+		switch ( wPadMode )
+		{
+		case 0:
+			GetButtonByIndex(BUTTON_TRIANGLE, wcBuf, nStartPoint);
+			break;
+		case 1:
+			GetButtonByIndex(BUTTON_CIRCLE, wcBuf, nStartPoint);
+			break;
+		}
 		break;
 	case 47:	// CONVERSATION_YES
 		switch ( wPadMode )

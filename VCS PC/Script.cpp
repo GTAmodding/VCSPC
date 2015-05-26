@@ -15,6 +15,7 @@
 #include "PcSave.h"
 #include "GroupedBuildings.h"
 #include "DLCManager.h"
+#include "Pad.h"
 
 CScriptFunction		CRunningScript::ms_scriptFunction[NUM_SCRIPTS];
 
@@ -1105,3 +1106,23 @@ void CTheScripts::ZeroMissionVars()
 
 	memset(&reinterpret_cast<int*>(scmBlock)[HIGHEST_VAR_USED+1], 0, (dwNumOfVars - HIGHEST_VAR_USED) * 4 - 4);
 }
+
+static void __declspec(naked) GetPadMode()
+{
+	_asm
+	{
+		push	0
+		call	CPad::GetPad
+		add		esp, 4
+		movzx	eax, [eax]CPad.Mode
+		mov		ecx, [scriptParams]
+		mov		[ecx], eax
+		mov		ecx, esi
+		retn
+	}
+}
+
+static StaticPatcher	Patcher([](){ 
+						Memory::InjectHook(0x47F39B, GetPadMode, PATCH_CALL);
+						Memory::Nop(0x47F3A0, 7);
+									});

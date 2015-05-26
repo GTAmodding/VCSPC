@@ -64,7 +64,6 @@ void			ViceSquadCheckInjectA(int townID);
 int				ViceSquadCheckInjectB();
 void			InjectArrowMarker();
 void			OpaqueRadarHack2(RwPrimitiveType primType, RwIm2DVertex* vertices, RwInt32 numVertices);
-float			__stdcall HelperPosXHack(int);
 void			ReadLoadingSplashes(bool bIntroSplash, int nIntroSplashID);
 void			InitialiseLanguage();
 void			LoadGameFailedMessage(unsigned char bMessageIndex);
@@ -3286,7 +3285,7 @@ __forceinline void Main_Patches()
 	//Patch<BYTE>(0x5799AD, FONT_Eurostile);
 	//Patch<BYTE>(0x5799AD, FONT_PagerFont);
 	//Patch<BYTE>(0x57A20B, FONT_Eurostile);
-	Patch<BYTE>(0x57E280, FONT_Eurostile);
+	//Patch<BYTE>(0x57E280, FONT_Eurostile);
 	Patch<BYTE>(0x57FCC3, FONT_Eurostile);
 	Patch<BYTE>(0x5760F7, FONT_Eurostile);
 	Patch<BYTE>(0x57FA41, FONT_Eurostile/*FONT_RageItalic*/);
@@ -3544,7 +3543,7 @@ __forceinline void Main_Patches()
 	/*patch(0x58C0DE, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C12D, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C144, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);*/
-	InjectHook(0x57E3A5, &HelperPosXHack);
+	//InjectHook(0x57E3A5, &HelperPosXHack);
 	//InjectHook(0x57A186/*0x57A1BA*//*0x57A1C1*/, &MenuEntriesLeftColumnHack, PATCH_JUMP);
 	//call(0x57A190, &MenuEntriesLeftColumnHack2, PATCH_JUMP);
 	//InjectHook(0x579BBF, &MenuEntriesPlaceSave, PATCH_JUMP);
@@ -4004,7 +4003,7 @@ __forceinline void Main_Patches()
 	//Patch<DWORD>(0x57D2CA, sizeof(MenuItem));
 	Patch<DWORD>(0x57D6D3, sizeof(MenuItem));
 	Patch<DWORD>(0x57D6FB, sizeof(MenuItem));
-	Patch<DWORD>(0x57E3EC, sizeof(MenuItem));
+	//Patch<DWORD>(0x57E3EC, sizeof(MenuItem));
 	Patch<DWORD>(0x57FDF9, sizeof(MenuItem));
 	Patch<DWORD>(0x57FE4B, sizeof(MenuItem));
 	Patch<DWORD>(0x57FE8A, sizeof(MenuItem));
@@ -4287,7 +4286,7 @@ __forceinline void PatchMenus()
 	//Patch<void*>(0x57D2D2, &MenuEntriesList->entryList[2].targetMenu);
 	Patch<void*>(0x57D6D8, &MenuEntriesList->entryList->entry);
 	Patch<void*>(0x57D701, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57E3F7, &MenuEntriesList->entryList->action);
+	//Patch<void*>(0x57E3F7, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57FE0A, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57FE25, &MenuEntriesList->entryList->entry);
 	//Patch<void*>(0x57FE57, &MenuEntriesList->entryList->posY);
@@ -4443,6 +4442,8 @@ __forceinline void UserFiles()
 	Patch<const char*>(0x619045, "GTAVCSsf");
 }
 
+extern "C" __declspec(dllimport) void LaunchSteam();
+
 void InjectDelayedPatches()
 {
 	InjectRwEngineWrappers();
@@ -4537,10 +4538,10 @@ void InjectArrowMarker()
 	CTxdStore::PopCurrentTxd();
 }
 
-float __stdcall HelperPosXHack(int)
+/*float __stdcall HelperPosXHack(int)
 {
 	return _x(30.0f);
-}
+}*/
 
 #ifdef INCLUDE_MULTIFONTFILES
 
@@ -4786,6 +4787,8 @@ char* ParseCommandlineArgument(char* pArg)
 
 BOOL IsAlreadyRunning()
 {
+	LaunchSteam();
+
 	CreateEventW(nullptr, FALSE, TRUE, L"Grand theft auto San Andreas");
 
 	if ( GetLastError() == ERROR_ALREADY_EXISTS )
@@ -7283,14 +7286,12 @@ void LogToFile(const char* str, ...)
 	{
 		SYSTEMTIME	systemTime;
 		va_list		arguments;
-		char		TempString[MAX_PATH];
+		char		TempString[1024];
 
 		va_start(arguments, str);
 		vsnprintf(TempString, sizeof(TempString), str, arguments);
 		GetLocalTime(&systemTime);
-		fprintf(LogFile, "[%02d/%02d/%d %02d:%02d:%02d] ", systemTime.wDay, systemTime.wMonth, systemTime.wYear, systemTime.wHour, systemTime.wMinute, systemTime.wSecond);
-		fputs(TempString, LogFile);
-		fputc('\n', LogFile);
+		fprintf(LogFile, "[%02d/%02d/%d %02d:%02d:%02d] %s\n", systemTime.wDay, systemTime.wMonth, systemTime.wYear, systemTime.wHour, systemTime.wMinute, systemTime.wSecond, TempString);
 		fclose(LogFile);
 		va_end(arguments);
 

@@ -32,3 +32,7 @@ bool CControllerConfigManager::LoadFromFile()
 	}
 	return bResult;
 }
+
+static StaticPatcher	Patcher([](){ 
+						Memory::Patch<const char*>(0x52D99E, "FRONTEND_BACK");
+									});

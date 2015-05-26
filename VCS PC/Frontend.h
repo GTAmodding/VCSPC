@@ -218,7 +218,7 @@ public:
 	__int32 titleLanguage;
 	__int32 textLanguage;
 	unsigned char       m_nLanguage;
-	__int8 prevLanguage;
+	unsigned char		m_nPrevLanguage;
 	__int8 field_86[2];
 	__int32 field_88;
 	bool                m_bLanguageChanged;
@@ -293,7 +293,7 @@ public:
 	__int8 field_1AE9;
 	__int8 field_1AEA;
 	__int8 field_1AEB;
-	__int32 field_1AEC;
+	int			m_nHelperAlpha;
 	__int8 field_1AF0;
 	__int8 field_1AF1;
 	__int8 field_1AF2;
@@ -344,7 +344,7 @@ public:
 	__int8 field_1B51;
 	__int16 field_1B52;
 	__int32 field_1B54;
-	__int32 field_1B58;
+	int		m_nLastTimeHelperUpdated;
 	__int8 field_1B5C;
 	__int8 field_1B5D;
 	__int16 field_1B5E;
@@ -419,10 +419,9 @@ public:
 	{ m_nSwitchToThisAfterMessage = nScreen; }
 	
 	void			ResetHelperText()
-	{ m_nHelperTextIndex = 0; field_1AEC = 300; }
+	{ m_nHelperTextIndex = 0; m_nHelperAlpha = 300; }
 	void			SetHelperText(int nText)
-	{ m_nHelperTextIndex = nText; field_1AEC = 300; }
-
+	{ m_nHelperTextIndex = nText; m_nHelperAlpha = 300; }
 
 	static void		RegisterDLCMessage(const char* pMessage);
 	static void		LookIntoClipboardForSerial();
@@ -450,6 +449,7 @@ public:
 	void			SaveSettings();
 	void			LoadSettings();
 
+	bool			NeedsToRefreshHelps();
 	void			TypingKeyboardInput(wchar_t wKey);
 	const char*		ProcessDLCSlot(int nSlotID);
 	float			GetTextYPos(const MenuItem::MenuEntry& pPosition);

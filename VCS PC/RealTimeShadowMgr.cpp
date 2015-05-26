@@ -130,6 +130,7 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 				RpClumpForAllAtomics(pClump, ShadowCameraRenderCB, nullptr);
 			else
 			{
+				LogToFile("CBuilding ended up being a RpClump in CShadowCamera::Update - model ID %d, entity type %d, clump 0x%X", pEntity->m_nModelIndex, pEntity->nType, pClump);
 				assert(!"Baad, unknown entity type in CShadowCamera::Update!");
 			}
 			gpCurrentShaderForDefaultCallbacks = nullptr;
