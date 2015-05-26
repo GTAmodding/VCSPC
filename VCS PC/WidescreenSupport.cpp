@@ -37,12 +37,12 @@ float WidescreenSupport::fMapZonePosX2 = 7.5f/640.0f;
 //float WidescreenSupport::fSkyMultFix = 1.4f;
 
 float WidescreenSupport::f0pt7_h = 0.7f/448.0f;
-float WidescreenSupport::f0pt95_h = 0.95f/448.0f;
-float WidescreenSupport::f1pt2_h = 1.2f/448.0f;
-float WidescreenSupport::f2pt1_h = 2.1f/448.0f;
-float WidescreenSupport::f1_h = 1.0f/448.0f;
-float WidescreenSupport::f28_h = 28.0f/448.0f;
-float WidescreenSupport::f97_centh = 0.5f - 127.0f/448.0f;
+//float WidescreenSupport::f0pt95_h = 0.95f/448.0f;
+//float WidescreenSupport::f1pt2_h = 1.2f/448.0f;
+//float WidescreenSupport::f2pt1_h = 2.1f/448.0f;
+//float WidescreenSupport::f1_h = 1.0f/448.0f;
+//float WidescreenSupport::f28_h = 28.0f/448.0f;
+//float WidescreenSupport::f97_centh = 0.5f - 127.0f/448.0f;
 
 float WidescreenSupport::fProperWidthMultiplier = 1.0f;
 float WidescreenSupport::fProperHeightMultiplier = 480.0f/448.0f;
@@ -121,12 +121,12 @@ void WidescreenSupport::Recalculate(int nWidth, int nHeight, bool bAlways)
 		fMapZonePosX2 = 7.5f/fNewResolutionWidthMultiplier;
 
 		f0pt7_h = 0.7f/fNewResolutionHeightMultiplier;
-		f0pt95_h = 0.95f/fNewResolutionHeightMultiplier;
-		f1pt2_h = 1.2f/fNewResolutionHeightMultiplier;
-		f2pt1_h = 2.1f/fNewResolutionHeightMultiplier;
-		f1_h = 1.0f/fNewResolutionHeightMultiplier;
-		f28_h = 28.0f/fNewResolutionHeightMultiplier;
-		f97_centh = 0.5f - 127.0f/fNewResolutionHeightMultiplier;
+		//f0pt95_h = 0.95f/fNewResolutionHeightMultiplier;
+		//f1pt2_h = 1.2f/fNewResolutionHeightMultiplier;
+		//f2pt1_h = 2.1f/fNewResolutionHeightMultiplier;
+		//f1_h = 1.0f/fNewResolutionHeightMultiplier;
+		//f28_h = 28.0f/fNewResolutionHeightMultiplier;
+		//f97_centh = 0.5f - 127.0f/fNewResolutionHeightMultiplier;
 
 		fProperWidthMultiplier = static_cast<float>(nWidth)/fNewResolutionWidthMultiplier;
 		fProperHeightMultiplier = static_cast<float>(nHeight)/fNewResolutionHeightMultiplier;

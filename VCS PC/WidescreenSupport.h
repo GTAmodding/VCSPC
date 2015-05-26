@@ -38,12 +38,12 @@ public:
 //	static float	fSkyMultFix;
 
 	static float	f0pt7_h;
-	static float	f0pt95_h;
-	static float	f1pt2_h;
-	static float	f2pt1_h;
-	static float	f1_h;
-	static float	f28_h;
-	static float	f97_centh;
+	//static float	f0pt95_h;
+	//static float	f1pt2_h;
+	//static float	f2pt1_h;
+	//static float	f1_h;
+	//static float	f28_h;
+	//static float	f97_centh;
 
 	static float	fProperWidthMultiplier;
 	static float	fProperHeightMultiplier;

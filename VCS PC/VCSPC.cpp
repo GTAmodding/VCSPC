@@ -3268,17 +3268,17 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x57BD50, 0xB4);
 	Patch<BYTE>(0x57BD56, 0x82);
 	Patch<BYTE>(0x57BD58, 0xED);
-	patch(0x57BCA0, &CMenuManager::ms_nRubberSlider, 4);
-	patch(0x57BCB0, &CMenuManager::ms_nRubberSlider, 4);
-	patch(0x57BD9A, &CMenuManager::ms_nRubberSlider, 4);
-	patch(0x57BDE6, &CMenuManager::ms_nRubberSlider, 4);
-	patch(0x57BCFD, &fCTSliderRight, 4);
-	patch(0x57BD0B, &WidescreenSupport::fCTSliderRight, 4);
-	patch(0x57BD42, &WidescreenSupport::fCTSliderLeft, 4);
+	Patch<const void*>(0x57BCA0, &CMenuManager::ms_nRubberSlider);
+	Patch<const void*>(0x57BCB0, &CMenuManager::ms_nRubberSlider);
+	Patch<const void*>(0x57BD9A, &CMenuManager::ms_nRubberSlider);
+	Patch<const void*>(0x57BDE6, &CMenuManager::ms_nRubberSlider);
+	Patch<const void*>(0x57BCFD, &fCTSliderRight);
+	Patch<const void*>(0x57BD0B, &WidescreenSupport::fCTSliderRight);
+	Patch<const void*>(0x57BD42, &WidescreenSupport::fCTSliderLeft);
 
-	patch(0x57BE02, MENU_INACTIVE_B, 4);
-	patch(0x57BE0B, MENU_INACTIVE_G, 4);
-	patch(0x57BE10, MENU_INACTIVE_R, 4);
+	Patch<DWORD>(0x57BE02, MENU_INACTIVE_B);
+	Patch<DWORD>(0x57BE0B, MENU_INACTIVE_G);
+	Patch<DWORD>(0x57BE10, MENU_INACTIVE_R);
 
 	// Fixed menu fonts
 	//Patch<BYTE>(0x579929, FONT_Eurostile);
@@ -3498,40 +3498,40 @@ __forceinline void Main_Patches()
 	//patch(0x57A2A2, &WidescreenSupport::f0pt35, 4);
 	//patch(0x57A31B, &WidescreenSupport::f0pt56, 4);
 	//patch(0x57A370, &WidescreenSupport::f0pt7, 4);
-	patch(0x57403F, &WidescreenSupport::fMenuMessageWidth, 4);
-	patch(0x5740BE, &WidescreenSupport::f0pt56, 4);
-	patch(0x574112, &WidescreenSupport::f95, 4);
-	patch(0x574145, &WidescreenSupport::f95, 4);
-	patch(0x5763C2, &WidescreenSupport::f0pt49, 4);
-	patch(0x5764D0, &WidescreenSupport::f70, 4);
-	patch(0x5765C2, &WidescreenSupport::f50, 4);
-	patch(0x576605, &WidescreenSupport::f45, 4);
-	patch(0x576648, &WidescreenSupport::f55, 4);
-	patch(0x57668B, &WidescreenSupport::f50, 4);
-	patch(0x576731, &WidescreenSupport::f50, 4);
-	patch(0x576774, &WidescreenSupport::f45, 4);
-	patch(0x5767B7, &WidescreenSupport::f55, 4);
-	patch(0x5767FA, &WidescreenSupport::f50, 4);
-	patch(0x575EE1, &WidescreenSupport::f0pt8, 4);
-	patch(0x57533E, &WidescreenSupport::f60, 4);
-	patch(0x575363, &WidescreenSupport::f580, 4);
-	patch(0x575B86, &WidescreenSupport::f4, 4);
-	patch(0x576030, &WidescreenSupport::f555, 4);
-	patch(0x576060, &WidescreenSupport::f95, 4);
-	patch(0x57613D, &WidescreenSupport::f0pt3, 4);
-	patch(0x5761BF, &WidescreenSupport::f160, 4);
-	patch(0x576217, &WidescreenSupport::f350, 4);
+	Patch<const void*>(0x57403F, &WidescreenSupport::fMenuMessageWidth);
+	Patch<const void*>(0x5740BE, &WidescreenSupport::f0pt56);
+	Patch<const void*>(0x574112, &WidescreenSupport::f95);
+	Patch<const void*>(0x574145, &WidescreenSupport::f95);
+	Patch<const void*>(0x5763C2, &WidescreenSupport::f0pt49);
+	Patch<const void*>(0x5764D0, &WidescreenSupport::f70);
+	Patch<const void*>(0x5765C2, &WidescreenSupport::f50);
+	Patch<const void*>(0x576605, &WidescreenSupport::f45);
+	Patch<const void*>(0x576648, &WidescreenSupport::f55);
+	Patch<const void*>(0x57668B, &WidescreenSupport::f50);
+	Patch<const void*>(0x576731, &WidescreenSupport::f50);
+	Patch<const void*>(0x576774, &WidescreenSupport::f45);
+	Patch<const void*>(0x5767B7, &WidescreenSupport::f55);
+	Patch<const void*>(0x5767FA, &WidescreenSupport::f50);
+	Patch<const void*>(0x575EE1, &WidescreenSupport::f0pt8);
+	Patch<const void*>(0x57533E, &WidescreenSupport::f60);
+	Patch<const void*>(0x575363, &WidescreenSupport::f580);
+	Patch<const void*>(0x575B86, &WidescreenSupport::f4);
+	Patch<const void*>(0x576030, &WidescreenSupport::f555);
+	Patch<const void*>(0x576060, &WidescreenSupport::f95);
+	Patch<const void*>(0x57613D, &WidescreenSupport::f0pt3);
+	Patch<const void*>(0x5761BF, &WidescreenSupport::f160);
+	Patch<const void*>(0x576217, &WidescreenSupport::f350);
 
-	patch(0x5795AF, &WidescreenSupport::f2pt1_h, 4);
-	patch(0x579645, &WidescreenSupport::f28_h, 4);
-	patch(0x579843, &WidescreenSupport::f97_centh, 4);
-	patch(0x5796F8, &WidescreenSupport::f1pt2_h, 4);
-	patch(0x57995A, &WidescreenSupport::f0pt95_h, 4);
-	patch(0x5799D7, &WidescreenSupport::f1_h, 4);
-	patch(0x57A261, &WidescreenSupport::f0pt95_h, 4);
-	patch(0x57A2DD, &WidescreenSupport::f1_h, 4);
-	patch(0x57A347, &WidescreenSupport::f1_h, 4);
-	patch(0x57639A, &WidescreenSupport::f0pt7_h, 4);
+	//Patch<const void*>(0x5795AF, &WidescreenSupport::f2pt1_h);
+	//Patch<const void*>(0x579645, &WidescreenSupport::f28_h);
+	//Patch<const void*>(0x579843, &WidescreenSupport::f97_centh);
+	//Patch<const void*>(0x5796F8, &WidescreenSupport::f1pt2_h);
+	//Patch<const void*>(0x57995A, &WidescreenSupport::f0pt95_h);
+	//Patch<const void*>(0x5799D7, &WidescreenSupport::f1_h);
+	//Patch<const void*>(0x57A261, &WidescreenSupport::f0pt95_h);
+	//Patch<const void*>(0x57A2DD, &WidescreenSupport::f1_h);
+	//Patch<const void*>(0x57A347, &WidescreenSupport::f1_h);
+	Patch<const void*>(0x57639A, &WidescreenSupport::f0pt7_h);
 	Patch<const void*>(0x714843, &fSkyMultFix);
 	Patch<const void*>(0x714860, &fSkyMultFix);
 	Patch<const void*>(0x70CEF8, &WidescreenSupport::fScreenCoorsFix);
@@ -3641,7 +3641,7 @@ __forceinline void Main_Patches()
 	Patch<float>(0x6E873F, 8.0);
 
 	// Unhidden map
-	patch(0x572130, 0xC301B0, 4);
+	Patch<DWORD>(0x572130, 0xC301B0);
 	Patch<WORD>(0x5759F4, 0xE990);
 
 	// Stats.html

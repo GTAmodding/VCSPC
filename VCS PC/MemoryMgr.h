@@ -132,20 +132,4 @@ namespace MemoryVP
 	}
 };
 
-// Old code, remove asap
-#define patch(a, v, s) _patch((void*)(a), (DWORD)(v), (s))
-
-__declspec(deprecated) inline void _patch(void* pAddress, DWORD data, DWORD iSize)
-{
-	switch(iSize)
-	{
-		case 1: *(BYTE*)pAddress = (BYTE)data;
-			break;
-		case 2: *(WORD*)pAddress = (WORD)data;
-			break;
-		case 4: *(DWORD*)pAddress = (DWORD)data;
-			break;
-	}
-}
-
 #endif
