@@ -311,6 +311,8 @@ extern CKeyState*					prevKeyState;
 
 extern bool							bInvertLook[1], bSouthpaw[1], bSwapSticksDuringAiming[1];
 
+void OnModeChangePatches();
+
 static_assert(sizeof(CPad) == 0x134, "Wrong size: CPad");
 static_assert(sizeof(CKeyState) == 0x270, "Wrong size: CKeyState");
 

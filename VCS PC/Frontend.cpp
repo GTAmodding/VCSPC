@@ -31,6 +31,7 @@ bool				CMenuManager::m_bSerialFull;
 const char*			CMenuManager::m_pDLCMessage;
 signed int			CMenuManager::m_nDLCMessageTimer = 0;
 signed char			CMenuManager::m_nSwitchToThisAfterMessage = -1;
+unsigned char		CMenuManager::m_bPadPageShown;
 
 // Temp;
 extern float&		ms_lodDistScale;
@@ -304,10 +305,12 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		53, "FEM_YES", ACTION_STANDARD, 42, 0, 16, 3, 0, 0 },
 
 
+	// Controller Setup
 	{ "FET_CTL", 33, 0,
 		5, "FEC_RED", ACTION_STANDARD, 37, 0, -29, 3, 0, 0,
-		7, "FEC_MOU", ACTION_STANDARD, 39, 0, 0, 3, 0, 0,
-		5, "FET_DEF", ACTION_STANDARD, 25, 0, 51, 3, 0, 0,
+		5, "FEC_MOU", ACTION_STANDARD, 39, 0, 0, 3, 0, 0,
+		5, "FEC_MOU", ACTION_STANDARD, 40, 0, 0, 3, 0, 0,
+		5, "FET_DEF", ACTION_STANDARD, 25, 0, 70, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 0, 3, 0, 0 },
 
 
@@ -330,13 +333,10 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 66, 3, 0, 0 },
 
 
+	// Controller Settings
 	{ "FEM_TIT", 36, 2,
-		47, "FEJ_INX", ACTION_CLICKORARROWS, 40, 0, -94, 2, 0, 0,
-		48, "FEJ_INY", ACTION_CLICKORARROWS, 40, 0, 0, 2, 0, 0,
-		51, "FEJ_INA", ACTION_CLICKORARROWS, 40, 0, 0, 2, 0, 0,
-		49, "FEJ_RNX", ACTION_CLICKORARROWS, 40, 0, 21, 2, 0, 0,
-		50, "FEJ_RNY", ACTION_CLICKORARROWS, 40, 0, 0, 2, 0, 0,
-		52, "FEJ_RNA", ACTION_CLICKORARROWS, 40, 0, 0, 2, 0, 0,
+		MENUACTION_CTRL_TYPE, "FEC_CFG", ACTION_CLICKORARROWS, 40, 0, -154, 2, 0, 0,
+		MENUACTION_PAD_FRONTEND_PAGE, "FEC_CDP", ACTION_CLICKORARROWS, 40, 0, 0, 2, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 146, 3, 0, 0 },
 
 	// Pause menu
@@ -443,7 +443,7 @@ void CMenuManager::SaveSettings()
 		CFileMgr::Write(hFile, &MousePointerStateHelper.m_bHorizontalInvert, sizeof(MousePointerStateHelper.m_bHorizontalInvert));
 		CFileMgr::Write(hFile, &CVehicle::m_bEnableMouseSteering, sizeof(CVehicle::m_bEnableMouseSteering));
 		CFileMgr::Write(hFile, &CVehicle::m_bEnableMouseFlying, sizeof(CVehicle::m_bEnableMouseFlying));
-		CFileMgr::Write(hFile, &m_nController, sizeof(m_nController));
+		//CFileMgr::Write(hFile, &m_nController, sizeof(m_nController));
 		CFileMgr::Write(hFile, &invertPadX1, sizeof(invertPadX1));
 		CFileMgr::Write(hFile, &invertPadY1, sizeof(invertPadY1));
 		CFileMgr::Write(hFile, &invertPadX2, sizeof(invertPadX2));
@@ -518,7 +518,7 @@ void CMenuManager::LoadSettings()
 			CFileMgr::Read(hFile, &MousePointerStateHelper.m_bHorizontalInvert, sizeof(MousePointerStateHelper.m_bHorizontalInvert));
 			CFileMgr::Read(hFile, &CVehicle::m_bEnableMouseSteering, sizeof(CVehicle::m_bEnableMouseSteering));
 			CFileMgr::Read(hFile, &CVehicle::m_bEnableMouseFlying, sizeof(CVehicle::m_bEnableMouseFlying));
-			CFileMgr::Read(hFile, &m_nController, sizeof(m_nController));
+			//CFileMgr::Read(hFile, &m_nController, sizeof(m_nController));
 			CFileMgr::Read(hFile, &invertPadX1, sizeof(invertPadX1));
 			CFileMgr::Read(hFile, &invertPadY1, sizeof(invertPadY1));
 			CFileMgr::Read(hFile, &invertPadX2, sizeof(invertPadX2));
@@ -570,7 +570,7 @@ void CMenuManager::LoadSettings()
 			CFileMgr::Read(hFile, &field_DC, sizeof(field_DC));
 
 			// Apply sets
-			CCamera::m_bUseMouse3rdPerson = m_nController == 0;
+			//CCamera::m_bUseMouse3rdPerson = m_nController == 0;
 			ms_lodDistScale = m_fDrawDistance;
 			// Fuck everything x2
 			((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, m_dwBrightness * (1.0f/512.0f), true);
@@ -882,7 +882,23 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				sprintf(cReservedSpace, "FEM_AS%d", m_bAspectRatioMode);
 				pTextToShow_RightColumn = TheText.Get(cReservedSpace);
 				break;
-			// case 36 - unused on PC
+			case MENUACTION_CTRL_TYPE:
+				switch ( CPad::SavedMode )
+				{
+				case 0:
+					pTextToShow_RightColumn = TheText.Get("FEC_CF1");
+					break;
+				case 1:
+					pTextToShow_RightColumn = TheText.Get("FEC_CF2");
+					break;
+				case 2:
+					pTextToShow_RightColumn = TheText.Get("FEC_CF3");
+					break;
+				}
+				break;
+			case MENUACTION_PAD_FRONTEND_PAGE:
+				pTextToShow_RightColumn = TheText.Get(m_bPadPageShown == 1 ? "FEC_INC" : "FEC_ONF");
+				break;
 			case 34:
 				switch ( m_dwRadarMode )
 				{
@@ -1022,9 +1038,6 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 						break;
 					}
 				}
-				break;
-			case 58:
-				pTextToShow_RightColumn = TheText.Get(m_nController ? "FET_CCN" : "FET_SCN");
 				break;
 			case MENUACTION_AUTOINSTALL_UPDATES:
 				pTextToShow_RightColumn = TheText.Get(CUpdateManager::AutoInstallEnabled() ? "FEM_ON" : "FEM_OFF");
@@ -1224,7 +1237,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	}
 
 	// Helpers
-	if ( !strncmp(aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].entry, "FED_RES", 8) )
+	if ( !strcmp(aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].entry, "FED_RES") )
 	{
 		if ( m_dwResolution == m_dwAppliedResolution )
 		{
@@ -1449,15 +1462,35 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		}
 		else
 		{
-			if ( m_bHudOn )
+			if ( m_bHudOn != 0 )
 				--m_bHudOn;
 			else
 				m_bHudOn = 2;
 		}
 		SaveSettings();
 		return;
-	// case 22: - PS2 only
-	// case 23: - PS2 only
+	case MENUACTION_CTRL_TYPE:
+		if ( nArrowsInput >= 0 )
+		{
+			if ( ++CPad::SavedMode > PAD_IV_CONTROLS_MODE )
+				CPad::SavedMode = 0;
+		}
+		else
+		{
+			if ( CPad::SavedMode != 0 )
+				--CPad::SavedMode;
+			else
+				CPad::SavedMode = PAD_IV_CONTROLS_MODE;
+		}
+		if ( pXboxPad[0]->HasPadInHands() )
+			CPad::GetPad(0)->Mode = CPad::SavedMode;
+
+		OnModeChangePatches();
+		SaveSettings();
+		return;
+	case MENUACTION_PAD_FRONTEND_PAGE:
+		m_bPadPageShown = m_bPadPageShown == 0 ? 1 : 0;
+		return;
 	case 31:
 		m_bRadioAutoSelect = m_bRadioAutoSelect == false;
 		AudioEngine.SetRadioAutoRetuneOnOff(m_bRadioAutoSelect);
@@ -1530,6 +1563,7 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 	case 3:
 	case 4:
 	case 5:
+	case 7:	// - Used to switch menus depending on current input device used
 		SwitchToNewScreen(aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].targetMenu);
 		return;
 	case 11:
@@ -1603,18 +1637,12 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		SaveSettings();
 		return;
 	case 59:
-		if ( !m_nController )
-		{
-			CVehicle::m_bEnableMouseSteering = CVehicle::m_bEnableMouseSteering == false;
-			SaveSettings();
-		}
+		CVehicle::m_bEnableMouseSteering = CVehicle::m_bEnableMouseSteering == false;
+		SaveSettings();
 		return;
 	case 60:
-		if ( !m_nController )
-		{
-			CVehicle::m_bEnableMouseFlying = CVehicle::m_bEnableMouseFlying == false;
-			SaveSettings();
-		}
+		CVehicle::m_bEnableMouseFlying = CVehicle::m_bEnableMouseFlying == false;
+		SaveSettings();
 		return;
 	case 24:
 		if ( nArrowsInput >= 0 )
@@ -1641,19 +1669,7 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		m_bSavePhotos = m_bSavePhotos == false;
 		SaveSettings();
 		return;
-	case 58:
-		if ( m_nController == 1 )
-		{
-			m_nController = 0;
-			CCamera::m_bUseMouse3rdPerson = true;
-		}
-		else
-		{
-			m_nController = 1;
-			CCamera::m_bUseMouse3rdPerson = false;
-		}
-		SaveSettings();
-		return;
+	//case 58:	- Removed option
 	case 56:
 		if ( bEnterInput )
 		{
@@ -1834,9 +1850,6 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		SaveSettings();
 		SwitchToNewScreen(aScreens[m_bCurrentMenuPage].entryList[2].targetMenu);
 		SetHelperText(2);
-		return;
-	case 7:
-		SwitchToNewScreen(m_nController == 1 ? 40 : 39);
 		return;
 	case 8:
 		m_bInVehicleControlsScreen = false;
@@ -3028,7 +3041,7 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 
 	case 36:
 		// Controls Setup
-		m_nController = 0;
+		//m_nController = 0;
 		MousePointerStateHelper.m_bHorizontalInvert = true;
 		CVehicle::m_bEnableMouseSteering = false;
 		CVehicle::m_bEnableMouseFlying = true;

@@ -135,7 +135,7 @@ void LoadINIFile()
 	//return GetPrivateProfileIntW(L"GInput", L"GuideLaunchesOverlay", FALSE, wcModulePath) != FALSE;
 }
 
-void OnReloadPatches()
+void OnModeChangePatches()
 {
 	using namespace Memory;
 
@@ -168,7 +168,7 @@ static void InitXInputPad()
 {
 	pXboxPad[0] = new CX360Pad(0);
 	LoadINIFile();
-	OnReloadPatches();
+	OnModeChangePatches();
 }
 
 static inline short PressureScale(float fButtonVal, int nPadID)

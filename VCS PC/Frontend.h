@@ -62,7 +62,7 @@
 #define MENU_RED_B				0x4D
 
 #define						MAX_AA				8
-#define						SET_FILE_VERSION	11
+#define						SET_FILE_VERSION	12
 
 #ifdef DEVBUILD
 #define						SET_FILE_NAME		"gta_vcsd.set"
@@ -83,6 +83,8 @@ enum eMenuPages
 	MENU_PAGE_AUDIO_SETUP,
 	MENU_PAGE_DISPLAY_SETUP,
 
+	MENU_PAGE_CONTROLLER_SETUP = 40,
+
 	MENU_PAGE_GAME_UPDATES = 44,
 	MENU_PAGE_DLC,
 	MENU_PAGE_ACTIVATE_SERIAL = 49
@@ -91,6 +93,9 @@ enum eMenuPages
 enum eMenuActions
 {
 	// TODO: Fill?
+	MENUACTION_CTRL_TYPE			= 22,
+	MENUACTION_PAD_FRONTEND_PAGE	= 23,
+
 	MENUACTION_SHADOWS_QUALITY		= 42,	// Formerly Visual FX Quality
 
 	MENUACTION_TOGGLE_LANGUAGE_6	= 66,
@@ -356,6 +361,10 @@ public:
 	__int32 field_1B74;
 
 	// VCS PC class extension
+private:
+	static unsigned char	m_bPadPageShown;
+
+public:
 	static int			m_nFocusedDLC, m_nLastFocusedDLC;
 	static float		m_fStatsScrollPos;
 	static int			ms_nRubberSlider;
