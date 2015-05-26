@@ -80,7 +80,7 @@ bool CX360Pad::CheckForInput()
 // SCP Driver extension
 DWORD CX360Pad::RetrieveState_SCP()
 {
-	if ( !XInputGetExtended_GInput )
+	if ( XInputGetExtended_GInput == nullptr )
 		return ERROR_NOT_SUPPORTED;
 
 	if ( !bInitialised )

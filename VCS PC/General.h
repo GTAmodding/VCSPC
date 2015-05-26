@@ -67,21 +67,17 @@ public:
 		: r(red), g(green), b(blue), a(alpha)
 	{}
 
-	template <typename T>
-	friend CRGBA Blend(const CRGBA& One, T OneStrength, const CRGBA& Two, T TwoStrength)
-		{	T	TotalStrength = OneStrength + TwoStrength;
-			return CRGBA(	((One.r * OneStrength) + (Two.r * TwoStrength))/TotalStrength,
-							((One.g * OneStrength) + (Two.g * TwoStrength))/TotalStrength,
-							((One.b * OneStrength) + (Two.b * TwoStrength))/TotalStrength,
-							((One.a * OneStrength) + (Two.a * TwoStrength))/TotalStrength); }
+	friend CRGBA Blend(const CRGBA& From, const CRGBA& To, float BlendVal)
+		{	return CRGBA(	To.r * BlendVal + From.r * (1.0f - BlendVal),
+							To.g * BlendVal + From.g * (1.0f - BlendVal),
+							To.b * BlendVal + From.b * (1.0f - BlendVal),
+							To.a * BlendVal + From.a * (1.0f - BlendVal)); }
 
-	template <typename T>
-	friend CRGBA Blend(const CRGBA& One, T OneStrength, const CRGBA& Two, T TwoStrength, const CRGBA& Three, T ThreeStrength)
-		{	T	TotalStrength = OneStrength + TwoStrength + ThreeStrength;
-			return CRGBA(	((One.r * OneStrength) + (Two.r * TwoStrength) + (Three.r * ThreeStrength))/TotalStrength,
-							((One.g * OneStrength) + (Two.g * TwoStrength) + (Three.g * ThreeStrength))/TotalStrength,
-							((One.b * OneStrength) + (Two.b * TwoStrength) + (Three.b * ThreeStrength))/TotalStrength,
-							((One.a * OneStrength) + (Two.a * TwoStrength) + (Three.a * ThreeStrength))/TotalStrength); }
+	friend CRGBA BlendSqr(const CRGBA& From, const CRGBA& To, float BlendVal)
+		{	return CRGBA(	sqrt((To.r * To.r) * BlendVal + (From.r * From.r) * (1.0f - BlendVal)),
+							sqrt((To.g * To.g) * BlendVal + (From.g * From.g) * (1.0f - BlendVal)),
+							sqrt((To.b * To.b) * BlendVal + (From.b * From.b) * (1.0f - BlendVal)),
+							sqrt((To.a * To.a) * BlendVal + (From.a * From.a) * (1.0f - BlendVal))); }
 
 	void	BaseColors__Constructor();
 };

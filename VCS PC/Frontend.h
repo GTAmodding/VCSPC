@@ -384,6 +384,7 @@ private:
 	void			DoSettingsBeforeStartingAGame();
 	void			ScrollRadioStations(signed char nDirection);
 
+	void			PrintControllerSetupScreen();
 	void			PrintStats();
 	void			PrintUpdaterScreen();
 	void			PrintDLCScreen();

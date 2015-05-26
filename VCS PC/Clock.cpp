@@ -13,7 +13,7 @@ bool CClock::Convert24To12(unsigned char& bHour)
 {
 	bool bPastMorning = bHour >= 12;
 	bHour %= 12;
-	if ( !bHour )
+	if ( bHour == 0 )
 		bHour = 12;
 
 	return bPastMorning;

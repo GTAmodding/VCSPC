@@ -337,7 +337,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	{ "FEM_TIT", 36, 2,
 		MENUACTION_CTRL_TYPE, "FEC_CFG", ACTION_CLICKORARROWS, 40, 0, -154, 2, 0, 0,
 		MENUACTION_PAD_FRONTEND_PAGE, "FEC_CDP", ACTION_CLICKORARROWS, 40, 0, 0, 2, 0, 0,
-		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 146, 3, 0, 0 },
+		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 182, 3, 0, 0 },
 
 	// Pause menu
 	{ "FET_PAU", 255, 0,
@@ -648,6 +648,9 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	case MENU_PAGE_AUDIO_SETUP:
 		if ( bDrawMenu )
 			DrawRadioStationIcons();
+		break;
+	case MENU_PAGE_CONTROLLER_SETUP:
+		PrintControllerSetupScreen();
 		break;
 	case MENU_PAGE_GAME_UPDATES:
 		PrintUpdaterScreen();
@@ -1304,7 +1307,7 @@ void CMenuManager::DisplayHelperText(const char* pText)
 	}
 	else
 	{
-		int		nTextAlpha;
+		int		nTextAlpha = 255;
 
 		if ( m_nHelperTextIndex != 0 && m_nHelperTextIndex != 1 )
 		{
@@ -1321,8 +1324,6 @@ void CMenuManager::DisplayHelperText(const char* pText)
 				nTextAlpha = Min(m_nHelperAlpha, 0xFF);
 			}
 		}
-		else
-			nTextAlpha = 0xFF;
 
 		CFont::SetColor(CRGBA(0xFF, 0xFF, 0xFF, nTextAlpha));
 
@@ -2156,25 +2157,6 @@ void CMenuManager::DrawBackEnd()
 	if ( m_bCurrentMenuPage == 44 )
 		m_apBackgroundTextures[1].Draw(CRect(_x(245.0f), _y(85.0f), _x(25.0f), _y(30.0f)), CRGBA(255, 255, 255, 255));
 
-#ifdef FANCY_FRONTEND_CONTROLLERS_TEST
-	int					nColourCycle = CTimer::m_snTimeInMillisecondsPauseMode % 15000;
-	const CRGBA			PinkColour(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B);
-	const CRGBA			CyanColour(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B);
-	CRGBA				BlendColour;
-
-	if ( nColourCycle < 5000 )
-		BlendColour = PinkColour;
-	else if ( nColourCycle < 7500 )
-		BlendColour = Blend(PinkColour, 7500-nColourCycle, CyanColour, nColourCycle-5000);
-	else if ( nColourCycle < 12500 )
-		BlendColour = CyanColour;
-	else
-		BlendColour = Blend(PinkColour, nColourCycle-12500, CyanColour, 15000-nColourCycle);
-
-	textures[17].Draw(CRect(_x(425.0f), _y(230.0f), _x(25.0f), _y(30.0f)), BlendColour);
-	textures[16].Draw(CRect(_x(425.0f), _y(230.0f), _x(25.0f), _y(30.0f)), CRGBA(255, 255, 255, 255));
-#endif
-
 	CFont::SetBackground(0, 0);
 	CFont::SetProportional(false);
 	CFont::SetFontStyle(FONT_PagerFont);
@@ -2510,6 +2492,40 @@ void CMenuManager::PrintStats()
 	}
 }
 
+void CMenuManager::PrintControllerSetupScreen()
+{
+	if ( pXboxPad[0]->IsPadConnected() )
+	{
+		int					nColourCycle = CTimer::m_snTimeInMillisecondsPauseMode % 24000;
+		const CRGBA			PinkColour(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B);
+		const CRGBA			BlueColour(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B);
+		const CRGBA			GreenColour(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B);
+		const CRGBA			YellowColour(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B);
+		CRGBA				BlendColour;
+
+		if ( nColourCycle < 4000 )
+			BlendColour = BlueColour;
+		else if ( nColourCycle < 6000 )
+			BlendColour = BlendSqr(BlueColour, GreenColour, (nColourCycle-4000.0f)/2000.0f);
+		else if ( nColourCycle < 10000 )
+			BlendColour = GreenColour;
+		else if ( nColourCycle < 12000 )
+			BlendColour = BlendSqr(GreenColour, YellowColour, (nColourCycle-10000.0f)/2000.0f);
+		else if ( nColourCycle < 16000 )
+			BlendColour = YellowColour;
+		else if ( nColourCycle < 18000 )
+			BlendColour = BlendSqr(YellowColour, PinkColour, (nColourCycle-16000.0f)/2000.0f);
+		else if ( nColourCycle < 22000 )
+			BlendColour = PinkColour;
+		else
+			BlendColour = BlendSqr(PinkColour, BlueColour, (nColourCycle-22000)/2000.0f);
+
+		m_apBackgroundTextures[4].Draw(CRect(_xmiddle(-150.0f), _ymiddle(162.0f), _xmiddle(150.0f), _ymiddle(12.0f)), BlendColour);
+	}
+
+	m_apBackgroundTextures[3].Draw(CRect(_xmiddle(-150.0f), _ymiddle(162.0f), _xmiddle(150.0f), _ymiddle(12.0f)), CRGBA(255, 255, 255));
+}
+
 void CMenuManager::PrintUpdaterScreen()
 {
 	CFont::SetScale(_width(0.8f), _height(1.2f));
@@ -2684,9 +2700,9 @@ void CMenuManager::ReadFrontendTextures()
 #ifdef INCLUDE_PROMO_BANNER
 									"banner",
 #endif
-#ifdef FANCY_FRONTEND_CONTROLLERS_TEST
+//#ifdef FANCY_FRONTEND_CONTROLLERS_TEST
 									"ps3front", "ps3back",
-#endif
+//#endif
 											};
 
 	static const char* const	frontendpcTexNames[] = {
