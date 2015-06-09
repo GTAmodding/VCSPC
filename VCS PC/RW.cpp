@@ -97,6 +97,21 @@ WRAPPER RwBool RwD3D9CreateVertexBuffer(RwUInt32 stride,
                          RwUInt32 size,
                          void **vertexBuffer,
 						 RwUInt32 *offset) { EAXJMP(0x7F5500); }
+WRAPPER RwInt32 RwTextureRegisterPlugin(RwInt32 size,
+                                            RwUInt32 pluginID,
+                                            RwPluginObjectConstructor
+                                            constructCB,
+                                            RwPluginObjectDestructor
+                                            destructCB,
+                                            RwPluginObjectCopy copyCB) { EAXJMP(0x7F3BB0); }
+WRAPPER RwInt32 RwTextureRegisterPluginStream(RwUInt32 pluginID,
+                              RwPluginDataChunkReadCallBack readCB,
+                              RwPluginDataChunkWriteCallBack writeCB,
+                              RwPluginDataChunkGetSizeCallBack getSizeCB) { EAXJMP(0x804550); }
+WRAPPER const RwPluginRegistry *_rwPluginRegistryReadDataChunks(const RwPluginRegistry *reg,
+                                                              RwStream *stream,
+                                                              void *object) { EAXJMP(0x808980); }
+
 
 // Reversed RW functions
 RwCamera* RwCameraBeginUpdate(RwCamera* camera)

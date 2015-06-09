@@ -9,6 +9,7 @@
 const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 
 bool& bAnisotSupported = *(bool*)0xC87FFC;
+RwPluginRegistry& textureTKList = *(RwPluginRegistry*)0x8E23CC;
 
 void*		gpCurrentShaderForDefaultCallbacks = nullptr;
 
@@ -90,6 +91,19 @@ void RsRwTerminate()
 
 	// Call SA RsRwTerminate
 	((BOOL(*)())0x6195E0)();
+}
+
+BOOL PluginAttach()
+{
+	// Call SA PluginAttach
+	if ( !((BOOL(*)())0x53D870)() )
+		return FALSE;
+
+	// Attaching custom plugins
+	if ( !YCoCgPluginAttach() )
+		return FALSE;
+
+	return TRUE;
 }
 
 void CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio)
@@ -193,6 +207,10 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 
 	LogToFile("Texture %s mode: %s max anisot: %d", RwTextureGetName(pTexture), pModeNames[RwTextureGetFilterMode(pTexture)], anisotValue);
 #endif
+
+	// Read plugins (never done in R* code)
+	if ( _rwPluginRegistryReadDataChunks(&textureTKList, stream, pTexture) == nullptr )
+		return nullptr;
 
 	RwTextureFilterMode		textureFilter = RwTextureGetFilterMode(pTexture);
 	unsigned char			setsFilterMode = Fx_c::GetTextureFilteringQuality();
@@ -443,10 +461,19 @@ void ConvertAndDumpNativeMesh()
 	}
 }
 
-void SetUpGenericPS_DNPipe()
+void SetUpGeneric_DNPipe(RxD3D9InstanceData* instanceData, RwTexture* texture)
 {
+	// TEMP
+	RwD3D9SetVertexShader(nullptr);
+
 	if ( gpCurrentShaderForDefaultCallbacks == nullptr )
-		RwD3D9SetPixelShader(gpGenericPS[GEN_PS_YCOCG]);
+	{
+		// Is YCoCg texture?
+		if ( texture != nullptr && YCOCGPLUGINDATACONST(texture)->bIsYCoCg )
+			RwD3D9SetPixelShader(gpGenericPS[GEN_PS_YCOCG]);
+		else
+			RwD3D9SetPixelShader(nullptr);
+	}
 }
 
 void __declspec(naked) rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook()
@@ -504,7 +531,12 @@ static StaticPatcher	Patcher([](){
 						// Generic shaders
 						Memory::InjectHook(0x5BF395, RsRwInitialize);
 						Memory::InjectHook(0x53D93D, RsRwTerminate);
+						Memory::InjectHook(0x53ECA1, PluginAttach);
 
 						// Temp
-						Memory::InjectHook(0x5DA736, SetUpGenericPS_DNPipe);
+						Memory::Patch<DWORD>(0x5DA734, 0x0C24748B);
+						Memory::Patch<DWORD>(0x5DA738, 0x142474FF);
+						Memory::Patch<BYTE>(0x5DA73C, 0x56);
+						Memory::InjectHook(0x5DA73D, SetUpGeneric_DNPipe, PATCH_CALL);
+						Memory::Nop(0x5DA742, 6);
 									});
