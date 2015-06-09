@@ -128,6 +128,14 @@ enum RsKeyCodes
 };
 typedef enum RsKeyCodes RsKeyCodes;
 
+enum RsGenericPS
+{
+	// VCSPC generic shaders
+	GEN_PS_YCOCG,
+	
+	NUM_GEN_PS
+};
+
 // R* RW function extensions
 RwTexture*		RwTextureGtaStreamRead(RwStream* stream);
 
@@ -158,6 +166,10 @@ void*			RwD3D9CreateVertexShaderFromResource(WORD wResource);
 
 void*			RwD3D9CreatePixelShaderFromFile(const char* pFileName);
 void*			RwD3D9CreateVertexShaderFromFile(const char* pFileName);
+
+// Generic shaders
+BOOL			RsGenericShadersInit();
+void			RsGenericShadersTerminate();
 
 // This is a part of RW.cpp
 void			InjectRwEngineWrappers();

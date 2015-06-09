@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "FxSystem.h"
 #include "Font.h"
+#include "YCoCg.h"
 
 const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 
@@ -68,6 +69,27 @@ RpAtomic* GetFirstAtomic(RpClump* pClump)
 	RpAtomic* pData = nullptr;
 	RpClumpForAllAtomics(pClump, GetFirstAtomicCallback, &pData);
 	return pData;
+}
+
+BOOL RsRwInitialize(void* pRect)
+{
+	// Call SA RsRwInitialize
+	if ( ((BOOL(*)(void*))0x619C90)(pRect) )
+	{
+		if ( RsGenericShadersInit() )
+			return TRUE;
+		
+		return FALSE;
+	}
+	return FALSE;
+}
+
+void RsRwTerminate()
+{
+	RsGenericShadersTerminate();
+
+	// Call SA RsRwTerminate
+	((BOOL(*)())0x6195E0)();
 }
 
 void CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio)
@@ -231,8 +253,8 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 	return pTexture;
 }
 
+// Shader helpers
 static HMODULE thisModule = nullptr;
-
 void* RwD3D9CreatePixelShaderFromResource(WORD wResource)
 {
 	if ( thisModule == nullptr )
@@ -309,6 +331,20 @@ void* RwD3D9CreateVertexShaderFromFile(const char* pFileName)
 	CloseHandle(hFile);
 
 	return pVertexShader;
+}
+
+static void* gpGenericPS[NUM_GEN_PS];
+
+// Generic shaders
+BOOL RsGenericShadersInit()
+{
+	gpGenericPS[GEN_PS_YCOCG] = YCoCgCreatePixelShader();
+	return TRUE;
+}
+
+void RsGenericShadersTerminate()
+{
+	RwD3D9DeletePixelShader(gpGenericPS[GEN_PS_YCOCG]);
 }
 
 void DoPreMenuBlackout()
@@ -407,10 +443,10 @@ void ConvertAndDumpNativeMesh()
 	}
 }
 
-void SetPixelShaderHooked(void* shader)
+void SetUpGenericPS_DNPipe()
 {
-	UNREFERENCED_PARAMETER(shader);
-	RwD3D9SetPixelShader(gpCurrentShaderForDefaultCallbacks);
+	if ( gpCurrentShaderForDefaultCallbacks == nullptr )
+		RwD3D9SetPixelShader(gpGenericPS[GEN_PS_YCOCG]);
 }
 
 void __declspec(naked) rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook()
@@ -460,10 +496,15 @@ static StaticPatcher	Patcher([](){
 						// Make _rxD3D9VertexShaderDefaultMeshRenderCallBack use our own pixel shader
 						Memory::Patch(0x7CB276, rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook);
 						Memory::InjectHook(0x756DFE, rxD3D9DefaultRenderCallback_Hook, PATCH_JUMP);
-						//Memory::InjectHook(0x5DA643, SetPixelShaderHooked);
-						//Memory::InjectHook(0x5DA736, SetPixelShaderHooked);
 
 						// No DirectPlay dependency
 						Memory::Patch<BYTE>(0x74754A, 0xB8);
 						Memory::Patch<DWORD>(0x74754B, 0x900);
+
+						// Generic shaders
+						Memory::InjectHook(0x5BF395, RsRwInitialize);
+						Memory::InjectHook(0x53D93D, RsRwTerminate);
+
+						// Temp
+						Memory::InjectHook(0x5DA736, SetUpGenericPS_DNPipe);
 									});

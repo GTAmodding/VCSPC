@@ -439,6 +439,7 @@ popd</Command>
     <ClCompile Include="WidescreenSupport.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="X360Pad.cpp" />
+    <ClCompile Include="YCoCg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\Date.h" />
@@ -528,10 +529,17 @@ popd</Command>
     <ClInclude Include="WidescreenSupport.h" />
     <ClInclude Include="World.h" />
     <ClInclude Include="X360Pad.h" />
+    <ClInclude Include="YCoCg.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LoadVars.inc" />
     <None Include="SaveVars.inc" />
+    <FxCompile Include="gen_YCoCgPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="Shaders\rtshadowPS.hlsl">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
