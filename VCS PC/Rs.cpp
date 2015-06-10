@@ -244,7 +244,30 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 	if ( bAnisotSupported )
 	{
 		// This texture has anisotropy?
-		if ( RpAnisotTextureGetMaxAnisotropy(pTexture) >= 1 )
+		RwUInt8		bTexMaxAnisot = RpAnisotTextureGetMaxAnisotropy(pTexture);
+		if ( bTexMaxAnisot >= 1 )
+		{
+			// Forced by textures
+			switch ( setsFilterMode )
+			{
+			case 2:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, Min<RwInt8>(bTexMaxAnisot, 2));	// 2x
+				break;
+			case 3:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, Min<RwInt8>(bTexMaxAnisot, 4));	// 4x
+				break;
+			case 4:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, Min<RwInt8>(bTexMaxAnisot, 8));	// 8x
+				break;
+			case 5:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, Min<RwInt8>(bTexMaxAnisot, 16));	// 16x
+				break;
+			default:
+				RpAnisotTextureSetMaxAnisotropy(pTexture, 1);	// No anisotropy
+				break;
+			}			
+		}
+		else if ( bTexMaxAnisot == 0 )
 		{
 			// Find real anisot value by menu selection
 			switch ( setsFilterMode )
@@ -262,7 +285,7 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 				RpAnisotTextureSetMaxAnisotropy(pTexture, 16);	// 16x
 				break;
 			default:
-				RpAnisotTextureSetMaxAnisotropy(pTexture, 0);	// No anisotropy
+				RpAnisotTextureSetMaxAnisotropy(pTexture, 1);	// No anisotropy
 				break;
 			}			
 		}
@@ -519,6 +542,9 @@ rxD3D9DefaultRenderCallback_Hook_Return:
 
 static StaticPatcher	Patcher([](){ 
 						Memory::InjectHook(0x730E60, &RwTextureGtaStreamRead, PATCH_JUMP);
+
+						// Default to 0 AF, which will be 'use max'
+						Memory::Patch<BYTE>(0x74902D, 0);
 
 						// Make _rxD3D9VertexShaderDefaultMeshRenderCallBack use our own pixel shader
 						Memory::Patch(0x7CB276, rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook);
