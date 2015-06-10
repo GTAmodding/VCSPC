@@ -379,13 +379,14 @@ static void* gpGenericPS[NUM_GEN_PS];
 // Generic shaders
 BOOL RsGenericShadersInit()
 {
-	gpGenericPS[GEN_PS_YCOCG] = YCoCgCreatePixelShader();
+	YCoCgCreatePixelShaders(gpGenericPS);
 	return TRUE;
 }
 
 void RsGenericShadersTerminate()
 {
-	RwD3D9DeletePixelShader(gpGenericPS[GEN_PS_YCOCG]);
+	RwD3D9DeletePixelShader(gpGenericPS[GEN_PS_YCG1]);
+	RwD3D9DeletePixelShader(gpGenericPS[GEN_PS_YCG2]);
 }
 
 void DoPreMenuBlackout()
@@ -492,8 +493,8 @@ void SetUpGeneric_DNPipe(RxD3D9InstanceData* instanceData, RwTexture* texture)
 	if ( gpCurrentShaderForDefaultCallbacks == nullptr )
 	{
 		// Is YCoCg texture?
-		if ( texture != nullptr && YCOCGPLUGINDATACONST(texture)->bIsYCoCg )
-			RwD3D9SetPixelShader(gpGenericPS[GEN_PS_YCOCG]);
+		if ( texture != nullptr && YCOCGPLUGINDATACONST(texture)->bYCoCgType != 0 )
+			RwD3D9SetPixelShader(gpGenericPS[YCOCGPLUGINDATACONST(texture)->bYCoCgType == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
 		else
 			RwD3D9SetPixelShader(nullptr);
 	}

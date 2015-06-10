@@ -131,7 +131,8 @@ typedef enum RsKeyCodes RsKeyCodes;
 enum RsGenericPS
 {
 	// VCSPC generic shaders
-	GEN_PS_YCOCG,
+	GEN_PS_YCG1,
+	GEN_PS_YCG2,
 	
 	NUM_GEN_PS
 };

@@ -3,7 +3,7 @@
 
 struct YCoCgPlugin
 {
-	bool	bIsYCoCg;
+	RwUInt8		bYCoCgType;
 };
 
 #define YCOCGPLUGINDATA(texture) \
@@ -14,7 +14,7 @@ struct YCoCgPlugin
 
 
 BOOL YCoCgPluginAttach();
-void* YCoCgCreatePixelShader();
+void YCoCgCreatePixelShaders(void* pGenericShaders[]);
 
 extern RwInt32 gYCoCgPluginOffset;
 

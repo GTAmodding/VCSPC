@@ -552,7 +552,10 @@
     <FxCompile Include="Shaders\rtshadowPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="gen_YCoCgPS.hlsl">
+    <FxCompile Include="gen_YCG1PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gen_YCG2PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
