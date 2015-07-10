@@ -6741,6 +6741,21 @@ void __declspec(naked) VideoPlayerRelease()
 	}
 }*/
 
+
+static LARGE_INTEGER	FrameTime;
+static DWORD GetTimeFromLastFrame()
+{
+	LARGE_INTEGER	curTime;
+	QueryPerformanceCounter(&curTime);
+	return curTime.LowPart - FrameTime.LowPart;
+}
+
+static StaticPatcher	Patcher([](){ 
+						using namespace Memory;
+
+						InjectHook(0x748D1F, GetTimeFromLastFrame);
+						});
+
 void __declspec(naked) MaxosFrameLimitHack()
 {
 	static float		fOne, fTwo;
@@ -6784,8 +6799,10 @@ MaxosFrameLimitHack_LimitFrames:
 		}
 	}
 	else
+	{
+		QueryPerformanceCounter(&FrameTime);
 		RsEventHandler(rsIDLE, reinterpret_cast<void*>(1));
-
+	}
 	_asm
 	{
 		popad

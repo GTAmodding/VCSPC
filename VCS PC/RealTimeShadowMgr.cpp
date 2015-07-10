@@ -92,7 +92,7 @@ RwCamera* CShadowCamera::Update(RpAtomic* pAtomic)
 
 		if ( RwCameraBeginUpdate(m_pCamera ) )
 		{
-			gpCurrentShaderForDefaultCallbacks = g_realTimeShadowMan.GetShadowPixelShader();
+			gpPixelShaderForDefaultCallbacks = g_realTimeShadowMan.GetShadowPixelShader();
 			RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
 			RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
@@ -103,7 +103,7 @@ RwCamera* CShadowCamera::Update(RpAtomic* pAtomic)
 
 			RpGeometrySetFlags(pGeometry, geometryFlags);
 
-			gpCurrentShaderForDefaultCallbacks = nullptr;
+			gpPixelShaderForDefaultCallbacks = nullptr;
 			//InvertRaster();
 			RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
 			RwCameraEndUpdate(m_pCamera);
@@ -121,7 +121,7 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 	{
 		if ( pEntity )
 		{
-			gpCurrentShaderForDefaultCallbacks = g_realTimeShadowMan.GetShadowPixelShader();
+			gpPixelShaderForDefaultCallbacks = g_realTimeShadowMan.GetShadowPixelShader();
 			if ( pEntity->nType == 3 )
 				static_cast<CPed*>(pEntity)->RenderForShadow(pClump, true);
 			else if ( pEntity->nType == 2 )
@@ -133,7 +133,7 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 				LogToFile("CBuilding ended up being a RpClump in CShadowCamera::Update - model ID %d, entity type %d, clump 0x%X", pEntity->m_nModelIndex, pEntity->nType, pClump);
 				assert(!"Baad, unknown entity type in CShadowCamera::Update!");
 			}
-			gpCurrentShaderForDefaultCallbacks = nullptr;
+			gpPixelShaderForDefaultCallbacks = nullptr;
 		}
 
 		//InvertRaster();

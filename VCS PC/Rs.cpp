@@ -11,7 +11,7 @@ const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 bool& bAnisotSupported = *(bool*)0xC87FFC;
 RwPluginRegistry& textureTKList = *(RwPluginRegistry*)0x8E23CC;
 
-void*		gpCurrentShaderForDefaultCallbacks = nullptr;
+void*		gpPixelShaderForDefaultCallbacks = nullptr;
 
 WRAPPER RsEventStatus RsEventHandler(RsEvent eventID, void* param) { WRAPARG(eventID); WRAPARG(param); EAXJMP(0x619B60); }
 WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
@@ -488,9 +488,9 @@ void ConvertAndDumpNativeMesh()
 void SetUpGeneric_DNPipe(RxD3D9InstanceData* instanceData, RwTexture* texture)
 {
 	// TEMP
-	RwD3D9SetVertexShader(nullptr);
+	RwD3D9SetVertexShader(instanceData->vertexShader);
 
-	if ( gpCurrentShaderForDefaultCallbacks == nullptr )
+	if ( gpPixelShaderForDefaultCallbacks == nullptr )
 	{
 		// Is YCoCg texture?
 		if ( texture != nullptr && YCOCGPLUGINDATACONST(texture)->bYCoCgType != 0 )
@@ -500,11 +500,28 @@ void SetUpGeneric_DNPipe(RxD3D9InstanceData* instanceData, RwTexture* texture)
 	}
 }
 
+void SetGenericShaders_InstanceData(RxD3D9InstanceData* pInstanceData)
+{
+	RwD3D9SetVertexShader(pInstanceData->vertexShader);
+
+	if ( gpPixelShaderForDefaultCallbacks != nullptr )
+	{
+		RwD3D9SetPixelShader(gpPixelShaderForDefaultCallbacks);
+		return;
+	}
+
+	RwTexture*	pMaterialTexture = RpMaterialGetTexture(pInstanceData->material);
+	if ( pMaterialTexture != nullptr && YCOCGPLUGINDATACONST(pMaterialTexture)->bYCoCgType != 0 )
+		RwD3D9SetPixelShader(gpGenericPS[YCOCGPLUGINDATACONST(pMaterialTexture)->bYCoCgType == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
+	else
+		RwD3D9SetPixelShader(nullptr);
+}
+
 void __declspec(naked) rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook()
 {
 	_asm
 	{
-		mov		eax, [gpCurrentShaderForDefaultCallbacks] 
+		mov		eax, [gpPixelShaderForDefaultCallbacks]
 		cmp		eax, dword ptr ds:[8E244Ch]	// _rwD3D9LastPixelShaderUsed
 		je		rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook_Return
 		mov		dword ptr ds:[8E244Ch], eax
@@ -524,7 +541,7 @@ void __declspec(naked) rxD3D9DefaultRenderCallback_Hook()
 {
 	_asm
 	{
-		mov		ecx, [gpCurrentShaderForDefaultCallbacks] 
+		mov		ecx, [gpPixelShaderForDefaultCallbacks] 
 		cmp		eax, ecx	// _rwD3D9LastPixelShaderUsed
 		je		rxD3D9DefaultRenderCallback_Hook_Return
 		mov		dword ptr ds:[8E244Ch], ecx
@@ -542,28 +559,43 @@ rxD3D9DefaultRenderCallback_Hook_Return:
 
 
 static StaticPatcher	Patcher([](){ 
-						Memory::InjectHook(0x730E60, &RwTextureGtaStreamRead, PATCH_JUMP);
+						using namespace Memory;
+
+						InjectHook(0x730E60, &RwTextureGtaStreamRead, PATCH_JUMP);
 
 						// Default to 0 AF, which will be 'use max'
-						Memory::Patch<BYTE>(0x74902D, 0);
+						Patch<BYTE>(0x74902D, 0);
 
 						// Make _rxD3D9VertexShaderDefaultMeshRenderCallBack use our own pixel shader
 						Memory::Patch(0x7CB276, rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook);
-						Memory::InjectHook(0x756DFE, rxD3D9DefaultRenderCallback_Hook, PATCH_JUMP);
+						//Memory::InjectHook(0x756DFE, rxD3D9DefaultRenderCallback_Hook, PATCH_JUMP);
+
+						// Generic shaders for default render callbacks
+						Patch<BYTE>(0x756E00, 0xEB);
+
+						Patch<DWORD>(0x756FEF, 0x50F0468D);
+						InjectHook(0x756FF3, SetGenericShaders_InstanceData, PATCH_CALL);
+						Patch<DWORD>(0x756FF8, 0xEB04C483);
+						Patch<BYTE>(0x756FFC, 0x14);
+
+						Patch<DWORD>(0x7572C3, 0x50F0458D);
+						InjectHook(0x7572C7, SetGenericShaders_InstanceData, PATCH_CALL);
+						Patch<DWORD>(0x7572CC, 0xEB04C483);
+						Patch<BYTE>(0x7572D0, 0x16);
 
 						// No DirectPlay dependency
-						Memory::Patch<BYTE>(0x74754A, 0xB8);
-						Memory::Patch<DWORD>(0x74754B, 0x900);
+						Patch<BYTE>(0x74754A, 0xB8);
+						Patch<DWORD>(0x74754B, 0x900);
 
 						// Generic shaders
-						Memory::InjectHook(0x5BF395, RsRwInitialize);
-						Memory::InjectHook(0x53D93D, RsRwTerminate);
-						Memory::InjectHook(0x53ECA1, PluginAttach);
+						InjectHook(0x5BF395, RsRwInitialize);
+						InjectHook(0x53D93D, RsRwTerminate);
+						InjectHook(0x53ECA1, PluginAttach);
 
 						// Temp
-						Memory::Patch<DWORD>(0x5DA734, 0x0C24748B);
-						Memory::Patch<DWORD>(0x5DA738, 0x142474FF);
-						Memory::Patch<BYTE>(0x5DA73C, 0x56);
-						Memory::InjectHook(0x5DA73D, SetUpGeneric_DNPipe, PATCH_CALL);
-						Memory::Nop(0x5DA742, 6);
+						Patch<DWORD>(0x5DA734, 0x0C24748B);
+						Patch<DWORD>(0x5DA738, 0x142474FF);
+						Patch<BYTE>(0x5DA73C, 0x56);
+						InjectHook(0x5DA73D, SetUpGeneric_DNPipe, PATCH_CALL);
+						Nop(0x5DA742, 6);
 									});

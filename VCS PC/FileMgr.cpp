@@ -279,7 +279,7 @@ int CFileLoader::LoadWeaponObject(const char* pLine)
 	pModelInfo->fLodDistanceUnscaled = fDrawDist;
 
 	pModelInfo->SetTexDictionary(texName);
-	//CTxdStore::GetPool()->GetAtIndex(pModelInfo->usTextureDictionary)->SetParent(CTxdStore::GetTxdSlot("weapshare"));
+	CTxdStore::GetPool()->GetAtIndex(pModelInfo->usTextureDictionary)->SetParent(CTxdStore::GetTxdSlot("weapshare"));
 
 	pModelInfo->SetAnimFile(animName);
 	pModelInfo->SetColModel(&CTempColModels::ms_colModelWeapon, false);

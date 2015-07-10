@@ -475,14 +475,20 @@ void CCoronas::RenderBuffered()
 
 void CCoronas::RenderDebug()
 {
+#ifndef NDEBUG
 	D3DPERF_BeginEvent(D3DCOLOR_ARGB(0xFF, 0xFF, 0, 0), L"coronas render");
+#endif
 
+#ifdef DEVBUILD
 	if ( GetAsyncKeyState(VK_F4) & 0x8000 )
 		Render();
 	else
+#endif
 		RenderBuffered();
 
+#ifndef NDEBUG
 	D3DPERF_EndEvent();
+#endif
 }
 
 /*void CCoronas::InvalidateAllReferences()
