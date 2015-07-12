@@ -25,7 +25,8 @@ enum eHudTextures
 
 
 #define	BAR_ENERGY_LOSS_FLASH_DURATION	2000
-#define HUD_TRANSPARENCY				217
+#define HUD_TRANSPARENCY_BACK			215
+#define HUD_TRANSPARENCY_FRONT			(HUD_TRANSPARENCY_BACK+8)
 
 #define HUD_POS_X						148.5f
 #define HUD_POS_Y						38.0f
@@ -80,7 +81,7 @@ public:
 					{ bShouldFPSBeDisplayed = a; };;
 
 	static void		DrawBarChart(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor);
-	static void		DrawWeaponIcon(CPed* pPed, int iX, int iY, float fAlpha=255.0f);
+	static void		DrawWeaponIcon(CPed* pPed, float iX, float iY, int fAlpha);
 	
 	static void		GetRidOfAllCustomHUDMessages();
 	static void		Initialise();

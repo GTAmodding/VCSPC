@@ -185,13 +185,13 @@ RwTexture* CRealTimeShadow::Update()
 
 void CRealTimeShadow::Create(int nSize, int nSizeResampled, bool bResample, int nBlurPasses, bool bGradient, bool bUsePlayerCams)
 {
-	m_pLight = RpLightCreate(rpLIGHTDIRECTIONAL);
+	//m_pLight = RpLightCreate(rpLIGHTDIRECTIONAL);
 
 	if ( m_pLight )
 	{
-		const RwRGBAReal		LightColour = { 0.8f, 0.8f, 0.8f, 0.0f };
-		RpLightSetColor(m_pLight, &LightColour);
-		RpLightSetFrame(m_pLight, RwFrameCreate());
+		//const RwRGBAReal		LightColour = { 0.8f, 0.8f, 0.8f, 0.0f };
+		//RpLightSetColor(m_pLight, &LightColour);
+		//RpLightSetFrame(m_pLight, RwFrameCreate());
 
 		if ( m_Camera.Create(nSize) )
 		{
@@ -207,7 +207,7 @@ void CRealTimeShadow::Create(int nSize, int nSizeResampled, bool bResample, int 
 					return;
 				}
 			}
-			m_Camera.SetLight(m_pLight);
+			//m_Camera.SetLight(m_pLight);
 		}
 		else
 		{
@@ -238,8 +238,13 @@ void CRealTimeShadowManager::Init()
 {
 	if ( !m_bInitialised )
 	{
+		// Dirty way to fake there is a RpLight
+		static RwFrame*		fakeLightBuf[2];
+		fakeLightBuf[1] = RwFrameCreate();
+		m_pGlobalLight = reinterpret_cast<RpLight*>(fakeLightBuf);
+
 		for ( int i = 0; i < NUM_MAX_REALTIME_SHADOWS; i++ )
-			m_pShadows[i] = new CRealTimeShadow;
+			m_pShadows[i] = new CRealTimeShadow(m_pGlobalLight);
 
 		eShadowQuality		nShadowQuality = CShadows::GetShadowQuality();
 
@@ -320,6 +325,9 @@ void CRealTimeShadowManager::Exit()
 	{
 		for ( int i = 0; i < NUM_MAX_REALTIME_SHADOWS; i++ )
 			delete m_pShadows[i];
+
+		// This wasn't a real RpLight
+		RwFrameDestroy(RpLightGetFrame(m_pGlobalLight));
 
 		m_BlurCamera.Destroy();
 		m_GradientCamera.Destroy();
@@ -651,4 +659,6 @@ static StaticPatcher	Patcher([](){
 						Memory::Patch<BYTE>(0x706AF3, 0xB8);
 						Memory::Patch<DWORD>(0x706AF4, SHADOWS_MAX_INTENSITY);
 						Memory::Patch<WORD>(0x706AF8, 0x15EB);
+
+						Memory::Patch<BYTE>(0x7059B5, 0xEB);
 									});

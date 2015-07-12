@@ -73,8 +73,8 @@ public:
 	//void*			operator new(size_t size)
 	//	{ return GtaOperatorNew(size); }
 
-	CRealTimeShadow()
-		:	m_pEntity(nullptr), m_nRwObjectType(-1), m_pLight(nullptr), m_dwBlurPasses(0), 
+	CRealTimeShadow(RpLight* pLight)
+		:	m_pEntity(nullptr), m_nRwObjectType(-1), m_pLight(pLight), m_dwBlurPasses(0), 
 			m_bDrawResample(false), m_bDrawGradient(false), m_bRenderedThisFrame(false), m_nIntensity(0),
 			m_bUsePlayerHelperCams(false)
 	{}
@@ -116,6 +116,7 @@ public:
 	CShadowCamera			m_GradientCamera_Player;
 
 	void*	m_pShadowPixelShader;
+	RpLight*				m_pGlobalLight;
 
 public:
 	CRealTimeShadowManager()

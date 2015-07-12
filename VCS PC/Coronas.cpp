@@ -535,19 +535,25 @@ void CCoronas::UpdatePointersInCode()
 
 void CCoronas::Inject()
 {
-	// CCoronas::RenderReflections
-	Memory::Patch<void*>(0x6FB648, &aCoronas->JustCreated + 1);
-	Memory::Patch<void*>(0x6FB6CF, &aCoronas->FadedIntensity);
+	using namespace Memory;
 
 	// CCoronas::RenderReflections
-	Memory::Patch<void*>(0x6FB657, &aCoronas[NUM_CORONAS].JustCreated + 1);
-	Memory::Patch<void*>(0x6FB9B8, &aCoronas[NUM_CORONAS].FadedIntensity);
+	Patch<void*>(0x6FB648, &aCoronas->JustCreated + 1);
+	Patch<void*>(0x6FB6CF, &aCoronas->FadedIntensity);
 
-	Memory::InjectHook(0x6FC180, CCoronas::RegisterCorona, PATCH_JUMP);
-	Memory::InjectHook(0x6FC4D0, CCoronas::UpdateCoronaCoors, PATCH_JUMP);
-	Memory::InjectHook(0x6FAAD9, CCoronas::Init, PATCH_JUMP);
-	Memory::InjectHook(0x53C13B, CCoronas::Update);
-	Memory::InjectHook(0x53E18E, CCoronas::RenderBuffered);
+	// CCoronas::RenderReflections
+	Patch<void*>(0x6FB657, &aCoronas[NUM_CORONAS].JustCreated + 1);
+	Patch<void*>(0x6FB9B8, &aCoronas[NUM_CORONAS].FadedIntensity);
+
+	InjectHook(0x6FC180, CCoronas::RegisterCorona, PATCH_JUMP);
+	InjectHook(0x6FC4D0, CCoronas::UpdateCoronaCoors, PATCH_JUMP);
+	InjectHook(0x6FAAD9, CCoronas::Init, PATCH_JUMP);
+	InjectHook(0x53C13B, CCoronas::Update);
+	InjectHook(0x53E18E, CCoronas::RenderBuffered);
+
+	static const float	fSunDist = 300.0f;
+	Patch<const void*>(0x6FC5AA, &fSunDist);
+	Nop(0x6FC5AE, 6);
 }
 
 static StaticPatcher	Patcher([](){ 

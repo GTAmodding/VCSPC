@@ -334,7 +334,43 @@ public:
 class CKeyGen
 {
 public:
-	static unsigned int		GetUppercaseKey(const char* pEntry);
+	static unsigned int GetKey(const char *pString, int iSize) // 0x0053CED0
+	{
+		unsigned int uiHash = 0xFFFFFFFF;
+		for(int i = 0; i < iSize; i++)
+			uiHash = keyTable[(unsigned char)uiHash ^ *pString++] ^ (uiHash >> 8);
+		return uiHash;
+	}
+ 
+	// Hash a string till a null-terminator is found.
+	static unsigned int GetKey(const char *pString) // 0x0053CF00
+	{
+		unsigned int uiHash = 0xFFFFFFFF;
+		while(*pString)
+			uiHash = keyTable[(unsigned char)uiHash ^ *pString++] ^ (uiHash >> 8);
+		return uiHash;
+	}
+ 
+	// Hash a string till a null-terminator is found by converting lowercase characters to uppercase.
+	static unsigned int GetUppercaseKey(const char *pString) // 0x0053CF30
+	{
+		unsigned int uiHash = 0xFFFFFFFF;
+		while(*pString)
+			uiHash = keyTable[(unsigned char)uiHash ^ toupper(*pString++)] ^ (uiHash >> 8);
+		return uiHash;
+	}
+ 
+	// Append a string to the hash key of a previously hashed string.
+	static unsigned int AppendStringToKey(unsigned int uiHash, const char *pString) // 0x0053CF70
+	{
+		while(*pString)
+			uiHash = keyTable[(unsigned char)uiHash ^ *pString++] ^ (uiHash >> 8);
+		return uiHash;
+	}
+
+private:
+	// Precalculated table of 256 CRC32 hash keys computed according to the polynomial 0xEDB88320.
+	static const unsigned int keyTable[];
 };
 
 // TODO: Move away?

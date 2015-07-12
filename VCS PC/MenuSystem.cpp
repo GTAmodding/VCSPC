@@ -5,6 +5,7 @@
 #include "Font.h"
 #include "Text.h"
 #include "Messages.h"
+#include "Pad.h"
 
 CMenuSystem::Menu** const		CMenuSystem::MenuInUse = (CMenuSystem::Menu**)0xBA82D8;
 
@@ -83,14 +84,21 @@ void CMenuSystem::DisplayStandardMenu(unsigned char nMenuID, bool bActiveColour)
 
 
 static StaticPatcher	Patcher([](){ 
-						Memory::InjectHook(0x580E00, CMenuSystem::DisplayStandardMenu, PATCH_JUMP);
+						using namespace Memory;
+
+						InjectHook(0x580E00, CMenuSystem::DisplayStandardMenu, PATCH_JUMP);
 
 						// Don't scale fields at the time of creating the menu
-						Memory::Nop(0x475546, 6);
-						Memory::Patch<DWORD>(0x475558, 0x9090E8D9);
-						Memory::Nop(0x47555C, 2);
+						Nop(0x475546, 6);
+						Patch<DWORD>(0x475558, 0x9090E8D9);
+						Nop(0x47555C, 2);
 
-						Memory::Nop(0x475587, 6);
-						Memory::Nop(0x475596, 6);
-						Memory::Patch<WORD>(0x47559C, 0x05D9);
+						Nop(0x475587, 6);
+						Nop(0x475596, 6);
+						Patch<WORD>(0x47559C, 0x05D9);
+
+						Patch<WORD>(0x580872, 0xC88B);
+						InjectHook(0x580874, &CPad::FrontEndBackJustDown, PATCH_CALL);
+						Patch<DWORD>(0x580879, 0x9090C084);
+						Patch<WORD>(0x58087D, 0x7490);
 									});

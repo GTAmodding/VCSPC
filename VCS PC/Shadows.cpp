@@ -55,7 +55,8 @@ bool CShadows::StoreRealTimeShadowForVehicle(CVehicle* pVehicle)
 	{
 		g_realTimeShadowMan.DoShadowThisFrame(pVehicle);
 
-		return pVehicle->GetSubClass() == VEHICLE_HELI || pVehicle->GetSubClass() == VEHICLE_PLANE;
+		return	pVehicle->GetClass() == VEHICLE_BIKE || 
+				pVehicle->GetSubClass() == VEHICLE_HELI || pVehicle->GetSubClass() == VEHICLE_PLANE;
 	}
 
 	return m_bShadowQuality == SHADOW_QUALITY_OFF;

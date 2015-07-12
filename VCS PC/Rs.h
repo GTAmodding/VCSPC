@@ -157,6 +157,8 @@ const char*			GetFrameNodeName(RwFrame* pFrame);
 RpHAnimHierarchy*	GetAnimHierarchyFromSkinClump(RpClump* pClump);
 RpAtomic*			AtomicInstanceCB(RpAtomic* pAtomic);
 
+RwTexture* RwTexDictionaryFindHashNamedTexture(RwTexDictionary* pDict, unsigned int dwHash);
+
 // GTA heap funcs
 void*			GtaOperatorNew(size_t size);
 void			GtaOperatorDelete(void* ptr);

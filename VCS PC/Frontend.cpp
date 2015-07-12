@@ -33,6 +33,8 @@ signed int			CMenuManager::m_nDLCMessageTimer = 0;
 signed char			CMenuManager::m_nSwitchToThisAfterMessage = -1;
 unsigned char		CMenuManager::m_bPadPageShown;
 
+static int	nTimeToStopPadShake;
+
 // Temp;
 extern float&		ms_lodDistScale;
 
@@ -248,7 +250,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TEXTURE_FILTERMODE, "FED_TXF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TRAILS, "FED_TRA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		5, "FET_DEF", ACTION_STANDARD, 50, 0, 152, 3, 0, 0,
+		5, "FET_DEF", ACTION_STANDARD, MENU_PAGE_RESTORE_GRAPHICS, 0, 152, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 33, 0, 0, 3, 0, 0 },
 
 	// Language
@@ -309,7 +311,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	{ "FET_CTL", 33, 0,
 		5, "FEC_RED", ACTION_STANDARD, 37, 0, -29, 3, 0, 0,
 		5, "FEC_MOU", ACTION_STANDARD, 39, 0, 0, 3, 0, 0,
-		5, "FEC_MOU", ACTION_STANDARD, 40, 0, 0, 3, 0, 0,
+		5, "FEC_CTL", ACTION_STANDARD, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 3, 0, 0,
 		5, "FET_DEF", ACTION_STANDARD, 25, 0, 70, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 0, 3, 0, 0 },
 
@@ -334,9 +336,13 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 
 	// Controller Settings
-	{ "FEM_TIT", 36, 2,
-		MENUACTION_CTRL_TYPE, "FEC_CFG", ACTION_CLICKORARROWS, 40, 0, -154, 2, 0, 0,
-		MENUACTION_PAD_FRONTEND_PAGE, "FEC_CDP", ACTION_CLICKORARROWS, 40, 0, 0, 2, 0, 0,
+	{ "FEH_CTL", 36, 2,
+		MENUACTION_CTRL_TYPE, "FEC_CFG", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, -154, 2, 0, 0,
+		MENUACTION_PAD_FRONTEND_PAGE, "FEC_CDP", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
+		//MENUACTION_INVERTLOOK, "FEC_ILU", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
+		MENUACTION_VIBRATION, "FEC_VIB", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
+		MENUACTION_SOUTHPAW, "FEC_SOU", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
+		5, "FEC_ADO", ACTION_STANDARD, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 182, 3, 0, 0 },
 
 	// Pause menu
@@ -359,10 +365,10 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 	// Game Updates
 	{ "FEH_UPT", 33, 6,
-		MENUACTION_CHECKING_PERIOD, "FEU_CHP", ACTION_CLICKORARROWS, 44, 0, 90, 2, -1, 0,
-		MENUACTION_AUTOINSTALL_UPDATES, "FEU_AUI", ACTION_CLICKORARROWS, 44, 0, 0, 2, -1, 0,
-		MENUACTION_UPDATER_BUTTON, "FEU_UPC", ACTION_UPDATER, 44, 0, 78, 3, 1, 0,
-		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
+		MENUACTION_UPDATER_BUTTON, "FEU_UPC", ACTION_UPDATER, 44, 0, 138, 3, 1, 0,
+		MENUACTION_CHECKING_PERIOD, "FEU_CHP", ACTION_CLICKORARROWS, 44, 0, 0, 2, 1, 0,
+		MENUACTION_AUTOINSTALL_UPDATES, "FEU_AUI", ACTION_CLICKORARROWS, 44, 0, 0, 2, 1, 0,
+		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 0, 3, 1, 0 },
 
 	// Downloadable Content
 	{ "FEH_DLC", 33, 5,
@@ -408,6 +414,12 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		1, "FED_RDP", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 27, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 27, 0, 16, 3, 0, 0 },
+
+	// Additional Controller Options
+	{ "FEH_CTL", MENU_PAGE_CONTROLLER_SETUP, 4,
+		MENUACTION_INVERTLOOK, "FEC_ILU", ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, -154, 2, 0, 0,
+		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 182, 3, 0, 0
+	},
 };
 
 static inline const char* GetTitlePCByLanguage()
@@ -676,7 +688,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				CFont::SetDropShadowPosition(2);
 				CFont::SetColor(CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B));
 				CFont::SetDropColor(CRGBA(0, 0, 0));
-				CFont::PrintString(_xleft(40.0f), _y(28.0f), TheText.Get(aScreens[m_bCurrentMenuPage].name));
+				CFont::PrintString(_xleft(40.0f), _y(11.0f), TheText.Get(aScreens[m_bCurrentMenuPage].name));
 			}
 		}
 	}
@@ -782,7 +794,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			CFont::SetColor(CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B));
 		else
 		{
-			if ( CUpdateManager::NewUpdatesPending() &&  ((m_bCurrentMenuPage == 33 && i == 6) || (m_bCurrentMenuPage == 34 && i == 1) || (m_bCurrentMenuPage == 41 && i == 5) || (m_bCurrentMenuPage == 44 && i == 2)) )
+			if ( CUpdateManager::NewUpdatesPending() &&  ((m_bCurrentMenuPage == 33 && i == 6) || (m_bCurrentMenuPage == 34 && i == 1) || (m_bCurrentMenuPage == 41 && i == 5) || (m_bCurrentMenuPage == 44 && i == 0)) )
 				CFont::SetColor(CRGBA(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B));
 			else
 				CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B));
@@ -798,7 +810,10 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			if ( i && (i != 1 || aScreens[m_bCurrentMenuPage].entryList[0].action != 1) )
 			{
 				aScreens[m_bCurrentMenuPage].entryList[i].posX = aScreens[m_bCurrentMenuPage].entryList[i-1].posX;
-				aScreens[m_bCurrentMenuPage].entryList[i].posY = aScreens[m_bCurrentMenuPage].entryList[i-1].posY + (aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_MISSIONPACK ? 20 : 30);
+				if ( aScreens[m_bCurrentMenuPage].entryList[i].screenVertAlign == 1 )
+					aScreens[m_bCurrentMenuPage].entryList[i].posY = aScreens[m_bCurrentMenuPage].entryList[i-1].posY - (aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_MISSIONPACK ? 20 : GetAutoSpacingHeight());
+				else
+					aScreens[m_bCurrentMenuPage].entryList[i].posY = aScreens[m_bCurrentMenuPage].entryList[i-1].posY + (aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag == ACTION_MISSIONPACK ? 20 : GetAutoSpacingHeight());
 			}
 			else
 			{
@@ -1073,6 +1088,15 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				break;
 			case MENUACTION_TRAILS:
 				pTextToShow_RightColumn = TheText.Get(CPostEffects::TrailsEnabled() ? "FEM_ON" : "FEM_OFF");
+				break;
+			case MENUACTION_VIBRATION:
+				pTextToShow_RightColumn = TheText.Get(m_bVibrationEnabled ? "FEM_ON" : "FEM_OFF");
+				break;
+			case MENUACTION_INVERTLOOK:
+				pTextToShow_RightColumn = TheText.Get(CPad::bInvertLook4Pad == false ? "FEM_ON" : "FEM_OFF");
+				break;
+			case MENUACTION_SOUTHPAW:
+				pTextToShow_RightColumn = TheText.Get(CPad::bSouthpaw ? "FEM_ON" : "FEM_OFF");
 				break;
 			}
 
@@ -2035,6 +2059,26 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		}
 		SaveSettings();
 		return;
+	case MENUACTION_VIBRATION:
+		if ( !m_bVibrationEnabled )
+		{
+			m_bVibrationEnabled = true;
+			nTimeToStopPadShake = CTimer::m_snTimeInMillisecondsPauseMode + 500;
+			CPad::GetPad(0)->StartShake(350, 150, 0);
+		}
+		else
+			m_bVibrationEnabled = false;
+
+		SaveSettings();
+		return;
+	case MENUACTION_INVERTLOOK:
+		CPad::bInvertLook4Pad = CPad::bInvertLook4Pad == false;
+		SaveSettings();
+		return;
+	case MENUACTION_SOUTHPAW:
+		CPad::bSouthpaw = CPad::bSouthpaw == false;
+		SaveSettings();
+		return;
 	}
 }
 
@@ -2132,6 +2176,16 @@ void CMenuManager::CheckSliderMovement(signed char nDirection)
 	}
 }
 
+int CMenuManager::GetAutoSpacingHeight()
+{
+	switch ( m_bCurrentMenuPage )
+	{
+	case MENU_PAGE_CONTROLLER_SETUP:
+		return 25;
+	}
+	return 30;
+}
+
 void CMenuManager::CentreMousePointer()
 {
 	POINT		PointerPos;
@@ -2155,7 +2209,7 @@ void CMenuManager::DrawBackEnd()
 	m_apBackgroundTextures[0].Draw(CRect(-1.0f - (vecSplashScale.x-RsGlobal.MaximumWidth), RsGlobal.MaximumHeight * 0.95f, RsGlobal.MaximumWidth + 1.0f, -1.0f - (vecSplashScale.y-RsGlobal.MaximumHeight)), CRGBA(255, 255, 255, 255));
 
 	if ( m_bCurrentMenuPage == 44 )
-		m_apBackgroundTextures[1].Draw(CRect(_x(245.0f), _y(85.0f), _x(25.0f), _y(30.0f)), CRGBA(255, 255, 255, 255));
+		m_apBackgroundTextures[1].Draw(CRect(_x(245.0f), _y(80.0f), _x(25.0f), _y(25.0f)), CRGBA(255, 255, 255, 255));
 
 	CFont::SetBackground(0, 0);
 	CFont::SetProportional(false);
@@ -2223,6 +2277,8 @@ void CMenuManager::DrawRadioStationIcons()
 
 	float	fPosition = (0.5f*WidescreenSupport::GetScreenWidthMultiplier()) + 300.0f;
 	static	int LastTimeIconsWereUpdated = 0;
+
+	CSprite2d::DrawRect(CRect(_xmiddle(-305.0f), _y(287.5f), _xmiddle(305.0f), _y(352.5f)), CRGBA(MENU_BOX_BLUE_R, MENU_BOX_BLUE_G, MENU_BOX_BLUE_B, MENU_BOX_BLUE_A));
 
 #if defined COMPILE_BOUNCING_ICONS || defined COMPILE_SMOOTHBEATING_ICONS || defined COMPILE_BEATING_ICONS
 	static signed char	bLastRadioStation = -1;
@@ -2494,6 +2550,11 @@ void CMenuManager::PrintStats()
 
 void CMenuManager::PrintControllerSetupScreen()
 {
+	// Debug rectangle
+	//CSprite2d::DrawRect(CRect(_xmiddle(-150.0f), _ymiddle(170.0f), _xmiddle(150.0f), _ymiddle(20.0f)), CRGBA(255, 0, 0));
+	
+	// Controller
+	CRGBA				BlendColour;
 	if ( pXboxPad[0]->IsPadConnected() )
 	{
 		int					nColourCycle = CTimer::m_snTimeInMillisecondsPauseMode % 24000;
@@ -2501,7 +2562,6 @@ void CMenuManager::PrintControllerSetupScreen()
 		const CRGBA			BlueColour(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B);
 		const CRGBA			GreenColour(MENU_UPDATES_R, MENU_UPDATES_G, MENU_UPDATES_B);
 		const CRGBA			YellowColour(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B);
-		CRGBA				BlendColour;
 
 		if ( nColourCycle < 4000 )
 			BlendColour = BlueColour;
@@ -2520,10 +2580,38 @@ void CMenuManager::PrintControllerSetupScreen()
 		else
 			BlendColour = BlendSqr(PinkColour, BlueColour, (nColourCycle-22000)/2000.0f);
 
-		m_apBackgroundTextures[4].Draw(CRect(_xmiddle(-150.0f), _ymiddle(162.0f), _xmiddle(150.0f), _ymiddle(12.0f)), BlendColour);
+		m_apBackgroundTextures[4].Draw(CRect(_xmiddle(-175.0f), _ymiddle(165.0f), _xmiddle(175.0f), _ymiddle(-10.0f)), BlendColour);
 	}
+	else
+		BlendColour = CRGBA(255, 255, 255);
 
-	m_apBackgroundTextures[3].Draw(CRect(_xmiddle(-150.0f), _ymiddle(162.0f), _xmiddle(150.0f), _ymiddle(12.0f)), CRGBA(255, 255, 255));
+	m_apBackgroundTextures[3].Draw(CRect(_xmiddle(-175.0f), _ymiddle(165.0f), _xmiddle(175.0f), _ymiddle(-10.0f)), BlendSqr(BlendColour, CRGBA(255, 255, 255), 0.5f)/*CRGBA(255, 255, 255)*/);
+
+	// Texts
+	CFont::SetColor(CRGBA(255, 255, 255));
+	CFont::SetEdge(0);
+	//CFont::SetDropColor(CRGBA(0, 0, 0));
+	CFont::SetFontStyle(FONT_Eurostile);
+	CFont::SetScale(_width(0.3f), _height(0.55f));
+
+	// TODO: Pack this in some sorta structure
+
+	/*CFont::SetOrientation(ALIGN_Right);
+	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(30.0f), "DUMMY");
+	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(45.0f), "DUMMIER");
+	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(75.0f), "COOKIES R GUD");
+	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(130.0f), "Movement");
+	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(140.0f), "Horn");
+	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(160.0f), "Camera Modes");
+
+	CFont::SetOrientation(ALIGN_Left);
+	CFont::PrintString(_xmiddle(155.0f), _ymiddle(30.0f), "DUMMY");
+	CFont::PrintString(_xmiddle(155.0f), _ymiddle(45.0f), "DUMMIEST");
+	CFont::PrintString(_xmiddle(155.0f), _ymiddle(65.0f), "This would be Square");
+	CFont::PrintString(_xmiddle(155.0f), _ymiddle(80.0f), "DUMMYY");
+
+	CFont::SetOrientation(ALIGN_Center);
+	CFont::PrintString(RsGlobal.MaximumWidth / 2, _ymiddle(30.0f), "DUMMY");*/
 }
 
 void CMenuManager::PrintUpdaterScreen()
@@ -2535,14 +2623,16 @@ void CMenuManager::PrintUpdaterScreen()
 	CFont::SetOrientation(ALIGN_Center);
 
 	CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
-	CFont::PrintString(_x(137.5f), _y(15.0f), TheText.Get("FEU_POW"));
+	CFont::PrintString(_x(137.5f), _y(11.0f), TheText.Get("FEU_POW"));
+
+	CSprite2d::DrawRect(CRect(_xmiddle(-300.0f), _y(77.5f), _xmiddle(300.0f), _ydown(142.5f)), CRGBA(MENU_BOX_BLUE_R, MENU_BOX_BLUE_G, MENU_BOX_BLUE_B, MENU_BOX_BLUE_A));
 
 	CFont::SetFontStyle(FONT_Eurostile);
 	CFont::SetScale(_width(0.3f), _height(0.7f));
 	CFont::SetColor(CRGBA(255, 255, 255, 255));
 	CFont::SetOrientation(ALIGN_Left);
 
-	float		fStartingPos = _height(155.0f);
+	float		fStartingPos = _height(82.5f);
 
 	for ( int i = 0; i < NUM_MESSAGES_PER_UPT_SCREEN; ++i )
 	{
@@ -2550,7 +2640,7 @@ void CMenuManager::PrintUpdaterScreen()
 		{
 			if ( pLine[0] )
 			{
-				CFont::PrintString(_xleft(50.0f), fStartingPos, pLine);
+				CFont::PrintString(_xmiddle(-285.0f), fStartingPos, pLine);
 				fStartingPos += _height(17.5f);
 			}
 			else
@@ -2562,13 +2652,10 @@ void CMenuManager::PrintUpdaterScreen()
 
 	float		dDownloadPercentage = CUpdateManager::GetDownloadProgress();
 
-	CSprite2d::DrawRect(CRect(_xmiddle(-269.0f), _ydown(89.0f), _xmiddle(271.0f), _ydown(109.0f)), CRGBA(0, 0, 0, 255));
+	CSprite2d::DrawRect(CRect(_xmiddle(-284.0f), _ydown(149.0f), _xmiddle(286.0f), _ydown(169.0f)), CRGBA(0, 0, 0, 255));
 
-	if ( dDownloadPercentage != 0.0f )
-		CSprite2d::DrawRect(CRect(_xmiddle(-270.0f), _ydown(90.0f), _xmiddle(-270.0f + (5.4f * dDownloadPercentage)), _ydown(110.0f)), CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, 255));
-
-	if ( dDownloadPercentage != 100.0f )
-		CSprite2d::DrawRect(CRect(_xmiddle(-270.0f + (5.4f * dDownloadPercentage)), _ydown(90.0f), _xmiddle(270.0f), _ydown(110.0f)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 255));
+	CSprite2d::DrawRect(CRect(_xmiddle(-285.0f), _ydown(150.0f), _xmiddle(-285.0f + ((2.0f*2.85f) * dDownloadPercentage)), _ydown(170.0f)), CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, 255));
+	CSprite2d::DrawRect(CRect(_xmiddle(-285.0f + ((2.0f*2.85f) * dDownloadPercentage)), _ydown(150.0f), _xmiddle(285.0f), _ydown(170.0f)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 255));
 
 	CFont::SetScale(_width(0.35f), _height(0.7f));
 	CFont::SetFontStyle(FONT_PagerFont);
@@ -2576,7 +2663,7 @@ void CMenuManager::PrintUpdaterScreen()
 	if ( CUpdateManager::IsDownloading() )
 	{
 		CMessages::InsertNumberInString(TheText.Get("FEU_PRC"), static_cast<int>(dDownloadPercentage), -1, -1, -1, -1, -1, gString);
-		CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _ydown(105.0f), gString);
+		CFont::PrintString(static_cast<float>(RsGlobal.MaximumWidth / 2), _ydown(165.0f), gString);
 	}
 
 }
@@ -2596,14 +2683,14 @@ void CMenuManager::PrintDLCScreen()
 			// Load a video
 			char			cVideoPath[64];
 			const CRect		videoFrame(_x(250.0f), _ymiddle(140.0f), _x(30.0f), _ymiddle(-65.0f));
-			_snprintf(cVideoPath, sizeof(cVideoPath), "movies\\dlc%d.bik", m_nFocusedDLC);
+			sprintf(cVideoPath, "movies\\dlc%d.bik", m_nFocusedDLC);
 
 			CVideoPlayer::Release();
 			CVideoPlayer::Create(cVideoPath, &videoFrame, false, !bThisDLCIsInstalled);
 		}
 
 		char		cGXTName[8];
-		_snprintf(cGXTName, sizeof(cGXTName), "FEE_D%02d", m_nFocusedDLC);
+		sprintf(cGXTName, "FEE_D%02d", m_nFocusedDLC);
 
 		CSprite2d::DrawRect(CRect(_x(251.5f), _ymiddle(195.5f), _x(26.5f), _ymiddle(-66.5f)), CRGBA(0, 0, 0, 255));
 		CSprite2d::DrawRect(CRect(_x(252.5f), _ymiddle(194.5f), _x(27.5f), _ymiddle(-67.5f)), CRGBA(MENU_INACTIVE_PINK_R, MENU_INACTIVE_PINK_G, MENU_INACTIVE_PINK_B, 255));
@@ -2700,9 +2787,6 @@ void CMenuManager::ReadFrontendTextures()
 #ifdef INCLUDE_PROMO_BANNER
 									"banner",
 #endif
-//#ifdef FANCY_FRONTEND_CONTROLLERS_TEST
-									"ps3front", "ps3back",
-//#endif
 											};
 
 	static const char* const	frontendpcTexNames[] = {
@@ -2745,10 +2829,37 @@ void CMenuManager::ReadFrontendTextures()
 	DLCArchive.CloseArchive();
 }
 
+void CMenuManager::LoadControllerSprites()
+{
+	CPNGArchive			FrontendArchive("models\\frontend.spta");
+	FrontendArchive.SetDirectory("fronten2");
+
+	if ( CFont::bX360Buttons )
+	{
+		m_apBackgroundTextures[3].SetTextureFromSPTA(FrontendArchive, "360front");
+		m_apBackgroundTextures[4].SetTextureFromSPTA(FrontendArchive, "360back");
+	}
+	else
+	{
+		m_apBackgroundTextures[3].SetTextureFromSPTA(FrontendArchive, "ps3front");
+		m_apBackgroundTextures[4].SetTextureFromSPTA(FrontendArchive, "ps3back");	
+	}
+
+	FrontendArchive.CloseArchive();
+}
+
+void CMenuManager::UnloadControllerSprites()
+{
+	m_apBackgroundTextures[3].Delete();
+	m_apBackgroundTextures[4].Delete();
+}
+
 void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 {
 	if ( bScreen == 0 )
 		m_fStatsScrollPos = -120.0f;
+	else if ( bScreen == MENU_PAGE_CONTROLLER_SETUP || m_bLastMenuPage == MENU_PAGE_ADDITIONAL_CONTROLLER )
+		LoadControllerSprites();
 	else if ( bScreen == 44 )
 		CUpdateManager::ReportUpdaterScreenSeen();
 	else if ( bScreen == 45 )
@@ -2789,6 +2900,9 @@ void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 			}
 		}
 	}
+
+	if ( m_bLastMenuPage == MENU_PAGE_CONTROLLER_SETUP )
+		UnloadControllerSprites();
 
 	// Focus on DLC entry when exiting from any DLC-oriented screen
 	if ( m_bLastMenuPage == 46 || m_bLastMenuPage == 47 )
@@ -2889,6 +3003,15 @@ void CMenuManager::LookIntoClipboardForSerial()
 
 void CMenuManager::UserInputVCS()
 {
+	if ( nTimeToStopPadShake != 0 )
+	{
+		if ( CTimer::m_snTimeInMillisecondsPauseMode > nTimeToStopPadShake )
+		{
+			CPad::GetPad(0)->StopShaking(0);
+			nTimeToStopPadShake = 0;
+		}
+	}
+
 	if ( CDLCManager::IsContactingWebsite() )
 		return;
 
@@ -3268,7 +3391,11 @@ static void __declspec(naked) UserInputArrowSoundMenus()
 		jz		UserInputArrowSoundMenus_AllowMenu
 		cmp     al, 39
 		jz		UserInputArrowSoundMenus_AllowMenu
+		cmp		al, MENU_PAGE_CONTROLLER_SETUP
+		jz		UserInputArrowSoundMenus_AllowMenu
 		cmp		al, 44
+		jz		UserInputArrowSoundMenus_AllowMenu
+		cmp		al, MENU_PAGE_ADDITIONAL_CONTROLLER
 		jnz		UserInputArrowSoundMenus_False
 
 UserInputArrowSoundMenus_AllowMenu:

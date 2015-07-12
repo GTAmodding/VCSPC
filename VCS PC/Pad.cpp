@@ -13,6 +13,8 @@ static CPad* const	Pads = (CPad*)0xB73458;
 
 static CMouseControllerState&	pNewMouseControllerState = *(CMouseControllerState*)0xB73418;
 
+bool	CPad::bSouthpaw;
+bool	CPad::bInvertLook4Pad = true;
 WORD	CPad::SavedMode;
 bool	CPad::FailCameraChangeThisFrame = false;
 short	CPad::ChangeStation_HoldTimer;
@@ -24,6 +26,7 @@ static StaticPatcher	Patcher([](){
 						CPad::Inject(); });
 
 WRAPPER void CPad::UpdatePads() { EAXJMP(0x541DD0); }
+WRAPPER void CPad::StartShake(short nTime, unsigned char nDur, unsigned int nNoShakeBeforeThis) { EAXJMP(0x53F920); }
 
 // TEMP
 bool bPadLeftAxisSwapped[1], bPadRightAxisSwapped[1];
@@ -35,7 +38,7 @@ float fLeftStickSensitivity[1], fRightStickSensitivity[1];
 
 float fFaceButtonSensitivity[1];
 
-bool bInvertLook[1], bSouthpaw[1], bSwapSticksDuringAiming[1];
+bool bSwapSticksDuringAiming[1];
 
 bool bFreeAim;
 
@@ -47,7 +50,7 @@ void LoadINIFile()
 
 	FrontEndMenuManager.m_bVibrationEnabled = GetPrivateProfileIntW(L"GInput", L"Vibration", FALSE, wcModulePath) != FALSE;
 
-	CFont::bX360Buttons = GetPrivateProfileIntW(L"GInput", L"PlayStationButtons", FALSE, wcModulePath) == FALSE;
+	//CFont::bX360Buttons = GetPrivateProfileIntW(L"GInput", L"PlayStationButtons", FALSE, wcModulePath) == FALSE;
 	/*bApplyMissionFixes = GetPrivateProfileIntW(L"GInput", L"ApplyMissionSpecificFixes", TRUE, wcModulePath) != FALSE;
 	bApplyGXTFixes = bApplyMissionFixes && GetPrivateProfileIntW(L"GInput", L"ApplyGXTFixes", TRUE, wcModulePath) != FALSE;
 	bCheatsFromPad = GetPrivateProfileIntW(L"GInput", L"CheatsFromPad", TRUE, wcModulePath) != FALSE;
@@ -66,7 +69,7 @@ void LoadINIFile()
 
 		bSwapSticksDuringAiming[i] = GetPrivateProfileIntW(wcSectionName, L"SwapSticksDuringAiming", FALSE, wcModulePath) != FALSE;		
 		CPad::SavedMode = static_cast<WORD>(GetPrivateProfileIntW(wcSectionName, L"ControlsSet", 1, wcModulePath) - 1);
-		bInvertLook[i] = GetPrivateProfileIntW(wcSectionName, L"InvertLook", FALSE, wcModulePath) == FALSE;
+		//bInvertLook[i] = GetPrivateProfileIntW(wcSectionName, L"InvertLook", FALSE, wcModulePath) == FALSE;
 
 		bPadLeftXInverted[i] = GetPrivateProfileIntW(wcSectionName, L"InvertLeftXAxis", FALSE, wcModulePath) != FALSE;
 		bPadLeftYInverted[i] = GetPrivateProfileIntW(wcSectionName, L"InvertLeftYAxis", FALSE, wcModulePath) != FALSE;
@@ -76,7 +79,7 @@ void LoadINIFile()
 		bPadRightYInverted[i] = GetPrivateProfileIntW(wcSectionName, L"InvertRightYAxis", FALSE, wcModulePath) != FALSE;
 		bPadRightAxisSwapped[i] = GetPrivateProfileIntW(wcSectionName, L"SwapRightAxes", FALSE, wcModulePath) != FALSE;
 
-		bSouthpaw[i] = GetPrivateProfileIntW(wcSectionName, L"Southpaw", FALSE, wcModulePath) != FALSE;
+		//bSouthpaw[i] = GetPrivateProfileIntW(wcSectionName, L"Southpaw", FALSE, wcModulePath) != FALSE;
 
 		// SCP options
 		unsigned int nFaceSensitivity = GetPrivateProfileIntW(wcSectionName, L"FaceButtonsSensitivity", 50, wcModulePath);
@@ -675,7 +678,7 @@ short CPad::AimWeaponLeftRight(CPed* pPed)
 
 	short	nMainInput;
 	short	nAuxInput;
-	if ( !bSouthpaw[CURRENT_XINPUT_PAD] || !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+	if ( !bSouthpaw || !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 	{
 		nMainInput = NewState.RIGHTSTICKX;
 		nAuxInput = NewState.LEFTSTICKX;
@@ -708,7 +711,7 @@ short CPad::AimWeaponUpDown(CPed* pPed)
 
 	short	nMainInput;
 	short	nAuxInput;
-	if ( !bSouthpaw[CURRENT_XINPUT_PAD] || !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+	if ( !bSouthpaw || !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 	{
 		nMainInput = NewState.RIGHTSTICKY;
 		nAuxInput = NewState.LEFTSTICKY;
@@ -731,7 +734,7 @@ short CPad::AimWeaponUpDown(CPed* pPed)
 		}
 	}
 
-	return bInvertLook[CURRENT_XINPUT_PAD] ? -nMainInput : nMainInput;
+	return bInvertLook4Pad ? -nMainInput : nMainInput;
 }
 
 short CPad::SniperModeLookUpDown(CPed* pPed)
@@ -758,7 +761,7 @@ short CPad::SniperModeLookUpDown(CPed* pPed)
 			nMainInput = nAuxInput;
 	}
 
-	return bInvertLook[CURRENT_XINPUT_PAD] ? -nMainInput : nMainInput;
+	return bInvertLook4Pad ? -nMainInput : nMainInput;
 }
 
 short CPad::SniperModeLookLeftRight(CPed* pPed)
@@ -915,7 +918,7 @@ bool CPad::HasBeenTargetting()
 
 short CPad::GetCinemaCam()
 {
-	return bSouthpaw[0] && pXboxPad[0]->HasPadInHands() ? GetPad(0)->NewState.LEFTSTICKX : GetPad(0)->NewState.RIGHTSTICKX;
+	return bSouthpaw && pXboxPad[0]->HasPadInHands() ? GetPad(0)->NewState.LEFTSTICKX : GetPad(0)->NewState.RIGHTSTICKX;
 }
 
 bool CPad::UserTracksSkipJustDown()
@@ -1049,7 +1052,7 @@ bool CPad::LandingGearSwitchJustDown()
 	if ( DisablePlayerControls )
 		return false;
 
-	if ( bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+	if ( bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 		return NewState.LEFTSHOCK != 0 && OldState.LEFTSHOCK == 0;
 
 	return NewState.RIGHTSHOCK != 0 && OldState.RIGHTSHOCK == 0;
@@ -1484,7 +1487,7 @@ bool CPad::GetHorn()
 	if ( DisablePlayerControls )
 		return false;
 
-	if ( bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+	if ( bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 		return NewState.RIGHTSHOCK != 0;
 	return NewState.LEFTSHOCK != 0;
 }
@@ -1494,7 +1497,7 @@ bool CPad::HornJustDown()
 	if ( DisablePlayerControls )
 		return false;
 
-	if ( bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+	if ( bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 		return NewState.RIGHTSHOCK != 0 && OldState.RIGHTSHOCK == 0;
 	return NewState.LEFTSHOCK != 0 && OldState.LEFTSHOCK == 0;
 }
@@ -1536,7 +1539,7 @@ bool CPad::GetLookBehindForPed()
 	if ( DisablePlayerControls )
 		return false;
 
-	if ( bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+	if ( bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 		return NewState.LEFTSHOCK != 0;
 	return NewState.RIGHTSHOCK != 0;
 }
@@ -1613,7 +1616,7 @@ short CPad::GetPedWalkLeftRight()
 	if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 		return NewState.LEFTSTICKX;
 
-	short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
+	short	nAxisInput = bSouthpaw ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
 	short	nDPadInput = Mode != PAD_IV_CONTROLS_MODE ? (NewState.DPADRIGHT - NewState.DPADLEFT) / 2 : 0;
 
 	return std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
@@ -1627,7 +1630,7 @@ short CPad::GetPedWalkUpDown()
 	if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 		return NewState.LEFTSTICKY;
 
-	short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
+	short	nAxisInput = bSouthpaw? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
 	short	nDPadInput = Mode != PAD_IV_CONTROLS_MODE ? (NewState.DPADDOWN - NewState.DPADUP) / 2 : 0;
 
 	return std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
@@ -1640,7 +1643,7 @@ short CPad::GetSteeringLeftRight()
 
 	if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 	{
-		short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
+		short	nAxisInput = bSouthpaw ? NewState.RIGHTSTICKX : NewState.LEFTSTICKX;
 		short	nDPadInput = Mode != PAD_IV_CONTROLS_MODE ? (NewState.DPADRIGHT - NewState.DPADLEFT) / 2 : 0;
 
 		SteeringLeftRightBuffer[0] = std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
@@ -1658,7 +1661,7 @@ short CPad::GetSteeringUpDown()
 
 	if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 	{
-		short	nAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] ? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
+		short	nAxisInput = bSouthpaw ? NewState.RIGHTSTICKY : NewState.LEFTSTICKY;
 		short	nDPadInput = Mode != PAD_IV_CONTROLS_MODE ? (NewState.DPADDOWN - NewState.DPADUP) / 2 : 0;
 
 		return std::abs(nAxisInput) > std::abs(nDPadInput) ? nAxisInput : nDPadInput;
@@ -1672,7 +1675,7 @@ short CPad::GetCarGunLeftRight()
 	if ( DisablePlayerControls )
 		return 0;
 
-	return bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKX : NewState.RIGHTSTICKX;
+	return bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKX : NewState.RIGHTSTICKX;
 }
 
 short CPad::GetCarGunUpDown()
@@ -1680,7 +1683,7 @@ short CPad::GetCarGunUpDown()
 	if ( DisablePlayerControls )
 		return 0;
 
-	return bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKY : NewState.RIGHTSTICKY;
+	return bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKY : NewState.RIGHTSTICKY;
 }
 
 short CPad::GetHydraulicsLeftRight()
@@ -1691,7 +1694,7 @@ short CPad::GetHydraulicsLeftRight()
 	short	nStickInput, nSixaxisInput;
 
 	nSixaxisInput = 0;//bSixaxisHydraulics[CURRENT_XINPUT_PAD] ? -NewSixaxisState[CURRENT_XINPUT_PAD].ACCEL_X : 0;
-	nStickInput = bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKX : NewState.RIGHTSTICKX;
+	nStickInput = bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKX : NewState.RIGHTSTICKX;
 
 	if ( nSixaxisInput > 127 )
 		nSixaxisInput = 127;
@@ -1714,7 +1717,7 @@ short CPad::GetHydraulicsUpDown()
 	short	nStickInput, nSixaxisInput;
 
 	nSixaxisInput = 0;//bSixaxisHydraulics[CURRENT_XINPUT_PAD] ? -NewSixaxisState[CURRENT_XINPUT_PAD].ACCEL_Y : 0;
-	nStickInput = bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKY : NewState.RIGHTSTICKY;
+	nStickInput = bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKY : NewState.RIGHTSTICKY;
 
 	if ( nSixaxisInput > 127 )
 		nSixaxisInput = 127;
@@ -1737,7 +1740,7 @@ bool CPad::DuckJustDown()
 	if ( bDisablePlayerDuck )
 		return false;
 
-	if ( bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+	if ( bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 		return NewState.RIGHTSHOCK != 0 && OldState.RIGHTSHOCK == 0;
 	return NewState.LEFTSHOCK != 0 && OldState.LEFTSHOCK == 0;
 }
@@ -1750,7 +1753,7 @@ bool CPad::GetDuck()
 	if ( bDisablePlayerDuck )
 		return false;
 
-	if ( bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+	if ( bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 		return NewState.RIGHTSHOCK != 0;
 	return NewState.LEFTSHOCK != 0;
 }
@@ -1778,9 +1781,9 @@ bool CPad::GetGroupControlBack()
 short CPad::LookAroundLeftRight()
 {
 	bool	bUsesMouse = false;
-	float	fAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKX : NewState.RIGHTSTICKX;
+	float	fAxisInput = bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKX : NewState.RIGHTSTICKX;
 
-	if ( !bUsesMouse && std::abs(fAxisInput) > 65.0f && (DisablePlayerControls || (bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? !NewState.LEFTSHOCK : !NewState.RIGHTSHOCK)) )
+	if ( !bUsesMouse && std::abs(fAxisInput) > 65.0f && (DisablePlayerControls || (bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? !NewState.LEFTSHOCK : !NewState.RIGHTSHOCK)) )
 		return static_cast<short>((fAxisInput > 0.0f ? fAxisInput - 65.0f : fAxisInput + 65.0f) * ((255.0f-65.0f)/(127.0f-65.0f)));
 	else if ( bUsesMouse )
 		return static_cast<short>(fAxisInput);
@@ -1791,12 +1794,12 @@ short CPad::LookAroundLeftRight()
 short CPad::LookAroundUpDown()
 {
 	bool	bUsesMouse = false;
-	float	fAxisInput = bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKY : NewState.RIGHTSTICKY;
+	float	fAxisInput = bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? NewState.LEFTSTICKY : NewState.RIGHTSTICKY;
 
-	if ( bInvertLook[CURRENT_XINPUT_PAD] )
+	if ( bInvertLook4Pad )
 		fAxisInput = -fAxisInput;
 
-	if ( !bUsesMouse && std::abs(fAxisInput) > 65.0f && (DisablePlayerControls || (bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? !NewState.LEFTSHOCK : !NewState.RIGHTSHOCK)) )
+	if ( !bUsesMouse && std::abs(fAxisInput) > 65.0f && (DisablePlayerControls || (bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() ? !NewState.LEFTSHOCK : !NewState.RIGHTSHOCK)) )
 		return static_cast<short>((fAxisInput > 0.0f ? fAxisInput - 65.0f : fAxisInput + 65.0f) * ((255.0f-65.0f)/(127.0f-65.0f)));
 	else if ( bUsesMouse )
 		return static_cast<short>(fAxisInput);
@@ -1925,6 +1928,18 @@ bool CPad::GetLookRightForHeli()
 	return false;
 }*/
 
+bool CPad::FrontEndBackJustDown()
+{
+	switch ( Mode )
+	{
+	case 0:
+		return NewState.TRIANGLE != 0 && OldState.TRIANGLE == 0;
+	case PAD_IV_CONTROLS_MODE:
+		return NewState.CIRCLE != 0 && OldState.CIRCLE == 0;
+	}
+	return false;
+}
+
 bool CPad::GetHydraulicsJump()
 {
 	if ( DisablePlayerControls )
@@ -1936,7 +1951,7 @@ bool CPad::GetHydraulicsJump()
 			return true;
 	}*/
 
-	if ( bSouthpaw[CURRENT_XINPUT_PAD] && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
+	if ( bSouthpaw && pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 		return NewState.LEFTSHOCK != 0;
 	return NewState.RIGHTSHOCK != 0;
 }

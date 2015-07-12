@@ -61,6 +61,11 @@
 #define MENU_RED_G				0x48
 #define MENU_RED_B				0x4D
 
+#define MENU_BOX_BLUE_R			0x31
+#define MENU_BOX_BLUE_G			0x65
+#define MENU_BOX_BLUE_B			0x94
+#define MENU_BOX_BLUE_A			0x64
+
 #define						MAX_AA				8
 #define						SET_FILE_VERSION	12
 
@@ -87,7 +92,9 @@ enum eMenuPages
 
 	MENU_PAGE_GAME_UPDATES = 44,
 	MENU_PAGE_DLC,
-	MENU_PAGE_ACTIVATE_SERIAL = 49
+	MENU_PAGE_ACTIVATE_SERIAL = 49,
+	MENU_PAGE_RESTORE_GRAPHICS,
+	MENU_PAGE_ADDITIONAL_CONTROLLER,
 };
 
 enum eMenuActions
@@ -108,6 +115,10 @@ enum eMenuActions
 	MENUACTION_EFFECTS_QUALITY,
 	MENUACTION_SHADOWS_DISTANCE,
 	MENUACTION_TRAILS,
+
+	MENUACTION_VIBRATION,
+	MENUACTION_INVERTLOOK,
+	MENUACTION_SOUTHPAW,
 
 	NUM_MENU_ACTIONS
 };
@@ -383,6 +394,8 @@ private:
 	void			ProcessMissionPackNewGame();
 	void			DoSettingsBeforeStartingAGame();
 	void			ScrollRadioStations(signed char nDirection);
+	void			LoadControllerSprites();
+	void			UnloadControllerSprites();
 
 	void			PrintControllerSetupScreen();
 	void			PrintStats();
@@ -393,6 +406,7 @@ private:
 	void			DrawRadioStationIcons();
 	float			DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width, bool bLocked);
 
+	int				GetAutoSpacingHeight();
 	void			CentreMousePointer();
 	void			ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, bool bEnterInput);
 	void			CheckSliderMovement(signed char nDirection);

@@ -16,6 +16,9 @@
 #include "Clock.h"
 #include "Frontend.h"
 #include "PlayerInfo.h"
+#include "TxdStore.h"
+#include "Rs.h"
+#include "Sprite.h"
 
 bool					CHud::bShouldFPSBeDisplayed;
 bool					CHud::bLCSPS2Style;
@@ -49,7 +52,6 @@ static unsigned short	CounterFlashTimer[NUM_ONSCREEN_COUNTERS], PlaceFlashTimer;
 WRAPPER void CHud::DrawBarChart(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor)
 {	WRAPARG(fX); WRAPARG(fY); WRAPARG(wWidth); WRAPARG(wHeight); WRAPARG(fPercentage); WRAPARG(drawBlueLine); WRAPARG(drawPercentage); WRAPARG(drawBorder); WRAPARG(dwColor); WRAPARG(dwForeColor);
 	EAXJMP(0x728640); }
-WRAPPER void CHud::DrawWeaponIcon(CPed* pPed, int iX, int iY, float fAlpha) { WRAPARG(pPed); WRAPARG(iX); WRAPARG(iY); WRAPARG(fAlpha); EAXJMP(0x58D7D0); }
 
 static const char* const			HudSpriteFilenames[NUM_HUD_SPRITES] = { "fist", "siteM16", "siterocket", "radardisc", "barOutline", "pager" };
 
@@ -173,7 +175,7 @@ void CHud::DrawHUD()
 		CFont::SetOrientation(ALIGN_Right);
 		CFont::SetRightJustifyWrap(0.0);
 		CFont::SetEdge(0);
-		CFont::SetDropColor(CRGBA(0, 0, 0, HUD_TRANSPARENCY));
+		CFont::SetDropColor(CRGBA(0, 0, 0, HUD_TRANSPARENCY_BACK));
 		if ( FrontEndMenuManager.GetHudMode() == 2 )
 		{
 			unsigned char		bHour = CClock::GetHours();
@@ -189,7 +191,7 @@ void CHud::DrawHUD()
 			_snprintf(string, sizeof(string), "%02d:%02d", CClock::GetHours(), CClock::GetMinutes());
 			CFont::SetScale(_width(0.45f), _height(0.95f));
 		}
-		CFont::SetColor(CRGBA(BaseColors[14], HUD_TRANSPARENCY));
+		CFont::SetColor(CRGBA(BaseColors[14], HUD_TRANSPARENCY_BACK));
 		CFont::PrintString(_x(HUD_POS_X - 53.0f), _y(HUD_POS_Y - 21.5f), string);
 		//CFont::SetEdge(0);
 	}
@@ -251,13 +253,13 @@ void CHud::DrawHUD()
 
 	if ( displayedScore < 0 )
 	{
-		CFont::SetColor(CRGBA(BaseColors[0], HUD_TRANSPARENCY));
+		CFont::SetColor(CRGBA(BaseColors[0], HUD_TRANSPARENCY_BACK));
 		displayedScore = -displayedScore;
 		moneyText = "-$%07d";
 	}
 	else
 	{
-		CFont::SetColor(CRGBA(BaseColors[1], HUD_TRANSPARENCY));
+		CFont::SetColor(CRGBA(BaseColors[1], HUD_TRANSPARENCY_BACK));
 		moneyText = "$%08d";
 	}
 	_snprintf(string, sizeof(string), moneyText, displayedScore);
@@ -268,12 +270,12 @@ void CHud::DrawHUD()
 	CFont::SetRightJustifyWrap(0.0);
 	CFont::SetFontStyle(FONT_Hud);
 	CFont::SetEdge(0);
-	CFont::SetDropColor(CRGBA(0, 0, 0, HUD_TRANSPARENCY));
+	CFont::SetDropColor(CRGBA(0, 0, 0, HUD_TRANSPARENCY_BACK));
 
 	CFont::PrintString(_x(HUD_POS_X - 115.5f), _y(HUD_POS_Y + 37.5f), string);
 
 	// 1st player weapon icon
-	DrawWeaponIcon(playerPed, _x(HUD_POS_X - 58.5f), _y(HUD_POS_Y - 21.0f));
+	DrawWeaponIcon(playerPed, _x(HUD_POS_X - 58.5f), _y(HUD_POS_Y - 21.0f), HUD_TRANSPARENCY_BACK);
 
 	// 1st player weapon ammo
 	DrawWeaponAmmo(playerPed, _x(HUD_POS_X - 89.5f), _y(HUD_POS_Y + 24.0f));
@@ -281,7 +283,7 @@ void CHud::DrawHUD()
 	// 2nd player weapon icon
 	if ( secondPlayerPed )
 	{
-		DrawWeaponIcon(secondPlayerPed, _x(HUD_POS_X - 58.5f), _y(HUD_POS_Y - 21.0f + HUD_POS_Y_2P_OFFSET));
+		DrawWeaponIcon(secondPlayerPed, _x(HUD_POS_X - 58.5f), _y(HUD_POS_Y - 21.0f + HUD_POS_Y_2P_OFFSET), HUD_TRANSPARENCY_BACK);
 
 		// 2nd player weapon ammo
 		DrawWeaponAmmo(secondPlayerPed, _x(HUD_POS_X - 89.5f), _y(HUD_POS_Y + 24.0 + HUD_POS_Y_2P_OFFSET));
@@ -364,12 +366,12 @@ void CHud::DrawWanted()
 		{
 			if ( nWantedLevel > i && ( CTimer::m_snTimeInMilliseconds > nTimeOfWLChange + 2000 || ShowFlashingItem(150, 150) /*CTimer::m_FrameCounter & 4*/ ) )
 			{
-				CFont::SetColor(CRGBA(BaseColors[6], HUD_TRANSPARENCY));
+				CFont::SetColor(CRGBA(BaseColors[6], HUD_TRANSPARENCY_BACK));
 				CFont::PrintString(fCurrentPos, _y(HUD_POS_Y + 53.0f), "\\");
 			}
 			else if ( nWantedLevelParole > i && ShowFlashingItem(150, 150)/*CTimer::m_FrameCounter & 4*/ )
 			{
-				CFont::SetColor(CRGBA(BaseColors[12], HUD_TRANSPARENCY));
+				CFont::SetColor(CRGBA(BaseColors[12], HUD_TRANSPARENCY_BACK));
 				CFont::PrintString(fCurrentPos, _y(HUD_POS_Y + 53.0f), "\\");
 			}
 		}
@@ -607,11 +609,11 @@ void CHud::PrintHealthForPlayer(int playerID, float posX, float posY)
 				if ( bLCSPS2Style )
 					DrawBarChart(	posX, posY, _width(53.0f), _height(14.5f),
 									CWorld::Players[playerID].GetPed()->GetHealth() / CWorld::Players[playerID].GetMaxHealth() * 100.0,
-									0, 0, 1, CRGBA(BaseColors[9], HUD_TRANSPARENCY), CRGBA(0, 0, 0, 0) );
+									0, 0, 1, CRGBA(BaseColors[9], HUD_TRANSPARENCY_BACK), CRGBA(0, 0, 0, 0) );
 				else
 					DrawBarChartWithRoundBorder(	posX, posY, _width(53.0f), _height(14.5f),
 									CWorld::Players[playerID].GetPed()->GetHealth() / CWorld::Players[playerID].GetMaxHealth() * 100.0,
-									0, 0, 1, CRGBA(BaseColors[9], HUD_TRANSPARENCY), CRGBA(0, 0, 0, 0) );
+									0, 0, 1, CRGBA(BaseColors[9], HUD_TRANSPARENCY_BACK), CRGBA(0, 0, 0, 0) );
 			}
 		}
 	}
@@ -628,11 +630,11 @@ void CHud::PrintArmourForPlayer(int playerID, float posX, float posY)
 				if ( bLCSPS2Style )
 					DrawBarChart(	posX, posY, _width(53.0f), _height(14.5f),
 									CWorld::Players[playerID].GetPed()->GetArmour() / CWorld::Players[playerID].GetMaxArmour() * 100.0,
-									0, 0, 1, CRGBA(0x09, 0xFF, 0xFF, HUD_TRANSPARENCY), CRGBA(0, 0, 0, 0) );
+									0, 0, 1, CRGBA(0x09, 0xFF, 0xFF, HUD_TRANSPARENCY_BACK), CRGBA(0, 0, 0, 0) );
 				else
 					DrawBarChartWithRoundBorder(	posX, posY, _width(53.0f), _height(14.5f),
 									CWorld::Players[playerID].GetPed()->GetArmour() / CWorld::Players[playerID].GetMaxArmour() * 100.0,
-									0, 0, 1, CRGBA(0x09, 0xFF, 0xFF, HUD_TRANSPARENCY), CRGBA(0, 0, 0, 0) );
+									0, 0, 1, CRGBA(0x09, 0xFF, 0xFF, HUD_TRANSPARENCY_BACK), CRGBA(0, 0, 0, 0) );
 			}
 		}
 	}
@@ -645,11 +647,41 @@ void CHud::PrintBreathForPlayer(int playerID, float posX, float posY)
 		if ( bLCSPS2Style )
 			DrawBarChart(	posX, posY, _width(53.0f), _height(14.5f),
 								CWorld::Players[playerID].GetPed()->GetPlayerData()->m_fBreath / CStats::CalcPlayerStat(8) * 100.0,
-								0, 0, 1, CRGBA(BaseColors[13], HUD_TRANSPARENCY), CRGBA(0, 0, 0, 0) );
+								0, 0, 1, CRGBA(BaseColors[13], HUD_TRANSPARENCY_BACK), CRGBA(0, 0, 0, 0) );
 		else
 			DrawBarChartWithRoundBorder(	posX, posY, _width(53.0f), _height(14.5f),
 								CWorld::Players[playerID].GetPed()->GetPlayerData()->m_fBreath / CStats::CalcPlayerStat(8) * 100.0,
-								0, 0, 1, CRGBA(BaseColors[13], HUD_TRANSPARENCY), CRGBA(0, 0, 0, 0) );
+								0, 0, 1, CRGBA(BaseColors[13], HUD_TRANSPARENCY_BACK), CRGBA(0, 0, 0, 0) );
+	}
+}
+
+void CHud::DrawWeaponIcon(CPed* pPed, float iX, float iY, int fAlpha)
+{
+	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
+
+	int	dwWeaponID = CWeaponInfo::GetWeaponInfo(pPed->GetWeaponSlots()[pPed->GetActiveWeapon()].m_eWeaponType, 1)->dwModelID;
+
+	if ( dwWeaponID > 0 )
+	{
+		CTxdEntry* pEntry = CTxdStore::GetPool()->GetAtIndex(CModelInfo::ms_modelInfoPtrs[dwWeaponID]->GetTextureDict());
+		if ( pEntry )
+		{
+			RwTexture*		pTex = RwTexDictionaryFindHashNamedTexture(pEntry->m_pDictionary, 
+						CKeyGen::AppendStringToKey(CModelInfo::ms_modelInfoPtrs[dwWeaponID]->GetHash(), "ICON"));
+
+			if ( pTex )
+			{
+				RwRenderStateSet(rwRENDERSTATEZTESTENABLE, FALSE);
+				RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwTextureGetRaster(pTex));
+				CSprite::RenderOneXLUSprite(iX + _width(37.5f), iY + _height(36.0f), 1.0f, _width(37.5f), _height(36.0f),
+											255, 255, 255, 255, 1.0f, fAlpha, 0, 0);
+				RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, FALSE);
+			}
+		}
+	}
+	else
+	{
+		Sprites[HUD_Fist].Draw(CRect(iX, iY + _height(72.0f), iX + _width(75.0f), iY), CRGBA(255, 255, 255, fAlpha));
 	}
 }
 
@@ -710,7 +742,7 @@ void CHud::DrawWeaponAmmo(CPed* ped, float fX, float fY)
 		&& CWeaponInfo::GetWeaponInfo(weapType, 1)->GetWeaponType() != 5
 		&& CWeaponInfo::GetWeaponInfo(weapType, 1)->GetWeaponSlot() > 1 )
 	{
-		CFont::SetColor(BaseColors[4]);
+		CFont::SetColor(CRGBA(BaseColors[4], HUD_TRANSPARENCY_FRONT));
 		CFont::PrintString(fX, fY, AmmoText);
 	}
 }
@@ -1091,7 +1123,7 @@ void CHud::DrawBarChartWithRoundBorder(float fX, float fY, WORD wWidth, WORD wHe
 
 	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, FALSE);
 
-	Sprites[HUD_BarOutline].Draw(CRect(fX - _width(2.0f), fY - _height(1.5f), fX + wWidth + _width(2.0f), fY + wHeight + _height(1.5f)), CRGBA(0, 0, 0, dwColor.a));
+	Sprites[HUD_BarOutline].Draw(CRect(fX - _width(2.0f), fY - _height(1.5f), fX + wWidth + _width(2.0f), fY + wHeight + _height(1.5f)), CRGBA(0, 0, 0, dwColor.a+8));
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, FALSE);
 }
 

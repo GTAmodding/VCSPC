@@ -152,6 +152,8 @@ public:
 
 public:
 	// GInput extension
+	static bool				bInvertLook4Pad;
+	static bool				bSouthpaw;
 	static WORD				SavedMode;
 	static short			ChangeStation_HoldTimer;
 	static short			ChangeCamera_HoldTimer;
@@ -243,9 +245,11 @@ public:
 
 	// PS2 functions
 	void						StopShaking(short nPadID);
-	static void					StopPadsShaking();	
+	static void					StopPadsShaking();
+	void						StartShake(short nTime, unsigned char nDur, unsigned int nNoShakeBeforeThis);
 
-	// New GInput functions			
+	// New GInput functions	
+	bool						FrontEndBackJustDown();
 	bool						BlowUpRCBuggyJustDown();
 	bool						GetBlowUpRCBuggy();
 	//bool						GetLookLeftForHeli();		// Deprecated in 1.02
@@ -309,7 +313,7 @@ extern CKeyState*					activeKeyState;
 extern CKeyState*					currKeyState;
 extern CKeyState*					prevKeyState;
 
-extern bool							bInvertLook[1], bSouthpaw[1], bSwapSticksDuringAiming[1];
+extern bool							bSwapSticksDuringAiming[1];
 
 void OnModeChangePatches();
 

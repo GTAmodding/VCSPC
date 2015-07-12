@@ -778,25 +778,25 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 		}
 		break;
 	case 4:	// GO_FORWARD
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBRYU, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBLYU, wcBuf, nStartPoint);
 		break;
 	case 5:	// GO_BACK
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBRYD, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBLYD, wcBuf, nStartPoint);
 		break;
 	case 6:	// GO_LEFT
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBRXL, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBLXL, wcBuf, nStartPoint);
 		break;
 	case 7:	// GO_RIGHT
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBRXR, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBLXR, wcBuf, nStartPoint);
@@ -842,13 +842,13 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 		GetButtonByIndex(BUTTON_CROSS, wcBuf, nStartPoint);
 		break;
 	case 14:	// PED_LOOKBEHIND
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_L3, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_R3, wcBuf, nStartPoint);
 		break;
 	case 15:	// PED_DUCK
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_R3, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_L3, wcBuf, nStartPoint);
@@ -871,25 +871,25 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 		}
 		break;
 	case 20:	// VEHICLE_STEERLEFT
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBRXL, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBLXL, wcBuf, nStartPoint);
 		break;
 	case 21:	// VEHICLE_STEERRIGHT
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBRXR, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBLXR, wcBuf, nStartPoint);
 		break;
 	case 22:	// VEHICLE_STEERUP
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBRYU, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBLYU, wcBuf, nStartPoint);
 		break;
 	case 23:	// VEHICLE_STEERDOWN
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBRYD, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBLYD, wcBuf, nStartPoint);
@@ -939,13 +939,13 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 		}
 		break;
 	case 29:	// VEHICLE_HORN
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_R3, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_L3, wcBuf, nStartPoint);
 		break;
 	case 30:	// TOGGLE_SUBMISSIONS
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_L3, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_R3, wcBuf, nStartPoint);
@@ -962,13 +962,13 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 		}
 		break;
 	case 32:	// PED_1RST_PERSON_LOOK_LEFT
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBLXL, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBRXL, wcBuf, nStartPoint);
 		break;
 	case 33:	// PED_1RST_PERSON_LOOK_RIGHT
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBLXR, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBRXR, wcBuf, nStartPoint);
@@ -1007,25 +1007,25 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 		}
 		break;
 	case 38:	// VEHICLE_TURRETLEFT
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBLXL, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBRXL, wcBuf, nStartPoint);
 		break;
 	case 39:	// VEHICLE_TURRETRIGHT
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBLXR, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBRXR, wcBuf, nStartPoint);
 		break;
 	case 40:	// VEHICLE_TURRETUP
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBLYD, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBRYD, wcBuf, nStartPoint);
 		break;
 	case 41:	// VEHICLE_TURRETDOWN
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw)
 			GetButtonByIndex(BUTTON_THUMBLYU, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBRYU, wcBuf, nStartPoint);
@@ -1133,13 +1133,13 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 		}
 		break;
 	case 51:	// PED_1RST_PERSON_LOOK_UP
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBLYU, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBRYU, wcBuf, nStartPoint);
 		break;
 	case 52:	// PED_1RST_PERSON_LOOK_DOWN
-		if ( bSouthpaw[0] )
+		if ( CPad::bSouthpaw )
 			GetButtonByIndex(BUTTON_THUMBLYD, wcBuf, nStartPoint);
 		else
 			GetButtonByIndex(BUTTON_THUMBRYD, wcBuf, nStartPoint);
@@ -1164,12 +1164,9 @@ void __declspec(naked) GetButtonNameHack()
 {
 	_asm
 	{
-		// TODO: Fix, this is incorrect
-		cmp		ax, 46
-		jz		GetButtonNameHack_PadInput
-		cmp		ax, 17
+		cmp		bx, 17
 		jz		GetButtonNameHack_KeyboardInput
-		cmp		ax, 37
+		cmp		bx, 37
 		jz		GetButtonNameHack_KeyboardInput
 
 		mov		eax, [pXboxPad]
@@ -1180,6 +1177,11 @@ GetButtonNameHack_PadInput:
 		jmp		CFont::GetButtonName
 
 GetButtonNameHack_KeyboardInput:
+		cmp		bx, 46
+		jne		GetButtonNameHack_Return
+		mov		word ptr [esp+4], 10
+
+GetButtonNameHack_Return:
 		mov		eax, 5303D0h
 		jmp		eax
 	}

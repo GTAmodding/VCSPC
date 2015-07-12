@@ -23,6 +23,8 @@ WRAPPER void* GtaOperatorNew(size_t size) { WRAPARG(size); EAXJMP(0x82119A); }
 WRAPPER void GtaOperatorDelete(void* ptr) { WRAPARG(ptr); EAXJMP(0x82413F); }
 WRAPPER const char* GetFrameNodeName(RwFrame* pFrame) { WRAPARG(pFrame); EAXJMP(0x72FB30); }
 
+WRAPPER RwTexture* RwTexDictionaryFindHashNamedTexture(RwTexDictionary* pDict, unsigned int dwHash) { EAXJMP(0x734E50); }
+
 static RpAtomic* GetFirstAtomicCallback(RpAtomic* pAtomic, void* pData)
 {
 	*static_cast<RpAtomic**>(pData) = pAtomic;

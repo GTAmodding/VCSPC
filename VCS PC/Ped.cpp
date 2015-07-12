@@ -110,3 +110,10 @@ CPed* CPedEx::Initialise(CPed* pPed, short model)
 		pModelInfo->GetRandomPedColour(pTempData->m_color1, pTempData->m_color2, pTempData->m_color3, pTempData->m_color4);
 	return pPed;
 }
+
+static StaticPatcher	Patcher([](){ 
+						using namespace Memory;
+
+						// Fixed muzzleflash not showing from last bullet
+						Nop(0x61ECE4, 2);
+									});

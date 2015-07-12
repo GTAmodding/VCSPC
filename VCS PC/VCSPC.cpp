@@ -409,8 +409,8 @@ const float					fSubtitlesHeight = 0.9f;
 const float					fTextBoxPosY = 20.0f;
 const float* const			pRefFal = &fRefZVal;
 
-static const float			fWeaponIconWidth = 75.0f;
-static const float			fWeaponIconHeight = 72.0f;
+//static const float			fWeaponIconWidth = 75.0f;
+//static const float			fWeaponIconHeight = 72.0f;
 /*static const float			fWLStarPosX	= HUD_POS_X - 115.25f;
 static const float			fWLStarPosY = HUD_POS_Y + 53.0f;
 static const float			fWLStarHeight = 1.5f;
@@ -2485,10 +2485,10 @@ __forceinline void Main_Patches()
 	{
 		InjectHook(0x58FBD6, &CHud::DrawHUD);
 		InjectHook(0x58FBDB, &CHud::DrawWanted);
-		Patch<const void*>(0x58D896, &fWeaponIconHeight);
-		Patch<const void*>(0x58D94D, &fWeaponIconHeight);
-		Patch<const void*>(0x58D8CB, &fWeaponIconWidth);
-		Patch<const void*>(0x58D935, &fWeaponIconWidth);
+		//Patch<const void*>(0x58D896, &fWeaponIconHeight);
+		//Patch<const void*>(0x58D94D, &fWeaponIconHeight);
+		//Patch<const void*>(0x58D8CB, &fWeaponIconWidth);
+		//Patch<const void*>(0x58D935, &fWeaponIconWidth);
 		//Patch<DWORD>(0x58D89B, HUD_TRANSPARENCY);
 
 		/*Patch<WORD>(0x58DF18, 0xE990);
@@ -3611,16 +3611,16 @@ __forceinline void Main_Patches()
 	Patch<BYTE>(0x584B7D, 0x09);
 	Patch<signed char>(0x584D9A, -4);
 	Patch<DWORD>(0x584DA2, 3);
-	Patch<DWORD>(0x586433, 0x8D * HUD_TRANSPARENCY / 0xFF);
+	Patch<DWORD>(0x586433, 0x8D * HUD_TRANSPARENCY_BACK / 0xFF);
 	Patch<DWORD>(0x586438, 0xE0);
 	Patch<DWORD>(0x58643D, 0xAE);
 	Patch<BYTE>(0x586442, 0x7F);
-	Patch<DWORD>(0x58647C, HUD_TRANSPARENCY);
-	Patch<DWORD>(0x5864BD, HUD_TRANSPARENCY);
-	Patch<DWORD>(0x58A789, HUD_TRANSPARENCY);
-	Patch<DWORD>(0x58A88F, HUD_TRANSPARENCY);
-	Patch<DWORD>(0x58A8D9, HUD_TRANSPARENCY);
-	Patch<DWORD>(0x58A98F, HUD_TRANSPARENCY);
+	Patch<DWORD>(0x58647C, HUD_TRANSPARENCY_BACK);
+	Patch<DWORD>(0x5864BD, HUD_TRANSPARENCY_BACK);
+	Patch<DWORD>(0x58A789, HUD_TRANSPARENCY_FRONT);
+	Patch<DWORD>(0x58A88F, HUD_TRANSPARENCY_FRONT);
+	Patch<DWORD>(0x58A8D9, HUD_TRANSPARENCY_FRONT);
+	Patch<DWORD>(0x58A98F, HUD_TRANSPARENCY_FRONT);
 	InjectHook(0x58641A/*0x58645D*/, &OpaqueRadarHack, PATCH_JUMP);
 #ifndef V_RADAR_TEST
 	InjectHook(0x586500, &OpaqueRadarHack2);
