@@ -5,6 +5,14 @@
 
 #define NUM_CORONAS		3000
 
+struct CHalo
+{
+	float		DistanceToScreenCenter;
+	float		Size;
+	short		Red, Green, Blue, Alpha;
+	int			NumVerts;
+};
+
 class CRegisteredCorona
 {
 public:

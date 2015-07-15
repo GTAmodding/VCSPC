@@ -5,6 +5,8 @@
 #include "Pools.h"
 #include "PcSave.h"
 #include "RealTimeShadowMgr.h"
+#include "Rs.h"
+#include "VisibilityPlugins.h"
 
 // Wrappers
 WRAPPER void CPed::GiveWeapon(int WeaponType, int WeaponAmmo, bool bFlag) { WRAPARG(WeaponType); WRAPARG(WeaponAmmo); WRAPARG(bFlag); EAXJMP(0x5E6080); }
@@ -16,6 +18,8 @@ WRAPPER void CPed::ResetGunFlashAlpha() { EAXJMP(0x5DF4E0); }
 WRAPPER void CPed::FindWeaponLockOnTarget() { EAXJMP(0x60DC50); }
 
 WRAPPER CPed* FindPlayerPed(int nIndex) { EAXJMP(0x56E210); }
+
+short&			CPed::m_sGunFlashBlendStart = *(short*)0x8D1370;
 
 CPedEx* CPed::GetEx()
 {
@@ -57,44 +61,110 @@ void CPed::RenderForShadow(RpClump* pClump, bool bRenderWeapon)
 
 	if ( bRenderWeapon )
 	{
-		if ( m_pWeaponObject )
-		{
-			RpHAnimHierarchy*	pAnimHierarchy = GetAnimHierarchyFromSkinClump(pClump);
-			bool				bHasParachute = weaponSlots[m_bActiveWeapon].m_eWeaponType == WEAPONTYPE_PARACHUTE;
-
-			RwFrame*			pFrame = RpClumpGetFrame(reinterpret_cast<RpClump*>(m_pWeaponObject));
-			*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, bHasParachute ? 3 : 24)];
-
-			if ( bHasParachute )
-			{
-				const RwV3d		vecParachuteTranslation = { 0.1f, -0.15f, 0.0f };
-				const RwV3d		vecParachuteRotation = { 0.0f, 1.0f, 0.0f };
-				RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
-				RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 90.0f, rwCOMBINEPRECONCAT);
-			}
-
-			RwFrameUpdateObjects(pFrame);
-			RpClumpForAllAtomics(reinterpret_cast<RpClump*>(m_pWeaponObject), ShadowCameraRenderCB, nullptr);
-
-			// Dual weapons
-			if ( CWeaponInfo::GetWeaponInfo(weaponSlots[m_bActiveWeapon].m_eWeaponType, GetWeaponSkill())->hexFlags >> 11 & 1 )
-			{
-				*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, 34)];				
-
-				const RwV3d		vecParachuteRotation = { 1.0f, 0.0f, 0.0f };
-				const RwV3d		vecParachuteTranslation  = { 0.04f, -0.05f, 0.0f };
-				RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 180.0f, rwCOMBINEPRECONCAT);
-				RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
-
-				RwFrameUpdateObjects(pFrame);
-				RpClumpForAllAtomics(reinterpret_cast<RpClump*>(m_pWeaponObject), ShadowCameraRenderCB, nullptr);
-			}
-		}
+		RenderWeapon(false, true);
 
 		// Render jetpack
 		auto*	pJetPackTask = pPedIntelligence->GetTaskJetPack();
 		if ( pJetPackTask )
 			pJetPackTask->RenderJetPack(this);
+	}
+}
+
+void CPed::RenderWeapon(bool bMuzzleFlash, bool bForShadow)
+{
+	if ( m_pWeaponObject )
+	{
+#ifndef NDEBUG
+		D3DPERF_BeginEvent(D3DCOLOR_ARGB(0xFF, 0xFF, 0, 0), L"CPed::RenderWeapon");
+#endif
+
+		RpHAnimHierarchy*	pAnimHierarchy = GetAnimHierarchyFromSkinClump(reinterpret_cast<RpClump*>(m_pRwObject));
+		bool				bHasParachute = weaponSlots[m_bActiveWeapon].m_eWeaponType == WEAPONTYPE_PARACHUTE;
+
+		RwFrame*			pFrame = RpClumpGetFrame(reinterpret_cast<RpClump*>(m_pWeaponObject));
+		*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, bHasParachute ? 3 : 24)];
+
+		if ( bHasParachute )
+		{
+			const RwV3d		vecParachuteTranslation = { 0.1f, -0.15f, 0.0f };
+			const RwV3d		vecParachuteRotation = { 0.0f, 1.0f, 0.0f };
+			RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
+			RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 90.0f, rwCOMBINEPRECONCAT);
+		}
+
+		RwFrameUpdateObjects(pFrame);
+		if ( bForShadow )
+			RpClumpForAllAtomics(reinterpret_cast<RpClump*>(m_pWeaponObject), ShadowCameraRenderCB, nullptr);
+		else if ( !bMuzzleFlash )
+			RpClumpRender(reinterpret_cast<RpClump*>(m_pWeaponObject));
+		else if ( m_pMuzzleFlashFrame )
+		{
+			RpAtomic*	pWeapon = reinterpret_cast<RpAtomic*>(GetFirstObject(m_pMuzzleFlashFrame));
+			SetGunFlashAlpha(false);
+			if ( RpAtomicGetFlags(pWeapon) & rpATOMICRENDER  )
+				RpAtomicRender(pWeapon);
+		}
+
+		// Dual weapons
+		if ( CWeaponInfo::GetWeaponInfo(weaponSlots[m_bActiveWeapon].m_eWeaponType, GetWeaponSkill())->hexFlags >> 11 & 1 )
+		{
+			*RwFrameGetMatrix(pFrame) = RpHAnimHierarchyGetMatrixArray(pAnimHierarchy)[RpHAnimIDGetIndex(pAnimHierarchy, 34)];				
+
+			const RwV3d		vecParachuteRotation = { 1.0f, 0.0f, 0.0f };
+			const RwV3d		vecParachuteTranslation  = { 0.04f, -0.05f, 0.0f };
+			RwMatrixRotate(RwFrameGetMatrix(pFrame), &vecParachuteRotation, 180.0f, rwCOMBINEPRECONCAT);
+			RwMatrixTranslate(RwFrameGetMatrix(pFrame), &vecParachuteTranslation, rwCOMBINEPRECONCAT);
+
+			RwFrameUpdateObjects(pFrame);
+			if ( bForShadow )
+				RpClumpForAllAtomics(reinterpret_cast<RpClump*>(m_pWeaponObject), ShadowCameraRenderCB, nullptr);
+			else if ( !bMuzzleFlash )
+				RpClumpRender(reinterpret_cast<RpClump*>(m_pWeaponObject));
+			else if ( m_pMuzzleFlashFrame )
+			{
+				RpAtomic*	pWeapon = reinterpret_cast<RpAtomic*>(GetFirstObject(m_pMuzzleFlashFrame));
+				SetGunFlashAlpha(true);
+				if ( RpAtomicGetFlags(pWeapon) & rpATOMICRENDER  )
+					RpAtomicRender(pWeapon);
+			}
+		}
+		if ( bMuzzleFlash )
+			ResetGunFlashAlpha();
+
+#ifndef NDEBUG
+		D3DPERF_EndEvent();
+#endif
+	}
+}
+
+void CPed::SetGunFlashAlpha(bool bSecondWeapon)
+{
+	short	nBlend = bSecondWeapon ? m_nGunFlashBlend_Secondary : m_nGunFlashBlend;
+
+	if ( m_pMuzzleFlashFrame != nullptr )
+	{
+		RpAtomic*	pWeapon = reinterpret_cast<RpAtomic*>(GetFirstObject(m_pMuzzleFlashFrame));
+		if ( pWeapon != nullptr )
+		{
+			if ( nBlend > 0 )
+			{
+				CVehicle::SetComponentAtomicAlpha(pWeapon, Min(350 * nBlend / m_sGunFlashBlendStart, 255));
+				RpAtomicSetFlags(pWeapon, rpATOMICRENDER);		
+			}
+			else
+				RpAtomicSetFlags(pWeapon, 0);
+		}
+
+		if ( bSecondWeapon )
+		{
+			if ( m_nGunFlashBlend_Secondary == 0 )
+				m_nGunFlashBlend_Secondary = -1;
+		}
+		else
+		{
+			if ( m_nGunFlashBlend == 0 )
+				m_nGunFlashBlend = -1;
+		}
 	}
 }
 
@@ -111,9 +181,19 @@ CPed* CPedEx::Initialise(CPed* pPed, short model)
 	return pPed;
 }
 
+void RenderWeapon(CPed* pPed)
+{
+	pPed->RenderWeapon(false, false);
+	CVisibilityPlugins::ms_weaponPedsForPC.Insert(pPed);
+}
+
 static StaticPatcher	Patcher([](){ 
 						using namespace Memory;
 
 						// Fixed muzzleflash not showing from last bullet
 						Nop(0x61ECE4, 2);
+
+						// Weapons rendering
+						InjectHook(0x5E7859, RenderWeapon);
+						InjectHook(0x732F30, &CVisibilityPlugins::RenderWeaponPedsForPC, PATCH_JUMP);
 									});

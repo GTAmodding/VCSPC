@@ -3,6 +3,8 @@
 
 #include "LinkList.h"
 
+class CPed;
+
 class CVisibilityPlugins
 {
 public:
@@ -17,6 +19,7 @@ public:
 	};
 
 	static CLinkList<AlphaObjectInfo>&		m_alphaList;
+	static CLinkList<CPed*>&				ms_weaponPedsForPC;
 
 public:
 	static inline void						RenderOrderedList(CLinkList<AlphaObjectInfo>& list)
@@ -24,6 +27,7 @@ public:
 			i->V().callback(i->V().pAtomic, i->V().fCompareValue); }
 
 	static void								RenderAlphaAtomics();
+	static void								RenderWeaponPedsForPC();
 };
 
 #endif

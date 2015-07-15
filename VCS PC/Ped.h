@@ -239,7 +239,10 @@ public:
 	BYTE				__pad2[28];
 	RwObject*			m_pWeaponObject;
 	RwFrame*			m_pMuzzleFlashFrame;
-	BYTE				__pad10[68];
+	DWORD				unk, unk2;
+	short				m_nGunFlashBlend;
+	short				m_nGunFlashBlend_Secondary;
+	BYTE				__pad10[56];
 	float				fHealth;
 	float				fMaxHealth;
 	float				fArmour;
@@ -259,6 +262,8 @@ public:
 	BYTE				__pad6[92];
 	CEntryExit*			pCurrentEntryExit;
 	BYTE				__pad64[12];
+
+	static short&		m_sGunFlashBlendStart;
 
 public:
 	inline bool			Save_Stub()
@@ -305,10 +310,12 @@ public:
 	void				SetCharCreatedBy(unsigned char bBy);
 	void				SetCurrentWeapon(int nSlot);
 	void				ResetGunFlashAlpha();
+	void				SetGunFlashAlpha(bool bSecondWeapon);
 
 	long double			GetCrosshairSize();
 	void				Remap();
 	void				RenderForShadow(RpClump* pClump, bool bRenderWeapon);
+	void				RenderWeapon(bool bMuzzleFlash, bool bForShadow);
 	void				FindWeaponLockOnTarget();
 };
 

@@ -153,6 +153,7 @@ void			DoPreMenuBlackout();
 void			ConvertAndDumpNativeMesh();
 
 RpAtomic*			GetFirstAtomic(RpClump* pClump);
+RwObject*			GetFirstObject(RwFrame* pFrame);
 const char*			GetFrameNodeName(RwFrame* pFrame);
 RpHAnimHierarchy*	GetAnimHierarchyFromSkinClump(RpClump* pClump);
 RpAtomic*			AtomicInstanceCB(RpAtomic* pAtomic);

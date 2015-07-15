@@ -697,7 +697,7 @@ extern "C" __declspec(dllexport) BOOL OnGameLaunch()
 #ifdef COLLECT_PC_INFO
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
-__forceinline void CollectPCInfo()
+void CollectPCInfo()
 {
 	LogToFile("Collecting PC specs...");
 	OSVERSIONINFOEX VersionInformation;
@@ -779,7 +779,7 @@ __forceinline void CollectPCInfo()
 #endif
 
 
-__forceinline void DetermineGameVer()
+void DetermineGameVer()
 {
 	/*LogToFile("Checking game version...");
 	BYTE VersionID = *(BYTE*)0x400088;
@@ -821,7 +821,7 @@ __forceinline void DetermineGameVer()
 		ExitProcess(0);*/
 }
 
-__forceinline void DefineVariables()
+void DefineVariables()
 {
 	LogToFile("Assigning variables...");
 
@@ -937,7 +937,7 @@ __forceinline void DefineVariables()
 	}*/
 }
 
-/*__forceinline void CheckStructures()
+/*void CheckStructures()
 {
 	LogToFile("Checking class sizes...");
 
@@ -2187,7 +2187,7 @@ RpAtomic* RenderAtomicTest(RpAtomic* atomic)
 
 #include "SpeechRecognition.h"
 
-__forceinline void Main_Patches()
+void Main_Patches()
 {
 	using namespace Memory;
 
@@ -4201,7 +4201,7 @@ __forceinline void Main_Patches()
 	//VirtualProtect((char*)0x8D3978, 0xB7C, dwProtect[0], &dwProtect[1]);
 }
 
-__forceinline void PatchMenus()
+void PatchMenus()
 {
 #ifdef LIST_MEMORY
 	ListMemory();
@@ -4359,7 +4359,7 @@ __forceinline void PatchMenus()
 #endif
 }
 
-__forceinline void AnimationStylesPatching()
+void AnimationStylesPatching()
 {
 	static const char*		player1armedAnims[] = {
 									"walk_player", "run_1armed",
@@ -4412,7 +4412,7 @@ __forceinline void AnimationStylesPatching()
 	Patch<DWORD>(0x5BF6C7, 121);
 }
 
-__forceinline void UserFiles()
+void UserFiles()
 {
 	using namespace Memory;
 

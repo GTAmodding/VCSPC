@@ -31,6 +31,12 @@ static RpAtomic* GetFirstAtomicCallback(RpAtomic* pAtomic, void* pData)
 	return nullptr;
 }
 
+static RwObject* GetFirstObjectCallback(RwObject* pObject, void* pData)
+{
+	*static_cast<RwObject**>(pData) = pObject;
+	return nullptr;
+}
+
 RpAtomic* AtomicInstanceCB(RpAtomic* pAtomic, void* pData)
 {
 	UNREFERENCED_PARAMETER(pData);
@@ -72,6 +78,13 @@ RpAtomic* GetFirstAtomic(RpClump* pClump)
 	RpAtomic* pData = nullptr;
 	RpClumpForAllAtomics(pClump, GetFirstAtomicCallback, &pData);
 	return pData;
+}
+
+RwObject* GetFirstObject(RwFrame* pFrame)
+{
+	RwObject*	pObject = nullptr;
+	RwFrameForAllObjects(pFrame, GetFirstObjectCallback, &pObject);
+	return pObject;
 }
 
 BOOL RsRwInitialize(void* pRect)
