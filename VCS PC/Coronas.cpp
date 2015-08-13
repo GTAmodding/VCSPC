@@ -6,6 +6,7 @@
 #include "Sprite.h"
 #include "Weather.h"
 #include "Vehicle.h"
+#include "World.h"
 
 std::map<unsigned int,CCoronasLinkedListNode*>	CCoronas::UsedMap;
 CCoronasLinkedListNode							CCoronas::FreeList, CCoronas::UsedList;		
@@ -13,6 +14,8 @@ CCoronasLinkedListNode							CCoronas::aLinkedList[NUM_CORONAS];
 CRegisteredCorona								CCoronas::aCoronas[NUM_CORONAS];
 int&											CCoronas::bChangeBrightnessImmediately = *(int*)0xC3E034;
 float&											CCoronas::ScreenMult = *(float*)0x8D4B5C;
+
+static std::vector<FlareDef>					SunFlareDef, HeadLightsFlareDef;
 
 WRAPPER void CRegisteredCorona::Update() { EAXJMP(0x6FABF0); }
 
@@ -238,6 +241,62 @@ void CCoronas::UpdateCoronaCoors(unsigned int nID, const CVector& vecPosition, f
 	}
 }
 
+void CCoronas::ReadFlareDef()
+{
+	if ( FILE* hFile = fopen("data\\flaredef.dat", "r") )
+	{
+		DWORD	dwCurrentParserState = 0;
+		DWORD	dwCurrentFlareDef = 0;
+
+		while ( const char* pLine = CFileLoader::LoadLine(hFile) )
+		{
+			if ( pLine[0] && pLine[0] != '#' )
+			{
+				switch ( dwCurrentParserState )
+				{
+				case 0:	// Looking for [FLARE]
+					{
+						if ( !strncmp(pLine, "[FLARE]", 7) )
+						{
+							dwCurrentParserState = 1;
+							dwCurrentFlareDef++;
+						}
+						break;
+					}
+				case 1: // Parsing flaredef
+					{
+						if ( pLine[0] == '[' )
+						{
+							dwCurrentParserState = 0;
+							break;
+						}
+
+						FlareDef	newFlareDef;
+						DWORD		dwRed, dwGreen, dwBlue, dwAlpha;
+						sscanf(pLine, "%f %f %d %d %d %d", &newFlareDef.DistanceToScreenCenter, &newFlareDef.Size,
+												&dwRed, &dwGreen, &dwBlue, &dwAlpha);
+						newFlareDef.Red = dwRed;
+						newFlareDef.Green = dwGreen;
+						newFlareDef.Blue = dwBlue;
+						newFlareDef.Alpha = dwAlpha;
+						if ( dwCurrentFlareDef == 1 )
+							SunFlareDef.push_back(newFlareDef);
+						else if ( dwCurrentFlareDef == 2 )
+							HeadLightsFlareDef.push_back(newFlareDef);
+
+						break;
+					}
+				}
+			
+			}
+		}
+
+		SunFlareDef.shrink_to_fit();
+		HeadLightsFlareDef.shrink_to_fit();
+		fclose(hFile);
+	}
+}
+
 void CCoronas::Init()
 {
 	// Initialise the lists
@@ -249,6 +308,8 @@ void CCoronas::Init()
 		aLinkedList[i].Add(&FreeList);
 		aLinkedList[i].SetEntry(&aCoronas[i]);
 	}
+
+	ReadFlareDef();
 }
 
 void CCoronas::Render()
@@ -461,7 +522,47 @@ void CCoronas::RenderBuffered()
 
 						}
 					
-						// TODO: Flare effect
+						
+						if ( aCoronas[i].FlareType != 0 )
+						{
+							const std::vector<FlareDef>&	vecFlares = aCoronas[i].FlareType == 1 ? SunFlareDef : HeadLightsFlareDef;
+
+							if ( bLastZWriteRenderState != false )
+							{
+								bLastZWriteRenderState = false;
+								CSprite::FlushSpriteBuffer();
+
+								RwRenderStateSet(rwRENDERSTATEZTESTENABLE, FALSE);
+							}
+							if ( pLastRaster != RwTextureGetRaster(gpCoronaTexture[0]) )
+							{
+								pLastRaster = RwTextureGetRaster(gpCoronaTexture[0]);
+								CSprite::FlushSpriteBuffer();
+
+								RwRenderStateSet(rwRENDERSTATETEXTURERASTER, pLastRaster);
+							}
+							
+							for ( auto it = vecFlares.cbegin(); it != vecFlares.cend(); it++ )
+							{
+								float	fRandomFlicker = (rand() * (1.0f/RAND_MAX) * 0.3f + 0.7f) * aCoronas[i].FadedIntensity * (1.0f/65536.0f);
+
+								CColPoint	outColPoint;
+								CEntity*	pOutEntity;
+
+								RwRGBA		colour;
+								colour.red = aCoronas[i].Red * it->Red * fRandomFlicker;
+								colour.green = aCoronas[i].Green * it->Green * fRandomFlicker;
+								colour.blue = aCoronas[i].Blue * it->Blue * fRandomFlicker;
+								colour.alpha = 255;
+
+								if ( !CWorld::ProcessLineOfSight(vecCoronaCoords, TheCamera.GetCoords(), outColPoint, pOutEntity, false, true, true, false, false, false, false, true) )
+								{
+									CSprite::RenderBufferedOneXLUSprite2D( (vecTransformedCoords.x - (nWidth/2)) * it->DistanceToScreenCenter + (nWidth/2), 
+																		(vecTransformedCoords.y - (nHeight/2)) * it->DistanceToScreenCenter + (nHeight/2),
+																		it->Size * 4.0f, it->Size * 4.0f, colour, 255, 255 );							
+								}
+							}
+						}
 					}
 				}
 				else

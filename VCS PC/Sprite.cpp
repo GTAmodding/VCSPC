@@ -13,6 +13,8 @@ WRAPPER void CSprite::RenderBufferedOneXLUSprite_Rotate_Aspect(float x, float y,
 WRAPPER void CSprite::RenderOneXLUSprite(float x, float y, float z, float halfWidth, float halfHeight, 
 						unsigned char red, unsigned char green, unsigned char blue, short alpha, float rhw, 
 						unsigned char intensity, unsigned char udir, unsigned char vdir) { EAXJMP(0x70D000); }
+WRAPPER void CSprite::RenderBufferedOneXLUSprite2D(float, float, float, float, const RwRGBA&, short, unsigned char)
+						{ EAXJMP(0x70F440); }
 
 WRAPPER void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4)
 { WRAPARG(rect); WRAPARG(rgb1); WRAPARG(rgb2); WRAPARG(rgb3); WRAPARG(rgb4); EAXJMP(0x727420); }

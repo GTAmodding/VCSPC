@@ -5,12 +5,12 @@
 
 #define NUM_CORONAS		3000
 
-struct CHalo
+struct FlareDef
 {
 	float		DistanceToScreenCenter;
 	float		Size;
 	short		Red, Green, Blue, Alpha;
-	int			NumVerts;
+	short		NumVerts;
 };
 
 class CRegisteredCorona
@@ -96,7 +96,8 @@ public:
 	static void							Update();
 	static void							UpdateCoronaCoors(unsigned int nID, const CVector& vecPosition, float fMaxDist, float fNormalAngle);
 	static void							Init();
-
+	
+	static void							ReadFlareDef();
 	static void							Render();
 	static void							RenderBuffered();
 	static void							RenderDebug();
