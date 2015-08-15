@@ -31,7 +31,9 @@ bool				CMenuManager::m_bSerialFull;
 const char*			CMenuManager::m_pDLCMessage;
 signed int			CMenuManager::m_nDLCMessageTimer = 0;
 signed char			CMenuManager::m_nSwitchToThisAfterMessage = -1;
+short				CMenuManager::m_nNumMenuEntries;
 unsigned char		CMenuManager::m_bPadPageShown;
+float				CMenuManager::m_fScrollerOffset;
 
 static int	nTimeToStopPadShake;
 
@@ -41,22 +43,22 @@ extern float&		ms_lodDistScale;
 //short			CMenuManager::nColourMenuEntries;
 MenuItem		CMenuManager::ms_pMenus[] = {
 	// Stats
-	{ "FEH_STA", 42, 3,
+	{ "FEH_STA", 42, 3, 0, 0,
 		21, "FEDS_TB", ACTION_CLICKORARROWS, 0, 0, 69, 3, 1, 0 },
 
 	// Game
-	{ "FEH_LOA", 42, 1,
+	{ "FEH_LOA", 42, 1, 0, 0,
 		10, "FES_NGA", ACTION_STANDARD, 6, 0, -74, 3, 0, 0,
 		5, "FES_LOA", ACTION_STANDARD, 9, 0, 0, 3, 0, 0,
 		5, "FES_DEL", ACTION_STANDARD, 10, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 0, 3, 0, 0 },
 
 	// Brief
-	{ "FEH_BRI", 42, 4,
+	{ "FEH_BRI", 42, 4, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 42, 0, 45, 3, 1, 0 },
 
 	// Audio Setup
-	{ "FEH_AUD", 33, 1,
+	{ "FEH_AUD", 33, 1, 0, 0,
 		28, "FEA_MUS", ACTION_CLICKORARROWS, 3, 0, -124, 2, 0, 0,
 		29, "FEA_SFX", ACTION_CLICKORARROWS, 3, 0, 0, 2, 0, 0,
 		31, "FEA_ART", ACTION_CLICKORARROWS, 3, 0, 0, 2, 0, 0,
@@ -66,7 +68,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 42, 0, 0, 3, 0, 0 },
 
 	// Display Setup
-	{ "FEH_DIS", 33, 2,
+	{ "FEH_DIS", 33, 2, 0, 0,
 		27, "FED_BRI", ACTION_CLICKORARROWS, 4, 0, -97, 2, 0, 0,
 		33, "MAP_LEG", ACTION_CLICKORARROWS, 4, 0, 0, 2, 0, 0,
 		34, "FED_RDR", ACTION_CLICKORARROWS, 4, 0, 0, 2, 0, 0,
@@ -77,17 +79,17 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 33, 0, 0, 3, 0, 0 },
 
 
-	{ "FEH_MAP", 42, 2,
+	{ "FEH_MAP", 42, 2, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 42, 57, 186, 1, 0, -1 },
 
 
-	{ "FEH_NGA", 1, 0,
+	{ "FEH_NGA", 1, 0, 0, 0,
 		1, "FESZ_QR", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		4, "FEM_NO", ACTION_STANDARD, 1, 0, -9, 3, 0, 0,
 		14, "FEM_YES", ACTION_STANDARD, 6, 0, 16, 3, 0, 0 },
 
 
-	{ "FEH_NGA", 1, 0,
+	{ "FEH_NGA", 1, 0, 0, 0,
 		1, "FEN_NGS", ACTION_NONE, 0, 0, 0, 1, 0, 0,
 		5, "FEN_NGX", ACTION_STANDARD, 6, 0, -74, 3, 0, 0,
 		11, "FEN_MPX", ACTION_MISSIONPACK, 0, 0, 0, 3, 0, 0,
@@ -104,13 +106,13 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		11, "FEN_MPX", ACTION_MISSIONPACK, 0, 0, 0, 3, 0, 0 },
 
 
-	{ "FES_LMI", 1, 0,
+	{ "FES_LMI", 1, 0, 0, 0,
 		1, "FESZ_QM", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		4, "FEM_NO", ACTION_STANDARD, 1, 0, -9, 3, 0, 0,
 		12, "FEM_YES", ACTION_STANDARD, 0, 0, 16, 3, 0, 0 },
 
 
-	{ "FET_LG", 1, 1,
+	{ "FET_LG", 1, 1, 0, 0,
 		1, "FES_SEL", ACTION_NONE, 0, 0, 0, 1, 0, 0,
 		13, "FEM_SL1", ACTION_SAVE_1, 0, 80, -84, 1, 0, -1,
 		13, "FEM_SL2", ACTION_SAVE_2, 0, 80, -64, 1, 0, -1,
@@ -127,7 +129,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
 
 
-	{ "FEH_DEL", 1, 2,
+	{ "FEH_DEL", 1, 2, 0, 0,
 		1, "FES_SED", ACTION_NONE, 0, 0, 0, 1, 0, 0,
 		13, "FEM_SL1", ACTION_SAVE_1, 0, 80, -84, 1, 0, -1,
 		13, "FEM_SL2", ACTION_SAVE_2, 0, 80, -64, 1, 0, -1,
@@ -144,30 +146,30 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
 
 
-	{ "FET_LG", 9, 0,
+	{ "FET_LG", 9, 0, 0, 0,
 		1, "FESZ_QL", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		4, "FEM_NO", ACTION_STANDARD, 9, 0, -9, 3, 0, 0,
 		3, "FEM_YES", ACTION_STANDARD, 13, 0, 16, 3, 0, 0 },
 
 
-	{ "FEH_DEL", 10, 0,
+	{ "FEH_DEL", 10, 0, 0, 0,
 		1, "FESZ_QD", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		4, "FEM_NO", ACTION_STANDARD, 10, 0, -9, 3, 0, 0,
 		3, "FEM_YES", ACTION_STANDARD, 14, 0, 16, 3, 0, 0 },
 
 
-	{ "FET_LG", 9, 0 },
+	{ "FET_LG", 9, 0, 0, 0 },
 
 
-	{ "FEH_DEL", 10, 0 },
+	{ "FEH_DEL", 10, 0, 0, 0 },
 
 
-	{ "FEH_DEL", 1, 0,
+	{ "FEH_DEL", 1, 0, 0, 0,
 		1, "FES_DSC", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_OK", ACTION_STANDARD, 1, 0, 16, 3, 0, 0 },
 
 
-	{ "FET_SG", 255, 0,
+	{ "FET_SG", 255, 0, 0, 0,
 		1, "FES_SES", ACTION_NONE, 0, 0, 0, 1, 0, 0,
 		18, "FEM_SL1", ACTION_SAVE_1, 0, 80, -84, 1, 0, -1,
 		18, "FEM_SL2", ACTION_SAVE_2, 0, 80, -64, 1, 0, -1,
@@ -184,54 +186,54 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		15, "FESZ_CA", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
 
 
-	{ "FET_SG", 16, 0,
+	{ "FET_SG", 16, 0, 0, 0,
 		1, "FESZ_QZ", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		4, "FEM_NO", ACTION_STANDARD, 16, 0, -9, 3, 0, 0,
 		3, "FEM_YES", ACTION_STANDARD, 18, 0, 16, 3, 0, 0 },
 
 
-	{ "FET_SG", 16, 0 },
+	{ "FET_SG", 16, 0, 0, 0 },
 
 
-	{ "FET_SG", 16, 0,
+	{ "FET_SG", 16, 0, 0, 0,
 		1, "FES_SSC", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		54, "FEM_OK", ACTION_STANDARD, 0, 0, 16, 3, 0, 0 },
 
 
-	{ "FET_SG", 42, 0,
+	{ "FET_SG", 42, 0, 0, 0,
 		1, "", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_OK", ACTION_STANDARD, 0, 0, 46, 3, 0, 0 },
 
 
-	{ "FET_LG", 42, 0,
+	{ "FET_LG", 42, 0, 0, 0,
 		1, "", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_OK", ACTION_STANDARD, 0, 0, 46, 3, 0, 0 },
 
 
-	{ "FET_SG", 1, 0,
+	{ "FET_SG", 1, 0, 0, 0,
 		1, "FES_CHE", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_OK", ACTION_STANDARD, 16, 0, 16, 3, 0, 0 },
 
 	// Restore defaults - Display Setup
-	{ "FEH_DIS", 4, 6,
+	{ "FEH_DIS", 4, 6, 0, 0,
 		1, "FED_RDP", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 4, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 4, 0, 16, 3, 0, 0},
 
 	// Restore detaults - Audio Setup
-	{ "FEH_AUD", 3, 5,
+	{ "FEH_AUD", 3, 5, 0, 0,
 		1, "FED_RDP", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 3, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 3, 0, 16, 3, 0, 0 },
 
 	// Restore defaults - Controller Setup
-	{ "FET_CTL", 36, 2,
+	{ "FET_CTL", 36, 2, 0, 0,
 		1, "FED_RDP", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 36, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 36, 0, 16, 3, 0, 0 },
 
 	// Custom Tracks Options
-	{ "FEH_TIT", 3, 4,
+	{ "FEH_TIT", 3, 4, 0, 0,
 		1, "FEA_SUB", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		63, "FEA_MPM", ACTION_CLICKORARROWS, 26, 0, -34, 2, 0, 0,
 		64, "FEA_AMS", ACTION_CLICKORARROWS, 26, 0, 0, 2, 0, 0,
@@ -239,7 +241,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 3, 0, 136, 3, 0, 0 },
 
 	// Graphics Setup
-	{ "FEH_GFX", 33, 3,
+	{ "FEH_GFX", 33, 3, 75, 50,
 		56, "FED_RES", ACTION_CLICKORARROWS, 27, 0, -154, 2, 0, 0,
 		26, "FED_WIS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		24, "FEM_FRM", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
@@ -254,7 +256,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 33, 0, 0, 3, 0, 0 },
 
 	// Language
-	{ "FEH_LAN", 33, 4,
+	{ "FEH_LAN", 33, 4, 0, 0,
 		37, "FEL_ENG", ACTION_STANDARD, 28, 0, -72, 3, 0, 0,
 		38, "FEL_GER", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 		39, "FEL_BRA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
@@ -265,26 +267,26 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 4, 0, 0, 3, 0, 0 },
 
 
-	{ "FET_SG", 1, 0,
+	{ "FET_SG", 1, 0, 0, 0,
 		1, "FED_LWR", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEC_OKK", ACTION_STANDARD, 16, 0, 0, 0, 0, 0 },
 
 
-	{ "FET_SG", 16, 0,
+	{ "FET_SG", 16, 0, 0, 0,
 		1, "FEC_SVU", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEC_OKK", ACTION_STANDARD, 16, 0, 0, 0, 0, 0 },
 
 
-	{ "FET_LG", 16, 0,
+	{ "FET_LG", 16, 0, 0, 0,
 		1, "FEC_SVU", ACTION_NONE, 0, 0, 0, 0, 0, 0 },
 
 
-	{ "FET_LG", 1, 0,
+	{ "FET_LG", 1, 0, 0, 0,
 		1, "FEC_LUN", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 1, 0, 0, 0, 0, 0 },
 
 	// Options
-	{ "FET_OPT", 42, 5,
+	{ "FET_OPT", 42, 5, 0, 0,
 		5, "FEO_CON", ACTION_STANDARD, 36, 0, -72, 3, 0, 0,
 		5, "FEO_AUD", ACTION_STANDARD, 3, 0, 0, 3, 0, 0,
 		5, "FEO_DIS", ACTION_STANDARD, 4, 0, 0, 3, 0, 0,
@@ -295,20 +297,20 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 0, 3, 0, 0 },
 
 
-	{ "FEM_MM", 255, 0,
+	{ "FEM_MM", 255, 0, 0, 0,
 		5, "FEP_STG", ACTION_STANDARD, 1, 0, -54, 3, 0, 0,
 		5, "FEP_OPT", ACTION_STANDARD, 33, 0, 0, 3, 0, 0,
 		5, "FEP_QUI", ACTION_STANDARD, 35, 0, 0, 3, 0, 0 },
 
 
-	{ "FET_QG", 42, 6,
+	{ "FET_QG", 42, 6, 0, 0,
 		1, "FEQ_SRE", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		55, "FEM_NO", ACTION_STANDARD, 42, 0, -9, 3, 0, 0,
 		53, "FEM_YES", ACTION_STANDARD, 42, 0, 16, 3, 0, 0 },
 
 
 	// Controller Setup
-	{ "FET_CTL", 33, 0,
+	{ "FET_CTL", 33, 0, 0, 0,
 		5, "FEC_RED", ACTION_STANDARD, 37, 0, -29, 3, 0, 0,
 		5, "FEC_MOU", ACTION_STANDARD, 39, 0, 0, 3, 0, 0,
 		5, "FEC_CTL", ACTION_STANDARD, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 3, 0, 0,
@@ -317,17 +319,17 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 
 	// Redefine Controls
-	{ "FET_CTL", 36, 0,
+	{ "FET_CTL", 36, 0, 0, 0,
 		8, "FET_CFT", ACTION_STANDARD, 38, 0, -34, 3, 0, 0,
 		9, "FET_CCR", ACTION_STANDARD, 38, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 36, 0, 46, 3, 0, 0 },
 
 
-	{ "FET_CTL", 37, 0 },
+	{ "FET_CTL", 37, 0, 0, 0 },
 
 
 	// Mouse Settings
-	{ "FEM_MOU", 36, 1,
+	{ "FEM_MOU", 36, 1, 0, 0,
 		62, "FEC_MSH", ACTION_CLICKORARROWS, 39, 0, -94, 2, 0, 0,
 		46, "FEC_IVV", ACTION_CLICKORARROWS, 39, 0, 0, 2, 0, 0,
 		59, "FET_MST", ACTION_CLICKORARROWS, 39, 0, 0, 2, 0, 0,
@@ -336,8 +338,8 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 
 	// Controller Settings
-	{ "FEH_CTL", 36, 2,
-		MENUACTION_CTRL_TYPE, "FEC_CFG", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, -154, 2, 0, 0,
+	{ "FEH_CTL", 36, 2, 0, 0,
+		MENUACTION_CTRL_TYPE, "FEC_CFG", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, -164, 2, 0, 0,
 		MENUACTION_PAD_FRONTEND_PAGE, "FEC_CDP", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
 		//MENUACTION_INVERTLOOK, "FEC_ILU", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
 		MENUACTION_VIBRATION, "FEC_VIB", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
@@ -346,7 +348,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 182, 3, 0, 0 },
 
 	// Pause menu
-	{ "FET_PAU", 255, 0,
+	{ "FET_PAU", 255, 0, 0, 0,
 		54, "FEP_RES", ACTION_STANDARD, 0, 0, -84, 3, 0, 0,
 		5, "FEP_SGA", ACTION_STANDARD, 1, 0, 0, 3, 0, 0,
 		5, "FEP_MAP", ACTION_STANDARD, 5, 0, 0, 3, 0, 0,
@@ -357,21 +359,21 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 
 	// 2 menus serving a special purpose, cba moving
-	{ "", 0, 0 },
+	{ "", 0, 0, 0, 0 },
 
 
-	{ "", 0, 0 },
+	{ "", 0, 0, 0, 0 },
 
 
 	// Game Updates
-	{ "FEH_UPT", 33, 6,
+	{ "FEH_UPT", 33, 6, 0, 0,
 		MENUACTION_UPDATER_BUTTON, "FEU_UPC", ACTION_UPDATER, 44, 0, 138, 3, 1, 0,
 		MENUACTION_CHECKING_PERIOD, "FEU_CHP", ACTION_CLICKORARROWS, 44, 0, 0, 2, 1, 0,
 		MENUACTION_AUTOINSTALL_UPDATES, "FEU_AUI", ACTION_CLICKORARROWS, 44, 0, 0, 2, 1, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 0, 3, 1, 0 },
 
 	// Downloadable Content
-	{ "FEH_DLC", 33, 5,
+	{ "FEH_DLC", 33, 5, 0, 0,
 		1, "FEE_HEA", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0,	// Hacky hacky
 		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 60, -70, 1, 0, -1,
@@ -388,36 +390,36 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		MENUACTION_TOGGLE_DLC, "FEE_NXX", ACTION_DLC, 45, 0, 0, 1, 0, -1 },
 
 	// Downloadable Content - no DLCs available
-	{ "FEH_DLC", 33, 5,
+	{ "FEH_DLC", 33, 5, 0, 0,
 		1, "FEE_NON", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_OK", ACTION_STANDARD, 33, 0, 16, 3, 0, 0 },
 
 	// Downloadable Content - game restart required
-	{ "FEH_DLC", 33, 5,
+	{ "FEH_DLC", 33, 5, 0, 0,
 		1, "FEE_RES", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_OK", ACTION_STANDARD, 33, 0, 16, 3, 0, 0 },
 
 	// Downloadable Content - DLC installation prompt
-	{ "FEH_DLC", 45, 2,
+	{ "FEH_DLC", 45, 2, 0, 0,
 		1, "FEE_IXX", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 45, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 44, 0, 16, 3, 0, 0 },
 
 	// DLC activation
-	{ "FEH_DLC", 45, 0,
+	{ "FEH_DLC", 45, 0, 0, 0,
 		1, "FEE_KEY", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		MENUACTION_ACTIVATE_SERIAL, "FEE_ACT", ACTION_SERIAL, 0, 0, 78, 3, 1, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 48, 3, 1, 0 },
 
 	// Restore defaults - Graphics Setup
-	{ "FEH_GFX", 27, 9,
+	{ "FEH_GFX", 27, 9, 0, 0,
 		1, "FED_RDP", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 27, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 27, 0, 16, 3, 0, 0 },
 
 	// Additional Controller Options
-	{ "FEH_CTL", MENU_PAGE_CONTROLLER_SETUP, 4,
-		MENUACTION_INVERTLOOK, "FEC_ILU", ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, -154, 2, 0, 0,
+	{ "FEH_CTL", MENU_PAGE_CONTROLLER_SETUP, 4, 0, 0,
+		MENUACTION_INVERTLOOK, "FEC_ILU", ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, -164, 2, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 182, 3, 0, 0
 	},
 };
@@ -430,7 +432,6 @@ static inline const char* GetTitlePCByLanguage()
 
 WRAPPER void CMenuManager::DrawWindow(const CRect& rect, const char* pKey, unsigned char nColour, CRGBA backColour, bool bUnused, bool bBackground) { WRAPARG(rect); WRAPARG(pKey); WRAPARG(nColour); WRAPARG(backColour); WRAPARG(bUnused); WRAPARG(bBackground); EAXJMP(0x573EE0); }
 WRAPPER void CMenuManager::SmallMessageScreen(const char* pMessage) { WRAPARG(pMessage); EAXJMP(0x574010); }
-WRAPPER void CMenuManager::SwitchToNewScreen(signed char bScreen) { WRAPARG(bScreen); EAXJMP(0x573680); }
 WRAPPER void CMenuManager::InitialiseChangedLanguageSettings(bool bRemapButtons) { WRAPARG(bRemapButtons); EAXJMP(0x573260); }
 WRAPPER void CMenuManager::PrintBrief() { EAXJMP(0x576320); }
 WRAPPER void CMenuManager::DrawContollerScreenExtraText(int nUnk) { WRAPARG(nUnk); EAXJMP(0x57D8D0); }
@@ -649,6 +650,21 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	CFont::SetRightJustifyWrap(10.0f);
 	CFont::SetCentreSize(RsGlobal.MaximumWidth);
 
+
+	// Scrollbar
+	if ( aScreens[m_bCurrentMenuPage].topMargin != 0 || aScreens[m_bCurrentMenuPage].bottomMargin != 0 )
+	{
+		CSprite2d::DrawRect(CRect(_xmiddle(-310.0f), _y(aScreens[m_bCurrentMenuPage].topMargin), _xmiddle(310.0f), _ydown(aScreens[m_bCurrentMenuPage].bottomMargin)), CRGBA(MENU_BOX_BLUE_R, MENU_BOX_BLUE_G, MENU_BOX_BLUE_B, MENU_BOX_BLUE_A));
+
+		m_apMouseTextures[0].Draw( CRect( _xmiddle(297.5f), _y(aScreens[m_bCurrentMenuPage].topMargin + 2.5f), _xmiddle(307.5f), _ydown(aScreens[m_bCurrentMenuPage].bottomMargin + 2.5f)), CRGBA(255, 255, 255) );
+
+		float fScrollerLength = _ydown(aScreens[m_bCurrentMenuPage].bottomMargin) - _y(aScreens[m_bCurrentMenuPage].topMargin) - _height(25.0f);
+		float fScrollerPos = _height(2.5f) + (fScrollerLength * m_dwSelectedMenuItem / (m_nNumMenuEntries-1));
+
+		m_apMouseTextures[1].Draw( CRect( _xmiddle(297.5f - 5.0f), _y(aScreens[m_bCurrentMenuPage].topMargin) + fScrollerPos, _xmiddle(307.5f + 5.0f), _y(aScreens[m_bCurrentMenuPage].topMargin + 20.0f) + fScrollerPos), CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B) );
+	}
+
+
 	switch ( m_bCurrentMenuPage )
 	{
 	case MENU_PAGE_STATS:
@@ -761,7 +777,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	}
 
 	// Menu drawing loop
-	for ( unsigned int i = 0; i < NUM_ENTRIES_PER_MENU; i++ )
+	for ( int i = 0; i < NUM_ENTRIES_PER_MENU; i++ )
 	{
 		CFont::SetFontStyle(FONT_Eurostile);
 		CFont::SetEdge(1);
@@ -1109,12 +1125,18 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			else
 				fPosX = _xmiddle(aScreens[m_bCurrentMenuPage].entryList[i].posX);
 
+
 			if ( aScreens[m_bCurrentMenuPage].entryList[i].screenVertAlign == -1 )
 				fPosY = _y(aScreens[m_bCurrentMenuPage].entryList[i].posY);
 			else if ( aScreens[m_bCurrentMenuPage].entryList[i].screenVertAlign == 1 )
 				fPosY = _ydown(aScreens[m_bCurrentMenuPage].entryList[i].posY);
 			else
 				fPosY = _ymiddle(aScreens[m_bCurrentMenuPage].entryList[i].posY);
+
+			fPosY += m_fScrollerOffset;
+
+			if ( fPosY < _y(aScreens[m_bCurrentMenuPage].topMargin) || fPosY > _ydown(aScreens[m_bCurrentMenuPage].bottomMargin + 15.0f) )
+				continue;
 
 			if ( pTextToShow )
 			{
@@ -1161,13 +1183,13 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 27:
 				{
 					// Brightness
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-97.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_dwBrightness * (1.0f/192.0f), _width(MENU_SLIDER_WIDTH), false);
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_dwBrightness * (1.0f/192.0f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
-						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-97.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-97.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 7;
-						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-97.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-97.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 6;
 						else
 							m_nHoverOption = 16;
@@ -1177,13 +1199,13 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 28:
 				{
 					// Radio volume
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nRadioVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH), false);
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nRadioVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
-						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-124.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 11;
-						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-124.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-124.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 10;
 						else
 							m_nHoverOption = 16;
@@ -1193,13 +1215,13 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 29:
 				{
 					// SFX volume
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nSfxVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH), false);
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_nSfxVolume * (1.0f/64.0f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
-						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-94.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 13;
-						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-94.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 12;
 						else
 							m_nHoverOption = 16;
@@ -1209,13 +1231,13 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 61:
 				{
 					// Draw Distance
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (m_fDrawDistance-0.925f) * (1.0f/0.875f), _width(MENU_SLIDER_WIDTH), false);
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (m_fDrawDistance-0.925f) * (1.0f/0.875f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
-						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-4.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 9;
-						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-4.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-4.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 8;
 						else
 							m_nHoverOption = 16;
@@ -1225,13 +1247,13 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 62:
 				{
 					// Mouse Sensitivity
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (CCamera::m_fMouseAccelHorzntl-0.0003125f)* (1.0f/0.0049f), _width(MENU_SLIDER_WIDTH), false);
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), (CCamera::m_fMouseAccelHorzntl-0.0003125f)* (1.0f/0.0049f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
-						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-94.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						if ( CheckHover(_xleft(95.0f), nMouseInput - _width(3.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 15;
-						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), _ymiddle(-94.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _ymiddle(-94.0f + 3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
+						else if ( CheckHover(nMouseInput + _width(3.0f), _x(95.0f), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), fPosY + _height(3*MENU_SLIDER_HEIGHT/2 + 1.25f)) )
 							m_nHoverOption = 14;
 						else
 							m_nHoverOption = 16;
@@ -1242,7 +1264,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				{
 					// Shadows Distance
 					bool	bLockedSlider = CShadows::GetShadowQuality() == SHADOW_QUALITY_OFF;
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), _ymiddle(26.0f + MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), CShadows::GetShadowDistance(), _width(MENU_SLIDER_WIDTH), bLockedSlider);
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), CShadows::GetShadowDistance(), _width(MENU_SLIDER_WIDTH), bLockedSlider);
 
 					if ( !bLockedSlider )
 					{
@@ -1705,6 +1727,7 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 				((void(*)(int))0x745C70)(m_dwAppliedResolution);
 				CentreMousePointer();
 
+				m_fScrollerOffset = 0.0f;
 				m_bDrawMouse = true;
 				SaveSettings();
 				CPostEffects::DoScreenModeDependentInitializations();
@@ -2368,53 +2391,6 @@ float CMenuManager::DisplaySlider(float posX, float posY, float height, float di
 	return fullWidth;
 }
 
-void CMenuManager::DrawLeftColumn(MenuItem::MenuEntry& pPosition, const char* pText, const char* pRightText)
-{
-	unsigned char	nEntrySpecialFlag = pPosition.specialDescFlag;
-	float			fPosX, fPosY;
-
-	if ( pPosition.screenHorAlign == -1 )
-		fPosX = _xleft(pPosition.posX);
-	else
-	{
-		if ( pPosition.screenHorAlign == 1 )
-			fPosX = _x(pPosition.posX);
-		else
-			fPosX = _xmiddle(pPosition.posX);
-	}
-
-	fPosY = GetTextYPos(pPosition);
-
-	if ( nEntrySpecialFlag >= ACTION_SAVE_1 && nEntrySpecialFlag <= ACTION_SAVE_12 && pRightText )
-	{
-		char		cSlotNumberText[4];
-		sprintf(cSlotNumberText, "%d", nEntrySpecialFlag);
-
-		CFont::PrintString(fPosX + _xleft(25.0f), fPosY, pText);
-
-		CFont::SetOrientation(ALIGN_Right);
-		CFont::PrintString(fPosX, fPosY, cSlotNumberText);
-	}
-	else
-		CFont::PrintString(fPosX, fPosY, pText);
-}
-
-/*float CMenuManager::GetLeftColumnPos(MenuItem::MenuEntry& pPosition)
-{
-	if ( pPosition.screenHorAlign == -1 )
-		return _xleft(pPosition.posX);
-
-	if ( pPosition.screenHorAlign == 1 )
-		return _x(pPosition.posX);
-
-	return _xmiddle(pPosition.posX);
-}
-
-float CMenuManager::GetLeftColumnPos_Height(long posY)
-{
-	return _ymiddle(posY);
-}*/
-
 float CMenuManager::GetRightColumnPos(MenuVar& sPosY)
 {
 	/*float	fTemp = RsGlobal.MaximumWidth * ( bCurrentScreen == 9 || bCurrentScreen == 10 || bCurrentScreen == 16 ? 40.0 : MENU_TEXT_POSITION_RCOLUMN) / 853.0;
@@ -2790,6 +2766,8 @@ void CMenuManager::ReadFrontendTextures()
 											};
 
 	static const char* const	frontendpcTexNames[] = {
+									"scrollback",
+									"scrollfront",
 									"mouse",
 									"crosshair" };
 
@@ -2854,8 +2832,12 @@ void CMenuManager::UnloadControllerSprites()
 	m_apBackgroundTextures[4].Delete();
 }
 
-void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
+void CMenuManager::SwitchToNewScreen(signed char bScreen)
 {
+	m_fScrollerOffset = 0.0f;
+
+	((void(__thiscall*)(CMenuManager*, signed char))0x573680)(this, bScreen);
+
 	if ( bScreen == 0 )
 		m_fStatsScrollPos = -120.0f;
 	else if ( bScreen == MENU_PAGE_CONTROLLER_SETUP || m_bLastMenuPage == MENU_PAGE_ADDITIONAL_CONTROLLER )
@@ -2917,7 +2899,7 @@ void CMenuManager::SwitchToNewScreenVCS(signed char bScreen)
 
 	// Correct the first entry
 	if ( bScreen == 48 )
-		_snprintf(MenuEntriesList[48].entryList[0].entry, sizeof(MenuEntriesList->entryList->entry), "FEE_I%02d", m_nFocusedDLC);
+		_snprintf(aScreens[48].entryList[0].entry, sizeof(aScreens->entryList->entry), "FEE_I%02d", m_nFocusedDLC);
 
 	// Clear serial code buffer
 	if ( m_bLastMenuPage == 49 )
@@ -3025,6 +3007,23 @@ void CMenuManager::UserInputVCS()
 
 	// Call SA UserInput
 	((void(__thiscall*)(CMenuManager*))0x57FD70)(this);
+
+	m_nNumMenuEntries = 0;
+	for ( int i = 0; i < NUM_ENTRIES_PER_MENU; i++ )
+	{
+		if ( aScreens[m_bCurrentMenuPage].entryList[i].action == 0 )
+			break;
+		m_nNumMenuEntries++;
+	}
+
+	float fBonusMargin = m_dwSelectedMenuItem != 0 && m_dwSelectedMenuItem != m_nNumMenuEntries - 1 ? _height(30.0f) : 0.0f;
+
+	// Shuffle the entries so m_nScrollerPos entry is visible
+	while ( GetTextYPos(m_dwSelectedMenuItem) + m_fScrollerOffset < _y(aScreens[m_bCurrentMenuPage].topMargin) + fBonusMargin )
+		m_fScrollerOffset += _height(10.0f);
+
+	while ( GetTextYPos(m_dwSelectedMenuItem) + m_fScrollerOffset > _ydown(aScreens[m_bCurrentMenuPage].bottomMargin + 15.0f) - fBonusMargin  )
+		m_fScrollerOffset -= _height(10.0f);
 }
 
 void CMenuManager::MessageScreen(const char* pMessage, bool bFullscreen, bool bWithinFrame)
@@ -3225,26 +3224,37 @@ const char* CMenuManager::ProcessDLCSlot(int nSlotID)
 	return TheText.Get(lastDLCName);
 }
 
-float CMenuManager::GetTextYPos(const MenuItem::MenuEntry& pPosition)
+float CMenuManager::GetTextYPos(short nSlotID)
+{
+	if ( aScreens[m_bCurrentMenuPage].entryList[nSlotID].screenVertAlign == -1 )
+		return _y(aScreens[m_bCurrentMenuPage].entryList[nSlotID].posY);
+
+	if ( aScreens[m_bCurrentMenuPage].entryList[nSlotID].screenVertAlign == 1 )
+		return _ydown(aScreens[m_bCurrentMenuPage].entryList[nSlotID].posY);
+
+	return _ymiddle(aScreens[m_bCurrentMenuPage].entryList[nSlotID].posY);
+}
+
+float CMenuManager::_GetTextYPos(const MenuItem::MenuEntry& pPosition)
 {
 	if ( pPosition.screenVertAlign == -1 )
-		return _y(pPosition.posY);
+		return _y(pPosition.posY) + m_fScrollerOffset;
 
 	if ( pPosition.screenVertAlign == 1 )
-		return _ydown(pPosition.posY);
+		return _ydown(pPosition.posY) + m_fScrollerOffset;
 
-	return _ymiddle(pPosition.posY);
+	return _ymiddle(pPosition.posY) + m_fScrollerOffset;
 }
 
 float CMenuManager::GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition)
 {
 	if ( pPosition.screenVertAlign == -1 )
-		return _y(pPosition.posY + 26);
+		return _y(pPosition.posY + 26) + m_fScrollerOffset;
 
 	if ( pPosition.screenVertAlign == 1 )
-		return _ydown(pPosition.posY - 26);
+		return _ydown(pPosition.posY - 26) + m_fScrollerOffset;
 
-	return _ymiddle(pPosition.posY + 26);
+	return _ymiddle(pPosition.posY + 26) + m_fScrollerOffset;
 }
 
 bool CMenuManager::NeedsToRefreshHelps()

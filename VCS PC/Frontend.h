@@ -159,6 +159,8 @@ struct MenuItem
 	char		name[8];
 	BYTE		prevMenu;
 	BYTE		startingMenuEntry;
+	short		topMargin;
+	short		bottomMargin;
 	struct MenuEntry
 	{
 		BYTE		action;
@@ -281,8 +283,7 @@ public:
 		struct{
 			CSprite2d m_apRadioSprites[13];
 			CSprite2d m_apBackgroundTextures[8];
-			CSprite2d m_apAdditionalBackgroundTextures[2];
-			CSprite2d m_apMouseTextures[2];
+			CSprite2d m_apMouseTextures[4];
 		};
 	};
 	bool                m_bTexturesLoaded;
@@ -387,6 +388,10 @@ public:
 	static signed int	m_nDLCMessageTimer;
 	static signed char	m_nSwitchToThisAfterMessage;
 
+
+	static short		m_nNumMenuEntries;
+	static float		m_fScrollerOffset;
+
 public:
 	static MenuItem		ms_pMenus[];
 
@@ -461,12 +466,10 @@ public:
 
 	void			SetDefaultPreferences(signed char bScreen);
 	void			DrawBackEnd();
-	void			DrawLeftColumn(MenuItem::MenuEntry& pPosition, const char* pText, const char* pRightText);
 	//float			GetLeftColumnPos_Height(long posY);
 	float			GetRightColumnPos(MenuVar& sPosY);
 	void			DrawOutroSplash();
 	void			ReadFrontendTextures();
-	void			SwitchToNewScreenVCS(signed char bScreen);
 	void			AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* pDown);
 	void			UserInputVCS();
 	void			MessageScreen(const char* pMessage, bool bFullscreen, bool bWithinFrame);
@@ -476,7 +479,8 @@ public:
 	bool			NeedsToRefreshHelps();
 	void			TypingKeyboardInput(wchar_t wKey);
 	const char*		ProcessDLCSlot(int nSlotID);
-	float			GetTextYPos(const MenuItem::MenuEntry& pPosition);
+	float			_GetTextYPos(const MenuItem::MenuEntry& pPosition);
+	float			GetTextYPos(short nSlotID);
 
 	// Hacky workaround
 	float			GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition);

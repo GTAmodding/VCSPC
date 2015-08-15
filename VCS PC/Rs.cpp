@@ -406,12 +406,8 @@ void RsGenericShadersTerminate()
 
 void DoPreMenuBlackout()
 {
-	RwRGBA		color;
+	RwRGBA		color = { 0, 0, 0, 255 };
 
-	color.red = 0;
-	color.green = 0;
-	color.blue = 0;
-	color.alpha = 255;
 	RwCameraClear(Camera, &color, rwCAMERACLEARIMAGE);
 
 	CFont::SetAlphaFade(255.0f);

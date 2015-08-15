@@ -161,7 +161,6 @@ void			SaveFallback_FallbackPreBeta3Names();
 void			SaveFallback_WrapAroundFirstBlock();
 void			MenuEntriesAlignHack();
 void			MenuEntriesPositionHack_Inject();
-void			MenuEntriesLeftColumnHack();
 void			MenuEntriesLeftColumnHack2();
 void			MenuEntriesPlaceSave();
 void			MenuEntriesPlaceSave2();
@@ -3066,10 +3065,20 @@ void Main_Patches()
 	//Patch<const void*>(0x57CD84, PCMenuActionsTable);
 	//Patch<const void*>(0x57CD8B, PCMenuActionsAddresses);
 	//Patch<BYTE>(0x57CD74, sizeof(PCMenuActionsTable)-1);
-	Patch<WORD>(0x573830, 0xCE8B);
-	Patch<BYTE>(0x573832, 0x5E);
-	InjectHook(0x573833, &CMenuManager::SwitchToNewScreenVCS, PATCH_JUMP);
+	//Patch<WORD>(0x573830, 0xCE8B);
+	//Patch<BYTE>(0x573832, 0x5E);
+	//InjectHook(0x573833, &CMenuManager::SwitchToNewScreenVCS, PATCH_JUMP);
 	InjectHook(0x579330, &CMenuManager::MessageScreen, PATCH_JUMP);
+	InjectHook(0x576AE9, &CMenuManager::SwitchToNewScreen);
+	InjectHook(0x578E26, &CMenuManager::SwitchToNewScreen);
+	InjectHook(0x578EA1, &CMenuManager::SwitchToNewScreen);
+	InjectHook(0x57B73A, &CMenuManager::SwitchToNewScreen);
+	InjectHook(0x57C4AB, &CMenuManager::SwitchToNewScreen);
+	InjectHook(0x57C4B3, &CMenuManager::SwitchToNewScreen);
+	InjectHook(0x57C4BB, &CMenuManager::SwitchToNewScreen);
+	InjectHook(0x57C4C3, &CMenuManager::SwitchToNewScreen);
+	InjectHook(0x57D6AB, &CMenuManager::SwitchToNewScreen);
+	InjectHook(0x57D6BA, &CMenuManager::SwitchToNewScreen);
 
 	static DWORD	dwDummy;
 	// Savegame compatibility
@@ -4020,7 +4029,7 @@ void Main_Patches()
 	Patch<DWORD>(0x57B5D2, NUM_ENTRIES_PER_MENU - 1);
 
 	// Menu mouse hax
-	InjectHook(0x57FE6B, &CMenuManager::GetTextYPos, PATCH_NOTHING);
+	InjectHook(0x57FE6B, &CMenuManager::_GetTextYPos, PATCH_NOTHING);
 	InjectHook(0x57FEAB, &CMenuManager::GetTextYPosNextItem, PATCH_NOTHING);
 	// TODO: Needs memcpy and proper multibyte NOPs
 	Patch<DWORD>(0x57FE53, 0x388C8D90);
@@ -4208,7 +4217,6 @@ void PatchMenus()
 #endif
 	using namespace Memory;
 
-	//Patch<void*>(0x57345A, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57370A, &MenuEntriesList->startingMenuEntry);
 	Patch<void*>(0x573713, &MenuEntriesList->prevMenu);
 	Patch<void*>(0x573728, &MenuEntriesList->prevMenu);
@@ -4220,53 +4228,6 @@ void PatchMenus()
 	Patch<void*>(0x576B1E, &MenuEntriesList->entryList[1].targetMenu);
 	Patch<void*>(0x576B38, MenuEntriesList);
 	Patch<void*>(0x576B58, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x577017, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x57723D, &MenuEntriesList->entryList->targetMenu);
-	//Patch<void*>(0x577280, &MenuEntriesList->entryList->specialDescFlag);
-	//Patch<void*>(0x5772F2, &MenuEntriesList->entryList->specialDescFlag);
-	//Patch<void*>(0x579568, MenuEntriesList);
-	//Patch<void*>(0x57967E, MenuEntriesList);
-	//Patch<void*>(0x5796AF, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x57981F, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x5798D6, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x5798FC, &MenuEntriesList->entryList->specialDescFlag);
-	//Patch<void*>(0x579AB2, &MenuEntriesList->entryList->align);
-	//Patch<void*>(0x579AE4, &MenuEntriesList->entryList->posX);
-	//Patch<void*>(0x579AEE, &MenuEntriesList->entryList->posY);
-	//Patch<void*>(0x579AF7, &MenuEntriesList->entryList->specialDescFlag);
-	//Patch<void*>(0x579B10, &MenuEntriesList->name[4]);
-	//Patch<void*>(0x579B17, &MenuEntriesList->entryList->posX);
-	//Patch<void*>(0x579B2E, &MenuEntriesList->name[6]);
-	//Patch<void*>(0x579B3A, &MenuEntriesList->entryList->posY);
-	//Patch<void*>(0x579B43, &MenuEntriesList->entryList->posX);
-	//Patch<void*>(0x579B5A, &MenuEntriesList->entryList->posY);
-	//Patch<void*>(0x579B70, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x579B7A, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x579B8B, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x579B9F, &MenuEntriesList->entryList->specialDescFlag);
-	//Patch<void*>(0x579BC3, &MenuEntriesList->entryList->posX);
-	//Patch<void*>(0x579C83, &MenuEntriesList->entryList->posX);
-	//Patch<void*>(0x579D20, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x579D3F, &MenuEntriesList->name[6]);
-	//Patch<void*>(0x579D4A, &MenuEntriesList->entryList->posY);
-	//Patch<void*>(0x579D93, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x57A18A, &MenuEntriesList->entryList->posY);
-	//Patch<void*>(0x57A1BD, &MenuEntriesList->entryList->posX);
-	//Patch<void*>(0x57A235, &MenuEntriesList->entryList->specialDescFlag);
-	//Patch<void*>(0x57A39F, &MenuEntriesList->entryList->posY);
-	//Patch<void*>(0x57A455, &MenuEntriesList->entryList->align);
-	//Patch<void*>(0x57A469, &MenuEntriesList->entryList->posX);
-	//Patch<void*>(0x57A4B9, &MenuEntriesList->entryList->posX);
-	//Patch<void*>(0x57A4DA, &MenuEntriesList->entryList->posX);
-	//Patch<void*>(0x57A54F, &MenuEntriesList->entryList->posY);
-	//Patch<void*>(0x57A615, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x57A65D, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x57A6A5, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x57A6E6, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x57A729, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x57A77C, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x57A7BE, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x57B27E, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57B4F2, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57B519, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57B52A, &MenuEntriesList->entryList->action);
@@ -4280,17 +4241,10 @@ void PatchMenus()
 	Patch<void*>(0x57B69C, &MenuEntriesList->entryList->specialDescFlag);
 	Patch<void*>(0x57B6F1, &MenuEntriesList->entryList->specialDescFlag);
 	Patch<void*>(0x57C313, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x57CD6B, &MenuEntriesList->entryList->action);
-	//Patch<void*>(0x57D26C, &MenuEntriesList->entryList[2].targetMenu);
-	//Patch<void*>(0x57D287, &MenuEntriesList->entryList[2].targetMenu);
-	//Patch<void*>(0x57D2D2, &MenuEntriesList->entryList[2].targetMenu);
 	Patch<void*>(0x57D6D8, &MenuEntriesList->entryList->entry);
 	Patch<void*>(0x57D701, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x57E3F7, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57FE0A, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57FE25, &MenuEntriesList->entryList->entry);
-	//Patch<void*>(0x57FE57, &MenuEntriesList->entryList->posY);
-	//Patch<void*>(0x57FE96, &MenuEntriesList->entryList->posY);
 	Patch<void*>(0x57FF5F, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x57FFAE, &MenuEntriesList->entryList->action);
 	Patch<void*>(0x580316, &MenuEntriesList->entryList->action);
@@ -4305,7 +4259,6 @@ void PatchMenus()
 	Patch<const char*>(0x57F79C, "FEM_CFT");
 	Patch<const char*>(0x57F702, "FEH_SCN");
 	Patch<const char*>(0x57F709, "FEH_CCN");
-	//Patch<const char*>(0x579C56, "FEM_SL%X");
 
 #ifdef DUMP_MENUS
 	if ( FILE* hDumpFile = fopen("menu_dump.log", "w") )
@@ -4787,7 +4740,7 @@ char* ParseCommandlineArgument(char* pArg)
 
 BOOL IsAlreadyRunning()
 {
-	LaunchSteam();
+	//LaunchSteam();
 
 	CreateEventW(nullptr, FALSE, TRUE, L"Grand theft auto San Andreas");
 
@@ -6104,24 +6057,6 @@ void __declspec(naked) MenuEntriesPositionHack_Inject()
 		call	CMenuManager::GetRightColumnPos
 		pop		ecx
 		//jmp		MenuEntriesPositionHack_JumpBack
-	}
-}
-
-void __declspec(naked) MenuEntriesLeftColumnHack()
-{
-	_asm
-	{
-		lea		ecx, CMenuManager::ms_pMenus[eax+ecx].entryList
-		//lea		ecx, [ecx]CMenuManager::ms_pMenus[0].entryList
-		//add		eax, ecx
-		push	esi
-		push	ebx
-		push	ecx
-//		mov		ecx, ebp
-		call	CMenuManager::DrawLeftColumn
-		//fstp	[esp+130h-11Ch]
-		mov		eax, 57A202h
-		jmp		eax
 	}
 }
 
