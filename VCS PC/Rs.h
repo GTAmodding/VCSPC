@@ -178,6 +178,13 @@ void			RsGenericShadersTerminate();
 // This is a part of RW.cpp
 void			InjectRwEngineWrappers();
 
+int				GetNumDisplayModes();
+char**			GetDisplayModesList();
+
+void			ToggleVSync(bool bEnable);
+
+RwBool			RsSelectDevice();
+
 extern RsGlobalType&			RsGlobal;
 extern const DWORD				RsGlobalFrameLimits[5];
 extern bool&					bAnisotSupported;

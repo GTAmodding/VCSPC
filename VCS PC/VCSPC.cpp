@@ -3341,10 +3341,8 @@ void Main_Patches()
 	//InjectHook(0x5735C8, &DrawDistanceRecalc);
 
 	// Widescreen
-	Patch<DWORD>(0x745B71, 0x9090687D);
 	Patch<DWORD>(0x74596C, 0x9090127D);
 	Nop(0x745970, 2);
-	Nop(0x745B75, 2);
 	//Nop(0x745BC9, 2);
 	Nop(0x7459E1, 2);
 

@@ -5,18 +5,20 @@
 #include "FxSystem.h"
 #include "Font.h"
 #include "YCoCg.h"
+#include "Frontend.h"
 
 const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 
 bool& bAnisotSupported = *(bool*)0xC87FFC;
 RwPluginRegistry& textureTKList = *(RwPluginRegistry*)0x8E23CC;
 
+bool bVerticalSync = true;
+
 void*		gpPixelShaderForDefaultCallbacks = nullptr;
 
 WRAPPER RsEventStatus RsEventHandler(RsEvent eventID, void* param) { WRAPARG(eventID); WRAPARG(param); EAXJMP(0x619B60); }
 WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
 WRAPPER void DefinedState2d() { EAXJMP(0x734750); }
-WRAPPER void RsCameraShowRaster(RwCamera* pCamera) { EAXJMP(0x745240); }
 WRAPPER RpHAnimHierarchy* GetAnimHierarchyFromSkinClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x734A40); }
 
 WRAPPER void* GtaOperatorNew(size_t size) { WRAPARG(size); EAXJMP(0x82119A); }
@@ -119,6 +121,26 @@ BOOL PluginAttach()
 		return FALSE;
 
 	return TRUE;
+}
+
+void ToggleVSync(bool bEnable)
+{
+	bVerticalSync = bEnable;
+}
+
+void RsCameraShowRaster(RwCamera* pCamera)
+{
+	RwCameraShowRaster( pCamera, RsGlobal.ps->window, bVerticalSync ? rwRASTERFLIPWAITVSYNC : rwRASTERFLIPDONTWAIT );
+}
+
+RwBool RsSelectDevice()
+{
+	if ( ((RwBool(*)())0x746190)() != FALSE )
+	{
+		ToggleVSync( FrontEndMenuManager.m_bAppliedVSync );
+		return TRUE;
+	}
+	return FALSE;
 }
 
 void CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio)
@@ -415,6 +437,55 @@ void DoPreMenuBlackout()
 	RsCameraShowRaster(Camera);
 }
 
+static char** pVideoModes = (char**)0xC920D0;
+void FreeDisplayModesList()
+{
+	for ( int i = 0, j = GetNumDisplayModes(); i < j; i++ )
+	{
+		delete[] pVideoModes[i];
+	}
+	delete[] pVideoModes;
+	pVideoModes = nullptr;
+}
+
+int GetNumDisplayModes()
+{
+	return RwEngineGetNumVideoModes();
+}
+
+char** GetDisplayModesList()
+{
+	static RwInt32 lastSubSystem = -1;
+	if ( pVideoModes )
+	{
+		if ( lastSubSystem == RwEngineGetCurrentSubSystem() )
+			return pVideoModes;
+
+		FreeDisplayModesList();
+	}
+	lastSubSystem = RwEngineGetCurrentSubSystem();
+
+	int i = 0;
+	int j = GetNumDisplayModes();
+	pVideoModes = new char*[j];
+
+	for ( ; i < j; i++ )
+	{
+		RwVideoMode videoMode;
+		RwEngineGetVideoModeInfo( &videoMode, i );
+		if ( videoMode.flags & rwVIDEOMODEEXCLUSIVE )
+		{
+			pVideoModes[i] = new char[32];
+			sprintf( pVideoModes[i], "%ux%ux%u (%uHz)", videoMode.width, videoMode.height, videoMode.depth, videoMode.refRate );
+		}
+		else
+		{
+			pVideoModes[i] = nullptr;
+		}
+	}
+	return pVideoModes;
+}
+
 RwBool MyClose(void* data)
 {
 	return fclose((FILE*)data) == 0;
@@ -597,6 +668,12 @@ static StaticPatcher	Patcher([](){
 						// No DirectPlay dependency
 						Patch<BYTE>(0x74754A, 0xB8);
 						Patch<DWORD>(0x74754B, 0x900);
+
+						InjectHook(0x748E7A, FreeDisplayModesList);
+						InjectHook(0x745AF0, GetDisplayModesList, PATCH_JUMP);
+
+						// VSync
+						InjectHook(0x619440, RsCameraShowRaster, PATCH_JUMP);
 
 						// Generic shaders
 						InjectHook(0x5BF395, RsRwInitialize);

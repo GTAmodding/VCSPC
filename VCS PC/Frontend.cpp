@@ -17,6 +17,7 @@
 #include "Shadows.h"
 #include "PcSave.h"
 #include "PostEffects.h"
+#include "Rs.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -34,6 +35,8 @@ signed char			CMenuManager::m_nSwitchToThisAfterMessage = -1;
 short				CMenuManager::m_nNumMenuEntries;
 unsigned char		CMenuManager::m_bPadPageShown;
 float				CMenuManager::m_fScrollerOffset;
+bool				CMenuManager::m_bAppliedVSync;
+bool				CMenuManager::m_bVSync;
 
 static int	nTimeToStopPadShake;
 
@@ -244,6 +247,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	{ "FEH_GFX", 33, 3, 75, 50,
 		56, "FED_RES", ACTION_CLICKORARROWS, 27, 0, -154, 2, 0, 0,
 		26, "FED_WIS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		MENUACTION_VSYNC, "FED_VSN", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		24, "FEM_FRM", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_EFFECTS_QUALITY, "FED_EFF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_SHADOWS_QUALITY, "FED_SHA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
@@ -1043,7 +1047,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				break;
 			case 56:
 			{
-				const char* pszResolution = ((const char**(*)())0x745AF0)()[m_dwResolution];
+				char* pszResolution = GetDisplayModesList()[m_dwResolution];
 
 				if (!pszResolution)
 				{
@@ -1104,6 +1108,9 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				break;
 			case MENUACTION_TRAILS:
 				pTextToShow_RightColumn = TheText.Get(CPostEffects::TrailsEnabled() ? "FEM_ON" : "FEM_OFF");
+				break;
+			case MENUACTION_VSYNC:
+				pTextToShow_RightColumn = TheText.Get(m_bVSync ? "FEM_ON" : "FEM_OFF");
 				break;
 			case MENUACTION_VIBRATION:
 				pTextToShow_RightColumn = TheText.Get(m_bVibrationEnabled ? "FEM_ON" : "FEM_OFF");
@@ -1169,7 +1176,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 
 				if ( aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag >= ACTION_SAVE_1 && aScreens[m_bCurrentMenuPage].entryList[i].specialDescFlag <= ACTION_SAVE_12 )
 					CFont::SetScale(_width(0.35f), _height(0.95f));
-				else if ( m_bCurrentMenuPage == 3 && i == 4 )
+				else if ( ( m_bCurrentMenuPage == 3 && i == 4 ) || ( m_bCurrentMenuPage == 27 && i == 0 ) )
 					CFont::SetScale(_width(0.56f), _height(1.0f));
 				else
 					CFont::SetScale(_width(0.7f), _height(1.0f));
@@ -1320,6 +1327,25 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 		if ( m_dwAntiAliasingLevel != m_dwAppliedAntiAliasingLevel )
 		{
 			m_dwAntiAliasingLevel = m_dwAppliedAntiAliasingLevel;
+			SetHelperText(3);
+		}
+	}
+
+	if ( !strncmp(aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].entry, "FED_VSN", 8) )
+	{
+		if ( m_bVSync == m_bAppliedVSync )
+		{
+			if ( m_nHelperTextIndex == 1 )
+				ResetHelperText();
+		}
+		else
+			SetHelperText(1);
+	}
+	else
+	{
+		if ( m_bVSync != m_bAppliedVSync )
+		{
+			m_bVSync = m_bAppliedVSync;
 			SetHelperText(3);
 		}
 	}
@@ -1735,8 +1761,8 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		}
 		else
 		{
-			char**				pVideoModes = ((char**(*)())0x745AF0)();
-			int					nNumVideoModes = RwEngineGetNumVideoModes();
+			char**				pVideoModes = GetDisplayModesList();
+			int					nNumVideoModes = GetNumDisplayModes();
 
 			if ( nArrowsInput > 0 )
 			{
@@ -2081,6 +2107,23 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 			CPostEffects::Init_Trails();
 		}
 		SaveSettings();
+		return;
+	case MENUACTION_VSYNC:
+		if ( bEnterInput )
+		{
+			if ( m_bVSync != m_bAppliedVSync )
+			{
+				m_bAppliedVSync = m_bVSync;
+
+				ToggleVSync(m_bAppliedVSync);
+				SaveSettings();
+			}
+		}
+		else
+		{
+			m_bVSync = m_bVSync == false;
+		}
+
 		return;
 	case MENUACTION_VIBRATION:
 		if ( !m_bVibrationEnabled )
@@ -3163,6 +3206,7 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 		//m_bMipMapping = true;
 		m_dwAppliedAntiAliasingLevel = m_dwAntiAliasingLevel = 1;
 		m_dwResolution = m_dwAppliedResolution;
+		m_bVSync = m_bAppliedVSync = true;
 		ms_lodDistScale = m_fDrawDistance = 1.2f;
 		//g_fx.SetFxQuality(FXQUALITY_HIGH);
 		Fx_c::SetEffectsQuality(FXQUALITY_HIGH);

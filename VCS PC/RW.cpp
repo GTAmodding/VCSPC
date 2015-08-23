@@ -85,6 +85,7 @@ WRAPPER void _rwD3D9SetVertexShader(void *shader) { EAXJMP(0x7F9FB0); }
 WRAPPER void RwD3D9SetTextureStageState(RwUInt32 stage, RwUInt32 type, RwUInt32 value) { EAXJMP(0x7FC340); }
 WRAPPER void RwD3D9DeleteVertexDeclaration(void *vertexdeclaration) { EAXJMP(0x7FAC10); }
 WRAPPER void RwD3D9DestroyVertexBuffer(RwUInt32 stride, RwUInt32 size, void *vertexBuffer, RwUInt32 offset) { EAXJMP(0x7F56A0); }
+WRAPPER void _rwResourcesPurge(void) { EAXJMP(0x807E50); }
 WRAPPER void _rwD3D9SetIndices(void *indexBuffer) { EAXJMP(0x7FA1C0); }
 WRAPPER void _rwD3D9SetStreams(const RxD3D9VertexStream *streams, RwBool useOffsets) { EAXJMP(0x7FA090); }
 WRAPPER void _rwD3D9DrawIndexedPrimitive(RwUInt32 primitiveType, RwInt32 baseVertexIndex, RwUInt32 minIndex,
@@ -112,6 +113,7 @@ WRAPPER RwInt32 RwTextureRegisterPluginStream(RwUInt32 pluginID,
 WRAPPER const RwPluginRegistry *_rwPluginRegistryReadDataChunks(const RwPluginRegistry *reg,
                                                               RwStream *stream,
                                                               void *object) { EAXJMP(0x808980); }
+WRAPPER void RwD3D9EngineSetRefreshRate(RwUInt32 refreshRate) { EAXJMP(0x7F8580); }
 
 
 // Reversed RW functions
@@ -143,6 +145,11 @@ RwCamera* RwCameraSetViewWindow(RwCamera* camera, const RwV2d* viewWindow)
 RwCamera* RwCameraClear(RwCamera* camera, RwRGBA* colour, RwInt32 clearMode)
 {
 	return RWSRCGLOBAL(stdFunc[rwSTANDARDCAMERACLEAR])(camera, colour, clearMode) != FALSE ? camera : NULL;
+}
+
+RwCamera* RwCameraShowRaster(RwCamera* camera, void* pDev, RwUInt32 flags)
+{
+	return RwRasterShowRaster( RwCameraGetRaster(camera), pDev, flags ) != NULL ? camera : NULL;
 }
 
 RwFrame* RwFrameForAllChildren(RwFrame* frame, RwFrameCallBack callBack, void* data)
@@ -247,6 +254,12 @@ RwRaster* RwRasterSetFromImage(RwRaster* raster, RwImage* image)
 	return NULL;
 }
 
+RwRaster* RwRasterShowRaster(RwRaster* raster, void* dev, RwUInt32 flags)
+{
+	_rwResourcesPurge();
+	return RWSRCGLOBAL(stdFunc[rwSTANDARDRASTERSHOWRASTER])( raster, dev, flags ) != FALSE ? raster : NULL;
+}
+
 RwTexture* RwTextureSetRaster(RwTexture* texture, RwRaster* raster)
 {
 	if ( raster )
@@ -348,6 +361,64 @@ void _rwObjectHasFrameSetFrame(void* object, RwFrame* frame)
 	}
 }
 
+struct RwD3D9DisplayMode
+{
+	D3DDISPLAYMODE		DisplayMode;
+	RwVideoModeFlag		Flags;
+};
+
+static IDirect3D9*&	pDirect3D9 = *(IDirect3D9**)0xC97C20;
+
+static RwD3D9DisplayMode*&	pD3D9DisplayModes = *(RwD3D9DisplayMode**)0xC97C48;
+static unsigned int& NumMaxD3D9DisplayModes = *(unsigned int*)0xC9BEE0;
+static unsigned int& NumD3D9DisplayModes = *(unsigned int*)0xC97C40;
+static UINT& ActiveAdapter = *(UINT*)0xC97C24;
+static D3DFORMAT* const FormatsToEnumerate = (D3DFORMAT*)0x884788;
+
+
+void D3D9CreateDisplayModesList()
+{
+	if ( pD3D9DisplayModes != nullptr )
+		pD3D9DisplayModes = (RwD3D9DisplayMode*)RwRealloc( pD3D9DisplayModes, sizeof(pD3D9DisplayModes[0]) * (NumMaxD3D9DisplayModes + 1), 
+					rwMEMHINTFLAG_RESIZABLE | rwMEMHINTDUR_GLOBAL | rwID_DRIVERMODULE );
+	else
+		pD3D9DisplayModes = (RwD3D9DisplayMode*)RwMalloc( sizeof(pD3D9DisplayModes[0]) * (NumMaxD3D9DisplayModes + 1), 
+					rwMEMHINTFLAG_RESIZABLE | rwMEMHINTDUR_GLOBAL | rwID_DRIVERMODULE );
+
+	// Retrieve current display mode
+	pDirect3D9->GetAdapterDisplayMode( ActiveAdapter, &pD3D9DisplayModes[0].DisplayMode );
+	switch ( pD3D9DisplayModes[0].DisplayMode.Format )
+	{
+		case D3DFMT_A8R8G8B8:
+		case D3DFMT_X8R8G8B8:
+		case D3DFMT_R5G6B5:
+		case D3DFMT_X1R5G5B5:
+		case D3DFMT_A1R5G5B5:
+		case D3DFMT_A2R10G10B10:
+			pD3D9DisplayModes[0].Flags = (RwVideoModeFlag)0;
+			NumD3D9DisplayModes = 1;
+			break;
+		default:
+			NumD3D9DisplayModes = 0;
+			break;
+	}
+
+	for ( UINT format = 0; format < 3; format++ )
+	{
+		UINT numModes = pDirect3D9->GetAdapterModeCount( ActiveAdapter, FormatsToEnumerate[format] );
+		for ( UINT i = 0; i < numModes; i++ )
+		{
+			pDirect3D9->EnumAdapterModes( ActiveAdapter, FormatsToEnumerate[format], i, &pD3D9DisplayModes[NumD3D9DisplayModes].DisplayMode );
+			pD3D9DisplayModes[NumD3D9DisplayModes].Flags = rwVIDEOMODEEXCLUSIVE;
+			NumD3D9DisplayModes++;	
+		}
+	}
+
+	if ( NumD3D9DisplayModes < NumMaxD3D9DisplayModes + 1 )
+		pD3D9DisplayModes = (RwD3D9DisplayMode*)RwRealloc( pD3D9DisplayModes, sizeof(pD3D9DisplayModes[0]) * NumD3D9DisplayModes, 
+					rwMEMHINTFLAG_RESIZABLE | rwMEMHINTDUR_GLOBAL | rwID_DRIVERMODULE );
+}
+
 // This is our own RwEngineInstance handle
 void* RwEngineInstance;
 
@@ -391,4 +462,7 @@ void InjectRwEngineWrappers()
 	Memory::InjectHook(0x6195E5, RwEngineClose_VCS);
 	Memory::InjectHook(0x619D1F, RwEngineClose_VCS);
 	Memory::InjectHook(0x619C9E, RwEngineInit_VCS);
+
+	Memory::InjectHook(0x7F7540, D3D9CreateDisplayModesList, PATCH_JUMP);
+	Memory::Nop(0x74631E, 5);
 }

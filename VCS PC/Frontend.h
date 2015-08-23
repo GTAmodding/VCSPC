@@ -115,6 +115,7 @@ enum eMenuActions
 	MENUACTION_EFFECTS_QUALITY,
 	MENUACTION_SHADOWS_DISTANCE,
 	MENUACTION_TRAILS,
+	MENUACTION_VSYNC,
 
 	MENUACTION_VIBRATION,
 	MENUACTION_INVERTLOOK,
@@ -387,6 +388,8 @@ public:
 	static const char*	m_pDLCMessage;
 	static signed int	m_nDLCMessageTimer;
 	static signed char	m_nSwitchToThisAfterMessage;
+
+	static bool			m_bAppliedVSync, m_bVSync;
 
 
 	static short		m_nNumMenuEntries;

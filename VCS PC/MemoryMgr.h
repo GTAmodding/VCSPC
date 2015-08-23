@@ -38,6 +38,8 @@ inline void CheckMemoryBanList(AT address)
 	assert(nAddress < 0x7189B0 || nAddress > 0x718A0F);
 	assert(nAddress < 0x57E245 || nAddress > 0x57E4CF);
 	assert(nAddress < 0x58D7D0 || nAddress > 0x58D99F);
+	assert(nAddress < 0x745AF5 || nAddress > 0x745C6F);
+	assert(nAddress < 0x745A80 || nAddress > 0x745AEF);
 #else
 	UNREFERENCED_PARAMETER(address);
 #endif
