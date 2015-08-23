@@ -16,6 +16,8 @@
  *
  * RenderWare File System Data Types.
  */
+#include <rwplcore.h>
+
 /****************************************************************************
  * File System Header
  ***************************************************************************/
@@ -133,40 +135,19 @@ typedef enum RtFileSystemError RtFileSystemError;
 
 /**
  * \ingroup rtfsdatatypes
- * \ref RtFSFileOperation
- * File System Operations. These are passed to the outstanding operation 
- * callback for each asynchronous operation.
+ * \ref RtFileMoveMethod
+ * File System Move Method.
  */
-enum RtFSFileOperation
+enum RtFileMoveMethod
 {
-    RTFS_FILEOP_NONE = 0x01,    /**< There are no outstanding operations. */
-    RTFS_FILEOP_OPEN,           /**< Notifies an open operation. */
-    RTFS_FILEOP_CLOSE,          /**< Notifies an close operation. */
-    RTFS_FILEOP_SEEK,           /**< Notifies a seek operation.  */
-    RTFS_FILEOP_READ,           /**< Notifies a read operation.  */
-    /* Ensures sizeof(enum) == sizeof(RwInt32)) */
-    RTFS_FILEOP_TYPEFORCEENUMSIZEINT = RWFORCEENUMSIZEINT
-
-};
-typedef enum RtFSFileOperation RtFSFileOperation;
-
-
-
-/**
- * \ingroup rtfsdatatypes
- * \ref RtFileSeekMethod
- * File System Seek Method.
- */
-enum RtFileSeekMethod
-{
-    RTFILE_POS_BEGIN = 0x01,        /**< Seek from the start of the file. */
-    RTFILE_POS_CURRENT,             /**< Seek from the current file pointer
+    RTFILE_POS_BEGIN = 0x01,        /**< Move from the start of the file. */
+    RTFILE_POS_CURRENT,             /**< Move from the current file pointer
                                          position. */
-    RTFILE_POS_END,                 /**< Seek from the end of the file. */
+    RTFILE_POS_END,                 /**< Move from the end of the file. */
     /* Ensures sizeof(enum) == sizeof(RwInt32)) */
     RTFILE_POS_TYPEFORCEENUMSIZEINT = RWFORCEENUMSIZEINT
 };
-typedef enum RtFileSeekMethod RtFileSeekMethod;
+typedef enum RtFileMoveMethod RtFileMoveMethod;
 
 /**
  * \ingroup rtfsdatatypes
@@ -184,7 +165,7 @@ enum RtFileStatus
                                          determine the error. However, the
                                          file is ready to accept commands. */
     RTFILE_STATUS_OPENING,          /**< The file is in the process of being
-                                         opened */
+                                         opened. */
     /* Ensures sizeof(enum) == sizeof(RwInt32)) */
     RTFILE_STATUS_TYPEFORCEENUMSIZEINT = RWFORCEENUMSIZEINT
 };
@@ -225,7 +206,6 @@ typedef struct  RtFileSystem        RtFileSystem;
 typedef struct  RtFile              RtFile;
 
 typedef struct _rtInt64 _rtInt64;
-
 /**
  * \ingroup rtfsdatatypes
  * \struct _rtInt64
@@ -238,7 +218,6 @@ struct _rtInt64
 };
 
 typedef union RtInt64 RtInt64;
-
 /**
  * \ingroup rtfsdatatypes
  * \struct RtInt64
@@ -246,13 +225,8 @@ typedef union RtInt64 RtInt64;
  */
 union RtInt64
 {
-#ifdef SKY
     RWALIGN(RwInt64  supportValue, 16);  /**< Used by compilers with 64-bit support */
     RWALIGN(_rtInt64 noSupportValue, 16);/**< Used by compilers with no 64-bit support*/
-#else /* SKY */
-    RwInt64  supportValue;  /**< Used by compilers with 64-bit support */
-    _rtInt64 noSupportValue;/**< Used by compilers with no 64-bit support*/   
-#endif /* SKY */
 };
 
 /****************************************************************************
@@ -324,12 +298,12 @@ typedef RwUInt32 (*RtFileWriteFunc) ( RtFile      *file,
  * \param nOffset File offset.
  * \param fPosition Position to calculate the actual offset from.
  * \ref RtFile
- * \ref RtFileSeekMethod
+ * \ref RtFileMoveMethod
  * \return The new file position
  */
 typedef RtInt64 (*RtFileSetPositionFunc) ( RtFile            *file,
                                            RwInt32            nOffset,
-                                           RtFileSeekMethod   fPosition);
+                                           RtFileMoveMethod   fPosition);
 
 /**
  * \ingroup rtfsdatatypes
@@ -442,24 +416,6 @@ typedef void (*RtFileSystemCloseFunc) ( RtFileSystem *fs );
  */
 typedef void (*RtFileSystemCallBack) ( RwChar *fsName );
 
-/**
- * \ingroup rtfsmdatatypes
- * \ref RtFSFileOpCallBack
- * represents the generic function prototype for a file system manager
- * file operation callback. 
- *
- * \param file      File handle.
- * \param size      File size.
- * \param status    File status.
- * \param fileOp    Current outstanding file operation.
- * \param data      Optional data passed back to the callback.
- */
-typedef void (*RtFSFileOpCallBack)( void              *file,
-                                    RwUInt32           size, 
-                                    RwUInt32           status, 
-                                    RtFSFileOperation  fileOp,
-                                    void              *data );
-
 
 /****************************************************************************
  * Structure Definition
@@ -505,7 +461,7 @@ struct RtFileSystemFileFunctionTable
                                                     file pointer position. */
     RtFileSyncFunc                  sync;        /**< Sync method that must be
                                                     called when using an
-                                                    asynchronous operation.*/
+                                                    asynchornous operation.*/
     RtFileAbortFunc                 abort;       /**< Abort method called when
                                                     an operation needs to be
                                                     aborted. */
@@ -529,9 +485,6 @@ struct RtFile
     RtInt64                         length;     /**< The length of this file.*/
     RtInt64                         position;   /**< The file pointer
                                                      position.*/
-    RtInt64                         initialPos ;/**< File position before a 
-                                                     read. Internal use.*/
-                                                     
     RwBool                          isAsync;    /**< Has this file been
                                                      opened in asynchronous
                                                      mode (TRUE if yes,
@@ -543,18 +496,6 @@ struct RtFile
                                                      corresponding to a
                                                      possible error that
                                                      occured on this file. */
-    RtFSFileOperation               outstandingFileOp; /**< This is the current
-                                                         asynchronous operation
-                                                         being executed. */
-    RwUInt32                        outstandingSize;  /**< Size passed back to
-                                                         the outstanding 
-                                                         callback */
-    RtFSFileOpCallBack              outstandingCB;    /**< Callback triggered
-                                                         when the outstanding
-                                                         operation completes.*/
-    void                           *oustandingCBData;  /**< Data passed back to
-                                                         the outstanding 
-                                                         callback */
     RtFileSystem                   *fileSystem; /**< The file system this file
                                                      belongs to. */
 };
@@ -660,54 +601,6 @@ RtFileSystemIsDefaultedToAsync( RtFileSystem *fs );
 extern RtFileSystemStatus
 RtFileSystemGetStatus( RtFileSystem *fs );
 
-extern void
-RtFileSystemSetOustandingOpCallback( RtFile *file, 
-                                     RtFSFileOpCallBack  CallBack, 
-                                     void               *CallBackData);
-
-extern void
-rtFSTriggerFileOustandingOpCallback( RtFile *file );
-
-
-#if (defined(WIN32) || defined(MACOS))
-#define _GetPosition(_file) \
-    (((RtFile *)_file)->position.noSupportValue.low)
-#define _GetSize(_file) \
-    (((RtFile *)_file)->length.noSupportValue.low)
-#else
-#define _GetPosition(_file) \
-    (((RtFile *)_file)->position.supportValue)
-#define _GetSize(_file) \
-    (((RtFile *)_file)->length.supportValue)
-#endif 
-
-/**
- * \ingroup rtfsdatatypes
- * \ref RtFileSystemGetFilePosition returns the file position as a RwInt32.
- *      _file must be a pointer to a valid RtFile.
- */
-#define RtFileSystemGetFilePosition(_file)     _GetPosition(_file)
-/**
- * \ingroup rtfsdatatypes
- * \ref RtFileSystemGetFileSize returns the file size as a RwInt32.
- *      _file must be a pointer to a valid RtFile.
- */
-#define RtFileSystemGetFileSize(_file)         _GetSize(_file)
-      
-/**
- * \ingroup rtfsdatatypes
- * \ref RtFileSystemGetFileLastError returns the last set file error.
- *      _file must be a pointer to a valid RtFile.
- */
-#define RtFileSystemGetFileLastError(_file)    (((RtFile *)_file)->error)
-
-/**
- * \ingroup rtfsdatatypes
- * \ref RtFileSystemGetFileStatus returns the current file status.
- *      _file must be a pointer to a valid RtFile.
- */
-#define RtFileSystemGetFileStatus(_file)       (((RtFile *)_file)->status)
-
 #ifdef __cplusplus
 }
 #endif  /* cplusplus */
@@ -725,7 +618,7 @@ rtFSTriggerFileOustandingOpCallback( RtFile *file );
  */
 
 /**
- * \ingroup rtfsmdfatatypes
+ * \ingroup rtfsmdatatypes
  * \ref RtFSManagerCallBackCode flags that specify the callback to set
  * A RtFSManagerCallBackCode is passed to the \ref RtFSManagerSetCallBack
  * function.
@@ -811,9 +704,8 @@ struct RtFSManager
                                              this manager can manage */
     RwInt32              curNbFS;       /**< Current number of file systems
                                              this manager is managing */
-    RwBool               isOpened;      /**< Specify whether the file system
-                                             manager is opened or not. */
     RtFSManagerError     lastError;     /**< Last error */
+    RwFileFunctions      stdInterface;  /**< Standard interface */
     FSManagerCallBacks   CallBacks;     /**< File system manager callbacks */
 };
 #endif
@@ -824,45 +716,6 @@ struct RtFSManager
 extern "C"
 {
 #endif /* __cplusplus */
-
-extern void *
-RwFopen( const RwChar * name,
-         const RwChar * access);
-
-extern RwInt32
-RwFclose(void *fptr);
-
-extern size_t
-RwFread( void *addr,
-         size_t size,
-         size_t count,
-         void *fptr);
-
-extern size_t
-RwFwrite( const void *addr, size_t size, size_t count, void *fptr);
-
-extern RwInt32
-RwFseek( void    *fptr,
-         long     offset,
-         RwInt32  origin);
-
-extern RwChar *
-RwFgets( RwChar   *buffer, RwInt32   maxLen, void     *fptr);
-
-extern RwInt32
-RwFputs( const RwChar * buffer, void *fptr );
-
-extern RwInt32
-RwFeof( void *fptr );
-
-extern RwBool
-RwFexist( const RwChar * name );
-
-extern RwInt32
-RwFtell( void *fptr );
-
-extern RwBool
-RwFAsyncCancel( RtFile *fptr );
 
 extern RwBool
 RtFSManagerOpen( RwInt32 maxNbFS );
@@ -884,10 +737,7 @@ extern RtFileSystem *
 RtFSManagerGetFileSystemFromName( RwChar *fsName );
 
 extern RtFile *
-RtFSManagerFOpen( const RwChar       *filename,
-                  RtFileAccessFlag    access,
-                  RtFSFileOpCallBack  CallBack,
-                  void               *CallBackData );
+RtFSManagerFOpen( const RwChar *filename, RtFileAccessFlag access );
 
 extern RtFileSystem *
 RtFSManagerGetFileSystemFromFileName( const RwChar *fileName );
@@ -897,15 +747,6 @@ RtFSManagerSetDefaultFileSystem( RtFileSystem *fs );
 
 extern RtFileSystem *
 RtFSManagerGetDefaultFileSystem( void );
-
-extern void
-RtFSManagerSyncAllFilesOnFileSystem( RtFileSystem *fs );
-
-extern void
-RtFSManagerSyncAllFiles( void );
-
-extern RtFSManagerError
-RtFSManagerGetLastError( void );
 
 extern RwBool
 _rtFSManagerIsNewFSRegistrable( void );
@@ -919,22 +760,9 @@ _rtGetFileSystemFromDeviceName( const RwChar *deviceName );
 extern RtFile *
 _rtFSManagerFOpenOnFS( RtFileSystem *fs,
                        const RwChar * name,
-                       RtFileAccessFlag access,
-                       RtFSFileOpCallBack  CallBack,
-                       void               *CallBackData );
+                       RtFileAccessFlag access );
 
-RtFSManager  *
-_rtGetFSManager( void );
-
-RwUInt32
-TkFSManagerGetValue(RtInt64 value);
-
-/**
- * \ingroup rtfsmdatatypes
- * \ref RtFSManagerGetLastError returns the last file system manager error.
- */
-#define RtFSManagerGetLastError() LASTERROR
-
+RtFSManager  *_rtGetFSManager( void );
 
 #ifdef __cplusplus
 }
@@ -963,7 +791,6 @@ TkFSManagerGetValue(RtInt64 value);
 #include <windows.h>
 
 #define WIN_FS_MAX_PATH_LENGTH 256
-#define WIN_SECTOR_SIZE        512
 
 typedef struct RtWinFile RtWinFile;
 /**
@@ -1016,8 +843,6 @@ extern CRITICAL_SECTION section;
 #define RTFS_INITIALIZE_INTERRUPT_HANDLING InitializeCriticalSection(&section)
 #define RTFS_DISABLE_INTERRUPT EnterCriticalSection(&section)
 #define RTFS_ENABLE_INTERRUPT  LeaveCriticalSection(&section)
-#define RTFS_SHUTDOWN_INTERRUPT_HANDLING DeleteCriticalSection(&section)
-
 /*---- end: ./win/fsystplatform.h----*/
 
 #endif /* RTFS_H */

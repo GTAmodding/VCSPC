@@ -22,7 +22,7 @@
 /*************************************************************************
  *
  * Filename: <C:/daily/rwsdk/include/d3d9/rwplcore.h>
- * Automatically Generated on: Thu Feb 12 13:01:33 2004
+ * Automatically Generated on: Fri Oct 03 09:52:43 2003
  *
  ************************************************************************/
 
@@ -994,8 +994,54 @@ while(0)
 
 
 /*--- Automatically derived from: C:/daily/rwsdk/src/plcore/batypes.h ---*/
+#define rwLIBRARYBASEVERSION    0x34000
+#define rwLIBRARYNOWARNVERSION  0x35000
+#define rwLIBRARYCURRENTVERSION 0x36003
 
-#include "rwversion.h"
+#define rwLIBRARYVERSION34001   0x34001
+#if (rwLIBRARYVERSION34001 < rwLIBRARYBASEVERSION)
+#error "Time to remove all rwLIBRARYVERSION34001 code"
+#endif
+
+#define rwLIBRARYVERSION34002   0x34002
+#if (rwLIBRARYVERSION34002 < rwLIBRARYBASEVERSION)
+#error "Time to remove all rwLIBRARYVERSION34002 code"
+#endif
+
+#define rwLIBRARYVERSION34004   0x34004
+#if (rwLIBRARYVERSION34004 < rwLIBRARYBASEVERSION)
+#error "Time to remove all rwLIBRARYVERSION34004 code"
+#endif
+
+#define rwLIBRARYVERSION35000   0x35000
+#if (rwLIBRARYVERSION35000 < rwLIBRARYBASEVERSION)
+#error "Time to remove all rwLIBRARYVERSION35000 code"
+#endif
+
+#define rwLIBRARYVERSION36000   0x36000
+#if (rwLIBRARYVERSION36000 < rwLIBRARYBASEVERSION)
+#error "Time to remove all rwLIBRARYVERSION36000 code"
+#endif
+
+#define rwLIBRARYVERSION36002   0x36002
+#if (rwLIBRARYVERSION36002 < rwLIBRARYBASEVERSION)
+#error "Time to remove all rwLIBRARYVERSION36002 code"
+#endif
+
+#define rwLIBRARYVERSION36003   0x36003
+#if (rwLIBRARYVERSION36003 < rwLIBRARYBASEVERSION)
+#error "Time to remove all rwLIBRARYVERSION36003 code"
+#endif
+
+/*
+ * RWBUILDNUMBER
+ * This 16-bit int will be externally defined in an official build, and
+ * is used to construct chunk header library ID when streaming out. All
+ * unofficial builds will be stamped with the following:-
+ */
+#if !defined(RWBUILDNUMBER)
+#define RWBUILDNUMBER 0xffff
+#endif
 
 /* IMPORTANT:
  * The following Doxygen comment MUST be copied into RwCore.h,
@@ -1964,12 +2010,8 @@ enum RwCorePluginID
 
     rwID_COLLTREE               = MAKECHUNKID(rwVENDORID_CORE, 0x2C),
 
-    rwID_ENVIRONMENT            = MAKECHUNKID(rwVENDORID_CORE, 0x2D),
-/**< RpEnvironment chunk is used internally to convey art package background
-   < settings to the Visualizer.*/    
-
 /* Insert before MAX and increment MAX */
-    rwID_COREPLUGINIDMAX        = MAKECHUNKID(rwVENDORID_CORE, 0x2E),
+    rwID_COREPLUGINIDMAX        = MAKECHUNKID(rwVENDORID_CORE, 0x2D),
     rwCOREPLUGINIDFORCEENUMSIZEINT = RWFORCEENUMSIZEINT
 };
 typedef enum RwCorePluginID RwCorePluginID ;
@@ -2004,41 +2046,41 @@ enum RwCriterionCoreID
     rwID_NACOREID               = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x00),
 
     /* The valid plugin IDs */
-    /** Vector module pluginID. See \ref rwv2d and \ref rwv3d */
+    /**< Vector module pluginID. See \ref rwv2d and \ref rwv3d */
     rwID_VECTORMODULE           = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x01),
-    /** Matrix module pluginID. See \ref rwmatrix */
+    /**< Matrix module pluginID. See \ref rwmatrix */
     rwID_MATRIXMODULE           = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x02),
-    /** Frame module pluginID. See \ref rwframe */
+    /**< Frame module pluginID. See \ref rwframe */
     rwID_FRAMEMODULE            = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x03),
-    /** Stream module pluginID. See \ref rwstream */
+    /**< Stream module pluginID. See \ref rwstream */
     rwID_STREAMMODULE           = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x04),
-    /** Camera module pluginID. See \ref rwcamera */
+    /**< Camera module pluginID. See \ref rwcamera */
     rwID_CAMERAMODULE           = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x05),
-    /** Image module pluginID. See \ref rwimage */
+    /**< Image module pluginID. See \ref rwimage */
     rwID_IMAGEMODULE            = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x06),
-    /** Raster module pluginID. See \ref rwraster */
+    /**< Raster module pluginID. See \ref rwraster */
     rwID_RASTERMODULE           = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x07),
-    /** Texture module pluginID. See \ref rwtexture */
+    /**< Texture module pluginID. See \ref rwtexture */
     rwID_TEXTUREMODULE          = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x08),
-    /** Pipeline module pluginID. See \ref RxPipeline */
+    /**< Pipeline module pluginID. See \ref RxPipeline */
     rwID_PIPEMODULE             = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x09),
-    /** Immediate module pluginID. See \ref rwim3d */
+    /**< Immediate module pluginID. See \ref rwim3d */
     rwID_IMMEDIATEMODULE        = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x0A),
-    /** Resource module pluginID. See \ref rwresources */
+    /**< Resource module pluginID. See \ref rwresources */
     rwID_RESOURCESMODULE        = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x0B),
-    /** Device module pluginID */
+    /**< Device module pluginID */
     rwID_DEVICEMODULE           = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x0C),
-    /** Color module pluginID. See \ref rwrgba */
+    /**< Color module pluginID. See \ref rwrgba */
     rwID_COLORMODULE            = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x0D),
     /* Not used */
     rwID_POLYPIPEMODULE         = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x0E),
-    /** Error module pluginID. See \ref rwerror */
+    /**< Error module pluginID. See \ref rwerror */
     rwID_ERRORMODULE            = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x0F),
-    /** Metrics module pluginID. See \ref RwMetrics */
+    /**< Metrics module pluginID. See \ref RwMetrics */
     rwID_METRICSMODULE          = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x10),
-    /** Driver module pluginID */
+    /**< Driver module pluginID */
     rwID_DRIVERMODULE           = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x11),
-    /** Chunk group module pluginID. See \ref rwchunkgroup */
+    /**< Chunk group module pluginID. See \ref rwchunkgroup */
     rwID_CHUNKGROUPMODULE       = MAKECHUNKID(rwVENDORID_CRITERIONINT, 0x12),
     rwCRITERIONCOREIDFORCEENUMSIZEINT = RWFORCEENUMSIZEINT
 };
@@ -2244,12 +2286,7 @@ typedef enum RwErrorCodePlugin_errcore RwErrorCodePlugin_errcore;
  * \ref RwOsGetMemoryInterface() call which returns a pointer to an
  * \ref RwMemoryFunctions structure. You can also override the default
  * RenderWare Graphics functions by passing a structure populated with
- * your own RwMemoryFunctions structure to \ref RwEngineInit().
- *
- * For \c RWDEBUG applications, the default \ref RwMalloc records the file and line
- * on which it was called. These records are shared between \ref RwCalloc and
- * \ref RwRealloc, and does not store any additional history. To retrieve the last
- * file and line, use \ref RwMemoryGetLastAllocFile and \ref RwMemoryGetLastAllocLine.
+ * your own RwMemoryFunctions structure to \ref RwEngineInit(). 
  *
  * \see RwMemoryFunctions for more specific function documentation.
  */
@@ -2277,11 +2314,6 @@ typedef enum RwErrorCodePlugin_errcore RwErrorCodePlugin_errcore;
  * default RenderWare Graphics functions by passing a structure populated
  * with your own RwMemoryFunctions structure to \ref RwEngineInit(). 
  *
- * For \c RWDEBUG applications, the default \ref RwCalloc records the file and line
- * on which it was called. These records are shared between \ref RwMalloc and
- * \ref RwRealloc, and does not store any additional history. To retrieve the last
- * file and line, use \ref RwMemoryGetLastAllocFile and \ref RwMemoryGetLastAllocLine.
- *
  * \see RwMemoryFunctions for more specific function documentation.
  */
 
@@ -2294,11 +2326,6 @@ typedef enum RwErrorCodePlugin_errcore RwErrorCodePlugin_errcore;
  * to an \ref RwMemoryFunctions structure. You can also override the
  * default RenderWare Graphics functions by passing a structure populated
  * with your own RwMemoryFunctions structure to \ref RwEngineInit(). 
- *
- * For \c RWDEBUG applications, the default \ref RwRealloc records the file and line
- * on which it was called. These records are shared between \ref RwMalloc and
- * \ref RwCalloc, and does not store any additional history. To retrieve the last
- * file and line, use \ref RwMemoryGetLastAllocFile and \ref RwMemoryGetLastAllocLine.
  *
  * \see RwMemoryFunctions for more specific function documentation.
  */
@@ -2328,33 +2355,27 @@ typedef enum RwErrorCodePlugin_errcore RwErrorCodePlugin_errcore;
 #include <crtdbg.h>
 
 #define RwMalloc(_s, _h)                                \
-    (_rwMemoryLastAllocFile = __FILE__,                 \
-     _rwMemoryLastAllocLine = __LINE__,                 \
-     _malloc_dbg((_s),                                  \
-                _CLIENT_BLOCK | ((_CLIENT_TAG)<<16),    \
-                __FILE__,                               \
-                __LINE__))
+    _malloc_dbg((_s),                                   \
+               _CLIENT_BLOCK | ((_CLIENT_TAG)<<16),     \
+               __FILE__,                                \
+               __LINE__)
 
 #define RwFree(_p)                                      \
    _free_dbg((_p),                                      \
                _CLIENT_BLOCK | ((_CLIENT_TAG)<<16))
 
 #define RwCalloc(_n, _s, _h)                            \
-   (_rwMemoryLastAllocFile = __FILE__,                  \
-    _rwMemoryLastAllocLine = __LINE__,                  \
-    _calloc_dbg((_n), (_s),                             \
-                _CLIENT_BLOCK | ((_CLIENT_TAG)<<16),    \
-                __FILE__,                               \
-                __LINE__))
+   _calloc_dbg((_n), (_s),                              \
+               _CLIENT_BLOCK | ((_CLIENT_TAG)<<16),     \
+               __FILE__,                                \
+               __LINE__)
 
 #define RwRealloc(_p, _s, _h)                           \
-   (_rwMemoryLastAllocFile = __FILE__,                  \
-    _rwMemoryLastAllocLine = __LINE__,                  \
-    _realloc_dbg((_p),                                  \
-                 (_s),                                  \
-                _CLIENT_BLOCK | ((_CLIENT_TAG)<<16),    \
-                __FILE__,                               \
-                __LINE__))
+   _realloc_dbg((_p),                                   \
+                (_s),                                   \
+               _CLIENT_BLOCK | ((_CLIENT_TAG)<<16),     \
+               __FILE__,                                \
+               __LINE__)
 
 #define     RWCRTORDBGFLAG(_flag)                       \
     do                                                  \
@@ -2505,15 +2526,8 @@ typedef enum RwErrorCodePlugin_errcore RwErrorCodePlugin_errcore;
 #endif /* (!defined(rwDEADPTRFILL)) */
 
 #if (!defined(RwMalloc))
-#if (!defined(RWDEBUG) || defined(DOXYGEN))
 #define RwMalloc(_s, _h)                                    \
     ((RWSRCGLOBAL(memoryFuncs).rwmalloc)((_s), (_h)))
-#else /* (!defined(RWDEBUG) || defined(DOXYGEN)) */
-#define RwMalloc(_s, _h)                                    \
-    (_rwMemoryLastAllocFile = __FILE__,                     \
-     _rwMemoryLastAllocLine = __LINE__,                     \
-     ((RWSRCGLOBAL(memoryFuncs).rwmalloc)((_s), (_h))))
-#endif /* (!defined(RWDEBUG) || defined(DOXYGEN)) */
 #endif /* (!defined(RwMalloc)) */
 
 #if (!defined(RwFree))
@@ -2522,27 +2536,13 @@ typedef enum RwErrorCodePlugin_errcore RwErrorCodePlugin_errcore;
 #endif /* (!defined(RwFree)) */
 
 #if (!defined(RwCalloc))
-#if (!defined(RWDEBUG) || defined(DOXYGEN))
 #define RwCalloc(_n, _s, _h)                                \
     ((RWSRCGLOBAL(memoryFuncs).rwcalloc)((_n), (_s), (_h)))
-#else /* (!defined(RWDEBUG) || defined(DOXYGEN)) */
-#define RwCalloc(_n, _s, _h)                                \
-    (_rwMemoryLastAllocFile = __FILE__,                     \
-     _rwMemoryLastAllocLine = __LINE__,                     \
-     ((RWSRCGLOBAL(memoryFuncs).rwcalloc)((_n), (_s), (_h))))
-#endif /* (!defined(RWDEBUG) || defined(DOXYGEN)) */
 #endif /* (!defined(RwCalloc)) */
 
 #if (!defined(RwRealloc))
-#if (!defined(RWDEBUG) || defined(DOXYGEN))
 #define RwRealloc(_p, _s, _h)                               \
     ((RWSRCGLOBAL(memoryFuncs).rwrealloc)((_p),(_s), (_h)))
-#else /* (!defined(RWDEBUG) || defined(DOXYGEN)) */
-#define RwRealloc(_p, _s, _h)                               \
-    (_rwMemoryLastAllocFile = __FILE__,                     \
-     _rwMemoryLastAllocLine = __LINE__,                     \
-     ((RWSRCGLOBAL(memoryFuncs).rwrealloc)((_p),(_s), (_h))))
-#endif /* (!defined(RWDEBUG) || defined(DOXYGEN)) */
 #endif /* (!defined(RwRealloc)) */
 
 #if (!defined(RWCRTORDBGFLAG))
@@ -2867,24 +2867,6 @@ typedef RwFreeList *(*RwMemoryFreeFn)     (RwFreeList * fl, void *pData);
 extern              "C"
 {
 #endif                          /* __cplusplus */
-
-#if defined(RWDEBUG)
-
-#if defined(_RWDLL)
-__declspec(dllimport) extern const RwChar   *_rwMemoryLastAllocFile;
-__declspec(dllimport) extern RwUInt32       _rwMemoryLastAllocLine;
-#else /* defined(_RWDLL) */
-extern const RwChar *_rwMemoryLastAllocFile;
-extern RwUInt32     _rwMemoryLastAllocLine;
-#endif /* defined(_RWDLL) */
-
-extern const RwChar *
-RwMemoryGetLastAllocFile( void );
-
-extern RwUInt32
-RwMemoryGetLastAllocLine( void );
-
-#endif /* defined(RWDEBUG) */
 
 extern RwMemoryFunctions *RwOsGetMemoryInterface(void);
 
@@ -3677,8 +3659,7 @@ extern RwBool
 _rwPluginRegistryValidateObject(const RwPluginRegistry * reg,
                                const void *object);
 extern void
-_rwPluginRegistryPlaceValidationCodes(const RwPluginRegistry * reg,
-                                void *object);
+_rwPluginRegistryPlaceValidationCodes(const RwPluginRegistry * reg, void *object);
 
 #endif         /* RWDEBUG */
 
@@ -5883,8 +5864,6 @@ struct RwMetrics
      * \if opengl The number of times RwOpenGLSetTexture is called. \endif
      * \if xbox The number of textures used. \endif
      * \if gcn The number of textures used. \endif
-     * \if softras The number of times the \ref rwRENDERSTATETEXTURERASTER renderstate
-     * is set with a valid (non-NULL) texture. \endif
      */
     RwUInt32    sizeTextureUploads;
     /**<
@@ -5894,8 +5873,6 @@ struct RwMetrics
      * \if opengl The size of the textures, in bytes, that have been passed to RwOpenGLSetTexture. \endif
      * \if xbox Size of textures swapped. \endif
      * \if gcn Size of textures swapped. \endif
-     * \if softras The size of the textures, in bytes, that have been set with
-     * the \ref rwRENDERSTATETEXTURERASTER renderstate. \endif
      */
     RwUInt32    numResourceAllocs;      /**< The number of resource blocks swapped. */
     void        *devSpecificMetrics;    /**< Device specific metrics. */
@@ -6071,6 +6048,136 @@ extern RwBool RwEngineSetFocus(RwBool enable);
 
 /* Getting metrics */
 extern RwMetrics *RwEngineGetMetrics(void);
+
+#ifdef    __cplusplus
+}
+#endif                          /* __cplusplus */
+
+
+/*--- Automatically derived from: C:/daily/rwsdk/src/plcore/bafsys.h ---*/
+
+/****************************************************************************
+ Global Types
+ */
+
+/*
+ * rwFnFexist
+ * Returns TRUE if file with given name exists, FALSE if it doesn't.
+ */
+typedef RwBool  (*rwFnFexist)(const RwChar *name);
+
+/*
+ * rwFnFopen
+ * Mimics ANSI C Standard Library fopen.
+ */
+typedef void   *(*rwFnFopen)(const RwChar *name, const RwChar *mode);
+
+/*
+ * rwFnFclose
+ * Mimics ANSI C Standard Library fclose.
+ */
+typedef int     (*rwFnFclose)(void *fptr);
+
+/*
+ * rwFnFread
+ * Mimics ANSI C Standard Library fread.
+ */
+typedef size_t  (*rwFnFread)(void *addr, size_t size, size_t count, void *fptr);
+
+/*
+ * rwFnFwrite
+ * Mimics ANSI C Standard Library fwrite.
+ */
+typedef size_t  (*rwFnFwrite)(const void *addr, size_t size, size_t count, void *fptr);
+
+/*
+ * rwFnFgets
+ * Mimics ANSI C Standard Library fgets.
+ */
+typedef RwChar *(*rwFnFgets)(RwChar *buffer, int maxLen, void *fptr);
+
+/*
+ * rwFnFputs
+ * Mimics ANSI C Standard Library fputs.
+ */
+typedef int     (*rwFnFputs)(const RwChar *buffer, void *fptr);
+
+/*
+ * rwFnFeof
+ * Mimics ANSI C Standard Library feof.
+ */
+typedef int     (*rwFnFeof)(void *fptr);
+
+/*
+ * rwFnFseek
+ * Mimics ANSI C Standard Library fseek.
+ */
+typedef int     (*rwFnFseek)(void *fptr, long offset, int origin);
+
+/*
+ * rwFnFflush
+ * Mimics ANSI C Standard Library fflush.
+ */
+typedef int     (*rwFnFflush)(void *fptr);
+
+/*
+ * rwFnFtell
+ * Mimics ANSI C Standard Library ftell.
+ */
+typedef int     (*rwFnFtell)(void *fptr);
+
+
+typedef struct RwFileFunctions RwFileFunctions;
+/**
+ * \ingroup memoryfileinterface
+ * \struct RwFileFunctions
+ * This type is used to specify the file access
+ * functions used by RenderWare. The default file system uses the standard
+ * ANSI functions. The application may install an alternative file system
+ * providing it complies with the ANSI interface -- see API 
+ * function \ref RwOsGetFileInterface.
+ *
+ * The function types associated with this type are defined as follows 
+ *
+ * \verbatim
+   RwBool (*rwFnFexist)(const RwChar *name)
+       void *(*rwFnFopen)(const RwChar *name, const RwChar *access) 
+       int (*rwFnFclose)(void *fptr)
+       size_t (*rwFnFread)(void *addr, size_t size, size_t count, void *fptr)                        
+       size_t (*rwFnFwrite)(const void *addr, size_t size, size_t count,
+                 void *fptr)
+   RwChar *(*rwFnFgets)(RwChar *buffer, int maxLen, void *fptr)
+       int (*rwFnFputs)(const RwChar *buffer, void *fptr)
+       int (*rwFnFeof)(void *fptr)
+       int (*rwFnFseek)(void *fptr, long offset, int origin)
+       int (*rwFnFflush)(void *fptr)
+       int (*rwFnFtell)(void *fptr)
+ \endverbatim
+ * Note the function argument lists are consistent with the ANSI
+ * standard file access interface:
+ */
+struct RwFileFunctions
+{
+    rwFnFexist  rwfexist; /**< Pointer to fexist function */
+    rwFnFopen   rwfopen;  /**< Pointer to fopen function */
+    rwFnFclose  rwfclose; /**< Pointer to fclose function */
+    rwFnFread   rwfread;  /**< Pointer to fread function */
+    rwFnFwrite  rwfwrite; /**< Pointer to fwrite function */
+    rwFnFgets   rwfgets;  /**< Pointer to fgets function */
+    rwFnFputs   rwfputs;  /**< Pointer to puts function */
+    rwFnFeof    rwfeof;   /**< Pointer to feof function */
+    rwFnFseek   rwfseek;  /**< Pointer to fseek function */
+    rwFnFflush  rwfflush; /**< Pointer to fflush function */
+    rwFnFtell   rwftell;  /**< Pointer to ftell function */  
+};
+
+
+#ifdef    __cplusplus
+extern "C"
+{
+#endif                          /* __cplusplus */
+
+extern RwFileFunctions *RwOsGetFileInterface(void);
 
 #ifdef    __cplusplus
 }
@@ -6278,6 +6385,7 @@ struct RwGlobals
 {
 #ifdef RWDEBUG
         RwDebugHandler      debugFunction;          /* debug string handler */
+        void                *debugFile;             /* debug output file */
         RwInt32             debugStackDepth;        /* current depth of function stack */
         RwBool              debugTrace;             /* is function tracing enabled */
 #endif
@@ -6299,6 +6407,9 @@ struct RwGlobals
 
         /* All of the frames which have been updated */
         RwLinkList          dirtyFrameList;
+
+        /* The file functions */
+        RwFileFunctions     fileFuncs;
 
         /* The string functions */
         RwStringFunctions   stringFuncs;

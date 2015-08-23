@@ -219,13 +219,6 @@
  */
 #define rwID_UVANIMPLUGIN    MAKECHUNKID(rwVENDORID_CRITERIONTK, 0x35)
 
-/**
- * \ingroup rwengine
- * \def rwID_ENVIRONMENTPLUGIN defines the pluginID for background environment
- * settings for a scene. For internal use.
- */
-#define rwID_ENVIRONMENTPLUGIN    MAKECHUNKID(rwVENDORID_CRITERIONTK, 0x36)
-
 /* These are toolkits */
 
 /**
@@ -447,6 +440,5 @@
  * See \ref RwEngineRegisterPlugin
  */
 #define rwID_UVANIMPARAM       MAKECHUNKID(rwVENDORID_CRITERIONTK, 0xc1)
-
 
 

@@ -22,7 +22,7 @@
 /*************************************************************************
  *
  * Filename: <C:/daily/rwsdk/include/d3d9/rpworld.h>
- * Automatically Generated on: Thu Feb 12 13:01:34 2004
+ * Automatically Generated on: Fri Oct 03 09:52:43 2003
  *
  ************************************************************************/
 
@@ -435,7 +435,7 @@ struct RpMaterial
  * \param  material   Pointer to the current material
  * \param  data       Pointer to developer-defined data structure.
  * 
- * \return Pointer to the current material, or NULL to terminate further callbacks.
+ * \return Pointer to the current material.
  */
 typedef RpMaterial *(*RpMaterialCallBack)(RpMaterial *material, void *data);
 
@@ -1744,7 +1744,7 @@ extern RwBool
 RpGeometryDestroy(RpGeometry *geometry);
 
 extern RpGeometry *
-RpGeometryAddRef(RpGeometry *geometry);
+_rpGeometryAddRef(RpGeometry *geometry);
 
 /* Attaching toolkits */
 extern RwInt32
@@ -1802,7 +1802,7 @@ RpGeometrySetFlags(RpGeometry *geometry,
 #endif                          /* __cplusplus */
 
 #define rpGeometryAddRef(_geometry) \
-    RpGeometryAddRef(_geometry) 
+    _rpGeometryAddRef(_geometry) 
 
 #define RpGeometryChunkInfoRead(stream, geometryChunkInfo, bytesRead) \
        _rpGeometryChunkInfoRead(stream, geometryChunkInfo, bytesRead)

@@ -40,7 +40,7 @@
 
 #include <math.h>
 /* renderware */
-#include "rwplcore.h"
+#include "rwcore.h"
 
 #include "rtquat.rpe"          /* automatically generated header file */
 

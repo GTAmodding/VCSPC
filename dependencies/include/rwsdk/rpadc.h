@@ -20,7 +20,7 @@
  * \defgroup rpadc RpADC
  * \ingroup basicgeometry
  *
- * Address Control flag generation plugin for RenderWare Graphics.
+ * Address Control flag generation plugin for RenderWare Graphics. 
  */
 
 
@@ -45,18 +45,6 @@ typedef struct RpADCDataTag
     RwInt32 numBits;      /**< Number of Bits used for streaming */
 } RpADCData;
 
-/**
- * \ingroup rpadc
- * \ref RpADCMeshCallback
- * Optional per-mesh callback, allowing the application to opt out of
- * conversion of specific meshes by returning FALSE.
- *
- * \param mesh Pointer to the mesh.
- *
- * \return TRUE to generate ADC flags.
- */
-typedef RwBool (* RpADCMeshCallback)(RpMesh *mesh);
-
 /* RWPUBLICEND */
 
 /*===========================================================================*
@@ -78,16 +66,16 @@ extern "C"
 {
 #endif /* (defined(__cplusplus)) */
 
-extern RwBool
+extern RwBool 
 RpADCPluginAttach(void);
 
-extern RwBool
+extern RwBool 
 RpADCGeometryConvertIgnoreWinding(RpGeometry *geometry);
 
-extern RwBool
+extern RwBool 
 RpADCWorldSectorConvertIgnoreWinding(RpWorldSector *sector);
 
-extern RwBool
+extern RwBool 
 RpADCGeometryConvertPreserveWinding(RpGeometry *geometry);
 
 extern RwBool
@@ -98,12 +86,6 @@ RpADCGeometryGetADCSupport(RpGeometry *geometry);
 
 extern RwInt8 *
 RpADCWorldSectorGetADCSupport(RpWorldSector *sector);
-
-extern RpADCMeshCallback
-RpADCGetMeshCallback(void);
-
-extern void
-RpADCSetMeshCallback(RpADCMeshCallback callback);
 
 #if (defined(__cplusplus))
 }

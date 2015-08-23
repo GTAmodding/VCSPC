@@ -22,7 +22,7 @@
 /*************************************************************************
  *
  * Filename: <C:/daily/rwsdk/include/d3d9/rwcore.h>
- * Automatically Generated on: Thu Feb 12 13:01:34 2004
+ * Automatically Generated on: Fri Oct 03 09:52:43 2003
  *
  ************************************************************************/
 
@@ -3665,16 +3665,6 @@ RwD3D9GetSamplerState(RwUInt32 stage, RwUInt32 type, void *value);
 
 
 extern void
-_rwD3D9ForceRenderState(RwUInt32 state, RwUInt32 value);
-
-extern void
-_rwD3D9ForceTextureStageState(RwUInt32 stage, RwUInt32 type, RwUInt32 value);
-
-extern void
-_rwD3D9ForceSamplerState(RwUInt32 stage, RwUInt32 type, RwUInt32 value);
-
-
-extern void
 RwD3D9SetStencilClear(RwUInt32 stencilClear);
 
 extern RwUInt32
@@ -3813,22 +3803,8 @@ extern RwBool _rwD3D9CPUSupports3DNow;
 extern RwBool _rwDeviceRegisterPlugin(void);
 
 /*
- * Set a release device callback that would be called after a device lost.
- * Be careful to call the previous callback (if different than NULL),
- * right at the beginning of you own callback.
- */
-typedef void (*rwD3D9DeviceReleaseCallBack)(void);
-
-extern void
-_rwD3D9DeviceSetReleaseCallback(rwD3D9DeviceReleaseCallBack callback);
-
-extern rwD3D9DeviceReleaseCallBack
-_rwD3D9DeviceGetReleaseCallback(void);
-
-/*
- * Set a restore device callback that would be called after a device has been reset.
- * Be careful to call the previous callback (if different than NULL),
- * right at the beginning of you own callback.
+ * Set a restore device callback that would be called after a device lost
+ * Be careful to call the previous callback, right at the beginning of you own callback.
  */
 typedef void (*rwD3D9DeviceRestoreCallBack)(void);
 
@@ -3878,6 +3854,10 @@ extern RwImage *RwImageSetFromRaster(RwImage *image, RwRaster *raster);
 
 /* Rasters from images */
 extern RwRaster *RwRasterSetFromImage(RwRaster *raster, RwImage *image);
+
+/* Finding raster formats */
+extern RwRGBA *RwRGBAGetRasterPixel(RwRGBA *rgbOut, RwRaster *raster,
+                                   RwInt32 x, RwInt32 y);
 
 /* Read a raster */
 extern RwRaster *RwRasterRead(const RwChar *filename);
@@ -4080,7 +4060,21 @@ extern RwFrame *
 RwFrameCreate(void);
 
 extern RwBool
+RwFrameInit(RwFrame *frame);
+
+extern RwBool
+RwFrameDeInit(RwFrame *frame);
+
+extern RwBool
 RwFrameDestroy(RwFrame * frame);
+
+/* internal function used by Create and Init */
+extern void
+_rwFrameInit(RwFrame *frame);
+
+/* internal function used by Destroy and DeInit */
+extern void
+_rwFrameDeInit(RwFrame *frame);
 
 /* Finding a frames state */
 extern RwBool
@@ -4090,17 +4084,10 @@ RwFrameDirty(const RwFrame * frame);
 extern RwInt32
 RwFrameCount(RwFrame * frame);
 
-/* static frame functions */
-extern RwBool
-_rwFrameSetStaticPluginsSize(RwInt32 size);
-
-extern RwBool
-_rwFrameInit(RwFrame *frame);
-
-extern RwBool
-_rwFrameDeInit(RwFrame *frame);
-
 /* Plugins */
+extern RwBool
+RwFrameSetStaticPluginsSize(RwInt32 size);
+
 extern RwInt32
 RwFrameRegisterPlugin(RwInt32 size,
                       RwUInt32 pluginID,
@@ -4125,6 +4112,29 @@ _rwFramePurgeClone(RwFrame *root);
 #ifdef    __cplusplus
 }
 #endif                          /* __cplusplus */
+
+/* Compatibility macros */
+
+#define rwFrameGetParent(frame) \
+       _rwFrameGetParent(frame)
+
+#define rwFrameInit(frame) \
+       _rwFrameInit(frame)
+
+#define rwFrameDeInit(frame) \
+       _rwFrameDeInit(frame)
+
+#define rwFrameCloneAndLinkClones(root) \
+       _rwFrameCloneAndLinkClones(root)
+
+#define rwFramePurgeClone(root) \
+       _rwFramePurgeClone(root)
+
+#define rwFrameClose(instance, offset, size) \
+       _rwFrameClose(instance, offset, size)
+
+#define rwFrameOpen(instance, offset, size) \
+       _rwFrameOpen(instance, offset, size)
 
 
 /*--- Automatically derived from: C:/daily/rwsdk/src/batypehf.h ---*/

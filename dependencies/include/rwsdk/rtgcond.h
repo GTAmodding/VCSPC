@@ -20,6 +20,7 @@
 
 #define GCONDR1TOL 0.0001f      /* Geometry within this tolerance is touching */
 #define GCONDZERO 0.005f        /* Virtual zero for results of cross products, for example */
+#define GCONDPLANARZERO 0.05f   /* For planar tests, etc. */
 
 #if (!defined(DOXYGEN))
 
@@ -175,8 +176,7 @@ typedef RwBool (*RtGCondCloneVertexUserdataCallBack)(void **pUserdataDst, void *
  *
  * \see RtGCondSetUserdataCallBacks
  */
-typedef RwBool (*RtGCondInterpVertexUserdataCallBack)(void **pUserdataDst,
-                      void **pUserdata1, void **pUserdata2, RwReal delta);
+typedef RwBool (*RtGCondInterpVertexUserdataCallBack)(void **pUserdataDst, void **pUserdata1, void **pUserdata2, RwReal delta);
 
 /**
  * \ingroup rtgcond
@@ -203,8 +203,7 @@ typedef RwBool (*RtGCondDestroyPolygonUserdataCallBack)(void **pUserdata);
  *
  * \see RtGCondSetUserdataCallBacks
  */
-typedef RwBool (*RtGCondSplitPolygonUserdataCallBack)(void **pUserdataDst,
-                                                      void **pUserdataSrc);
+typedef RwBool (*RtGCondSplitPolygonUserdataCallBack)(void **pUserdataDst, void **pUserdataSrc);
 
 /*
  * typedef for struct \ref RtGCondUserdataCallBacks
@@ -234,15 +233,22 @@ typedef struct RtGCondVertex RtGCondVertex;
  */
 struct RtGCondVertex
 {
-    RwV3d           position;           /**< World space vertex position */
-    RwInt32         index;              /**< unique id */
-    RwV3d           normal;             /**< World space vertex normal */
-    RwRGBA          preLitCol;          /**< Prelight color */
-    RwInt32         matIndex;           /**< Vertex material index */
-    RwInt32         *brauxIndices;      /**< Internal use only. */
-    RwInt32         numBrauxIndices;    /**< Internal use only. */
-    void            *pUserData;         /**< Pointer to unspecified per vertex user data */
+    RwInt32         index;          /**< unique id */
+
+    RwV3d           position;       /**< World space vertex position */
+    RwV3d           normal;         /**< World space vertex normal */
+    RwRGBA          preLitCol;      /**< Prelight color */
+
+    RwInt32         matIndex;       /**< Vertex material index */
+
     RwTexCoords     texCoords[rwMAXTEXTURECOORDS];  /**< Vertex texture coordinates */
+
+    RwInt32         *brauxIndices;  /**< Internal use only. */
+    RwInt32         numBrauxIndices;/**< Internal use only. */
+
+    void           *pUserData;      /**< Pointer to unspecified per vertex user data */
+
+    void           *pInternalData;  /**< Internal use only (currently unused) */
 };
 
 typedef struct RtGCondPolygon RtGCondPolygon;
@@ -254,14 +260,16 @@ typedef struct RtGCondPolygon RtGCondPolygon;
  */
 struct RtGCondPolygon
 {
-    RwInt32     id;                     /**< unique id */
-    RwInt32     matIndex;               /**< The material index */
+    RwInt32 id;             /**< unique id */
 
-    RwInt32     *indices;               /**< contiguous list of vertex indices */
-    RwInt32     numIndices;             /**< number of vertex indices */
+    RwInt32 *indices;       /**< contiguous list of vertex indices */
+    RwInt32 numIndices;     /**< number of vertex indices */
 
-    void        *pUserData;             /**< Pointer to unspecified per polygon user data */
-    void        *pInternalData;         /**< Internal use only */
+    RwInt32 matIndex;       /**< The material index */
+
+    void   *pUserData;      /**< Pointer to unspecified per polygon user data */
+
+    void   *pInternalData;  /**< Internal use only */
 };
 
 typedef struct RtGCondGeometryList RtGCondGeometryList;
@@ -273,14 +281,15 @@ typedef struct RtGCondGeometryList RtGCondGeometryList;
  */
 struct RtGCondGeometryList
 {
-    RpMaterialList  matList;            /**< Material list */
-    RwInt32         numUVs;             /**< Number of UV sets in the geometry */
+    RpMaterialList  matList;     /**< Material list */
 
-    RtGCondVertex   *vertices;          /**< Vertex list */
-    RwInt32         numVertices;        /**< Number of vertices in list */
+    RwInt32         numUVs;      /**< Number of UV sets in the geometry */
 
-    RtGCondPolygon  *polygons;          /**< Polygon list */
-    RwInt32         numPolygons;        /**< Number of polygons in list */
+    RtGCondVertex *vertices;     /**< Vertex list */
+    RwInt32 numVertices;         /**< Number of vertices in list */
+
+    RtGCondPolygon *polygons;    /**< Polygon list */
+    RwInt32 numPolygons;         /**< Number of polygons in list */
 };
 
 typedef void (*RtGCondGeometryConditioningPipeline) (RtGCondGeometryList *geometryList);
@@ -325,7 +334,7 @@ extern void     RtGCondLimitUVsPipelineNode(RtGCondGeometryList * geometryList,
 extern void     RtGCondRemapVerticesPipelineNode(RtGCondGeometryList * geometryList);
 extern void     RtGCondUnshareVerticesOnMaterialBoundariesPipelineNode(
                                       RtGCondGeometryList* geometryList);
-extern RwBool   RtGCondUnshareVerticesPipelineNode(RtGCondGeometryList *geometryList);
+extern void     RtGCondUnshareVerticesPipelineNode(RtGCondGeometryList *geometryList);
 extern void     RtGCondRemoveSliversPipelineNode(RtGCondGeometryList* geometryList);
 extern void     RtGCondRemoveIdenticalPolygonsPipelineNode(RtGCondGeometryList* geometryList);
 extern void     RtGCondSortVerticesOnMaterialPipelineNode(RtGCondGeometryList * geometryList);
@@ -335,28 +344,20 @@ extern RwInt32  *RtGCondWeldVerticesPipelineNode(RtGCondGeometryList *geometryLi
                                                  RwReal preLitThreshold, RwBool ignoreTextures,
                                                  RwBool remap, RwBool implicit,
                                                  RwBool averageAttributes);
-extern void     RtGCondBuildNormalsPipelineNode(RtGCondGeometryList * geometryList);
 
 /* Supplied pipelines... */
-extern RwBool   RtGCondFixAndFilterGeometryPipeline(RtGCondGeometryList *geometryList);
-extern RwBool   RtGCondDecimateAndWeldGeometryPipeline(RtGCondGeometryList *geometryList);
+extern void     RtGCondFixAndFilterGeometryPipeline(RtGCondGeometryList *geometryList);
+extern void     RtGCondDecimateAndWeldGeometryPipeline(RtGCondGeometryList *geometryList);
 
-/* Allocation functions. */
-extern RwBool   RtGCondAllocateVertices(RtGCondGeometryList* geometryList, RwInt32 num);
-extern RwBool   RtGCondReallocateVertices(RtGCondGeometryList* geometryList, RwInt32 num);
-extern RwBool   RtGCondAllocatePolygons(RtGCondGeometryList* geometryList, RwInt32 num);
-extern RwBool   RtGCondReallocatePolygons(RtGCondGeometryList* geometryList, RwInt32 num);
-extern RwBool   RtGCondAllocateIndices(RtGCondPolygon* polygon, RwInt32 num);
-extern RwBool   RtGCondReallocateIndices(RtGCondPolygon* polygon, RwInt32 num);
-
-/* Parameter functions. */
+extern void     RtGCondAllocateVertices(RtGCondGeometryList* geometryList, RwInt32 num);
+extern void     RtGCondAllocatePolygons(RtGCondGeometryList* geometryList, RwInt32 num);
+extern void     RtGCondAllocateIndices(RtGCondPolygon* polygon, RwInt32 num);
+extern void     RtGCondReallocateIndices(RtGCondPolygon* polygon, RwInt32 num);
 extern void     RtGCondParametersInit(RtGCondParameters* gcParams);
 extern void     RtGCondParametersSet(RtGCondParameters* gcParams);
 extern RtGCondParameters
                 *RtGCondParametersGet(void);
-
-/* Utility functions. */
-extern RwBool   RtGCondNormalize(RwV3d* vec);
+extern void     RtGCondNormalize(RwV3d* vec);
 extern RwReal   RtGCondLength(RwV3d* vec);
 extern RwReal   RtGCondAreaOfPolygon(RtGCondGeometryList* geometryList,
                                    RtGCondPolygon* polygon);
@@ -367,9 +368,10 @@ extern void     RtGCondFreePolygons(RtGCondGeometryList* geometryList);
 extern void     _rtGCondDestroyVertexPolygonReference(RtGCondGeometryList* geometryList);
 extern void     _rtGCondCreateVertexPolygonReference(RtGCondGeometryList* geometryList,
                                                 RwInt32* remapper);
-extern RwBool   RtGCondColinearVertices(RwV3d* v1, RwV3d* v2, RwV3d* v3,
-                                        RwBool strictOrder, RwReal tol);
+extern RwBool   RtGCondColinearVertices(RwV3d* v1, RwV3d* v2, RwV3d* v3, RwBool strictOrder);
 extern RwBool   RtGCondVectorsEqual(RwV3d* v1, RwV3d* v2, RwReal tol);
+extern void     RtGCondReallocateVertices(RtGCondGeometryList* geometryList, RwInt32 num);
+extern void     RtGCondReallocatePolygons(RtGCondGeometryList* geometryList, RwInt32 num);
 extern void     RtGCondGroundUVs(RtGCondGeometryList * geometryList);
 
 extern RwBool   RtGCondInitialize(void);
@@ -396,6 +398,6 @@ extern void     RtGCondMaterialSetUVLimits(RpMaterial *mat, RwInt32 uvSet,
 #define _rtImportBuildSectorSetWeldThresholdAngular(_cosineThreshold) \
         _rtGCondSetWeldThresholdAngular(_cosineThreshold)
 
-#endif /* RTGCOND_H */
+#endif                          /* RTGCOND_H */
 
 /* RWPUBLICEND */

@@ -27,7 +27,6 @@ extern RwBool RpDMorphPluginAttach( void );
 #endif /* __cplusplus */
 /*---- end: ./dmorph.h----*/
 /*---- start: ./dmphanim.h----*/
-#define rpDMORPHNULLFRAME ((RwUInt32)~0)
 /*--- rpDMorphFrame ---------------------------------------------------------
  *
  *  Animation frame.

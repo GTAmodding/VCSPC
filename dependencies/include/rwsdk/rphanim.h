@@ -332,38 +332,6 @@ RpHAnimHierarchyCreateSubHierarchy(RpHAnimHierarchy *parentHierarchy,
                                    RpHAnimHierarchyFlag flags,
                                    RwInt32 maxInterpKeyFrameSize);
 
-extern RtAnimAnimation *
-RpHAnimRemoveDuplicates( RtAnimAnimation *animsrc,
-                           RwInt32         numBones,
-                           RwReal          tolerance,
-                           RwReal          averageNodeSize);
-
-extern RtAnimAnimation *
-RpHAnimRemoveInterpolate( RtAnimAnimation *animsrc,
-                          RwInt32         numBones,
-                          RwReal          tolerance,
-                          RwReal          averageNodeSize);
-
-extern RtAnimAnimation *
-RpHAnimRemoveInterpolateLoop( RtAnimAnimation *animsrc,
-                              RwInt32         numBones,
-                              RwReal          tolerance,
-                              RwReal          averageNodeSize);
-
-extern RtAnimAnimation *
-RpHAnimRemoveInterpolatesLoopLength( RtAnimAnimation *animsrc,
-                                     RwUInt32        *pushpops,
-                                     RwInt32         numBones,
-                                     RwReal          tolerance,
-                                     RwReal          averageNodeSize);
-
-extern RtAnimAnimation *
-RpHAnimRemoveNoLeafChange( RtAnimAnimation *animsrc,
-                           RwUInt32        *pushpops,
-                           RwInt32         numBones,
-                           RwReal          tolerance,
-                           RwReal          averageNodeSize);
-
 extern RpHAnimHierarchy *
 RpHAnimHierarchyAttach(RpHAnimHierarchy *hierarchy);
 

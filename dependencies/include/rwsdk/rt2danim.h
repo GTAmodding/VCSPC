@@ -168,7 +168,7 @@ typedef enum Rt2dStringLabelType Rt2dStringLabelType;
  * \ingroup rt2danimsub
  * \struct Rt2dAnimProps
  * Structure describing the current state of a scene.
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dAnim API functions to access.
  */
 typedef struct Rt2dAnimProps Rt2dAnimProps;
@@ -177,7 +177,7 @@ typedef struct Rt2dAnimProps Rt2dAnimProps;
  * \ingroup rt2danimsub
  * \struct Rt2dKeyFrameList
  * Structure describing an entire list of keyframes
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dKeyFrameList API functions to access.
  */
 typedef struct Rt2dKeyFrameList Rt2dKeyFrameList;
@@ -186,7 +186,7 @@ typedef struct Rt2dKeyFrameList Rt2dKeyFrameList;
  * \ingroup rt2danimsub
  * \struct Rt2dKeyFrameSet
  *  structure describing a set of keyframe actions to be applied to a 2D object.
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dAnim API functions to access.
  */
 typedef struct Rt2dKeyFrameSet Rt2dKeyFrameSet;
@@ -195,7 +195,7 @@ typedef struct Rt2dKeyFrameSet Rt2dKeyFrameSet;
  * \ingroup rt2danimsub
  * \struct Rt2dAnimObjectUpdate
  * Structure describing an unoptimized update to an object
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dAnim API functions to access.
  */
 typedef struct Rt2dAnimObjectUpdate Rt2dAnimObjectUpdate;
@@ -204,13 +204,13 @@ typedef struct Rt2dAnimObjectUpdate Rt2dAnimObjectUpdate;
  * \ingroup rt2danimsub
  * \struct Rt2dKeyFrameTransform
  * Structure describing a transform change to a 2d object.
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dAnim API functions to access.
  */
 typedef struct Rt2dKeyFrameTransform Rt2dKeyFrameTransform;
 
 /*
- * Typedef for struct Rt2dKeyFrameColor describing a color
+ * Typedef for struct Rt2dKeyFrameColor describing a color 
  * change to a 2d object.
  */
 typedef struct Rt2dKeyFrameColor Rt2dKeyFrameColor;
@@ -229,7 +229,7 @@ typedef struct Rt2dKeyFrameMorph Rt2dKeyFrameMorph;
  * \ingroup rt2danimsub
  * \struct Rt2dAnim
  * Structure describing a 2d animation.
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dAnim API functions to access.
  */
 typedef struct Rt2dAnim Rt2dAnim;
@@ -238,7 +238,7 @@ typedef struct Rt2dAnim Rt2dAnim;
  * \ingroup rt2dbutton
  * \struct Rt2dButton
  * Structure describing a button.
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dButton API functions to access.
  */
 typedef struct Rt2dButton Rt2dButton;
@@ -247,7 +247,7 @@ typedef struct Rt2dButton Rt2dButton;
  * \ingroup rt2dcel
  * \struct Rt2dCel
  * Structure describing a cel.
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dCel API functions to access.
  */
 typedef struct Rt2dCel Rt2dCel;
@@ -256,7 +256,7 @@ typedef struct Rt2dCel Rt2dCel;
  * \ingroup rt2dcel
  * \struct Rt2dCelList
  * Structure describing a cel list.
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dCel API functions to access.
  */
 typedef struct Rt2dCelList Rt2dCelList;
@@ -265,7 +265,7 @@ typedef struct Rt2dCelList Rt2dCelList;
  * \ingroup rt2dmaestro
  * \struct Rt2dMaestro
  * Structure describing a maestro.
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dMaestro API functions to access.
  */
 typedef struct Rt2dMaestro Rt2dMaestro;
@@ -279,7 +279,7 @@ typedef struct Rt2dMessage Rt2dMessage;
  * \ingroup rt2dmessage
  * \struct Rt2dMessageList
  * Structure describing a message.
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dMessage API functions to access.
  */
 typedef struct Rt2dMessageList Rt2dMessageList;
@@ -287,17 +287,17 @@ typedef struct Rt2dMessageList Rt2dMessageList;
 /**
  * \ingroup rt2dstringlabel
  * \struct Rt2dStringLabel
- * Structure used to store and access named data, either internal or user.
+ * Structure used to store and access named data, either internal or user. 
  * A type and a name may be used to access internal and user data.
  *
- * This should be considered an opaque type. Use the
+ * This should be considered an opaque type. Use the 
  * Rt2dStringLabel API functions to access.
  */
 typedef struct Rt2dStringLabel Rt2dStringLabel;
 
 /**
  * \ingroup rt2danimsub
- * \struct Rt2dKeyFrame
+ * \struct Rt2dKeyFrame 
  *  structure describing a transforming action
  */
 struct Rt2dKeyFrameTransform
@@ -308,7 +308,7 @@ struct Rt2dKeyFrameTransform
 /**
  * \ingroup rt2danimsub
  * \struct Rt2dKeyFrameColor
- * Structure describing a color
+ * Structure describing a color 
  * change to a 2d object.
  */
 struct Rt2dKeyFrameColor
@@ -323,8 +323,8 @@ struct Rt2dKeyFrameColor
  */
 struct Rt2dKeyFrameShow
 {
-    RwBool      show;          /**< visibility flag */                /*4*/
-    RwInt32     depth;         /**< Depth order (reverse-z) */        /*4*/
+    RwBool      show;          /**< visibility flag */                /*4*/ 
+    RwInt32     depth;         /**< Depth order (reverse-z) */        /*4*/ 
     RwUInt8     pad1[8];       /**< Alignment padding */              /*8*/
 };
 
@@ -335,10 +335,10 @@ struct Rt2dKeyFrameShow
  */
 struct Rt2dKeyFrameMorph
 {
-    Rt2dObject *source;         /**< start object */                        /*4*/
-    Rt2dObject *destination;    /**< end object */                          /*4*/
-    RwReal      alpha;          /**< interpolation value (0.0f-1.0f) */     /*4*/
-    RwInt32     pad1;           /**< Alignment padding */                   /*4*/
+    Rt2dObject *source;         /**< start object */                        /*4*/ 
+    Rt2dObject *destination;    /**< end object */                          /*4*/ 
+    RwReal      alpha;          /**< interpolation value (0.0f-1.0f) */     /*4*/ 
+    RwInt32     pad1;           /**< Alignment padding */                   /*4*/ 
 };
 
 /**
@@ -400,11 +400,11 @@ struct Rt2dStringLabel
 {
     RwUInt32                entityType;  /* type of the label
                                               (see Rt2dStringLabelType) */
-    RwInt32                 nameIndex;   /* index of name in internal data
+    RwInt32                 nameIndex;   /* index of name in internal data 
                                               area */
     void                    *internalData; /* internal data */
     void                    *userData;     /* customizable data */
-
+    
 };
 
 #endif /* (!defined(DOXYGEN)) */
@@ -446,7 +446,7 @@ struct Rt2dCel
 {
     RwInt32                 strLabelIndex;      /* Frame label */
     RwInt32                 celIndex;           /* Frame number */
-    RwSList                 *buttonIndices;     /* List of buttons active in
+    RwSList                 *buttonIndices;     /* List of buttons active in 
                                                    this frame */
     RwInt32                 messageListIndex;   /* Messages to be posted after
                                                    displaying this frame */
@@ -580,10 +580,7 @@ Rt2dAnimOpen(void);
 
 extern void
 Rt2dAnimClose(void);
-
-extern void
-Rt2dAnimSetFreeListCreateParams( RwInt32 blockSize, RwInt32 numBlocksToPrealloc );
-
+ 
 /*
  * Rt2dAnim
  */
@@ -604,9 +601,6 @@ Rt2dAnimOnEndReachedCallBackLoop(Rt2dAnim *anim, Rt2dAnimProps *props,
 extern Rt2dAnim *
 Rt2dAnimOnEndReachedCallBackStop(Rt2dAnim *anim, Rt2dAnimProps *props,
                           RwReal remainingDeltaTime);
-
-extern void
-Rt2dMessageQueueSetDefaultSize(RwUInt32 size);
 
 /* Management */
 extern Rt2dAnim *
@@ -897,6 +891,7 @@ Rt2dMaestroStreamRead(Rt2dMaestro *maestro, RwStream *stream);
 
 extern Rt2dMaestro *
 Rt2dMaestroStreamWrite(Rt2dMaestro *maestro, RwStream *stream);
+
 
 extern Rt2dMaestro *
 Rt2dMaestroForAllAnimations(Rt2dMaestro *maestro,

@@ -162,33 +162,40 @@ extern              "C"
 {
 #endif                          /* __cplusplus */
 
-extern RtWingFace   *RtWingFaceForAllEdges(RtWingFace* wingFace,
-                        RtWingEdgeCallBack callBack, void* userData);
-extern RtWingFace   *RtWingFaceForAllFaces(RtWingFace* wingFace,
-                        RtWingFaceCallBack callBack, void* userData);
-extern RtWingVertex *RtWingVertexForAllEdges(RtWingVertex* wingVertex,
-                        RtWingEdgeCallBack callBack, void* userData);
-extern RtWingVertex *RtWingVertexForAllFaces(RtWingVertex* wingVertex,
-                        RtWingFaceCallBack callBack, void* userData);
+extern RtWingFace* RtWingFaceForAllEdges(RtWingFace* wingFace,
+                        RtWingEdgeCallBack callBack,
+                        void* userData);
+extern RtWingFace* RtWingFaceForAllFaces(RtWingFace* wingFace,
+                        RtWingFaceCallBack callBack,
+                        void* userData);
+extern RtWingVertex* RtWingVertexForAllEdges(RtWingVertex* wingVertex,
+                        RtWingEdgeCallBack callBack,
+                        void* userData);
+extern RtWingVertex* RtWingVertexForAllFaces(RtWingVertex* wingVertex,
+                        RtWingFaceCallBack callBack,
+                        void* userData);
+void
+RtWingMatchUVsAndPromoteContinuity(RtWings* wings, RtGCondGeometryList* geometryList);
 
-void                RtWingMatchUVsAndPromoteContinuity(RtWings* wings,
-                                    RtGCondGeometryList* geometryList);
-void                RtWingUpdateInternalRepresentation(RtWingFace* face, RtWingEdge* edge,
-                                                       RtWingVertex* vertex);
+void
+RtWingUpdateInternalRepresentation(RtWingFace* face, RtWingEdge* edge, RtWingVertex* vertex);
 
-extern RwBool       RtWingCreate(RtWings* wings, RtGCondGeometryList* geometryList);
-extern void         RtWingEdgeDecimation(RtWings* wings, RtGCondGeometryList *geometryList);
-extern void         RtWingDestroy(RtWings* wings);
-extern void         RtWingPartitionPolygon(RtWings* wings, RtWingFace* face,
+extern void RtWingCreate(RtWings* wings, RtGCondGeometryList* geometryList);
+extern void RtWingEdgeDecimation(RtWings* wings, RtGCondGeometryList *geometryList);
+extern void RtWingDestroy(RtWings* wings);
+extern void RtWingPartitionPolygon(RtWings* wings, RtWingFace* face,
                        RtGCondGeometryList* geometryList,
                        RtWingEdgePartitioning how, RwInt32 ctr);
-extern void         RtWingConvexPartitioning(RtWings* wings,
-                        RtGCondGeometryList *geometryList, RtWingEdgePartitioning how);
-extern RtWingEdge   *RtWingReallocateWingEdges(RtWings* wings, RwInt32 extraEdges);
-extern RtWingVertex *RtWingReallocateWingVertices(RtWings* wings,
-                        RtGCondGeometryList *geometryList, RwInt32 extraVertices);
-extern RtWingFace   *RtWingReallocateWingFaces(RtWings* wings,
-                        RtGCondGeometryList *geometryList, RwInt32 extraFaces);
+extern void RtWingConvexPartitioning(RtWings* wings, RtGCondGeometryList *geometryList,
+                              RtWingEdgePartitioning how);
+extern RtWingEdge*
+RtWingReallocateWingEdges(RtWings* wings, RwInt32 extraEdges);
+extern RtWingVertex*
+RtWingReallocateWingVertices(RtWings* wings, RtGCondGeometryList *geometryList,
+                    RwInt32 extraVertices);
+extern RtWingFace*
+RtWingReallocateWingFaces(RtWings* wings, RtGCondGeometryList *geometryList,
+                    RwInt32 extraFaces);
 
 
 #ifdef    __cplusplus

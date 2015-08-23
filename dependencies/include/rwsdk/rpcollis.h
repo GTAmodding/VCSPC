@@ -249,7 +249,6 @@ struct RpSectorLineIt
     RwV3d                   start;
     RwV3d                   delta;
     RwV3d                   recip;
-    RwV3d                   padding;
     RpSectorLineItNodeInfo  stack[rpWORLDMAXBSPDEPTH+1];
     RpSectorLineItNodeInfo *curr;
 };
@@ -270,7 +269,6 @@ struct RpCollSectorLineIt
     RwV3d                       start;
     RwV3d                       delta;
     RwV3d                       recip;
-    RwV3d                       padding;
     RpCollSector                dummy;
     RpCollSectorLineItNodeInfo  stack[rpCOLLTREE_MAXDEPTH+1];
     RpCollSectorLineItNodeInfo *curr;
@@ -423,8 +421,7 @@ RpSectorBBoxItFindNextWorldSector(RpSectorBBoxIt *it);
 extern void
 RpSectorLineItInit(RpSectorLineIt *it, 
                    RpWorld        *world,
-                   RwLine         *line,
-                   RwV3d          *padding);
+                   RwLine         *line);
 
 extern RpWorldSector *
 RpSectorLineItFindNextWorldSector(RpSectorLineIt *it);
@@ -452,8 +449,7 @@ RpCollSectorBBoxItFindNextEntries(RpCollSectorBBoxIt  *it,
 extern void
 RpCollSectorLineItInit(RpCollSectorLineIt  *it, 
                        RpCollTree          *tree,
-                       RwLine              *line,
-                       RwV3d               *padding);
+                       RwLine              *line);
 
 extern void
 RpCollSectorLineItInitFromSectorIt(RpCollSectorLineIt  *it, 
@@ -488,6 +484,7 @@ struct RpCollisionData
     RpCollTree  *tree;
 };
 #endif /* !defined(DOXYGEN) */
+
 
 #define _rpCollisionGeometryGetDataMacro(_geometry) \
     RWPLUGINOFFSET(RpCollisionData, _geometry, _rpCollisionGeometryDataOffset)

@@ -31,6 +31,8 @@
 #include <rwcore.h>
 #include <rpdbgerr.h>
 
+static const char rcsid[] __RWUNUSED__ = "@@(#)$Id: //RenderWare/RW36Active/rwsdk/src/plcore/rpdbgerr.c#1 $";
+
 #ifdef RWDEBUG
 
 /****************************************************************************
@@ -41,7 +43,7 @@
  Local (static) Globals
  */
 
-/* The strings used in the debug error reporting are derived from the
+/* The strings used in the debug error reporting are derived from the 
  * .def files
  */
 
