@@ -20,6 +20,7 @@ WRAPPER void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const 
 { WRAPARG(rect); WRAPARG(rgb1); WRAPARG(rgb2); WRAPARG(rgb3); WRAPARG(rgb4); EAXJMP(0x727420); }
 // TODO: Name params
 WRAPPER void CSprite2d::SetVertices(const CRect&, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&, float, float, float, float, float, float, float, float) { EAXJMP(0x727710); }
+WRAPPER void CSprite2d::SetVertices(float, float, float, float, float, float, float, float, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&) { EAXJMP(0x727590); }
 
 WRAPPER void CSprite2d::InitPerFrame() { EAXJMP(0x727350); }
 
@@ -89,6 +90,14 @@ void CSprite2d::Draw(const CRect& rect, const CRGBA& colour)
 void CSprite2d::Draw(float fPosX, float fPosY, float fWidth, float fHeight, const CRGBA& colour)
 {
 	SetVertices(CRect(fPosX, fPosY + fHeight, fPosX + fWidth, fPosY), colour, colour, colour, colour);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, m_pTexture ? m_pTexture->raster : nullptr);
+	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
+}
+
+void CSprite2d::Draw(float fX1, float fY1, float fX2, float fY2, float fX3, float fY3, float fX4, float fY4, const CRGBA& colour)
+{
+	SetVertices(fX1, fY1, fX2, fY2, fX3, fY3, fX4, fY4, colour, colour, colour, colour);
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, m_pTexture ? m_pTexture->raster : nullptr);
 	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);

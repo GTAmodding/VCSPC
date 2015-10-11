@@ -49,6 +49,9 @@ enum eButtonSprites
 	BUTTON_R2,
 	BUTTON_R3,
 
+	BUTTON_START,
+	BUTTON_SELECT,
+
 	BUTTON_UPDOWN,
 	BUTTON_LEFTRIGHT,
 
@@ -80,9 +83,6 @@ enum eButtonSprites
 
 	NUM_BUTTON_SPRITES,
 
-	// Sprite-less buttons
-	BUTTON_START,
-	BUTTON_SELECT,
 	BUTTON_PS
 };
 
@@ -167,6 +167,9 @@ public:
 	static char*			ParseToken(char* pText, CRGBA& rColor, bool bIgnoreColors, char* pChar);
 	static void				Initialise();
 	static void				Shutdown();
+
+	static void				InitialiseButtons();
+	static void				ShutdownButtons();
 
 	static void				Inject();
 };

@@ -609,6 +609,11 @@ static void UpdateShadowsHack(RwCamera* camera)
 	RwCameraBeginUpdate(camera);
 }
 
+RwRaster* ShadowRasterCreateHook(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags)
+{
+	return RwRasterCreate( width, height, depth, flags | rwRASTERFORMATLUM8 );
+}
+
 static void __declspec(naked) ReturnShadowHack()
 {
 	_asm
@@ -642,6 +647,8 @@ static StaticPatcher	Patcher([](){
 						Memory::Patch<const void*>(0x5B1F38, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5BA478, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5E68A4, &g_realTimeShadowMan);
+
+						Memory::InjectHook(0x705B9A, ShadowRasterCreateHook);
 						//Memory::Patch<const void*>(0x854980, &g_realTimeShadowMan);
 						//Memory::Patch<const void*>(0x856AD0, &g_realTimeShadowMan);
 

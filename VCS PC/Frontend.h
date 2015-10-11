@@ -120,6 +120,7 @@ enum eMenuActions
 	MENUACTION_VIBRATION,
 	MENUACTION_INVERTLOOK,
 	MENUACTION_SOUTHPAW,
+	MENUACTION_BUTTONSTYLE,
 
 	NUM_MENU_ACTIONS
 };
@@ -174,6 +175,15 @@ struct MenuItem
 		signed char	screenVertAlign		: 4;
 		signed char	screenHorAlign		: 4;
 	}			entryList[NUM_ENTRIES_PER_MENU];
+};
+
+struct ControllerField
+{
+	BYTE	buttonID;
+	char	entry[8];
+	float	posX;
+	float	posY;
+	BYTE	alignment;
 };
 
 //static_assert(sizeof(MenuItem) == CMenuItem_ARRAYSIZE, "MenuItem has wrong size!");
@@ -413,6 +423,7 @@ private:
 	void			DrawStandardMenus(bool bDrawMenu);
 	void			DrawRadioStationIcons();
 	float			DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width, bool bLocked);
+	void			PrintControllerMapping(ControllerField* pMappings, size_t nCount);
 
 	int				GetAutoSpacingHeight();
 	void			CentreMousePointer();

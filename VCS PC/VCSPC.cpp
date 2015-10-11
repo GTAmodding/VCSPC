@@ -4713,13 +4713,13 @@ char* ParseCommandlineArgument(char* pArg)
 			Memory::Patch<BYTE>(0x70F9BA, 0xF0);
 		}*/
 
-#ifdef DEVBUILD
+//#ifdef DEVBUILD
 		if ( !stricmp(pArg, "-noautocheck") )
 		{
 			CUpdateManager::DisableAutoCheck();
 			return pArg;
 		}
-
+#ifdef DEVBUILD
 		if ( !stricmp(pArg, "-zombiedlc") )
 		{
 			CDLCManager::ToggleDebugOverride(DLC_HALLOWEEN);

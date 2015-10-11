@@ -154,7 +154,7 @@ public:
     virtual void	PreRender();
     virtual void	Render();
     virtual void	SetupLighting();
-    virtual void	RemoveLighting();
+    virtual void	RemoveLighting(bool bRemove = true);
     virtual void	FlagToDestroyWhenNextProcessed();
 
 //private:

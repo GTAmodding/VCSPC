@@ -230,7 +230,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		57, "FEM_YES", ACTION_STANDARD, 3, 0, 16, 3, 0, 0 },
 
 	// Restore defaults - Controller Setup
-	{ "FET_CTL", 36, 2, 0, 0,
+	{ "FET_CTL", 36, 3, 0, 0,
 		1, "FED_RDP", ACTION_NONE, 0, 0, 0, 0, 0, 0,
 		5, "FEM_NO", ACTION_STANDARD, 36, 0, -9, 3, 0, 0,
 		57, "FEM_YES", ACTION_STANDARD, 36, 0, 16, 3, 0, 0 },
@@ -256,7 +256,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TEXTURE_FILTERMODE, "FED_TXF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TRAILS, "FED_TRA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		5, "FET_DEF", ACTION_STANDARD, MENU_PAGE_RESTORE_GRAPHICS, 0, 152, 3, 0, 0,
+		5, "FET_DEF", ACTION_STANDARD, MENU_PAGE_RESTORE_GRAPHICS, 0, 182, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 33, 0, 0, 3, 0, 0 },
 
 	// Language
@@ -347,7 +347,6 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		MENUACTION_PAD_FRONTEND_PAGE, "FEC_CDP", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
 		//MENUACTION_INVERTLOOK, "FEC_ILU", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
 		MENUACTION_VIBRATION, "FEC_VIB", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
-		MENUACTION_SOUTHPAW, "FEC_SOU", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
 		5, "FEC_ADO", ACTION_STANDARD, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 182, 3, 0, 0 },
 
@@ -422,8 +421,10 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		57, "FEM_YES", ACTION_STANDARD, 27, 0, 16, 3, 0, 0 },
 
 	// Additional Controller Options
-	{ "FEH_CTL", MENU_PAGE_CONTROLLER_SETUP, 4, 0, 0,
+	{ "FEH_CTL", MENU_PAGE_CONTROLLER_SETUP, 3, 0, 0,
 		MENUACTION_INVERTLOOK, "FEC_ILU", ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, -164, 2, 0, 0,
+		MENUACTION_SOUTHPAW, "FEC_SOU", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
+		MENUACTION_BUTTONSTYLE, "CABBIE",  ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, 0, 2, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 182, 3, 0, 0
 	},
 };
@@ -528,7 +529,7 @@ void CMenuManager::LoadSettings()
 		DWORD		dwFileVersion;
 
 		CFileMgr::Read(hFile, &dwFileVersion, sizeof(dwFileVersion));
-		if ( dwFileVersion >= SET_FILE_VERSION )
+		if ( dwFileVersion == SET_FILE_VERSION )
 		{
 			// Controls Setup
 			CFileMgr::Read(hFile, &CCamera::m_fMouseAccelHorzntl, sizeof(CCamera::m_fMouseAccelHorzntl));
@@ -1121,6 +1122,9 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case MENUACTION_SOUTHPAW:
 				pTextToShow_RightColumn = TheText.Get(CPad::bSouthpaw ? "FEM_ON" : "FEM_OFF");
 				break;
+			case MENUACTION_BUTTONSTYLE:
+				pTextToShow_RightColumn = TheText.Get(CFont::bX360Buttons ? "FEM_ON" : "FEM_OFF");
+				break;
 			}
 
 			float	fPosX, fPosY;
@@ -1550,7 +1554,7 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		}
 		else
 		{
-			if ( CPad::SavedMode != 0 )
+			if ( CPad::SavedMode > 0 )
 				--CPad::SavedMode;
 			else
 				CPad::SavedMode = PAD_IV_CONTROLS_MODE;
@@ -2145,6 +2149,12 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		CPad::bSouthpaw = CPad::bSouthpaw == false;
 		SaveSettings();
 		return;
+	case MENUACTION_BUTTONSTYLE:
+		CFont::bX360Buttons = CFont::bX360Buttons == false;
+		CFont::ShutdownButtons();
+		CFont::InitialiseButtons();
+		SaveSettings();
+		return;
 	}
 }
 
@@ -2567,6 +2577,68 @@ void CMenuManager::PrintStats()
 	}
 }
 
+void CMenuManager::PrintControllerMapping(ControllerField* pMappings, size_t nCount)
+{
+	const float	fButtonWidth = 24.0f;
+	const float fButtonHeight = fButtonWidth * (448.0f/480.0f);
+	const float fTextWidth = 0.3f;
+	const float fTextHeight = 0.65f;
+
+	CFont::SetColor(CRGBA(255, 255, 255));
+	CFont::SetEdge(0);
+	CFont::SetFontStyle(FONT_Eurostile);
+	CFont::SetScale(_width(fTextWidth), _height(fTextHeight));
+
+	for ( size_t i = 0; i < nCount; i++ )
+	{
+		if ( pMappings[i].posX == 0.0 && pMappings[i].posY == 0.0 )
+		{
+			// Auto-spacing
+			pMappings[i].posX = pMappings[i-1].posX;
+			if ( pMappings[i-1].buttonID == 0 && pMappings[i].buttonID == 0 )
+				pMappings[i].posY = pMappings[i-1].posY + (fButtonHeight * 0.5f);
+			else if ( pMappings[i-1].buttonID == 0 || pMappings[i].buttonID == 0 )
+				pMappings[i].posY = pMappings[i-1].posY + (fButtonHeight * (2.0f/3.0f));
+			else
+				pMappings[i].posY = pMappings[i-1].posY + fButtonHeight;
+		}
+
+		if ( pMappings[i].buttonID == 0 )
+		{
+			if ( pMappings[i].alignment == ALIGN_Left )
+			{
+				m_apMouseTextures[0].Draw(	_xmiddle(pMappings[i].posX + 100.0f), _ymiddle(pMappings[i].posY + 5.0f), 
+								_xmiddle(pMappings[i].posX + 100.0), _ymiddle(pMappings[i].posY - 5.0f), 
+								_xmiddle(pMappings[i].posX - 10.0f - fButtonWidth), _ymiddle(pMappings[i].posY + 5.0f),
+								_xmiddle(pMappings[i].posX - 10.0f - fButtonWidth), _ymiddle(pMappings[i].posY - 5.0f),
+								CRGBA(255, 255, 255) );
+			}
+			else
+			{
+				m_apMouseTextures[0].Draw(	_xmiddle(pMappings[i].posX - 100.0f), _ymiddle(pMappings[i].posY + 5.0f), 
+								_xmiddle(pMappings[i].posX - 100.0f), _ymiddle(pMappings[i].posY - 5.0f), 
+								_xmiddle(pMappings[i].posX + 10.0f + fButtonWidth), _ymiddle(pMappings[i].posY + 5.0f),
+								_xmiddle(pMappings[i].posX + 10.0f + fButtonWidth), _ymiddle(pMappings[i].posY - 5.0f),
+								CRGBA(255, 255, 255) );
+			}
+		}
+		else
+		{
+			CFont::SetOrientation(pMappings[i].alignment);
+			if ( pMappings[i].alignment == ALIGN_Left )
+			{
+				CFont::PrintString( _xmiddle(pMappings[i].posX), _ymiddle(pMappings[i].posY - (8.0f*fTextHeight)), TheText.Get( pMappings[i].entry ) );
+				CFont::PS2Sprite[pMappings[i].buttonID].Draw(CRect( _xmiddle(pMappings[i].posX - 10.0f - fButtonWidth), _ymiddle(pMappings[i].posY + (0.5f*fButtonHeight)), _xmiddle(pMappings[i].posX - 10.0f), _ymiddle(pMappings[i].posY - (0.5f*fButtonHeight))), CRGBA(255, 255, 255) );	
+			}
+			else
+			{
+				CFont::PrintString( _xmiddle(pMappings[i].posX), _ymiddle(pMappings[i].posY - (8.0f*fTextHeight)), TheText.Get( pMappings[i].entry ) );
+				CFont::PS2Sprite[pMappings[i].buttonID].Draw(CRect( _xmiddle(pMappings[i].posX + 10.0f), _ymiddle(pMappings[i].posY + (0.5f*fButtonHeight)), _xmiddle(pMappings[i].posX + 10.0f + fButtonWidth), _ymiddle(pMappings[i].posY - (0.5f*fButtonHeight))), CRGBA(255, 255, 255) );	
+			}
+		}
+	}
+}
+
 void CMenuManager::PrintControllerSetupScreen()
 {
 	// Debug rectangle
@@ -2599,38 +2671,110 @@ void CMenuManager::PrintControllerSetupScreen()
 		else
 			BlendColour = BlendSqr(PinkColour, BlueColour, (nColourCycle-22000)/2000.0f);
 
-		m_apBackgroundTextures[4].Draw(CRect(_xmiddle(-175.0f), _ymiddle(165.0f), _xmiddle(175.0f), _ymiddle(-10.0f)), BlendColour);
+		m_apBackgroundTextures[4].Draw(CRect(_xmiddle(-175.0f), _ymiddle(140.0f), _xmiddle(175.0f), _ymiddle(-35.0f)), BlendColour);
 	}
 	else
 		BlendColour = CRGBA(255, 255, 255);
 
-	m_apBackgroundTextures[3].Draw(CRect(_xmiddle(-175.0f), _ymiddle(165.0f), _xmiddle(175.0f), _ymiddle(-10.0f)), BlendSqr(BlendColour, CRGBA(255, 255, 255), 0.5f)/*CRGBA(255, 255, 255)*/);
+	m_apBackgroundTextures[3].Draw(CRect(_xmiddle(-175.0f), _ymiddle(140.0f), _xmiddle(175.0f), _ymiddle(-35.0f)), BlendSqr(BlendColour, CRGBA(255, 255, 255), 0.5f));
+	m_apBackgroundTextures[5].Draw(CRect(_xmiddle(-175.0f), _ymiddle(227.5f), _xmiddle(175.0f), _ymiddle(-122.5f)), CRGBA(255, 255, 255));
+
+	//CLines::ImmediateLine2D( _xmiddle(-200.0f), _ymiddle(-30.0f), _xmiddle(-85.0f), _ymiddle(5.0f), 255, 0, 0, 255, 255, 0, 0, 255 );
+	//CLines::ImmediateLine2D( _xmiddle(-200.0f), _ymiddle(10.0f), _xmiddle(-85.0f), _ymiddle(5.0f), 255, 0, 0, 255, 255, 0, 0, 255 );
 
 	// Texts
-	CFont::SetColor(CRGBA(255, 255, 255));
-	CFont::SetEdge(0);
-	//CFont::SetDropColor(CRGBA(0, 0, 0));
-	CFont::SetFontStyle(FONT_Eurostile);
-	CFont::SetScale(_width(0.3f), _height(0.55f));
+	ControllerField OnFootPage_PS3[] = {
+		{ 0, "", -200.0, -60.0, ALIGN_Right },
+		{ BUTTON_L2, "FEC_CWL", 0, 0, ALIGN_Right },
+		{ BUTTON_L1, "FEC_CEN", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ BUTTON_UP, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ BUTTON_LEFT, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ BUTTON_RIGHT, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ BUTTON_DOWN, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ BUTTON_THUMBL, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ BUTTON_L3, "FEC_CRO", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ BUTTON_SELECT, "FEC_CMR", 0, 0, ALIGN_Right },
+	};
 
-	// TODO: Pack this in some sorta structure
+	ControllerField OnFootPage_X360[] = {
+		{ 0, "", -200.0, -60.0, ALIGN_Right },
+		{ BUTTON_L2, "FEC_CWL", 0, 0, ALIGN_Right },
+		{ BUTTON_L1, "FEC_CEN", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ BUTTON_THUMBL, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ BUTTON_L3, "FEC_CRO", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ BUTTON_UP, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ BUTTON_LEFT, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ BUTTON_RIGHT, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ BUTTON_DOWN, "FEC_MOV", 0, 0, ALIGN_Right },
+		{ 0, "", 0, 0, ALIGN_Right },
+		{ BUTTON_SELECT, "FEC_CMR", 0, 0, ALIGN_Right },
+	};
 
-	/*CFont::SetOrientation(ALIGN_Right);
-	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(30.0f), "DUMMY");
+	ControllerField OnFootPage_Shared[] = {
+		{ 0, "", 200.0f, -60.0f, ALIGN_Left },
+		{ BUTTON_R2, "FEC_CWR", 0, 0, ALIGN_Left },
+		{ BUTTON_R1, "FEC_TAR", 0, 0, ALIGN_Left },
+		{ 0, "", 0, 0, ALIGN_Left },
+		{ 0, "", 0, 0, ALIGN_Left },
+		{ BUTTON_TRIANGLE, "FEC_ENV", 0, 0, ALIGN_Left },
+		{ BUTTON_SQUARE, "FEC_JMP", 0, 0, ALIGN_Left },
+		{ BUTTON_CIRCLE, "FEC_FWE", 0, 0, ALIGN_Left },
+		{ BUTTON_CROSS, "FEC_SPN", 0, 0, ALIGN_Left },
+		{ 0, "", 0, 0, ALIGN_Left },
+		{ 0, "", 0, 0, ALIGN_Left },
+		{ BUTTON_THUMBR, "FEC_LOK", 0, 0, ALIGN_Left },
+		{ BUTTON_R3, "FEC_LBA", 0, 0, ALIGN_Left },
+		{ 0, "", 0, 0, ALIGN_Left },
+		{ BUTTON_START, "FEC_PAS", 0, 0, ALIGN_Left },
+	};
+
+	if ( CFont::bX360Buttons )
+		PrintControllerMapping(OnFootPage_X360, _countof(OnFootPage_X360));
+	else
+		PrintControllerMapping(OnFootPage_PS3, _countof(OnFootPage_PS3));
+
+	PrintControllerMapping(OnFootPage_Shared, _countof(OnFootPage_Shared));
+
+	//float		fEntryPosX = -190.0f;
+	//float		fEntryPosY = -30.0f;
+
+	/*m_apMouseTextures[0].Draw(	_xmiddle(fEntryPosX - 100.0f), _ymiddle(fEntryPosY + 5.0f), 
+								_xmiddle(fEntryPosX - 100.0f), _ymiddle(fEntryPosY - 5.0f), 
+								_xmiddle(fEntryPosX + 10.0f + fButtonWidth), _ymiddle(fEntryPosY + 5.0f),
+								_xmiddle(fEntryPosX + 10.0f + fButtonWidth), _ymiddle(fEntryPosY - 5.0f),
+								CRGBA(255, 255, 255) );*/
+
+	//fEntryPosY += 10.0f;
+	
+
+	/*CFont::SetScale(_width(0.9f), _height(1.5f));
+	CFont::SetOrientation(ALIGN_Center);
+	CFont::PrintString( _xmiddle(-175.0f), _ymiddle(-40.0f), "~m~" );
+	CFont::PrintString( _xmiddle(-175.0f), _ymiddle(-15.0f), "~K~" );*/
+	/*CFont::PrintString(_xmiddle(-155.0f), _ymiddle(30.0f), "DUMMY");
 	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(45.0f), "DUMMIER");
 	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(75.0f), "COOKIES R GUD");
 	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(130.0f), "Movement");
 	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(140.0f), "Horn");
-	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(160.0f), "Camera Modes");
+	CFont::PrintString(_xmiddle(-155.0f), _ymiddle(160.0f), "Camera Modes");*/
 
-	CFont::SetOrientation(ALIGN_Left);
-	CFont::PrintString(_xmiddle(155.0f), _ymiddle(30.0f), "DUMMY");
+	//CFont::SetOrientation(ALIGN_Left);
+	/*CFont::PrintString(_xmiddle(155.0f), _ymiddle(30.0f), "DUMMY");
 	CFont::PrintString(_xmiddle(155.0f), _ymiddle(45.0f), "DUMMIEST");
 	CFont::PrintString(_xmiddle(155.0f), _ymiddle(65.0f), "This would be Square");
-	CFont::PrintString(_xmiddle(155.0f), _ymiddle(80.0f), "DUMMYY");
+	CFont::PrintString(_xmiddle(155.0f), _ymiddle(80.0f), "DUMMYY");*/
 
-	CFont::SetOrientation(ALIGN_Center);
-	CFont::PrintString(RsGlobal.MaximumWidth / 2, _ymiddle(30.0f), "DUMMY");*/
+	//CFont::SetOrientation(ALIGN_Center);
+	/*CFont::PrintString(RsGlobal.MaximumWidth / 2, _ymiddle(30.0f), "DUMMY");*/
 }
 
 void CMenuManager::PrintUpdaterScreen()
@@ -2823,7 +2967,6 @@ void CMenuManager::ReadFrontendTextures()
 	for ( int i = 0; i < sizeof(frontend1TexNames)/sizeof(const char*); ++i )
 	{
 		m_apRadioSprites[i+1].SetTextureFromSPTA(FrontendArchive, frontend1TexNames[i]);
-		m_apRadioSprites[i+1].SetAddressing(rwTEXTUREADDRESSCLAMP);
 	}
 
 	// fronten2
@@ -2834,7 +2977,6 @@ void CMenuManager::ReadFrontendTextures()
 	{
 		if ( !m_apBackgroundTextures[i].SetTextureFromSPTA(DLCArchive, frontend2TexNames[i]) )
 			m_apBackgroundTextures[i].SetTextureFromSPTA(FrontendArchive, frontend2TexNames[i]);
-		m_apBackgroundTextures[i].SetAddressing(rwTEXTUREADDRESSCLAMP);
 	}
 
 	// fronten_pc
@@ -2843,7 +2985,6 @@ void CMenuManager::ReadFrontendTextures()
 	for ( int i = 0; i < sizeof(frontendpcTexNames)/sizeof(const char*); ++i )
 	{
 		m_apMouseTextures[i].SetTextureFromSPTA(FrontendArchive, frontendpcTexNames[i]);
-		m_apMouseTextures[i].SetAddressing(rwTEXTUREADDRESSCLAMP);
 	}
 
 	FrontendArchive.CloseArchive();
@@ -2859,11 +3000,13 @@ void CMenuManager::LoadControllerSprites()
 	{
 		m_apBackgroundTextures[3].SetTextureFromSPTA(FrontendArchive, "360front");
 		m_apBackgroundTextures[4].SetTextureFromSPTA(FrontendArchive, "360back");
+		m_apBackgroundTextures[5].SetTextureFromSPTA(FrontendArchive, "360overlay");
 	}
 	else
 	{
 		m_apBackgroundTextures[3].SetTextureFromSPTA(FrontendArchive, "ps3front");
 		m_apBackgroundTextures[4].SetTextureFromSPTA(FrontendArchive, "ps3back");	
+		m_apBackgroundTextures[5].SetTextureFromSPTA(FrontendArchive, "ps3overlay");	
 	}
 
 	FrontendArchive.CloseArchive();

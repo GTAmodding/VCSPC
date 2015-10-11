@@ -53,10 +53,12 @@ public:
 	void				Delete();
 	void				Draw(const CRect& rect, const CRGBA& colour);
 	void				Draw(float fPosX, float fPosY, float fWidth, float fHeight, const CRGBA& colour);
+	void				Draw(float fX1, float fY1, float fX2, float fY2, float fX3, float fY3, float fX4, float fY4, const CRGBA& colour);
 
 	static void			InitPerFrame();
 	static void			SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4);
 	static void			SetVertices(const CRect&, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&, float, float, float, float, float, float, float, float);
+	static void			SetVertices(float, float, float, float, float, float, float, float, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&);
 	static void			DrawRect(const CRect& rect, const CRGBA& colour);
 };
 

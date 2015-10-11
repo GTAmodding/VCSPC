@@ -21,9 +21,9 @@ char*				CUpdateManager::pMessages[NUM_MESSAGES_PER_UPT_SCREEN];
 bool				CUpdateManager::bAutoInstallUpdates;
 unsigned char		CUpdateManager::bCheckingPeriod;
 
-#ifdef DEVBUILD
+//#ifdef DEVBUILD
 bool				CUpdateManager::bDisableAutoCheck = false;
-#endif
+//#endif
 
 
 void CUpdateManager::Init()
@@ -122,11 +122,11 @@ void CUpdateManager::Process()
 		nLastInterfaceStatus = nInterfaceStatus;
 	}
 
-#ifdef DEVBUILD
+//#ifdef DEVBUILD
 	static bool				bCheckedThisSession = bDisableAutoCheck;
-#else
-	static bool				bCheckedThisSession = false;
-#endif
+//#else
+	//static bool				bCheckedThisSession = false;
+//#endif
 
 	if ( !bCheckedThisSession )
 	{

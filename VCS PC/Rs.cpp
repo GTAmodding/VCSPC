@@ -437,7 +437,7 @@ void DoPreMenuBlackout()
 	RsCameraShowRaster(Camera);
 }
 
-static char** pVideoModes = (char**)0xC920D0;
+static char**& pVideoModes = *(char***)0xC920D0;
 void FreeDisplayModesList()
 {
 	for ( int i = 0, j = GetNumDisplayModes(); i < j; i++ )

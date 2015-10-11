@@ -23,9 +23,9 @@ private:
 	static bool					bAutoInstallUpdates;
 	static unsigned char		bCheckingPeriod;
 
-#ifdef DEVBUILD
+//#ifdef DEVBUILD
 	static bool					bDisableAutoCheck;
-#endif
+//#endif
 
 public:
 	static inline bool			AnyTextDisplaysNow()
@@ -64,10 +64,10 @@ public:
 	static inline void			SetThisDLCAsVerySpecial(const char* pName)
 		{ pUptModuleInterface->SetThisDLCAsVerySpecial(pName); }
 
-#ifdef DEVBUILD
+//#ifdef DEVBUILD
 	static inline void			DisableAutoCheck()
 		{ bDisableAutoCheck = true; }
-#endif
+//#endif
 
 	static void					Init();
 	static void					Terminate();

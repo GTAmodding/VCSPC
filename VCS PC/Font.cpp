@@ -632,9 +632,17 @@ void CFont::Initialise()
 	// TODO: Dummy CFont stuff may not be needed at all?
 	LoadFontValues();
 
-	nSlot = CTxdStore::AddTxdSlot("buttons");
+	CTxdStore::PopCurrentTxd();
+
+	InitialiseButtons();
+}
+
+void CFont::InitialiseButtons()
+{
+	int nSlot = CTxdStore::AddTxdSlot("buttons");
 	CTxdStore::LoadTxd(nSlot, bX360Buttons ? "models\\360btns.txd" : "models\\ps3btns.txd");
 	CTxdStore::AddRef(nSlot);
+	CTxdStore::PushCurrentTxd();
 	CTxdStore::SetCurrentTxd(nSlot);
 
 	PS2Sprite[BUTTON_UP].SetTexture("up", "");
@@ -653,6 +661,9 @@ void CFont::Initialise()
 	PS2Sprite[BUTTON_R1].SetTexture("r1", "");		
 	PS2Sprite[BUTTON_R2].SetTexture("r2", "");	
 	PS2Sprite[BUTTON_R3].SetTexture("r3", "");
+
+	PS2Sprite[BUTTON_START].SetTexture("start", "");
+	PS2Sprite[BUTTON_SELECT].SetTexture("select", "");
 
 	PS2Sprite[BUTTON_UPDOWN].SetTexture("dud", "");
 	PS2Sprite[BUTTON_LEFTRIGHT].SetTexture("dlr", "");
@@ -686,7 +697,6 @@ void CFont::Initialise()
 	PS2Sprite[BUTTON_SIXAXIS_3].SetTexture("sixaxis3", "");
 	PS2Sprite[BUTTON_SIXAXIS_4].SetTexture("sixaxis4", "");*/
 
-	// pcbtns - SA only
 	nSlot = CTxdStore::FindTxdSlot("pcbtns");
 	if ( nSlot == -1 )
 		nSlot = CTxdStore::AddTxdSlot("pcbtns");
@@ -715,14 +725,23 @@ void CFont::Shutdown()
 	for ( int i = 0; i < NUM_FONT_SHEETS; i++ )
 		Sprite[i].Delete();
 
-	for ( int i = 0; i < NUM_BUTTON_SPRITES; i++ )
-		PS2Sprite[i].Delete();
-
-	int		nSlot = CTxdStore::FindTxdSlot("fonts");
+	int nSlot = CTxdStore::FindTxdSlot("fonts");
 	if ( nSlot != -1 )
 		CTxdStore::RemoveTxdSlot(nSlot);
 
-	nSlot = CTxdStore::FindTxdSlot("buttons");
+	ShutdownButtons();
+}
+
+void CFont::ShutdownButtons()
+{
+	for ( int i = 0; i < NUM_BUTTON_SPRITES; i++ )
+		PS2Sprite[i].Delete();
+
+	int nSlot = CTxdStore::FindTxdSlot("buttons");
+	if ( nSlot != -1 )
+		CTxdStore::RemoveTxdSlot(nSlot);
+
+	nSlot = CTxdStore::FindTxdSlot("pcbtns");
 	if ( nSlot != -1 )
 		CTxdStore::RemoveTxdSlot(nSlot);
 }
