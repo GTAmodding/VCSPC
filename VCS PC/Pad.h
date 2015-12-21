@@ -79,7 +79,7 @@ public:
 
 public:
 	inline bool		CheckForInput()
-	{ return lmb || rmb || mmb || wheelUp || wheelDown || bmx1 || bmx2 || X != 0.0 || Y != 0.0; }
+		{ return lmb || rmb || mmb || wheelUp || wheelDown || bmx1 || bmx2 || X != 0.0f || Y != 0.0f; }
 };
 
 class CControllerState
@@ -150,6 +150,11 @@ public:
 	DWORD				NoShakeBeforeThis;
 	BYTE				NoShakeFreq;
 
+private:
+	static CMouseControllerState&	PCTempMouseControllerState;
+	static CMouseControllerState&	NewMouseControllerState;
+	static CMouseControllerState&	OldMouseControllerState;
+
 public:
 	// GInput extension
 	static bool				bInvertLook4Pad;
@@ -160,11 +165,13 @@ public:
 	static bool				FailCameraChangeThisFrame;
 
 public:
-	inline bool			CrossJustDown() { return NewState.CROSS && !OldState.CROSS; }
-	inline bool			RightShockJustDown() { return NewState.RIGHTSHOCK && !OldState.RIGHTSHOCK; }
+	inline bool								CrossJustDown() { return NewState.CROSS && !OldState.CROSS; }
+	inline bool								RightShockJustDown() { return NewState.RIGHTSHOCK && !OldState.RIGHTSHOCK; }
+	static inline CMouseControllerState&	GetMouseStateBuffer() { return PCTempMouseControllerState; }
 	inline int			InputHowLongAgo() { return CTimer::m_snTimeInMilliseconds - LastTimeTouched; }
 
 	CControllerState	ReconcileTwoControllersInput(const CControllerState& rDevice1, const CControllerState& rDevice2);
+	void				UpdateMouse();
 
 	static CPad*		GetPad(int nPad);
 	static void			UpdatePads();
@@ -319,5 +326,6 @@ void OnModeChangePatches();
 
 static_assert(sizeof(CPad) == 0x134, "Wrong size: CPad");
 static_assert(sizeof(CKeyState) == 0x270, "Wrong size: CKeyState");
+static_assert(sizeof(CMouseControllerState) == 0x14, "Wrong size: CMouseControllerState");
 
 #endif

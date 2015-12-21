@@ -128,6 +128,11 @@ enum RsKeyCodes
 };
 typedef enum RsKeyCodes RsKeyCodes;
 
+inline bool IsForeground()
+{
+	return *(BOOL*)0x8D621C != 0;
+}
+
 enum RsGenericPS
 {
 	// VCSPC generic shaders

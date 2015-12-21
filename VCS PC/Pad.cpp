@@ -8,6 +8,11 @@
 #include "Camera.h"
 #include "Vehicle.h"
 #include "Font.h"
+#include "ControlsMgr.h"
+
+CMouseControllerState&	CPad::PCTempMouseControllerState = *(CMouseControllerState*)0xB73404;
+CMouseControllerState&	CPad::NewMouseControllerState = *(CMouseControllerState*)0xB73418;
+CMouseControllerState&	CPad::OldMouseControllerState = *(CMouseControllerState*)0xB7342C;
 
 static CPad* const	Pads = (CPad*)0xB73458;
 
@@ -21,9 +26,6 @@ short	CPad::ChangeStation_HoldTimer;
 short	CPad::ChangeCamera_HoldTimer;
 
 CX360Pad*	pXboxPad[1];
-
-static StaticPatcher	Patcher([](){ 
-						CPad::Inject(); });
 
 WRAPPER void CPad::UpdatePads() { EAXJMP(0x541DD0); }
 WRAPPER void CPad::StartShake(short nTime, unsigned char nDur, unsigned int nNoShakeBeforeThis) { EAXJMP(0x53F920); }
@@ -664,6 +666,31 @@ CControllerState CPad::ReconcileTwoControllersInput(const CControllerState& rDev
 	PadOut.m_bRadioTrackSkip = (rDevice1.m_bRadioTrackSkip != 0 || rDevice2.m_bRadioTrackSkip != 0) ? 255 : 0;
 
 	return PadOut;
+}
+
+void CPad::UpdateMouse()
+{
+	if ( IsForeground() )
+	{
+		OldMouseControllerState = NewMouseControllerState;
+		NewMouseControllerState = PCTempMouseControllerState;
+
+		// As TempMouseControllerState contains only raw data now, handle movement inversion here
+		if ( !FrontEndMenuManager.m_bMenuActive )
+		{
+			if ( MousePointerStateHelper.m_bVerticalInvert )
+				NewMouseControllerState.X = -NewMouseControllerState.X;
+			if ( MousePointerStateHelper.m_bHorizontalInvert )
+				NewMouseControllerState.Y = -NewMouseControllerState.Y;
+		}
+		
+		// Clear mouse movement data and scroll data in temp buffer
+		PCTempMouseControllerState.X = PCTempMouseControllerState.Y = PCTempMouseControllerState.Z = 0.0f;
+		PCTempMouseControllerState.wheelDown = PCTempMouseControllerState.wheelUp = false;
+		
+		if ( NewMouseControllerState.CheckForInput() )
+			LastTimeTouched = CTimer::m_snTimeInMilliseconds;
+	}
 }
 
 CPad* CPad::GetPad(int nPad)
@@ -2238,28 +2265,13 @@ void __declspec(naked) HandleKeyDownHack()
 	}
 }
 
-void __declspec(naked) HandleMouseHack()
-{
-	_asm
-	{
-		mov		ecx, [pNewMouseControllerState]
-		call	CMouseControllerState::CheckForInput
-		test	al, al
-		jz		HandleMouseHack_NoInput
-		push	0
-		mov		ecx, [pXboxPad]
-		call	CX360Pad::SetHasPadInHands
-
-HandleMouseHack_NoInput:
-		retn
-	}
-}
-
 void CPad::Inject()
 {
 	using namespace Memory;
 
 	InjectHook(0x541DDE, CaptureXInputPad_SCP);
+	InjectHook(0x541DD7, &UpdateMouse);
+
 	InjectHook(0x53F530, &ReconcileTwoControllersInput, PATCH_JUMP);
 
 	InjectHook(0x748813, InitXInputPad);
@@ -2448,7 +2460,6 @@ void CPad::Inject()
 	Patch<const void*>(0x510875, &fSniperZoomVal);
 
 	InjectHook(0x7448A5, HandleKeyDownHack);
-	InjectHook(0x53F52A, HandleMouseHack, PATCH_JUMP);
 
 	Patch<const void*>(0x47A64A, *(bool**)0x50A851);
 	Patch<BYTE>(0x47A655, 0x74);
@@ -2562,3 +2573,7 @@ void CPad::Inject()
 	Patch<const void*>(0x60B65F, &bFreeAim);
 	Patch<const void*>(0x60CCA0, &bFreeAim);
 }
+
+static StaticPatcher	Patcher([](){ 
+						CPad::Inject();
+						});
