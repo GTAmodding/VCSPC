@@ -359,9 +359,9 @@ void CHud::DrawWanted()
 		CFont::SetOrientation(ALIGN_Right);
 		CFont::SetProportional(false);
 		CFont::SetFontStyle(FONT_Hud);
-		CFont::SetScale(_width(0.95f), _height(1.5f));
+		CFont::SetScale(_width(0.66f), _height(1.2f));
 
-		float		fCurrentPos = _x(HUD_POS_X - 115.25f);
+		float		fCurrentPos = _x(HUD_POS_X - 112.5f);
 		for ( int i = 0; i < 6; ++i, fCurrentPos -= _width(20.0f) )
 		{
 			if ( nWantedLevel > i && ( CTimer::m_snTimeInMilliseconds > nTimeOfWLChange + 2000 || ShowFlashingItem(150, 150) /*CTimer::m_FrameCounter & 4*/ ) )
