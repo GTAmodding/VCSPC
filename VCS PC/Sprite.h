@@ -12,6 +12,8 @@ public:
 	static bool		CalcScreenCoors(const RwV3d& vecIn, RwV3d* vecOut, float* fWidth, float* fHeight, bool bCheckFarClip, bool bCheckNearClip);
 	static void		FlushSpriteBuffer();
 
+	static void		InitSpriteBuffer2D();
+
 	static void		RenderOneXLUSprite_Rotate_Aspect(float x, float y, float z, float halfWidth, float halfHeight, 
 						unsigned char red, unsigned char green, unsigned char blue, short alpha, float rhw, 
 						float rotate, unsigned char aspect);

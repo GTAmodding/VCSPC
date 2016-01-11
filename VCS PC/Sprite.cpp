@@ -4,6 +4,7 @@
 // Wrappers
 WRAPPER bool CSprite::CalcScreenCoors(const RwV3d& vecIn, RwV3d* vecOut, float* fWidth, float* fHeight, bool bCheckFarClip, bool bCheckNearClip) { EAXJMP(0x70CE30); }
 WRAPPER void CSprite::FlushSpriteBuffer() { EAXJMP(0x70CF20); }
+WRAPPER void CSprite::InitSpriteBuffer2D() { EAXJMP(0x70CFD0); }
 WRAPPER void CSprite::RenderOneXLUSprite_Rotate_Aspect(float x, float y, float z, float halfWidth, float halfHeight, 
 						unsigned char red, unsigned char green, unsigned char blue, short alpha, float rhw, 
 						float rotate, unsigned char aspect) { EAXJMP(0x70D490); }

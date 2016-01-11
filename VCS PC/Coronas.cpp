@@ -429,6 +429,8 @@ void CCoronas::RenderBuffered()
 	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDONE);
 	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
 
+	CSprite::InitSpriteBuffer2D();
+
 	for ( int i = 0; i < NUM_CORONAS; i++ )
 	{
 		if ( aCoronas[i].Identifier )
