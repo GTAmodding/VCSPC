@@ -14,7 +14,6 @@ enum
 {
 	PATCH_CALL,
 	PATCH_JUMP,
-	PATCH_NOTHING,
 };
 
 // Debug checker to make sure reversed functions don't still get hacks
@@ -57,7 +56,7 @@ namespace Memory
 	{ CheckMemoryBanList(address); memset((void*)address, 0x90, nCount); }
 
 	template<typename AT, typename HT>
-	inline void		InjectHook(AT address, HT hook, unsigned int nType=PATCH_NOTHING)
+	inline void		InjectHook(AT address, HT hook)
 	{
 		CheckMemoryBanList(address);
 		DWORD		dwHook;
@@ -67,17 +66,23 @@ namespace Memory
 			mov		dwHook, eax
 		}
 
-		switch ( nType )
+		*(ptrdiff_t*)((DWORD)address + 1) = dwHook - (DWORD)address - 5;
+	}
+
+	template<typename AT, typename HT>
+	inline void		InjectHook(AT address, HT hook, unsigned int nType)
+	{
+		CheckMemoryBanList(address);
+		DWORD		dwHook;
+		_asm
 		{
-		case PATCH_JUMP:
-			*(BYTE*)address = 0xE9;
-			break;
-		case PATCH_CALL:
-			*(BYTE*)address = 0xE8;
-			break;
+			mov		eax, hook
+			mov		dwHook, eax
 		}
 
-		*(DWORD*)((DWORD)address + 1) = dwHook - (DWORD)address - 5;
+		*(BYTE*)address = nType == PATCH_JUMP ? 0xE9 : 0xE8;
+
+		*(ptrdiff_t*)((DWORD)address + 1) = dwHook - (DWORD)address - 5;
 	}
 };
 
@@ -94,7 +99,6 @@ namespace MemoryVP
 
 	template<typename AT>
 	inline void		Nop(AT address, unsigned int nCount)
-	// TODO: Finish multibyte nops
 	{
 		DWORD		dwProtect[2];
 		VirtualProtect((void*)address, nCount, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
@@ -103,23 +107,11 @@ namespace MemoryVP
 	}
 
 	template<typename AT, typename HT>
-	inline void		InjectHook(AT address, HT hook, unsigned int nType=PATCH_NOTHING)
+	inline void		InjectHook(AT address, HT hook)
 	{
 		DWORD		dwProtect[2];
-		switch ( nType )
-		{
-		case PATCH_JUMP:
-			VirtualProtect((void*)address, 5, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
-			*(BYTE*)address = 0xE9;
-			break;
-		case PATCH_CALL:
-			VirtualProtect((void*)address, 5, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
-			*(BYTE*)address = 0xE8;
-			break;
-		default:
-			VirtualProtect((void*)((DWORD)address + 1), 4, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
-			break;
-		}
+
+		VirtualProtect((void*)((DWORD)address + 1), 4, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
 		DWORD		dwHook;
 		_asm
 		{
@@ -127,12 +119,55 @@ namespace MemoryVP
 			mov		dwHook, eax
 		}
 
-		*(DWORD*)((DWORD)address + 1) = (DWORD)dwHook - (DWORD)address - 5;
-		if ( nType == PATCH_NOTHING )
-			VirtualProtect((void*)((DWORD)address + 1), 4, dwProtect[0], &dwProtect[1]);
-		else
-			VirtualProtect((void*)address, 5, dwProtect[0], &dwProtect[1]);
+		*(ptrdiff_t*)((DWORD)address + 1) = (DWORD)dwHook - (DWORD)address - 5;
+		VirtualProtect((void*)((DWORD)address + 1), 4, dwProtect[0], &dwProtect[1]);
 	}
+
+	template<typename AT, typename HT>
+	inline void		InjectHook(AT address, HT hook, unsigned int nType)
+	{
+		DWORD		dwProtect[2];
+
+		VirtualProtect((void*)address, 5, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
+		*(BYTE*)address = nType == PATCH_JUMP ? 0xE9 : 0xE8;
+
+		DWORD		dwHook;
+		_asm
+		{
+			mov		eax, hook
+			mov		dwHook, eax
+		}
+
+		*(ptrdiff_t*)((DWORD)address + 1) = (DWORD)dwHook - (DWORD)address - 5;
+		VirtualProtect((void*)address, 5, dwProtect[0], &dwProtect[1]);
+	}
+
+	namespace DynBase
+	{
+		template<typename T, typename AT>
+		inline void		Patch(AT address, T value)
+		{
+			MemoryVP::Patch(DynBaseAddress(address), value);
+		}
+
+		template<typename AT>
+		inline void		Nop(AT address, unsigned int nCount)
+		{
+			MemoryVP::Nop(DynBaseAddress(address), nCount);
+		}
+
+		template<typename AT, typename HT>
+		inline void		InjectHook(AT address, HT hook)
+		{
+			MemoryVP::InjectHook(DynBaseAddress(address), hook);
+		}
+
+		template<typename AT, typename HT>
+		inline void		InjectHook(AT address, HT hook, unsigned int nType)
+		{
+			MemoryVP::InjectHook(DynBaseAddress(address), hook, nType);
+		}
+	};
 };
 
 #endif

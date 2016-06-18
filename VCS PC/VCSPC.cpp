@@ -2419,7 +2419,7 @@ void Main_Patches()
 	Patch<SCRIPT_VAR*>(0x48AE2A, &scriptParams[3]);
 
 	// SCM functions
-	InjectHook(0x468D82, &CRunningScript::Init, PATCH_NOTHING);
+	InjectHook(0x468D82, &CRunningScript::Init);
 	//call(0x468D50, &ZeroScriptsCounter, PATCH_JUMP);
 //	call(0x5D4FC2, &CScriptFunction::SaveAllFunctions, PATCH_JUMP);
 //	call(0x5D539D, &LoadFunctionBreak, PATCH_JUMP);
@@ -2554,19 +2554,19 @@ void Main_Patches()
 	InjectHook(0x571F07, &CUserDisplay::Init, PATCH_JUMP);
 	InjectHook(0x53C08B, &CUserDisplay::Process);
 
-	InjectHook(0x53E50E, &COnscreenTimer::ProcessForDisplay, PATCH_NOTHING);
-	InjectHook(0x5720AF, &COnscreenTimer::Process, PATCH_NOTHING);
-	InjectHook(0x47C2AC, &COnscreenTimer::AddClock, PATCH_NOTHING);
-	InjectHook(0x47C2C3, &COnscreenTimer::AddClock, PATCH_NOTHING);
-	InjectHook(0x484CA7, &COnscreenTimer::AddClock, PATCH_NOTHING);
-	InjectHook(0x484CFC, &COnscreenTimer::AddCounter, PATCH_NOTHING);
-	InjectHook(0x48C57D, &COnscreenTimer::AddCounter, PATCH_NOTHING);
-	InjectHook(0x47C2E2, &COnscreenTimer::ClearClock, PATCH_NOTHING);
-	InjectHook(0x47C301, &COnscreenTimer::ClearCounter, PATCH_NOTHING);
-	InjectHook(0x48EEB6, &COnscreenTimer::SetFlashing, PATCH_NOTHING);
-	InjectHook(0x48EECD, &COnscreenTimer::SetFlashing, PATCH_NOTHING);
-	InjectHook(0x4720AF, &COnscreenTimer::SetSoundOnTime, PATCH_NOTHING);
-	InjectHook(0x58FBEE, &CHud::DrawOnscreenTimer, PATCH_NOTHING);
+	InjectHook(0x53E50E, &COnscreenTimer::ProcessForDisplay);
+	InjectHook(0x5720AF, &COnscreenTimer::Process);
+	InjectHook(0x47C2AC, &COnscreenTimer::AddClock);
+	InjectHook(0x47C2C3, &COnscreenTimer::AddClock);
+	InjectHook(0x484CA7, &COnscreenTimer::AddClock);
+	InjectHook(0x484CFC, &COnscreenTimer::AddCounter);
+	InjectHook(0x48C57D, &COnscreenTimer::AddCounter);
+	InjectHook(0x47C2E2, &COnscreenTimer::ClearClock);
+	InjectHook(0x47C301, &COnscreenTimer::ClearCounter);
+	InjectHook(0x48EEB6, &COnscreenTimer::SetFlashing);
+	InjectHook(0x48EECD, &COnscreenTimer::SetFlashing);
+	InjectHook(0x4720AF, &COnscreenTimer::SetSoundOnTime);
+	InjectHook(0x58FBEE, &CHud::DrawOnscreenTimer);
 
 	InjectHook(0x47C286, &RunningScriptPointerParamWrapper);
 	InjectHook(0x47C2D4, &RunningScriptPointerParamWrapper);
@@ -3275,7 +3275,7 @@ void Main_Patches()
 	Patch<BYTE>(0x748AE6, 0x14);
 
 	// Outro splash
-	InjectHook(0x57BA5F, &CMenuManager::DrawOutroSplash, PATCH_NOTHING);
+	InjectHook(0x57BA5F, &CMenuManager::DrawOutroSplash);
 
 	// Stats Menu
 	//InjectHook(0x57954A, &CMenuManager::PrintStats, PATCH_NOTHING);
@@ -3622,8 +3622,8 @@ void Main_Patches()
 
 	Patch<DWORD>(0x5759C5, offsetof(CMenuManager, m_apTextures[15]));
 
-	InjectHook(0x58008D, &CMenuManager::AdditionalOptionInputVCS, PATCH_NOTHING);
-	InjectHook(0x57B457, &CMenuManager::UserInputVCS, PATCH_NOTHING);
+	InjectHook(0x58008D, &CMenuManager::AdditionalOptionInputVCS);
+	InjectHook(0x57B457, &CMenuManager::UserInputVCS);
 
 	// No arrow.txd
 	//Patch<DWORD>(0x57A511, 0xDBE9);
@@ -3666,7 +3666,7 @@ void Main_Patches()
 //	patch(0x585CD4, 0x40400000, 4); // 3.0
 
 	// Steady crosshair
-	InjectHook(0x58E26C, &CPed::GetCrosshairSize, PATCH_NOTHING);
+	InjectHook(0x58E26C, &CPed::GetCrosshairSize);
 
 	// No plane radar stuff
 	InjectHook(0x58A3AA, 0x58A5A8, PATCH_JUMP);
@@ -3964,8 +3964,8 @@ void Main_Patches()
 	Patch<DWORD>(0x57B5D2, NUM_ENTRIES_PER_MENU - 1);
 
 	// Menu mouse hax
-	InjectHook(0x57FE6B, &CMenuManager::_GetTextYPos, PATCH_NOTHING);
-	InjectHook(0x57FEAB, &CMenuManager::GetTextYPosNextItem, PATCH_NOTHING);
+	InjectHook(0x57FE6B, &CMenuManager::_GetTextYPos);
+	InjectHook(0x57FEAB, &CMenuManager::GetTextYPosNextItem);
 	// TODO: Needs memcpy and proper multibyte NOPs
 	Patch<DWORD>(0x57FE53, 0x388C8D90);
 	Patch<DWORD>(0x57FE92, 0x3A8C8D90);
@@ -4010,7 +4010,7 @@ void Main_Patches()
 
 	// Own BaseColors::BaseColors
 	// TODO: Come up with something nicer?
-	InjectHook(0x84F1F5, &CRGBA::BaseColors__Constructor, PATCH_NOTHING);
+	InjectHook(0x84F1F5, &CRGBA::BaseColors__Constructor);
 
 	// Weapon sounds
 	// Beretta
