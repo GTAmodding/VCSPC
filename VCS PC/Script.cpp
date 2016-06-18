@@ -438,9 +438,9 @@ SCRIPT_VAR* CRunningScript::GetPointerToLocalVariable( uint16 var )
 	return bIsMission ? &scriptLocals[var] : &LocalVar[var];
 }
 
-void CRunningScript::ProcessVCSCommands(int16 opcode)
+int8 CRunningScript::ProcessCustomCommands( int16 command )
 {
-	switch ( opcode )
+	switch ( command )
 	{
 	case 0x0050:
 		{
@@ -451,7 +451,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 				GetExtrasForScript().RegisterGosub(this);
 			Stack[SP++] = CurrentIP;
 			SetIP(scriptParams[0].iParam);
-			return;
+			return 0;
 		}
 	case 0x0051:
 	case 0x0054:
@@ -480,9 +480,9 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			}
 
 
-			if ( opcode != 0x0051 )
-				UpdateCompareFlag(opcode == 0x0054);
-			return;
+			if ( command != 0x0051 )
+				UpdateCompareFlag(command == 0x0054);
+			return 0;
 		}
 	case 0x014D:
 		{
@@ -491,7 +491,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			ReadTextLabelFromScript(cString, 8);
 			CollectParameters(2);
 			CUserDisplay::Pager.AddMessage(const_cast<char*>(TheText.Get(cString)), static_cast<short>(scriptParams[0].iParam), static_cast<short>(scriptParams[1].iParam));
-			return;
+			return 0;
 		}
 
 	case 0x0166:
@@ -500,7 +500,14 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			CollectParameters(2);
 			CRadar::ChangeBlipBrightness(scriptParams[0].iParam, scriptParams[1].iParam);
 			//LogToFile("Opcode 0166 called with params: %d %d", scriptParams[0], scriptParams[1]);
-			return;
+			return 0;
+		}
+	case GET_CONTROLLER_MODE:
+		{
+			// %1d% = get_controller_mode
+			scriptParams[0].iParam = CPad::GetPad(0)->Mode;
+			StoreParameters(1);
+			return 0;
 		}
 	case 0x0351:
 		{	
@@ -508,7 +515,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			CollectParameters(1);
 			CCamera::bDontTouchFOVInWidescreen = scriptParams[0].bParam != 0;
 			LogToFile("Opcode 0351 called with params: %d", scriptParams[0]);
-			return;
+			return 0;
 		}
 	case 0x0352:
 		{
@@ -518,7 +525,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			EnterAmazingScreenshotMode(scriptParams[0].bParam != 0);
 			LogToFile("Opcode 0352 called with params: %d", scriptParams[0]);
 #endif
-			return;
+			return 0;
 		}
 	case 0x0353:
 		{
@@ -539,7 +546,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 					break;
 				}
 			}
-			return;
+			return 0;
 		}
 	case 0x0354:
 		{
@@ -558,7 +565,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			pPed->SetModelIndex(0);
 			pPed->SetMoveAnimGroup(iAnimGroupBackup);
 			LogToFile("Opcode 0352 called with params: %d %s", scriptParams[0], cString);
-			return;
+			return 0;
 		}
 	case 0x0355:
 		{
@@ -567,7 +574,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			CPools::GetPedPoolAux()->GetAt(scriptParams[0].iParam)->SetColours(scriptParams[1].bParam, scriptParams[2].bParam, scriptParams[3].bParam, scriptParams[4].bParam);
 			//CPedEx::pPedData[scriptParams[0].iParam >> 8].SetColours(scriptParams[1].bParam, scriptParams[2].bParam, scriptParams[3].bParam, scriptParams[4].bParam);
 			LogToFile("Opcode 0355 called with params: %d %d %d %d %d", scriptParams[0], scriptParams[1], scriptParams[2], scriptParams[3], scriptParams[4]);
-			return;
+			return 0;
 		}
 	case 0x037A:
 		{
@@ -590,7 +597,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			Stack[SP++] = CurrentIP;
 			SetIP(offsetToJmp);
 			//LogToFile("Opcode 037A called with params: %d %d ...", offsetToJmp, passedParams);
-			return;
+			return 0;
 		}
 	case 0x03C1:
 		{
@@ -605,7 +612,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			ReadTextLabelFromScript(cString, 8);
 			CUserDisplay::OnscnTimer.AddCounterTwoVars(pVariable[0], pVariable[1], cString, scriptParams[1].wParam, cPlaceString, scriptParams[0].wParam);
 			//LogToFile("Opcode 03C2 called with params: 0x%08X 0x%08X %d %s", pVariable[0], pVariable[1], scriptParams[0], cString);
-			return;
+			return 0;
 		}
 	case 0x03C2:
 		{
@@ -619,21 +626,21 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			ReadTextLabelFromScript(cString, 8);
 			CUserDisplay::OnscnTimer.AddCounterTwoVars(pVariable[0], pVariable[1], cString, scriptParams[0].wParam);
 			//LogToFile("Opcode 03C2 called with params: 0x%08X 0x%08X %d %s", pVariable[0], pVariable[1], scriptParams[0], cString);
-			return;
+			return 0;
 		}
 	case 0x03DA:
 		{
 			// set_onscreen_counter_colour %1d% %2d% %3d% %4d%
 			CollectParameters(4);
 			CUserDisplay::OnscnTimer.SetColourOverride(scriptParams[0].bParam, scriptParams[1].bParam, scriptParams[2].bParam, scriptParams[3].bParam);
-			return;
+			return 0;
 		}
 	case 0x03DB:
 		{
 			// set_onscreen_counter_background_colour %1d% %2d% %3d% %4d%
 			CollectParameters(4);
 			CUserDisplay::OnscnTimer.SetShadowColourOverride(scriptParams[0].bParam, scriptParams[1].bParam, scriptParams[2].bParam, scriptParams[3].bParam);
-			return;
+			return 0;
 		}
 	case 0x03DD:
 		{
@@ -642,7 +649,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 
 			CollectParameters(1);
 			CUserDisplay::OnscnTimer.SetDollarFormat(pCounterVar, scriptParams[0].bParam != false);
-			return;
+			return 0;
 		}
 	case 0x03DF:
 		{
@@ -650,7 +657,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			CollectParameters(1);
 			*CPopulation__allRandomPedThisType = scriptParams[0].dwParam;
 			LogToFile("Opcode 03DF called with params: %d", scriptParams[0]);
-			return;
+			return 0;
 		}
 	case 0x051F:
 		{
@@ -670,7 +677,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 				scriptParams[0].iParam = -1;
 			StoreParameters(1);
 //			LogToFile("Opcode 051F called with params: %d = %d", paramCopy, scriptParams[0]);
-			return;
+			return 0;
 		}
 	case 0x0520:
 		{
@@ -684,7 +691,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			scriptParams[1].fParam = outputVector.y * 448.0f / RsGlobal.MaximumHeight;
 
 			StoreParameters(2);
-			return;
+			return 0;
 		}
 	case 0x0521:
 		{
@@ -693,28 +700,28 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			scriptParams[1].fParam = WidescreenSupport::GetScreenHeightMultiplier();
 
 			StoreParameters(2);
-			return;
+			return 0;
 		}
 	case 0x052D:
 		{
 			//	is_dlc_active %1d%
 			CollectParameters(1);
 			UpdateCompareFlag(CDLCManager::GetDLC(scriptParams[0].iParam)->IsEnabled());
-			return;
+			return 0;
 		}
 	case 0x052E:
 		{
 			//   any_weapons_to_return
 			LogToFile("Opcode 052E called");
 			UpdateCompareFlag( weaponsToReturn.GetAnyWeaponsToReturn() );
-			return;
+			return 0;
 		}
 	case 0x052F:
 		{
 			// return_player_weapons
 			LogToFile("Opcode 052F called");
 			weaponsToReturn.ReturnConfiscatedWeapons(CWorld::Players[0]);
-			return;
+			return 0;
 		}
 	case 0x690:
 		{
@@ -725,7 +732,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			scriptParams[0].iParam = pEmpireBuilding /*&& pEmpireBuilding->GetMatrix()*/  /*pEmpireBuilding->m_pRwObject*/ ? CPools::GetBuildingPool()->GetHandle(pEmpireBuilding) : -1;
 
 			StoreParameters(1);
-			return;
+			return 0;
 		}
 	case 0x691:
 		{
@@ -748,7 +755,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 				scriptParams[0].iParam = 0;
 
 			StoreParameters(1);
-			return;
+			return 0;
 		}
 	case 0x692:
 		{
@@ -796,7 +803,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			}
 
 			StoreParameters(4);
-			return;
+			return 0;
 		}
 	case 0x693:
 		{
@@ -821,7 +828,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 				scriptParams[0].iParam = 0;
 
 			StoreParameters(1);
-			return;
+			return 0;
 		}
 	case 0x694:
 		{
@@ -871,7 +878,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			}
 
 			StoreParameters(4);
-			return;
+			return 0;
 		}
 	case 0x695:
 		{
@@ -884,7 +891,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			scriptParams[2].fParam = pEmpirePos->z;
 
 			StoreParameters(3);
-			return;
+			return 0;
 		}
 	case 0x696:
 		{
@@ -894,14 +901,14 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			scriptParams[0].fParam = CEmpireManager::GetEmpire(scriptParams[0].iParam)->GetTransform()->m_heading;
 
 			StoreParameters(1);
-			return;
+			return 0;
 		}
 	case 0x069C:
 		{
 			// set_empire_ownership %1d% %2d%
 			CollectParameters(2);
 			// TODO: Do
-			return;
+			return 0;
 		}
 	case 0x069D:
 		{
@@ -909,7 +916,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			CollectParameters(2);
 			// TODO: More needed?
 			CEmpireManager::GetEmpire(scriptParams[0].iParam)->SetType(scriptParams[1].iParam);
-			return;
+			return 0;
 		}
 	case 0x069E:
 		{
@@ -917,21 +924,21 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 			CollectParameters(2);
 			// TODO: More needed?
 			CEmpireManager::GetEmpire(scriptParams[0].iParam)->SetScale(scriptParams[1].iParam-1);
-			return;
+			return 0;
 		}
 	case 0x069F:
 		{
 			// set_empire_condition %1d% %2d%
 			CollectParameters(2);
 			// TODO: Do
-			return;
+			return 0;
 		}
 	case 0x06A0:
 		{
 			// set_empire_visually_damaged %1d% %2d%
 			CollectParameters(2);
 			// TODO: Do
-			return;
+			return 0;
 		}
 	case 0x06A1:
 		{
@@ -945,7 +952,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 				pEmpire->Remove();
 
 			pEmpire->Place();
-			return;
+			return 0;
 		}
 	case 0x06BA:
 		{
@@ -961,7 +968,7 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 
 			pThePed->SetHeading(fHeading);
 			pThePed->UpdateRW();
-			return;
+			return 0;
 		}
 	case 0x06CB:
 		{
@@ -979,10 +986,10 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 				if ( nHash == CGroupedBuildings::GetGroup(i)->GetHash() )
 				{
 					CGroupedBuildings::GetGroup(i)->SetActiveBuilding(scriptParams[0].iParam);
-					return;
+					break;
 				}
 			}
-			return;
+			return 0;
 		}
 	case 0x06CC:
 		{
@@ -1000,19 +1007,35 @@ void CRunningScript::ProcessVCSCommands(int16 opcode)
 				{
 					scriptParams[0].iParam = CPools::GetBuildingPool()->GetHandle(CGroupedBuildings::GetGroup(i)->GetBuilding());
 					StoreParameters(1);
-					return;
+					break;
 				}
 			}
-			return;
+			return 0;
 		}
 	case 0x0821:
 		{
 			//   is_this_model_a_bike %1d%
 			CollectParameters(1);
 			UpdateCompareFlag( CModelInfo::IsBikeModel(scriptParams[0].iParam) );
-			return;
+			return 0;
 		}
 	}
+
+	return -1;
+}
+
+int8 CRunningScript::ProcessOneCommand()
+{
+	uint8(__thiscall** commandsArray)(CRunningScript*, int16) = *(uint8(__thiscall ***)(CRunningScript*, int16))0x469FEE;
+	uint16 command = ReadVariable<uint16_t>();
+
+	NotFlag = (command & 0x8000) != 0;
+
+	int8 customResult = ProcessCustomCommands( command & 0x7FFF );
+	if ( customResult != -1 )
+		return customResult;
+
+	return commandsArray[ (command & 0x7FFF) / 100 ]( this, command & 0x7FFF );
 }
 
 void CScriptFunction::Init(CRunningScript* parent)
@@ -1205,8 +1228,12 @@ void CRunningScript::Inject()
 {
 	using namespace Memory;
 
-	InjectHook( 0x464080, &CollectParametersWrapped, PATCH_JUMP);
-	InjectHook( 0x463D50, &ReadTextLabelFromScript, PATCH_JUMP);
+	Patch<WORD>( 0x469FB7, 0xCE8B );
+	InjectHook( 0x469FB9, &ProcessOneCommand, PATCH_CALL );
+	Patch<WORD>( 0x469FBE, 0x37EB );
+
+	InjectHook( 0x464080, &CollectParametersWrapped, PATCH_JUMP );
+	InjectHook( 0x463D50, &ReadTextLabelFromScript, PATCH_JUMP );
 }
 
 static void __declspec(naked) GetPadMode()
@@ -1225,8 +1252,8 @@ static void __declspec(naked) GetPadMode()
 }
 
 static StaticPatcher	Patcher([](){ 
-						Memory::InjectHook(0x47F39B, GetPadMode, PATCH_CALL);
-						Memory::Nop(0x47F3A0, 7);
+						//Memory::InjectHook(0x47F39B, GetPadMode, PATCH_CALL);
+						//Memory::Nop(0x47F3A0, 7);
 						
 						CRunningScript::Inject();
 									});

@@ -4,6 +4,7 @@
 #define NUM_SCRIPTS					96
 #define GOSUB_STACK_SIZE			8
 
+
 union SCRIPT_VAR
 {
 	uint32	dwParam;
@@ -45,6 +46,11 @@ public:
 	static CScriptFunction	ms_scriptFunction[NUM_SCRIPTS];
 
 private:
+	enum SCRIPT_COMMAND
+	{
+		GET_CONTROLLER_MODE		= 0x0293
+	};
+
 	struct ArrayProperties
 	{
 		uint8 m_nElementType : 7;
@@ -87,6 +93,9 @@ private:
 	void*					GetPointerToScriptVariable(int32 nParam);
 	void					SetIP(int32 IP);
 
+	int8					ProcessCustomCommands(int16 command);
+	int8					ProcessOneCommand();
+
 	template<typename T>	
 	inline T				ReadVariable()
 	{ T var = *(T*)CurrentIP; CurrentIP += sizeof(T); return var; }
@@ -102,8 +111,6 @@ private:
 
 public:
 	void					Init();
-
-	void					ProcessVCSCommands(int16 opcode);
 
 	static void				Inject();
 };

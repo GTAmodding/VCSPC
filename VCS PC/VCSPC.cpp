@@ -94,16 +94,8 @@ void			FlamingStunt();
 void			DoubleFlamingStunt();
 void			TripleFlamingStunt();
 void			QuadrupleFlamingStunt();
-void			func_0050();
-void			func_0166();
 void			func_01C6();
-void			func_0352();
-void			func_03DF();
-void			func_052E();
 void			func_0602();
-void			func_069C();
-void			func_06BA();
-void			func_0821();
 void			func_09CD();
 void			ZebraCabNitro();
 void			ZebraCabCPlayerStuff();
@@ -2417,50 +2409,10 @@ void Main_Patches()
 	Nop(0x43DB9E, 5);
 
 
-	// 0394 bugfix
-//	Patch<BYTE>(0x4842DA, 0);
-
-	// 0351 - 0355 & 037A opcodes
-	Patch<DWORD>(0x4836E8, 0x47474747);
-	Patch<BYTE>(0x4836EC, 0x47);
-	Patch<BYTE>(0x483711, 0x47);
-	Patch<void*>(0x48371C, func_0352);
-
-	// 03C1, 03C2, 03DA, 03DB, 03DD & 03DF opcodes
-	Patch<WORD>(0x485801, 0x6767);
-	Patch<WORD>(0x48581A, 0x6767);
-	Patch<BYTE>(0x48581D, 0x67);
-	Patch<BYTE>(0x48581F, 0x67);
-	Patch<void*>(0x485854, func_03DF);
-
-	// 051F, 0520, 0521, 052D, 052E and 052F opcodes
-	Patch<WORD>(0x48DDDE, 0x4141);
-	Patch<BYTE>(0x48DDE0, 0x41);
-	Patch<BYTE>(0x48DDEC, 0x41);
-	Patch<WORD>(0x48DDED, 0x4141);
-	Patch<void*>(0x48DE38, func_052E);
-
-	// 06BA, 06CB, 06CC opcodes
-	Patch<void*>(0x498F68, func_06BA);
-	Patch<void*>(0x498FAC, func_06BA);
-	Patch<void*>(0x498FB0, func_06BA);
-
-	// 0050, 0051, 0054 and 0055 opcodes
-	Patch<void*>(0x466D90, func_0050);
-	Patch<void*>(0x466D94, func_0050);
-	Patch<void*>(0x466DA0, func_0050);
-	Patch<void*>(0x466DA4, func_0050);
-
-	// 014D and 0166 opcodes
-	Patch<BYTE>(0x47D1CA, 0x0F);
-	Patch<void*>(0x47D130, func_0166);
-
 	// 01C6 opcode
 	Patch<BYTE>(0x47E016, 0x3B);
 	Patch<void*>(0x47E044, func_01C6);
 
-	// 0821 opcode
-	Patch<void*>(0x4744D4, func_0821);
 
 	// 4 params in 048C
 	Patch<BYTE>(0x48AD90, 4);
@@ -3408,21 +3360,6 @@ void Main_Patches()
 	// Children & custom pools
 	InjectHook(0x5BF85B, &CPools::Initialise);
 	InjectHook(0x53CA5C, &CPools::ShutDown);
-
-	// Empire Buildings
-	Patch<void*>(0x495F38, func_069C);
-	Patch<void*>(0x495F3C, func_069C);
-	Patch<void*>(0x495F40, func_069C);
-	Patch<void*>(0x495F44, func_069C);
-	Patch<void*>(0x495F48, func_069C);
-	Patch<void*>(0x495F4C, func_069C);
-	Patch<void*>(0x495F50, func_069C);
-	Patch<void*>(0x495F68, func_069C);
-	Patch<void*>(0x495F6C, func_069C);
-	Patch<void*>(0x495F70, func_069C);
-	Patch<void*>(0x495F74, func_069C);
-	Patch<void*>(0x495F78, func_069C);
-	Patch<void*>(0x495F7C, func_069C);
 
 	Patch<const char*>(0x4111AE, "empire_perma");
 	InjectHook(0x53C215, &CEmpireManager::Process);
@@ -4971,120 +4908,6 @@ GarageCapacityBReturn:
 	}
 }
 
-/*void __declspec(naked) FlamingStunt()
-{
-	_asm
-	{
-		cmp		esi, ebp
-		jnz		FlamingStuntGoBack
-	}
-	tempString[0] = 0;
-	_asm
-	{
-		push	offset aFlinst
-		mov		eax, 0x55B68F
-		jmp		eax
-
-FlamingStuntGoBack:
-		mov		eax, 0x55B5A5
-		jmp		eax
-	}
-}
-
-void __declspec(naked) DoubleFlamingStunt()
-{
-	_asm
-	{
-		cmp		esi, ebp
-		jnz		DoubleFlamingStuntGoBack
-	}
-	tempString[0] = 0;
-	_asm
-	{
-		push	offset aDbfins
-		mov		eax, 0x55B68F
-		jmp		eax
-
-DoubleFlamingStuntGoBack:
-		mov		eax, 0x55B5A5
-		jmp		eax
-	}
-}
-
-void __declspec(naked) TripleFlamingStunt()
-{
-	_asm
-	{
-		cmp		esi, ebp
-		jnz		TripleFlamingStuntGoBack
-	}
-	tempString[0] = 0;
-	_asm
-	{
-		push	offset aFltrst
-		mov		eax, 0x55B68F
-		jmp		eax
-
-TripleFlamingStuntGoBack:
-		mov		eax, 0x55B5A5
-		jmp		eax
-	}
-}
-
-void __declspec(naked) QuadrupleFlamingStunt()
-{
-	_asm
-	{
-		cmp		esi, ebp
-		jnz		QuadrupleFlamingStuntGoBack
-	}
-	tempString[0] = 0;
-	_asm
-	{
-		push	offset aFquins
-		mov		eax, 0x55B68F
-		jmp		eax
-
-QuadrupleFlamingStuntGoBack:
-		mov		eax, 0x55B5A5
-		jmp		eax
-	}
-}*/
-
-void __declspec(naked) func_0050()
-{
-	_asm
-	{
-		mov		eax, [esp+28h+4h]
-		push	eax
-		mov		ecx, esi
-		call	CRunningScript::ProcessVCSCommands
-		xor		al, al
-		pop		edi
-		pop		esi
-		mov		ecx, [esp+20h-0Ch]
-		mov		fs:0, ecx
-		add		esp, 20h
-		retn	4
-	}
-}
-
-void __declspec(naked) func_0166()
-{
-	_asm
-	{
-		mov		eax, [esp+84h+4h]
-		push	eax
-		mov		ecx, esi
-		call	CRunningScript::ProcessVCSCommands
-		xor     al, al
-		pop     edi
-		pop     esi
-		add     esp, 7Ch
-		retn    4
-	}
-}
-
 void __declspec(naked) func_01C6()
 {
 	_asm
@@ -5094,88 +4917,6 @@ void __declspec(naked) func_01C6()
 		call	CRunningScript::CollectParameters
 		push	1
 		jmp		func_01C6_JumpBack
-	}
-}
-
-void __declspec(naked) func_0352()
-{
-	_asm
-	{
-		mov		eax, [esp+208h+4h]
-		push	eax
-		mov		ecx, esi
-		call	CRunningScript::ProcessVCSCommands
-		xor		al, al
-		mov     ecx, [esp+208h-0Ch]
-		pop     edi
-		pop     esi
-		pop     ebp
-		mov     fs:0, ecx
-		pop     ebx
-		add     esp, 1F8h
-		retn    4
-	}
-}
-
-void __declspec(naked) func_03DF()
-{
-	_asm
-	{
-		mov		eax, [esp+168h+4h]
-		push	eax
-		mov		ecx, esi
-		call	CRunningScript::ProcessVCSCommands
-		xor		al, al
-        mov     ecx, [esp+168h-0Ch]
-        pop     edi
-        pop     esi
-        pop     ebp
-        mov     fs:0, ecx
-        pop     ebx
-		add     esp, 158h
-		retn    4
-//		retn	15Ch
-
-	}
-}
-
-void __declspec(naked) func_052E()
-{
-	_asm
-	{
-		//xor		ebx, ebx
-        //mov		ecx, [esi+0x14]
-        //mov		bx, [ecx-2]
-		//push	ebx
-		mov		eax, [esp+78h+4h]
-		push	eax
-		mov		ecx, esi
-		call	CRunningScript::ProcessVCSCommands
-		xor		al, al
-		pop     edi
-		pop     esi
-		pop     ebp
-		pop     ebx
-		add     esp, 68h
-		retn    4
-	}
-}
-
-void __declspec(naked) func_0821()
-{
-	_asm
-	{
-		push	ebp
-		call	CRunningScript::ProcessVCSCommands
-		xor		al, al
-		mov		ecx, [esp+1B4h-0Ch]
-		pop		edi
-		pop		esi
-		pop		ebp
-		mov     fs:0, ecx
-		pop     ebx
-		add		esp, 1A4h
-		retn	4
 	}
 }
 
@@ -5193,42 +4934,6 @@ func_0602_ReturnTrue:
 
 func_0602_ReturnFalse:
 		jmp		func_0602_ElseJump
-	}
-}
-
-void __declspec(naked) func_069C()
-{
-	_asm
-	{
-		push	ebp
-		call	CRunningScript::ProcessVCSCommands
-		xor		al, al
-		mov     ecx, [esp+0F8h-0Ch]
-		pop     edi
-		pop     esi
-		pop     ebp
-		mov     fs:0, ecx
-		pop     ebx
-		add     esp, 0E8h
-		retn    4
-	}
-}
-
-void __declspec(naked) func_06BA()
-{
-	_asm
-	{
-		push	ebp
-		call	CRunningScript::ProcessVCSCommands
-		xor		al, al
-		mov     ecx, [esp+1D8h-0Ch]
-		pop     edi
-		pop     esi
-		pop     ebp
-		mov     fs:0, ecx
-		pop     ebx
-		add     esp, 1C8h
-		retn    4
 	}
 }
 
