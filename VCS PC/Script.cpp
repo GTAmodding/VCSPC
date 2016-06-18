@@ -22,11 +22,11 @@ CScriptFunction		CRunningScript::ms_scriptFunction[NUM_SCRIPTS];
 // Wrappers
 WRAPPER bool CTheScripts::IsPlayerOnAMission() { EAXJMP(0x464D50); }
 WRAPPER CRunningScript* CTheScripts::StartNewScript(void* nScriptIP) { WRAPARG(nScriptIP); EAXJMP(0x464C20); }
-WRAPPER void CRunningScript::StoreParameters(WORD numParams) { WRAPARG(numParams); EAXJMP(0x464370); }
+WRAPPER void CRunningScript::StoreParameters(int16 numParams) { WRAPARG(numParams); EAXJMP(0x464370); }
 WRAPPER void CRunningScript::UpdateCompareFlag(bool result) { WRAPARG(result); EAXJMP(0x4859D0); }
 WRAPPER unsigned short CRunningScript::GetGlobalVarOffset() { EAXJMP(0x464700); }
-WRAPPER void* CRunningScript::GetPointerToScriptVariable(int nParam = 0) { WRAPARG(nParam); EAXJMP(0x464790); }
-WRAPPER void CRunningScript::SetIP(int IP) { WRAPARG(IP); EAXJMP(0x464DA0); }
+WRAPPER void* CRunningScript::GetPointerToScriptVariable(int32 nParam = 0) { WRAPARG(nParam); EAXJMP(0x464790); }
+WRAPPER void CRunningScript::SetIP(int32 IP) { WRAPARG(IP); EAXJMP(0x464DA0); }
 
 void CRunningScript::Init()
 {
@@ -40,9 +40,9 @@ CScriptFunction& CRunningScript::GetExtrasForScript()
 	return ms_scriptFunction[this - ScriptsArray];
 }
 
-signed char CRunningScript::CollectParametersForScriptFunction(signed short numParams)
+signed char CRunningScript::CollectParametersForScriptFunction(int16 numParams)
 {
-	int8_t bOccupiedVars = 0;
+	int8 bOccupiedVars = 0;
 	SCRIPT_VAR*		currentVar = scriptParams;
 	for ( ; numParams != 0; --numParams, ++currentVar )
 	{
@@ -53,43 +53,43 @@ signed char CRunningScript::CollectParametersForScriptFunction(signed short numP
 		case imm32f:
 		case imm32:
 			{
-				int32_t val = ReadVariable<int32_t>();
+				int32 val = ReadVariable<int32>();
 				currentVar->iParam = val;
 				++bOccupiedVars;
 				break;
 			}
 		case globalVar:
 			{
-				uint16_t varIndex = ReadVariable<uint16_t>();
+				uint16 varIndex = ReadVariable<uint16>();
 				*currentVar = *(SCRIPT_VAR*)(scmBlock + varIndex);
 				++bOccupiedVars;
 				break;
 			}
 		case localVar:
 			{
-				uint16_t varIndex = ReadVariable<uint16_t>();
+				uint16 varIndex = ReadVariable<uint16>();
 				*currentVar = *GetPointerToLocalVariable( varIndex );
 				++bOccupiedVars;
 				break;
 			}
 		case imm8:
 			{
-				int32_t value = ReadVariable<int8_t>();
+				int32 value = ReadVariable<int8>();
 				currentVar->iParam = value;
 				++bOccupiedVars;
 				break;
 			}
 		case imm16:
 			{
-				int32_t value = ReadVariable<int16_t>();
+				int32 value = ReadVariable<int16>();
 				currentVar->iParam = value;
 				++bOccupiedVars;
 				break;
 			}
 		case globalArr:
 			{
-				uint16_t variable;
-				int32_t index;
+				uint16 variable;
+				int32 index;
 
 				ReadArrayInformation( 1, &variable, &index );
 				*currentVar = *(SCRIPT_VAR*)(scmBlock + (index*4) + variable);
@@ -98,8 +98,8 @@ signed char CRunningScript::CollectParametersForScriptFunction(signed short numP
 			}
 		case localArr:
 			{
-				uint16_t variable;
-				int32_t index;
+				uint16 variable;
+				int32 index;
 
 				ReadArrayInformation( 1, &variable, &index );
 				*currentVar = *GetPointerToLocalArrayElement( variable, index, 1 );
@@ -119,7 +119,7 @@ signed char CRunningScript::CollectParametersForScriptFunction(signed short numP
 		case localVarVArrString:
 			{
 				CurrentIP--;
-				uint8_t len = ( operand == sstring || operand == globalVarSString || operand == localVarSString
+				uint8 len = ( operand == sstring || operand == globalVarSString || operand == localVarSString
 										|| operand == globalVarSArrString || operand == localVarSArrString ) ? 2 : 4;
 				ReadTextLabelFromScript((char*)currentVar, len);
 				currentVar += (len - 1);
@@ -132,7 +132,7 @@ signed char CRunningScript::CollectParametersForScriptFunction(signed short numP
 	return bOccupiedVars;
 }
 
-void CRunningScript::CollectParameters(short numParams)
+void CRunningScript::CollectParameters(int16 numParams)
 {
 	SCRIPT_VAR*		currentVar = scriptParams;
 	for ( ; numParams != 0; --numParams, ++currentVar )
@@ -144,38 +144,38 @@ void CRunningScript::CollectParameters(short numParams)
 		case imm32f:
 		case imm32:
 			{
-				int32_t value = ReadVariable<int32_t>();
+				int32 value = ReadVariable<int32>();
 				currentVar->iParam = value;
 				break;
 			}
 		case globalVar:
 			{
-				uint16_t varIndex = ReadVariable<uint16_t>();
+				uint16 varIndex = ReadVariable<uint16>();
 				*currentVar = *(SCRIPT_VAR*)(scmBlock + varIndex);
 				break;
 			}
 		case localVar:
 			{
-				uint16_t varIndex = ReadVariable<uint16_t>();
+				uint16 varIndex = ReadVariable<uint16>();
 				*currentVar = *GetPointerToLocalVariable( varIndex );
 				break;
 			}
 		case imm8:
 			{
-				int32_t value = ReadVariable<int8_t>();
+				int32 value = ReadVariable<int8>();
 				currentVar->iParam = value;
 				break;
 			}
 		case imm16:
 			{
-				int32_t value = ReadVariable<int16_t>();
+				int32 value = ReadVariable<int16>();
 				currentVar->iParam = value;
 				break;
 			}
 		case globalArr:
 			{
-				uint16_t variable;
-				int32_t index;
+				uint16 variable;
+				int32 index;
 
 				ReadArrayInformation( 1, &variable, &index );
 				*currentVar = *(SCRIPT_VAR*)(scmBlock + (index*4) + variable);
@@ -183,8 +183,8 @@ void CRunningScript::CollectParameters(short numParams)
 			}
 		case localArr:
 			{
-				uint16_t variable;
-				int32_t index;
+				uint16 variable;
+				int32 index;
 
 				ReadArrayInformation( 1, &variable, &index );
 				*currentVar = *GetPointerToLocalArrayElement( variable, index, 1 );
@@ -211,7 +211,7 @@ void CRunningScript::CollectParameters(short numParams)
 	}
 }
 
-void CRunningScript::ReadTextLabelFromScript(char* textPtr, uint8_t len)
+void CRunningScript::ReadTextLabelFromScript(char* textPtr, uint8 len)
 {
 	eOperandType operand = ReadVariable<eOperandType>();
 		
@@ -225,20 +225,20 @@ void CRunningScript::ReadTextLabelFromScript(char* textPtr, uint8_t len)
 		}
 	case globalVarSString:
 		{
-			uint16_t varIndex = ReadVariable<uint16_t>();
+			uint16 varIndex = ReadVariable<uint16>();
 			strncpy( textPtr, (char*)scmBlock + varIndex, 8 );
 			break;
 		}
 	case localVarSString:
 		{
-			uint16_t varIndex = ReadVariable<uint16_t>();
+			uint16 varIndex = ReadVariable<uint16>();
 			strncpy( textPtr, (char*)GetPointerToLocalVariable( varIndex ), 8 );
 			break;
 		}
 	case globalVarSArrString:
 		{
-			uint16_t variable;
-			int32_t index;
+			uint16 variable;
+			int32 index;
 
 			ReadArrayInformation( 1, &variable, &index );
 			strncpy( textPtr, (char*)scmBlock + (8*index) + variable, 8 );
@@ -246,8 +246,8 @@ void CRunningScript::ReadTextLabelFromScript(char* textPtr, uint8_t len)
 		}
 	case localVarSArrString:
 		{
-			uint16_t variable;
-			int32_t index;
+			uint16 variable;
+			int32 index;
 
 			ReadArrayInformation( 1, &variable, &index );
 			strncpy( textPtr, (char*)GetPointerToLocalArrayElement( variable, index, 2 ), 8 );
@@ -255,25 +255,25 @@ void CRunningScript::ReadTextLabelFromScript(char* textPtr, uint8_t len)
 		}
 	case globalVarVArrString:
 		{
-			uint16_t variable;
-			int32_t index;
+			uint16 variable;
+			int32 index;
 
 			ReadArrayInformation( 1, &variable, &index );
-			strncpy( textPtr, (char*)scmBlock + (16*index) + variable, Min<uint8_t>( len, 16 ) );
+			strncpy( textPtr, (char*)scmBlock + (16*index) + variable, Min<uint8>( len, 16 ) );
 			break;
 		}
 	case localVarVArrString:
 		{
-			uint16_t variable;
-			int32_t index;
+			uint16 variable;
+			int32 index;
 
 			ReadArrayInformation( 1, &variable, &index );
-			strncpy( textPtr, (char*)GetPointerToLocalArrayElement( variable, index, 4 ), Min<uint8_t>( len, 16 ) );
+			strncpy( textPtr, (char*)GetPointerToLocalArrayElement( variable, index, 4 ), Min<uint8>( len, 16 ) );
 			break;
 		}
 	case vstring:
 		{
-			uint8_t length = ReadVariable<uint8_t>();
+			uint8 length = ReadVariable<uint8>();
 			memcpy( textPtr, CurrentIP, length );
 			CurrentIP += length;
 			if ( length < len )
@@ -285,39 +285,39 @@ void CRunningScript::ReadTextLabelFromScript(char* textPtr, uint8_t len)
 			if ( len == 0 )
 				break;
 
-			memcpy( textPtr, CurrentIP, Min<uint8_t>( len, 16 ) );
+			memcpy( textPtr, CurrentIP, Min<uint8>( len, 16 ) );
 			CurrentIP += 16;
 			break;
 		}
 	case globalVarVString:
 		{
-			uint16_t varIndex = ReadVariable<uint16_t>();
-			strncpy( textPtr, (char*)scmBlock + varIndex, Min<uint8_t>( len, 16 ) );
+			uint16 varIndex = ReadVariable<uint16>();
+			strncpy( textPtr, (char*)scmBlock + varIndex, Min<uint8>( len, 16 ) );
 			break;
 		}
 	case localVarVString:
 		{
-			uint16_t varIndex = ReadVariable<uint16_t>();
-			strncpy( textPtr, (char*)GetPointerToLocalVariable( varIndex ), Min<uint8_t>( len, 16 ) );
+			uint16 varIndex = ReadVariable<uint16>();
+			strncpy( textPtr, (char*)GetPointerToLocalVariable( varIndex ), Min<uint8>( len, 16 ) );
 			break;
 		}
 
 	case globalVar:
 		{
-			uint16_t varIndex = ReadVariable<uint16_t>();
+			uint16 varIndex = ReadVariable<uint16>();
 			strncpy( textPtr, ((SCRIPT_VAR*)(scmBlock + varIndex))->pcParam, 8 );
 			break;
 		}
 	case localVar:
 		{
-			uint16_t varIndex = ReadVariable<uint16_t>();
+			uint16 varIndex = ReadVariable<uint16>();
 			strncpy( textPtr, GetPointerToLocalVariable( varIndex )->pcParam, 8 );
 			break;
 		}
 	case globalArr:
 		{
-			uint16_t variable;
-			int32_t index;
+			uint16 variable;
+			int32 index;
 
 			ReadArrayInformation( 1, &variable, &index );
 			strncpy( textPtr, ((SCRIPT_VAR*)(scmBlock + (index*4) + variable))->pcParam, 8 );
@@ -325,8 +325,8 @@ void CRunningScript::ReadTextLabelFromScript(char* textPtr, uint8_t len)
 		}
 	case localArr:
 		{
-			uint16_t variable;
-			int32_t index;
+			uint16 variable;
+			int32 index;
 
 			ReadArrayInformation( 1, &variable, &index );
 			strncpy( textPtr,  GetPointerToLocalArrayElement( variable, index, 1 )->pcParam, 8 );
@@ -350,20 +350,20 @@ void CRunningScript::StoreParametersFromScriptFunction()
 		{
 		case globalVar:
 			{
-				uint16_t varIndex = ReadVariable<uint16_t>();
+				uint16 varIndex = ReadVariable<uint16>();
 				*(SCRIPT_VAR*)(scmBlock + varIndex) = *currentVar;
 				break;
 			}
 		case localVar:
 			{
-				uint16_t varIndex = ReadVariable<uint16_t>();
+				uint16 varIndex = ReadVariable<uint16>();
 				*GetPointerToLocalVariable( varIndex ) = *currentVar;
 				break;
 			}
 		case globalArr:
 			{
-				uint16_t variable;
-				int32_t index;
+				uint16 variable;
+				int32 index;
 
 				ReadArrayInformation( 1, &variable, &index );
 				*reinterpret_cast<SCRIPT_VAR*>(scmBlock + 4 * index + variable) = *currentVar;
@@ -371,8 +371,8 @@ void CRunningScript::StoreParametersFromScriptFunction()
 			}
 		case localArr:
 			{
-				uint16_t variable;
-				int32_t index;
+				uint16 variable;
+				int32 index;
 
 				ReadArrayInformation( 1, &variable, &index );
 				*GetPointerToLocalArrayElement( variable, index, 1 ) = *currentVar;
@@ -388,7 +388,7 @@ void CRunningScript::StoreParametersFromScriptFunction()
 		case localVarVArrString:
 			{
 				CurrentIP--;
-				uint8_t len = ( operand == globalVarSString || operand == localVarSString
+				uint8 len = ( operand == globalVarSString || operand == localVarSString
 										|| operand == globalVarSArrString || operand == localVarSArrString ) ? 2 : 4;
 			
 				strncpy(static_cast<char*>(GetPointerToScriptVariable()), (char*)currentVar, len * 4);
@@ -399,18 +399,18 @@ void CRunningScript::StoreParametersFromScriptFunction()
 	}
 }
 
-void CRunningScript::ReadArrayInformation( int32_t move, uint16_t* varOffset, int32_t* varIndex )
+void CRunningScript::ReadArrayInformation( int32 move, uint16* varOffset, int32* varIndex )
 {
-	uint8_t* tempIP = CurrentIP;
+	uint8* tempIP = CurrentIP;
 
-	uint16_t arrayVarIndex = *(uint16_t*)tempIP;
+	uint16 arrayVarIndex = *(uint16*)tempIP;
 	tempIP += 2;
-	int32_t index;
+	int32 index;
 	*varOffset = arrayVarIndex;
 
-	uint16_t arrayIndex = *(uint16_t*)tempIP;
+	uint16 arrayIndex = *(uint16*)tempIP;
 	tempIP += 2;
-	uint8_t arraySize = *(uint8_t*)tempIP++;
+	uint8 arraySize = *(uint8*)tempIP++;
 	ArrayProperties arrayProperties = *(ArrayProperties*)tempIP++;
 
 	if ( !arrayProperties.m_bIsIndexGlobalVariable )
@@ -419,7 +419,7 @@ void CRunningScript::ReadArrayInformation( int32_t move, uint16_t* varOffset, in
 	}
 	else
 	{
-		index = *(int32_t*)(scmBlock + arrayIndex);
+		index = *(int32*)(scmBlock + arrayIndex);
 	}
 	*varIndex = index;
 
@@ -427,18 +427,18 @@ void CRunningScript::ReadArrayInformation( int32_t move, uint16_t* varOffset, in
 		CurrentIP = tempIP;
 }
 
-SCRIPT_VAR* CRunningScript::GetPointerToLocalArrayElement( uint16_t offset, int32_t index, uint8_t size )
+SCRIPT_VAR* CRunningScript::GetPointerToLocalArrayElement( uint16 offset, int32 index, uint8 size )
 {
-	uint32_t fullOffset = offset + index*size;
+	uint32 fullOffset = offset + index*size;
 	return bIsMission ? &scriptLocals[fullOffset] : &LocalVar[fullOffset];
 }
 
-SCRIPT_VAR* CRunningScript::GetPointerToLocalVariable( uint16_t var )
+SCRIPT_VAR* CRunningScript::GetPointerToLocalVariable( uint16 var )
 {
 	return bIsMission ? &scriptLocals[var] : &LocalVar[var];
 }
 
-void CRunningScript::ProcessVCSCommands(WORD opcode)
+void CRunningScript::ProcessVCSCommands(int16 opcode)
 {
 	switch ( opcode )
 	{
@@ -467,7 +467,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			{
 				CScriptFunction&	scriptExtras = GetExtrasForScript();
 
-				if ( scriptExtras.bAmountOfVariablesWePassed[SP] != -1 /*scriptExtras->bThisIndirectionLevelIsCall[SP]*/ )
+				if ( scriptExtras.bAmountOfVariablesWePassed[SP] != -1 )
 				{
 					if ( !bIsMission )
 						memcpy(scriptParams, &LocalVar[scriptExtras.bAmountOfVariablesWePassed[SP]], 32 * sizeof(SCRIPT_VAR));
@@ -552,7 +552,7 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			CStreaming::RequestSpecialModel(0, cString, 26);
 			CStreaming::LoadAllRequestedModels(true);
 			CPed* pPed = CWorld::Players[scriptParams[0].bParam].GetPed();
-			DWORD iAnimGroupBackup = pPed->GetMoveAnimGroup();
+			int32 iAnimGroupBackup = pPed->GetMoveAnimGroup();
 			pPed->DeleteRwObject();
 			pPed->ModelIndex() = -1;
 			pPed->SetModelIndex(0);
@@ -574,11 +574,10 @@ void CRunningScript::ProcessVCSCommands(WORD opcode)
 			// call_function %1p% num_params %2d% params ...
 			assert(SP < GOSUB_STACK_SIZE);
 			CollectParameters(2);
-			int			offsetToJmp	= scriptParams[0].iParam;
-			signed char	passedParams = static_cast<signed char>(scriptParams[1].iParam);
-			//BYTE	returnedParams = scriptParams[2].bParam;
+			int32			offsetToJmp	= scriptParams[0].iParam;
+			int8	passedParams = static_cast<int8>(scriptParams[1].iParam);
 
-			signed char occupiedVars = CollectParametersForScriptFunction(passedParams);
+			int8 occupiedVars = CollectParametersForScriptFunction(passedParams);
 			GetExtrasForScript().RegisterCall(this, occupiedVars);
 
 			if ( passedParams )
@@ -1022,7 +1021,7 @@ void CScriptFunction::Init(CRunningScript* parent)
 //	bApplyWidescreenFixOnThisScriptDraws = false;
 	memset(bAmountOfVariablesWePassed, -1, sizeof(bAmountOfVariablesWePassed));
 	
-	BYTE	loopCounter = GOSUB_STACK_SIZE;
+	int32	loopCounter = GOSUB_STACK_SIZE;
 	do
 	{
 		--loopCounter;
@@ -1038,7 +1037,7 @@ void CScriptFunction::Init(CRunningScript* parent)
 
 void CScriptFunction::SaveAllFunctions()
 {
-	WORD				activeFunctions = 0;
+	uint16				activeFunctions = 0;
 	CRunningScript*		scriptsCtr = *pActiveScripts;
 	CRunningScript*		lastActiveScript = nullptr;
 
@@ -1053,22 +1052,22 @@ void CScriptFunction::SaveAllFunctions()
 		}
 		while ( scriptsCtr );
 	}
-	C_PcSave::PcClassSaveRoutine(&activeFunctions, sizeof(WORD));
+	C_PcSave::PcClassSaveRoutine(&activeFunctions, sizeof(uint16));
 	
 	if ( activeFunctions )
 	{
 		do
 		{
-			unsigned short		scriptIndex = static_cast<unsigned short>(lastActiveScript - ScriptsArray);
+			uint16		scriptIndex = static_cast<unsigned short>(lastActiveScript - ScriptsArray);
 			CScriptFunction&	function = CRunningScript::ms_scriptFunction[scriptIndex];
 
 			if ( !lastActiveScript->bIsExternal && lastActiveScript->extrnAttachType == -1 )
 			{
-				C_PcSave::PcClassSaveRoutine(&scriptIndex, sizeof(unsigned short));
-				for ( BYTE j = 0; j < GOSUB_STACK_SIZE; ++j )
+				C_PcSave::PcClassSaveRoutine(&scriptIndex, sizeof(uint16));
+				for ( int32 j = 0; j < GOSUB_STACK_SIZE; ++j )
 				{
-					signed char amountOfParams = function.bAmountOfVariablesWePassed[j];
-					C_PcSave::PcClassSaveRoutine(&amountOfParams, sizeof(signed char));
+					int8 amountOfParams = function.bAmountOfVariablesWePassed[j];
+					C_PcSave::PcClassSaveRoutine(&amountOfParams, sizeof(int8));
 					if ( amountOfParams != -1 )
 					{
 						C_PcSave::PcClassSaveRoutine(&function.bNOTFlagState[j], sizeof(bool));
@@ -1080,50 +1079,25 @@ void CScriptFunction::SaveAllFunctions()
 		}
 		while ( lastActiveScript );
 	}
-	
-	/*for ( BYTE i = 0; i < NUM_SCRIPTS; ++i )
-	{
-		CScriptFunction&	function = scriptFunctions[i];
-		if ( function.parentScript->bIsActive )
-		{
-			WORD scriptIndex = ( (int)function.parentScript - (int)ScriptsArray ) / sizeof(CRunningScript);
-			C_PcSave::PcClassSaveRoutine(&scriptIndex, sizeof(WORD));
-			//C_PcSave::PcClassSaveRoutine(&function.parentScript, sizeof(CRunningScript*));
-			for ( BYTE j = 0; j < GOSUB_STACK_SIZE; ++j )
-			{
-				signed char amountOfParams = function.bAmountOfVariablesWePassed[j];
-				C_PcSave::PcClassSaveRoutine(&amountOfParams, sizeof(signed char));
-				if ( amountOfParams != -1 )
-					C_PcSave::PcClassSaveRoutine(function.savedVariablesSpace[j], sizeof(SCRIPT_VAR) * 32);
-				/*bool bThisIsCall = function.bThisIndirectionLevelIsCall[j];
-				C_PcSave::PcClassSaveRoutine(&bThisIsCall, sizeof(bool));
-				if ( bThisIsCall )
-				{
-					C_PcSave::PcClassSaveRoutine(&function.bAmountOfVariablesWePassed[j], sizeof(BYTE));
-					C_PcSave::PcClassSaveRoutine(function.savedVariablesSpace[j], sizeof(SCRIPT_VAR) * 32);
-				}
-			}
-		}
-	}*/
 }
 
 void CScriptFunction::LoadAllFunctions()
 {
-	WORD		activeFunctions;
-	C_PcSave::PcClassLoadRoutine(&activeFunctions, sizeof(WORD));
+	uint16		activeFunctions;
+	C_PcSave::PcClassLoadRoutine(&activeFunctions, sizeof(uint16));
 
 	do
 	{
 		--activeFunctions;
-		WORD				scriptIndex;
-		C_PcSave::PcClassLoadRoutine(&scriptIndex, sizeof(WORD));
+		uint16				scriptIndex;
+		C_PcSave::PcClassLoadRoutine(&scriptIndex, sizeof(uint16));
 		CScriptFunction&	function = CRunningScript::ms_scriptFunction[scriptIndex];
 
 		function.parentScript = scriptIndex + ScriptsArray;
-		for ( BYTE j = 0; j < GOSUB_STACK_SIZE; ++j )
+		for ( int32 j = 0; j < GOSUB_STACK_SIZE; ++j )
 		{
-			signed char amountOfParams;
-			C_PcSave::PcClassLoadRoutine(&amountOfParams, sizeof(signed char));
+			int8 amountOfParams;
+			C_PcSave::PcClassLoadRoutine(&amountOfParams, sizeof(int8));
 			function.bAmountOfVariablesWePassed[j] = amountOfParams;
 			if ( amountOfParams != -1 )
 			{
@@ -1136,39 +1110,6 @@ void CScriptFunction::LoadAllFunctions()
 		}
 	}
 	while ( activeFunctions );
-
-	/*	for ( BYTE i = 0; i < activeFunctions; ++i )
-	{
-		CScriptFunction&	function = scriptFunctions[i];
-		WORD	scriptIndex;
-		C_PcSave::PcClassLoadRoutine(&scriptIndex, sizeof(WORD));
-		function.parentScript = (CRunningScript*)(scriptIndex * sizeof(CRunningScript) + (int)ScriptsArray);
-		//C_PcSave::PcClassLoadRoutine(&function.parentScript, sizeof(CRunningScript*));
-		for ( BYTE j = 0; j < GOSUB_STACK_SIZE; ++j )
-		{
-			signed char amountOfParams;
-			C_PcSave::PcClassLoadRoutine(&amountOfParams, sizeof(signed char));
-			function.bAmountOfVariablesWePassed[j] = amountOfParams;
-			if ( amountOfParams != -1 )
-			{
-				if ( !function.savedVariablesSpace[j] )
-					function.savedVariablesSpace[j] = new SCRIPT_VAR[32];
-
-				C_PcSave::PcClassLoadRoutine(&function.savedVariablesSpace[j], sizeof(SCRIPT_VAR) * 32);
-			}
-			/*bool	bThisIsCall;
-			C_PcSave::PcClassLoadRoutine(&bThisIsCall, sizeof(BYTE));
-			if ( bThisIsCall )
-			{
-				function.bThisIndirectionLevelIsCall[j] = bThisIsCall;
-				C_PcSave::PcClassLoadRoutine(&function.bAmountOfVariablesWePassed[j], sizeof(BYTE));
-				if ( !function.savedVariablesSpace[j] )
-					function.savedVariablesSpace[j] = new SCRIPT_VAR[32];
-
-				C_PcSave::PcClassLoadRoutine(&function.savedVariablesSpace[j], sizeof(SCRIPT_VAR) * 32);
-			}
-		}
-	}*/
 }
 
 /*static CMappedVariable SaveVariable(long nIndex, long nSize = 1)

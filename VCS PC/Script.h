@@ -6,16 +6,16 @@
 
 union SCRIPT_VAR
 {
-	DWORD	dwParam;
-	int		iParam;
-	WORD	wParam;
-	BYTE	bParam;
+	uint32	dwParam;
+	int32	iParam;
+	uint16	wParam;
+	uint8	bParam;
 	float	fParam;
 	void*	pParam;
 	char*	pcParam;
 };
 
-enum eOperandType : int8_t
+enum eOperandType : int8
 {
 	globalVar = 2,			
 	localVar = 3,			
@@ -47,53 +47,55 @@ public:
 private:
 	struct ArrayProperties
 	{
-		unsigned char m_nElementType : 7;
+		uint8 m_nElementType : 7;
 		bool m_bIsIndexGlobalVariable : 1;
 	};
+
+	
 
 	CRunningScript*			Previous;
 	CRunningScript*			Next;
 	char					Name[8];
-	uint8_t*				BaseIP;
-	uint8_t*				CurrentIP;
-	uint8_t*				Stack[GOSUB_STACK_SIZE];
-	WORD					SP;
+	uint8*					BaseIP;
+	uint8*					CurrentIP;
+	uint8*					Stack[GOSUB_STACK_SIZE];
+	uint16					SP;
 	SCRIPT_VAR				LocalVar[34];
 	bool					bIsActive;
 	bool					bCondResult;
 	bool					bUseMissionCleanup;
 	bool					bIsExternal;
 	bool					bTextBlockOverride;
-	signed char				extrnAttachType;
-	DWORD					WakeTime;
-	WORD					LogicalOp;
+	int8					extrnAttachType;
+	int32					WakeTime;
+	uint16					LogicalOp;
 	bool					NotFlag;
 	bool					bWastedBustedCheck;
 	bool					bWastedOrBusted;
 	void*					SceneSkipIP;
 	bool					bIsMission;
 	/*	CLEO class extension */
-	BYTE					scmFunction[2];
-	BYTE					IsCustom;
+	uint8					scmFunction[2];
+	uint8					IsCustom;
 
 private:
-	void					ReadTextLabelFromScript(char* textPtr, uint8_t len);
-	void					CollectParameters(short numParams);
-	void					StoreParameters(WORD numParams);
+	void					ReadTextLabelFromScript(char* textPtr, uint8 len);
+	void					CollectParameters(int16 numParams);
+	void					StoreParameters(int16 numParams);
 	void					UpdateCompareFlag(bool result);
 	unsigned short			GetGlobalVarOffset();
-	void*					GetPointerToScriptVariable(int nParam);
-	void					SetIP(int IP);
+	void*					GetPointerToScriptVariable(int32 nParam);
+	void					SetIP(int32 IP);
 
 	template<typename T>	
 	inline T				ReadVariable()
 	{ T var = *(T*)CurrentIP; CurrentIP += sizeof(T); return var; }
 
-	void					ReadArrayInformation( int32_t move, uint16_t* varOffset, int32_t* varIndex );
-	SCRIPT_VAR*				GetPointerToLocalArrayElement( uint16_t offset, int32_t index, uint8_t size );
-	SCRIPT_VAR*				GetPointerToLocalVariable( uint16_t var );
+	void					ReadArrayInformation( int32 move, uint16* varOffset, int32* varIndex );
+	SCRIPT_VAR*				GetPointerToLocalArrayElement( uint16 offset, int32 index, uint8 size );
+	SCRIPT_VAR*				GetPointerToLocalVariable( uint16 var );
 
-	signed char				CollectParametersForScriptFunction(signed short numParams);
+	signed char				CollectParametersForScriptFunction(int16 numParams);
 	void					StoreParametersFromScriptFunction();
 
 	CScriptFunction&		GetExtrasForScript();
@@ -101,7 +103,7 @@ private:
 public:
 	void					Init();
 
-	void					ProcessVCSCommands(WORD opcode);
+	void					ProcessVCSCommands(int16 opcode);
 
 	static void				Inject();
 };
@@ -115,7 +117,7 @@ class CScriptFunction
 private:
 	CRunningScript*		parentScript;
 //	bool				bApplyWidescreenFixOnThisScriptDraws;
-	signed char			bAmountOfVariablesWePassed[GOSUB_STACK_SIZE];
+	int8				bAmountOfVariablesWePassed[GOSUB_STACK_SIZE];
 	bool				bNOTFlagState[GOSUB_STACK_SIZE];
 	SCRIPT_VAR*			savedVariablesSpace[GOSUB_STACK_SIZE];
 
@@ -124,9 +126,9 @@ public:
 	static void			SaveAllFunctions();
 	static void			LoadAllFunctions();
 
-	void				RegisterCall(CRunningScript* caller, signed char passedParams)
+	void				RegisterCall(CRunningScript* caller, int8 passedParams)
 	{
-		WORD stackID = caller->SP;
+		uint16 stackID = caller->SP;
 		if ( !savedVariablesSpace[stackID] )
 			savedVariablesSpace[stackID] = new SCRIPT_VAR[32];
 
@@ -136,7 +138,6 @@ public:
 			memcpy(savedVariablesSpace[stackID], scriptLocals, sizeof(SCRIPT_VAR) * 32);
 		bAmountOfVariablesWePassed[stackID] = passedParams;
 		bNOTFlagState[stackID] = caller->NotFlag;
-//		bThisIndirectionLevelIsCall[stackID] = true;
 	};
 
 	void				PopCall(CRunningScript* caller)
@@ -152,7 +153,6 @@ public:
 	void				RegisterGosub(CRunningScript* caller)
 	{
 		bAmountOfVariablesWePassed[caller->SP] = -1;
-//		bThisIndirectionLevelIsCall[caller->SP] = false;
 	}
 
 	CScriptFunction()
