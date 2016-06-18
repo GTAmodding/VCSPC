@@ -93,7 +93,8 @@ private:
 	void*					GetPointerToScriptVariable(int32 nParam);
 	void					SetIP(int32 IP);
 
-	int8					ProcessCustomCommands(int16 command);
+	int8					ProcessCustomCommandsLow( int16 command );
+	int8					ProcessCustomCommandsHigh( int16 command );
 	int8					ProcessOneCommand();
 
 	template<typename T>	

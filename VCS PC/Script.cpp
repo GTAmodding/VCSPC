@@ -438,7 +438,7 @@ SCRIPT_VAR* CRunningScript::GetPointerToLocalVariable( uint16 var )
 	return bIsMission ? &scriptLocals[var] : &LocalVar[var];
 }
 
-int8 CRunningScript::ProcessCustomCommands( int16 command )
+int8 CRunningScript::ProcessCustomCommandsLow( int16 command )
 {
 	switch ( command )
 	{
@@ -1024,18 +1024,27 @@ int8 CRunningScript::ProcessCustomCommands( int16 command )
 	return -1;
 }
 
+int8 CRunningScript::ProcessCustomCommandsHigh( int16 command )
+{
+	return -1;
+}
+
 int8 CRunningScript::ProcessOneCommand()
 {
-	uint8(__thiscall** commandsArray)(CRunningScript*, int16) = *(uint8(__thiscall ***)(CRunningScript*, int16))0x469FEE;
-	uint16 command = ReadVariable<uint16_t>();
-
-	NotFlag = (command & 0x8000) != 0;
-
-	int8 customResult = ProcessCustomCommands( command & 0x7FFF );
-	if ( customResult != -1 )
-		return customResult;
-
-	return commandsArray[ (command & 0x7FFF) / 100 ]( this, command & 0x7FFF );
+    typedef int8(CRunningScript::*ScriptCommandMethod)(int16);
+ 
+    static ScriptCommandMethod* StockCommandsArray = *(ScriptCommandMethod**)0x469FEE;
+    static const ScriptCommandMethod CustomCommandsArray[] = {
+                    &CRunningScript::ProcessCustomCommandsLow, &CRunningScript::ProcessCustomCommandsHigh };
+ 
+    uint16 command = ReadVariable<uint16_t>();
+    NotFlag = (command & 0x8000) != 0;
+ 
+    int8 customResult = (this->*CustomCommandsArray[ (command & 0x7FFF) / 0x1000 ])( command & 0x7FFF );
+    if ( customResult != -1 )
+        return customResult;
+ 
+    return (this->*StockCommandsArray[ (command & 0x7FFF) / 100 ])( command & 0x7FFF );
 }
 
 void CScriptFunction::Init(CRunningScript* parent)
