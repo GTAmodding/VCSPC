@@ -321,7 +321,7 @@ void*						MultipleFontsTXD_JumpBack;
 
 SCRIPT_VAR*					scriptParams;
 SCRIPT_VAR*					scriptLocals;
-void*						scmBlock;
+uint8_t*					scmBlock;
 DWORD*						CPopulation__allRandomPedThisType;
 DWORD*						PlayerEnexEntryStage;
 DWORD*						activeInterior;
@@ -883,7 +883,7 @@ void DefineVariables()
 
 	scriptParams = (SCRIPT_VAR*)0xA43C78;
 	scriptLocals = (SCRIPT_VAR*)0xA48960;
-	scmBlock = (void*)0xA49960;
+	scmBlock = (uint8_t*)0xA49960;
 	CPopulation__allRandomPedThisType = (DWORD*)0x8D2534;
 	PlayerEnexEntryStage = (DWORD*)0x96A7CC;
 	activeInterior = (DWORD*)0xB72914;

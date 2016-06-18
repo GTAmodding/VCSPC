@@ -15,7 +15,7 @@ union SCRIPT_VAR
 	char*	pcParam;
 };
 
-enum eOperandType
+enum eOperandType : int8_t
 {
 	globalVar = 2,			
 	localVar = 3,			
@@ -23,8 +23,8 @@ enum eOperandType
 	localArr = 8,
 	imm8 = 4,				
 	imm16 = 5,				
-	imm32 = 6,				
-	imm32f = 1,				
+	imm32f = 6,				
+	imm32 = 1,				
 	vstring = 0x0E,			
 	sstring = 9,			
 	globalVarVString = 0x10,
@@ -45,12 +45,18 @@ public:
 	static CScriptFunction	ms_scriptFunction[NUM_SCRIPTS];
 
 private:
+	struct ArrayProperties
+	{
+		unsigned char m_nElementType : 7;
+		bool m_bIsIndexGlobalVariable : 1;
+	};
+
 	CRunningScript*			Previous;
 	CRunningScript*			Next;
 	char					Name[8];
-	void*					BaseIP;
-	void*					CurrentIP;
-	void*					Stack[GOSUB_STACK_SIZE];
+	uint8_t*				BaseIP;
+	uint8_t*				CurrentIP;
+	uint8_t*				Stack[GOSUB_STACK_SIZE];
 	WORD					SP;
 	SCRIPT_VAR				LocalVar[34];
 	bool					bIsActive;
@@ -71,13 +77,21 @@ private:
 	BYTE					IsCustom;
 
 private:
-	void					GetStringParam(char* textPtr, BYTE len);
-	void					CollectParameters(WORD numParams);
+	void					ReadTextLabelFromScript(char* textPtr, uint8_t len);
+	void					CollectParameters(short numParams);
 	void					StoreParameters(WORD numParams);
 	void					UpdateCompareFlag(bool result);
 	unsigned short			GetGlobalVarOffset();
 	void*					GetPointerToScriptVariable(int nParam);
 	void					SetIP(int IP);
+
+	template<typename T>	
+	inline T				ReadVariable()
+	{ T var = *(T*)CurrentIP; CurrentIP += sizeof(T); return var; }
+
+	void					ReadArrayInformation( int32_t move, uint16_t* varOffset, int32_t* varIndex );
+	SCRIPT_VAR*				GetPointerToLocalArrayElement( uint16_t offset, int32_t index, uint8_t size );
+	SCRIPT_VAR*				GetPointerToLocalVariable( uint16_t var );
 
 	signed char				CollectParametersForScriptFunction(signed short numParams);
 	void					StoreParametersFromScriptFunction();
@@ -88,6 +102,8 @@ public:
 	void					Init();
 
 	void					ProcessVCSCommands(WORD opcode);
+
+	static void				Inject();
 };
 
 extern SCRIPT_VAR*	scriptLocals;
@@ -184,6 +200,8 @@ extern SCRIPT_VAR*			scriptLocals;
 extern CRunningScript**		pActiveScripts;
 extern CRunningScript*		ScriptsArray;
 
+
+static_assert(sizeof(eOperandType) == 0x1, "Wrong size: eOperandType");
 static_assert(sizeof(CRunningScript) == 0xE0, "Wrong size: CRunningScript");
 
 #endif

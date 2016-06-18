@@ -178,7 +178,7 @@ extern char*				StyledText_5;
 extern char*				StyledText_6;
 extern char*				StyledText_7;
 extern char*				Garage_MessageIDString;
-extern void*				scmBlock;
+extern uint8_t*				scmBlock;
 extern DWORD*				CPopulation__allRandomPedThisType;
 extern DWORD*				PlayerEnexEntryStage;
 extern DWORD*				activeInterior;
