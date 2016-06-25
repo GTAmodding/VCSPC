@@ -1026,7 +1026,76 @@ int8 CRunningScript::ProcessCustomCommandsLow( int16 command )
 
 int8 CRunningScript::ProcessCustomCommandsHigh( int16 command )
 {
-	return -1;
+	switch ( command )
+	{
+	case SWITCH_CAR_RADIO:
+		{
+			CollectParameters(1);
+			return 0;
+		}
+	case CLEAR_CHAR_WAIT_STATE:
+		{
+			CollectParameters(1);
+			return 0;
+		}
+	case GET_RANDOM_CAR_OF_TYPE_WITH_PASSENGERS_IN_AREA:
+		{
+			CollectParameters(5);
+			scriptParams[0].iParam = -1;
+			StoreParameters(1);
+			return 0;
+		}
+	case COMMAND_00F5:
+		{
+			CollectParameters(3);
+			return 0;
+		}
+	case COMMAND_0324:
+	case COMMAND_034F:
+	case COMMAND_0347:
+	case COMMAND_03DE:
+		{
+			CollectParameters(2);
+			return 0;
+		}
+	case COMMAND_03AF:
+		{
+			CollectParameters(1);
+			return 0;
+		}
+	case COMMAND_03D6:
+	case COMMAND_03D7:
+		{
+			CollectParameters(2);
+			return 0;
+		}
+	case COMMAND_0400:
+		{
+			CollectParameters(1);
+			scriptParams[0].iParam = 0;
+			StoreParameters(1);
+			return 0;
+		}
+	case COMMAND_0442:
+		{
+			CollectParameters(2);
+			return 0;
+		}
+	case COMMAND_041B:
+	case COMMAND_04AE:
+		{
+			CollectParameters(2);
+			return 0;
+		}
+	default:
+		{
+			//assert( !"Whoops (CRunningScript::ProcessCustomCommandsHigh)" );
+			break;
+		}
+	}
+
+	// Claim unimplemented opcodes are processed too so our dummies don't interrupt the script
+	return 0;
 }
 
 int8 CRunningScript::ProcessOneCommand()
@@ -1037,7 +1106,10 @@ int8 CRunningScript::ProcessOneCommand()
     static const ScriptCommandMethod CustomCommandsArray[] = {
                     &CRunningScript::ProcessCustomCommandsLow, &CRunningScript::ProcessCustomCommandsHigh };
  
-    uint16 command = ReadVariable<uint16_t>();
+	uint16 command = ReadVariable<uint16_t>();
+#ifdef DEVBUILD
+	try {
+#endif
     NotFlag = (command & 0x8000) != 0;
  
     int8 customResult = (this->*CustomCommandsArray[ (command & 0x7FFF) / 0x1000 ])( command & 0x7FFF );
@@ -1045,6 +1117,13 @@ int8 CRunningScript::ProcessOneCommand()
         return customResult;
  
     return (this->*StockCommandsArray[ (command & 0x7FFF) / 100 ])( command & 0x7FFF );
+#ifdef DEVBUILD
+	} catch (...) {
+		LogToFile( "Error processing command 0x%04X in script %s, halting script...", command, Name );
+		WakeTime = INT_MAX;
+		return -1;
+	}
+#endif
 }
 
 void CScriptFunction::Init(CRunningScript* parent)
