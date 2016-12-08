@@ -21,7 +21,7 @@ public:
 class CProject2dfx
 {
 private:
-	static std::vector<const CLamppostInfo>*			m_pLampposts;
+	static std::vector<CLamppostInfo>*					m_pLampposts;
 	static std::map<unsigned int, const CLamppostInfo>*	m_pFileContent;
 	static bool											m_bCatchLamppostsNow;
 

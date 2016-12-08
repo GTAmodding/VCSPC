@@ -658,11 +658,11 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 
 extern "C" __declspec(dllexport) BOOL OnGameLaunch()
 {
-	LogToFile("Launching GTA: Vice City Stories PC Edition "MOD_VERSION" \""VERSION_NAME"\" build "BUILDNUMBER_STR"...");
+	LogToFile("Launching GTA: Vice City Stories PC Edition " MOD_VERSION " \"" VERSION_NAME "\" build " BUILDNUMBER_STR "...");
 #if defined DEVBUILD
 	LogToFile("This is a closed dev build!");
 #elif defined COMPILE_RC
-	LogToFile("This is a Release Candidate "RELEASE_CANDIDATE" build");
+	LogToFile("This is a Release Candidate " RELEASE_CANDIDATE " build");
 #endif
 	LogToFile("Logging started");
 #ifdef COLLECT_PC_INFO

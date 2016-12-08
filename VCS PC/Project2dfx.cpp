@@ -7,7 +7,7 @@
 #include "Camera.h"
 #include "Clock.h"
 
-std::vector<const CLamppostInfo>*				CProject2dfx::m_pLampposts = nullptr;
+std::vector<CLamppostInfo>*						CProject2dfx::m_pLampposts = nullptr;
 std::map<unsigned int, const CLamppostInfo>*	CProject2dfx::m_pFileContent;
 bool											CProject2dfx::m_bCatchLamppostsNow = false;
 
@@ -83,7 +83,7 @@ void CProject2dfx::Init()
 			}
 		}
 
-		m_pLampposts = new std::vector<const CLamppostInfo>;
+		m_pLampposts = new std::vector<CLamppostInfo>;
 		m_bCatchLamppostsNow = true;
 
 		CFileMgr::CloseFile(hFile);
@@ -118,18 +118,18 @@ void CProject2dfx::Render()
 		else
 			bAlpha = static_cast<unsigned char>((-5.0f/6.0f)*nTime + 350.0f);
 
-		for ( auto it = m_pLampposts->cbegin(); it != m_pLampposts->cend(); it++ )
+		for ( auto& it : *m_pLampposts )
 		{
-			if ( TheCamera.IsPositionVisible(it->vecPos, 5.0f) )
+			if ( TheCamera.IsPositionVisible(it.vecPos, 5.0f) )
 			{
 				CVector*	pCamPos = &TheCamera.Cams[TheCamera.ActiveCam].Source;
-				float		fDistSqr = (pCamPos->x - it->vecPos.x)*(pCamPos->x - it->vecPos.x) + (pCamPos->y - it->vecPos.y)*(pCamPos->y - it->vecPos.y) + (pCamPos->z - it->vecPos.z)*(pCamPos->z - it->vecPos.z);
+				float		fDistSqr = (pCamPos->x - it.vecPos.x)*(pCamPos->x - it.vecPos.x) + (pCamPos->y - it.vecPos.y)*(pCamPos->y - it.vecPos.y) + (pCamPos->z - it.vecPos.z)*(pCamPos->z - it.vecPos.z);
 
 				if ( fDistSqr > 280.0f*280.0f && fDistSqr < CORONAS_FARCLIP*CORONAS_FARCLIP )
 				{
 					float	fRadius = Min((fDistSqr < 290.0f*290.0f) ? (1.0f/ 4.0f)*sqrt(fDistSqr) - 70.0f : (3.0f/164.0f)*sqrt(fDistSqr) - (5.0f/41.0f), 20.0f);
 
-					CCoronas::RegisterCorona(reinterpret_cast<unsigned int>(&*it), nullptr, it->colour.r, it->colour.g, it->colour.b, bAlpha, it->vecPos, fRadius * it->fCustomSizeMult, CORONAS_FARCLIP, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, bAlpha, false, true);
+					CCoronas::RegisterCorona(reinterpret_cast<unsigned int>(&it), nullptr, it.colour.r, it.colour.g, it.colour.b, bAlpha, it.vecPos, fRadius * it.fCustomSizeMult, CORONAS_FARCLIP, gpCoronaTexture[1], 0, 0, 0, 0, 0.0f, false, 1.5f, false, bAlpha, false, true);
 				}
 			}
 		}

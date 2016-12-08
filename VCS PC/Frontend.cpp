@@ -2296,7 +2296,7 @@ void CMenuManager::DrawBackEnd()
 	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 	CFont::SetScale(_width(0.25f), _height(0.4f));
 	CFont::SetColor(BaseColors[11]);
-	CFont::PrintString(_xleft(2.5f), _ydown(13.0f), MOD_VERSION" BUILD "BUILDNUMBER_STR);
+	CFont::PrintString(_xleft(2.5f), _ydown(13.0f), MOD_VERSION " BUILD " BUILDNUMBER_STR);
 
 #if defined DEVBUILD
 	#ifdef MAKE_ZZCOOL_MOVIE_DEMO
@@ -2669,7 +2669,7 @@ void CMenuManager::PrintControllerSetupScreen()
 		else if ( nColourCycle < 22000 )
 			BlendColour = PinkColour;
 		else
-			BlendColour = BlendSqr(PinkColour, BlueColour, (nColourCycle-22000)/2000.0f);
+			BlendColour = BlendSqr(PinkColour, BlueColour, (nColourCycle-22000.0f)/2000.0f);
 
 		m_apBackgroundTextures[4].Draw(CRect(_xmiddle(-175.0f), _ymiddle(140.0f), _xmiddle(175.0f), _ymiddle(-35.0f)), BlendColour);
 	}

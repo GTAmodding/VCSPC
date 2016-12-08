@@ -30,8 +30,8 @@ public:
 };
 
 // Now uses multiple lists
-typedef std::vector<const std::string>							tFileLoaderList;
-typedef std::vector<std::pair<const std::string,unsigned char>>	tFileLoaderList_IMG;
+typedef std::vector<std::string>							tFileLoaderList;
+typedef std::vector<std::pair<std::string,unsigned char>>	tFileLoaderList_IMG;
 
 // Thought they could fall into the same file...
 class CFileLoader
