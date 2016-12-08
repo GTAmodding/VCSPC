@@ -53,8 +53,8 @@ void RegisterMouseMovement(RAWINPUT* raw)
 	CMouseControllerState&	StateBuf = CPad::GetMouseStateBuffer();
 	
 	// Movement
-	StateBuf.X = static_cast<float>(raw->data.mouse.lLastX) * 2.0f;
-	StateBuf.Y = static_cast<float>(raw->data.mouse.lLastY) * 2.0f;
+	StateBuf.X += static_cast<float>(raw->data.mouse.lLastX);
+	StateBuf.Y += static_cast<float>(raw->data.mouse.lLastY);
 
 	// LMB
 	if ( !StateBuf.lmb )
