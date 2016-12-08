@@ -1,23 +1,22 @@
 #include "StdAfx.h"
 #include "StaticPatcher.h"
 
-std::vector<std::function<void()>>*			StaticPatcher::m_pFunctions;
+StaticPatcher* StaticPatcher::ms_head = nullptr;
 
-StaticPatcher::StaticPatcher(std::function<void()> pInitializer)
+StaticPatcher::StaticPatcher( Patcher func )
+	: m_func( func )
 {
-	if ( !m_pFunctions )
-		m_pFunctions = new std::vector<std::function<void()>>;
-
-	m_pFunctions->push_back(pInitializer);
+	m_next = ms_head;
+	ms_head = this;
 }
 
 void StaticPatcher::Apply()
 {
-	if ( m_pFunctions )
+	StaticPatcher* current = ms_head;
+	while ( current != nullptr )
 	{
-		for ( auto it = m_pFunctions->cbegin(); it != m_pFunctions->cend(); it++ )
-			(*it)();
-
-		delete m_pFunctions;
+		current->Run();
+		current = current->m_next;
 	}
+	ms_head = nullptr;
 }

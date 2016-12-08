@@ -4,12 +4,20 @@
 class StaticPatcher
 {
 private:
-	static std::vector<std::function<void()>>*	m_pFunctions;
+	using Patcher = void(*)();
+
+	Patcher			m_func;
+	StaticPatcher*	m_next;
+
+	static StaticPatcher* ms_head;
+
+private:
+	void Run() { m_func(); }
 
 public:
-	StaticPatcher(std::function<void()> pInitializer);
+	StaticPatcher( Patcher func );
 
-	static void									Apply();
+	static void		Apply();
 };
 
 #endif

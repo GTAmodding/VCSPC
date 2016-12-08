@@ -678,7 +678,7 @@ extern "C" __declspec(dllexport) BOOL OnGameLaunch()
 	// Automatic patches
 	StaticPatcher::Apply();
 
-	CreateThread(NULL, 0, ProcessEmergencyKey, 0, 0, 0);
+	//CreateThread(NULL, 0, ProcessEmergencyKey, 0, 0, 0);
 
 	// DLC initialisation
 	CDLCManager::Initialise();
@@ -2341,6 +2341,24 @@ void Main_Patches()
 	InjectHook(0x74872D, &IsAlreadyRunning);
 
 	Patch<const void*>(0x7486C1, WindowProc);
+
+	// Don't catch WM_SYSKEYDOWN and WM_SYSKEYUP
+	InjectHook( 0x748220, 0x748446, PATCH_JUMP );
+	InjectHook( 0x74826A, 0x748446, PATCH_JUMP );
+
+	Patch<BYTE>( 0x7481E3, 0x5C );
+	Patch<BYTE>( 0x7481EA, 0x53 );
+	Patch<BYTE>( 0x74820D, 0xFB );
+	Patch<BYTE>( 0x7481EF, 0x54-0x3C );
+	Patch<BYTE>( 0x748200, 0x4C-0x3C );
+	Patch<BYTE>( 0x748214, 0x4C-0x3C );
+
+	Patch<BYTE>( 0x74822D, 0x5C );
+	Patch<BYTE>( 0x748234, 0x53 );
+	Patch<BYTE>( 0x748257, 0xFB );
+	Patch<BYTE>( 0x748239, 0x54-0x3C );
+	Patch<BYTE>( 0x74824A, 0x4C-0x3C );
+	Patch<BYTE>( 0x74825E, 0x4C-0x3C );
 
 	// CConfiscatedWeapons injectors
 	InjectHook(0x442D06, &CGameLogic__Update_Wasted);
