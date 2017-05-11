@@ -113,6 +113,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -176,6 +177,7 @@ popd</Command>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -239,6 +241,7 @@ popd</Command>
       <ExceptionHandling>Sync</ExceptionHandling>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -305,6 +308,7 @@ popd</Command>
       <ExceptionHandling>Sync</ExceptionHandling>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>

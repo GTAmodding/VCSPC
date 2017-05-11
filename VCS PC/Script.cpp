@@ -16,6 +16,7 @@
 #include "GroupedBuildings.h"
 #include "DLCManager.h"
 #include "Pad.h"
+#include "ControlsMgr.h"
 
 CScriptFunction		CRunningScript::ms_scriptFunction[NUM_SCRIPTS];
 
@@ -1010,6 +1011,30 @@ int8 CRunningScript::ProcessCustomCommandsLow( int16 command )
 					break;
 				}
 			}
+			return 0;
+		}
+	case IS_KEYBOARD_KEY_PRESSED:
+		{
+			CollectParameters( 1 );
+
+#if INCLUDE_DEBUG_COMMANDS
+			UpdateCompareFlag( ControlsManager.GetIsKeyboardKeyDown( (RsKeyCodes)scriptParams[0].iParam ) );
+#else
+			UpdateCompareFlag( false );
+#endif
+	
+			return 0;
+		}
+	case IS_KEYBOARD_KEY_JUST_PRESSED:
+		{
+			CollectParameters( 1 );
+
+#if INCLUDE_DEBUG_COMMANDS
+			UpdateCompareFlag( ControlsManager.GetIsKeyboardKeyJustDown( (RsKeyCodes)scriptParams[0].iParam ) );
+#else
+			UpdateCompareFlag( false );
+#endif
+
 			return 0;
 		}
 	case 0x0821:

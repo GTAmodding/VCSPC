@@ -758,10 +758,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 0:	// PED_FIREWEAPON
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_CIRCLE, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_R2, wcBuf, nStartPoint);
 			break;
 		}
@@ -769,7 +770,8 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 1:	// PED_FIREWEAPON_ALT
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_L1, wcBuf, nStartPoint);
 			break;
 		}
@@ -777,10 +779,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 2:	// PED_CYCLE_WEAPON_RIGHT
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_R2, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_RIGHT, wcBuf, nStartPoint);
 			break;
 		}
@@ -788,10 +791,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 3:	// PED_CYCLE_WEAPON_LEFT
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_L2, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_LEFT, wcBuf, nStartPoint);
 			break;
 		}
@@ -823,10 +827,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 8: // PED_SNIPER_ZOOM_IN
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_R2, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			if ( bSwapSticksDuringAiming[0] )
 				GetButtonByIndex(BUTTON_THUMBRYU, wcBuf, nStartPoint);
 			else
@@ -837,10 +842,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 9:	// PED_SNIPER_ZOOM_OUT
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_L2, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			if ( bSwapSticksDuringAiming[0] )
 				GetButtonByIndex(BUTTON_THUMBRYD, wcBuf, nStartPoint);
 			else
@@ -881,10 +887,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 19:	// VEHICLE_FIREWEAPON_ALT
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_L1, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_CROSS, wcBuf, nStartPoint);
 			break;
 		}
@@ -916,10 +923,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 24:	// VEHICLE_ACCELERATE
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_CROSS, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_R2, wcBuf, nStartPoint);
 			break;
 		}
@@ -927,10 +935,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 25:	// VEHICLE_BRAKE
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_SQUARE, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_L2, wcBuf, nStartPoint);
 			break;
 		}
@@ -938,10 +947,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 26:	// VEHICLE_RADIO_STATION_UP
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_UP, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_RIGHT, wcBuf, nStartPoint);
 			break;
 		}
@@ -949,10 +959,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 27:	// VEHICLE_RADIO_STATION_DOWN
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_DOWN, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_LEFT, wcBuf, nStartPoint);
 			break;
 		}
@@ -972,10 +983,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 31:	// VEHICLE_HANDBRAKE
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_R1, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_CROSS, wcBuf, nStartPoint);
 			break;
 		}
@@ -995,10 +1007,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 34:	// VEHICLE_LOOKLEFT
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_L2, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_L1, wcBuf, nStartPoint);
 			break;
 		}
@@ -1006,10 +1019,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 35:	// VEHICLE_LOOKRIGHT
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_R2, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_R1, wcBuf, nStartPoint);
 			break;
 		}
@@ -1017,10 +1031,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 36:	// VEHICLE_LOOKBEHIND
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_L2, BUTTON_R2, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_L1, BUTTON_R1, wcBuf, nStartPoint);
 			break;
 		}
@@ -1052,10 +1067,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 42:	// PED_CYCLE_TARGET_LEFT
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_L2, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_L1, wcBuf, nStartPoint);
 			break;
 		}
@@ -1063,10 +1079,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 43:	// PED_CYCLE_TARGET_RIGHT
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_R2, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_R1, wcBuf, nStartPoint);
 			break;
 		}
@@ -1074,10 +1091,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 44:	// PED_CENTER_CAMERA_BEHIND_PLAYER
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_L1, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_R1, wcBuf, nStartPoint);
 			break;
 		}
@@ -1085,24 +1103,26 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 45:	// PED_LOCK_TARGET
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_R1, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_L2, wcBuf, nStartPoint);
 			break;
 		}
 		break;
-	/*case 46:	// NETWORK_TALK
+		/*case 46:	// NETWORK_TALK
 		GetButtonByIndex(BUTTON_PS, wcBuf, nStartPoint);
 		break;*/
 	case 46:	// FRONTEND_BACK
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_TRIANGLE, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_CIRCLE, wcBuf, nStartPoint);
 			break;
 		}
@@ -1110,10 +1130,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 47:	// CONVERSATION_YES
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_RIGHT, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_UP, wcBuf, nStartPoint);
 			break;
 		}
@@ -1121,10 +1142,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 48:	// CONVERSATION_NO
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_LEFT, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_DOWN, wcBuf, nStartPoint);
 			break;
 		}
@@ -1132,10 +1154,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 49:	// GROUP_CONTROL_FWD
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_UP, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_CROSS, BUTTON_UP, wcBuf, nStartPoint);
 			break;
 		}
@@ -1143,10 +1166,11 @@ void CFont::GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused)
 	case 50:	// GROUP_CONTROL_BWD
 		switch ( wPadMode )
 		{
-		case 0:
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
 			GetButtonByIndex(BUTTON_DOWN, wcBuf, nStartPoint);
 			break;
-		case 1:
+		case CONTROLS_MODERN:
 			GetButtonByIndex(BUTTON_CROSS, BUTTON_DOWN, wcBuf, nStartPoint);
 			break;
 		}

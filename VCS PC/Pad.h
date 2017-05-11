@@ -11,7 +11,15 @@
 #define LOCK_ON_THRESHOLD			125
 
 #define CURRENT_XINPUT_PAD	0	// Might need changing?
-#define PAD_IV_CONTROLS_MODE 1
+
+enum eControlsMode
+{
+	CONTROLS_STANDARD_1,
+	CONTROLS_STANDARD_2,
+	CONTROLS_MODERN
+};
+
+#define PAD_IV_CONTROLS_MODE CONTROLS_MODERN
 
 struct CKeyState
 {

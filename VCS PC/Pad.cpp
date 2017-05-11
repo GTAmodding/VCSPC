@@ -827,10 +827,11 @@ bool CPad::GetJetpackStrafeLeft()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		nInput = NewState.LEFTSHOULDER2 - NewState.RIGHTSHOULDER2;
 		break;
-	case 1:
+	case CONTROLS_MODERN:
 		nInput = NewState.LEFTSHOULDER1 - NewState.RIGHTSHOULDER1;
 		break;
 	default:
@@ -854,10 +855,11 @@ bool CPad::GetJetpackStrafeRight()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		nInput = NewState.RIGHTSHOULDER2 - NewState.LEFTSHOULDER2;
 		break;
-	case 1:
+	case CONTROLS_MODERN:
 		nInput = NewState.RIGHTSHOULDER1 - NewState.LEFTSHOULDER1;
 		break;
 	default:
@@ -905,9 +907,10 @@ bool CPad::JustLockedOn_NoMeleeCheck()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER1 != 0 && OldState.RIGHTSHOULDER1 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.LEFTSHOULDER2 >= LOCK_ON_THRESHOLD && OldState.LEFTSHOULDER2 < LOCK_ON_THRESHOLD;
 	}
 	return false;
@@ -920,9 +923,10 @@ bool CPad::GetLockOn()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER1 != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.LEFTSHOULDER2 >= LOCK_ON_THRESHOLD;
 	}
 	return false;
@@ -935,9 +939,10 @@ bool CPad::HasBeenTargetting()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return OldState.RIGHTSHOULDER1 != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return OldState.LEFTSHOULDER2 != 0;
 	}
 	return false;
@@ -961,10 +966,11 @@ bool CPad::SniperZoomIn()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		fSniperZoomVal = Max(NewState.SQUARE, NewState.RIGHTSHOULDER2);
 		return NewState.SQUARE != 0 || NewState.RIGHTSHOULDER2 != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		if ( bSwapSticksDuringAiming[CURRENT_XINPUT_PAD] )
 		{
 			fSniperZoomVal = NewState.RIGHTSTICKY * -2.0f;
@@ -984,10 +990,11 @@ bool CPad::SniperZoomOut()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		fSniperZoomVal = Max(NewState.CROSS, NewState.LEFTSHOULDER2);
 		return NewState.CROSS != 0 || NewState.LEFTSHOULDER2 != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		if ( bSwapSticksDuringAiming[CURRENT_XINPUT_PAD] )
 		{
 			fSniperZoomVal = NewState.RIGHTSTICKY * 2.0f;
@@ -1007,9 +1014,10 @@ bool CPad::ForceCameraBehindPlayer()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.LEFTSHOULDER1 != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.RIGHTSHOULDER1 != 0;
 	}
 
@@ -1024,9 +1032,10 @@ bool CPad::GetHydraTarget()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER1 != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.SQUARE != 0;
 	}
 	return false;
@@ -1039,9 +1048,10 @@ bool CPad::HydraTargetJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER1 != 0 && OldState.RIGHTSHOULDER1 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.SQUARE != 0 && OldState.SQUARE == 0;
 	}
 	return false;
@@ -1056,18 +1066,19 @@ bool CPad::BunnyHopJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		if ( wOldPadMode != 0 )
 		{
 			wOldPadMode = 0;
-			MemoryVP::Patch<BYTE>(0x6C0736, offsetof(CPad, NewState.LEFTSHOULDER1));
+			Memory::Patch<BYTE>(0x6C0736, offsetof(CPad, NewState.LEFTSHOULDER1));
 		}
 		return NewState.LEFTSHOULDER1 != 0 && OldState.LEFTSHOULDER1 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		if ( wOldPadMode != 1 )
 		{
 			wOldPadMode = 1;
-			MemoryVP::Patch<BYTE>(0x6C0736, offsetof(CPad, NewState.SQUARE));
+			Memory::Patch<BYTE>(0x6C0736, offsetof(CPad, NewState.SQUARE));
 		}
 		return NewState.SQUARE != 0 && OldState.SQUARE == 0;
 	}
@@ -1102,9 +1113,10 @@ short CPad::GetBmxHandBrake()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER1;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.RIGHTSHOULDER2;
 	}
 	return 0;
@@ -1125,7 +1137,8 @@ short CPad::CarGunJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		if ( NewState.CIRCLE != 0 && OldState.CIRCLE == 0 )
 			return 1;
 		if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
@@ -1134,7 +1147,7 @@ short CPad::CarGunJustDown()
 				return 2;
 		}
 		return 0;
-	case 1:
+	case CONTROLS_MODERN:
 		// This function is used only for cars, so never returns 2 in IV controls mode
 		return NewState.CIRCLE != 0 && OldState.CIRCLE == 0 ? 1 : 0;
 	}
@@ -1148,7 +1161,8 @@ short CPad::PlaneGunJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		if ( NewState.CIRCLE != 0 && OldState.CIRCLE == 0 )
 			return 1;
 		if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
@@ -1157,7 +1171,7 @@ short CPad::PlaneGunJustDown()
 				return 2;
 		}
 		return 0;
-	case 1:
+	case CONTROLS_MODERN:
 		if ( NewState.CIRCLE != 0 && OldState.CIRCLE == 0 )
 			return 1;
 		if ( NewState.CROSS != 0 && OldState.CROSS == 0 )
@@ -1174,7 +1188,8 @@ short CPad::HydraGunJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		{
 			// Needs to invert controls?
 			bool	bUsesPad = pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands();
@@ -1184,7 +1199,7 @@ short CPad::HydraGunJustDown()
 				return bUsesPad ? 2 : 1;
 			return 0;
 		}
-	case 1:
+	case CONTROLS_MODERN:
 		{
 			if ( NewState.CIRCLE != 0 && OldState.CIRCLE == 0 )
 				return 1;
@@ -1203,7 +1218,8 @@ short CPad::GetCarGunFired()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		if ( NewState.CIRCLE != 0 )
 			return 1;
 		if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
@@ -1212,7 +1228,7 @@ short CPad::GetCarGunFired()
 				return 2;
 		}
 		return 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.CIRCLE != 0 ? 1 : 0;
 	}
 	return 0;
@@ -1225,7 +1241,8 @@ short CPad::GetPlaneGunFired()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		if ( NewState.CIRCLE != 0 )
 			return 1;
 		if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
@@ -1234,7 +1251,7 @@ short CPad::GetPlaneGunFired()
 				return 2;
 		}
 		return 0;
-	case 1:
+	case CONTROLS_MODERN:
 		if ( NewState.CIRCLE != 0 )
 			return 1;
 		if ( NewState.CROSS != 0 )
@@ -1251,11 +1268,12 @@ bool CPad::ChangeStationDownJustUp()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 			return false;
 		return NewState.DPADDOWN == 0 && OldState.DPADDOWN != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.DPADLEFT == 0 && OldState.DPADLEFT != 0;
 	}
 	return false;
@@ -1268,12 +1286,13 @@ bool CPad::ChangeStationUpJustUp()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		if ( pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() )
 			return NewState.LEFTSHOULDER1 == 0 && OldState.LEFTSHOULDER1 != 0;
 		else
 			return NewState.DPADUP == 0 && OldState.DPADUP != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.DPADRIGHT == 0 && OldState.DPADRIGHT != 0;
 	}
 	return false;
@@ -1286,7 +1305,8 @@ bool CPad::WeaponJustDown(CPed* pPed)
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		{
 			bool	bCanUseSecondary = false;
 			if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() && !bDisablePlayerFireWeaponWithL1 )
@@ -1296,7 +1316,7 @@ bool CPad::WeaponJustDown(CPed* pPed)
 			}
 			return bCanUseSecondary ? (NewState.CIRCLE != 0 && OldState.CIRCLE == 0) || (NewState.LEFTSHOULDER1 != 0 && OldState.LEFTSHOULDER1 == 0) : NewState.CIRCLE != 0 && OldState.CIRCLE == 0;
 		}
-	case 1:
+	case CONTROLS_MODERN:
 		{
 			if ( !pPed )
 				pPed = FindPlayerPed(CURRENT_XINPUT_PAD);
@@ -1316,7 +1336,8 @@ int CPad::GetWeapon(CPed* pPed)
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		{
 			bool	bCanUseSecondary = false;
 			if ( !pXboxPad[CURRENT_XINPUT_PAD]->HasPadInHands() && !bDisablePlayerFireWeaponWithL1 )
@@ -1326,7 +1347,7 @@ int CPad::GetWeapon(CPed* pPed)
 			}
 			return bCanUseSecondary ? NewState.CIRCLE + NewState.LEFTSHOULDER1 : NewState.CIRCLE;
 		}
-	case 1:
+	case CONTROLS_MODERN:
 		{
 			if ( !pPed )
 				pPed = FindPlayerPed(CURRENT_XINPUT_PAD);
@@ -1357,9 +1378,10 @@ bool CPad::ReloadJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.LEFTSHOULDER2 != 0 && OldState.LEFTSHOULDER2 == 0 && NewState.RIGHTSHOULDER2 != 0 && OldState.RIGHTSHOULDER2 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.CIRCLE != 0 && OldState.CIRCLE == 0;
 	}
 	return false;
@@ -1414,9 +1436,10 @@ bool CPad::GetTarget()
 	
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER1 != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.LEFTSHOULDER2 != 0;
 	}
 
@@ -1430,9 +1453,10 @@ bool CPad::ShiftTargetRightJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER2 != 0 && OldState.RIGHTSHOULDER2 == 0 && NewState.LEFTSHOULDER2 == 0 && OldState.LEFTSHOULDER2 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.RIGHTSHOULDER1 != 0 && OldState.RIGHTSHOULDER1 == 0;
 	}
 
@@ -1446,9 +1470,10 @@ bool CPad::ShiftTargetLeftJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.LEFTSHOULDER2 != 0 && OldState.LEFTSHOULDER2 == 0 && NewState.RIGHTSHOULDER2 == 0 && OldState.RIGHTSHOULDER2 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.LEFTSHOULDER1 != 0 && OldState.LEFTSHOULDER1 == 0;
 	}
 
@@ -1462,9 +1487,10 @@ bool CPad::TargetJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER1 != 0 && OldState.RIGHTSHOULDER1 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.LEFTSHOULDER2 != 0 && OldState.LEFTSHOULDER2 == 0;
 	}
 
@@ -1481,9 +1507,10 @@ bool CPad::CycleWeaponRightJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER2 != 0 && OldState.RIGHTSHOULDER2 == 0 && NewState.LEFTSHOULDER2 == 0 && OldState.LEFTSHOULDER2 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.DPADRIGHT != 0 && OldState.DPADRIGHT == 0;
 	}
 
@@ -1500,9 +1527,10 @@ bool CPad::CycleWeaponLeftJustDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.LEFTSHOULDER2 != 0 && OldState.LEFTSHOULDER2 == 0 && NewState.RIGHTSHOULDER2 == 0 && OldState.RIGHTSHOULDER2 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.DPADLEFT != 0 && OldState.DPADLEFT == 0;
 	}
 
@@ -1536,9 +1564,10 @@ bool CPad::GetLookLeft()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.LEFTSHOULDER2 != 0 && NewState.RIGHTSHOULDER2 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.LEFTSHOULDER1 != 0 && NewState.RIGHTSHOULDER1 == 0;
 	}
 
@@ -1552,9 +1581,10 @@ bool CPad::GetLookRight()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER2 != 0 && NewState.LEFTSHOULDER2 == 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.RIGHTSHOULDER1 != 0 && NewState.LEFTSHOULDER1 == 0;
 	}
 
@@ -1578,9 +1608,10 @@ bool CPad::GetLookBehindForCar()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER2 != 0 && NewState.LEFTSHOULDER2 != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.RIGHTSHOULDER1 != 0 && NewState.LEFTSHOULDER1 != 0;
 	}
 
@@ -1594,9 +1625,10 @@ short CPad::GetAccelerate()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.CROSS;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.RIGHTSHOULDER2;
 	}
 
@@ -1610,9 +1642,10 @@ short CPad::GetBrake()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.SQUARE;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.LEFTSHOULDER2;
 	}
 
@@ -1626,9 +1659,10 @@ short CPad::GetHandBrake()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.RIGHTSHOULDER1;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.CROSS;
 	}
 
@@ -1922,8 +1956,9 @@ void CPad::StopPadsShaking()
 
 	switch ( Mode )
 	{
-	case 0:
-	case 1:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
+	case CONTROLS_MODERN:
 	case 2:
 	case 3:
 		fHelicopterRotationVal = NewState.LEFTSHOULDER2 * (-1.0f/255.0f);
@@ -1942,8 +1977,9 @@ bool CPad::GetLookRightForHeli()
 
 	switch ( Mode )
 	{
-	case 0:
-	case 1:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
+	case CONTROLS_MODERN:
 	case 2:
 	case 3:
 		fHelicopterRotationVal = NewState.RIGHTSHOULDER2 * (-1.0f/255.0f);
@@ -1959,7 +1995,8 @@ bool CPad::FrontEndBackJustDown()
 {
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.TRIANGLE != 0 && OldState.TRIANGLE == 0;
 	case PAD_IV_CONTROLS_MODE:
 		return NewState.CIRCLE != 0 && OldState.CIRCLE == 0;
@@ -1990,9 +2027,10 @@ bool CPad::GetChangeStationDown()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.DPADDOWN != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.DPADLEFT != 0;
 	}
 	return false;
@@ -2005,9 +2043,10 @@ bool CPad::GetChangeStationUp()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return NewState.DPADUP != 0;
-	case 1:
+	case CONTROLS_MODERN:
 		return NewState.DPADRIGHT != 0;
 	}
 	return false;
@@ -2061,9 +2100,10 @@ float CPad::GetHeliLookAroundFloat()
 
 	switch ( Mode )
 	{
-	case 0:
+	case CONTROLS_STANDARD_1:
+	case CONTROLS_STANDARD_2:
 		return (NewState.RIGHTSHOULDER2 - NewState.LEFTSHOULDER2) * (1.0f/255.0f);
-	case 1:
+	case CONTROLS_MODERN:
 		return (NewState.RIGHTSHOULDER1 - NewState.LEFTSHOULDER1) * (1.0f/255.0f);
 	}
 	return 0.0f;

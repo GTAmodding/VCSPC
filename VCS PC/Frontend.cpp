@@ -2627,12 +2627,12 @@ void CMenuManager::PrintControllerMapping(ControllerField* pMappings, size_t nCo
 			CFont::SetOrientation(pMappings[i].alignment);
 			if ( pMappings[i].alignment == ALIGN_Left )
 			{
-				CFont::PrintString( _xmiddle(pMappings[i].posX), _ymiddle(pMappings[i].posY - (8.0f*fTextHeight)), TheText.Get( pMappings[i].entry ) );
+				CFont::PrintString( _xmiddle(pMappings[i].posX), _ymiddle(pMappings[i].posY - (8.0f*fTextHeight)), TheText.Get( GetActionNameForFrontend(pMappings[i].buttonID) ) );
 				CFont::PS2Sprite[pMappings[i].buttonID].Draw(CRect( _xmiddle(pMappings[i].posX - 10.0f - fButtonWidth), _ymiddle(pMappings[i].posY + (0.5f*fButtonHeight)), _xmiddle(pMappings[i].posX - 10.0f), _ymiddle(pMappings[i].posY - (0.5f*fButtonHeight))), CRGBA(255, 255, 255) );	
 			}
 			else
 			{
-				CFont::PrintString( _xmiddle(pMappings[i].posX), _ymiddle(pMappings[i].posY - (8.0f*fTextHeight)), TheText.Get( pMappings[i].entry ) );
+				CFont::PrintString( _xmiddle(pMappings[i].posX), _ymiddle(pMappings[i].posY - (8.0f*fTextHeight)), TheText.Get( GetActionNameForFrontend(pMappings[i].buttonID) ) );
 				CFont::PS2Sprite[pMappings[i].buttonID].Draw(CRect( _xmiddle(pMappings[i].posX + 10.0f), _ymiddle(pMappings[i].posY + (0.5f*fButtonHeight)), _xmiddle(pMappings[i].posX + 10.0f + fButtonWidth), _ymiddle(pMappings[i].posY - (0.5f*fButtonHeight))), CRGBA(255, 255, 255) );	
 			}
 		}
@@ -2683,67 +2683,67 @@ void CMenuManager::PrintControllerSetupScreen()
 	//CLines::ImmediateLine2D( _xmiddle(-200.0f), _ymiddle(10.0f), _xmiddle(-85.0f), _ymiddle(5.0f), 255, 0, 0, 255, 255, 0, 0, 255 );
 
 	// Texts
-	ControllerField OnFootPage_PS3[] = {
-		{ 0, "", -200.0, -60.0, ALIGN_Right },
-		{ BUTTON_L2, "FEC_CWL", 0, 0, ALIGN_Right },
-		{ BUTTON_L1, "FEC_CEN", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ BUTTON_UP, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ BUTTON_LEFT, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ BUTTON_RIGHT, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ BUTTON_DOWN, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ BUTTON_THUMBL, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ BUTTON_L3, "FEC_CRO", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ BUTTON_SELECT, "FEC_CMR", 0, 0, ALIGN_Right },
+	static ControllerField Page_PS3[] = {
+		{ 0, -200.0, -60.0, ALIGN_Right },
+		{ BUTTON_L2, 0, 0, ALIGN_Right },
+		{ BUTTON_L1, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ BUTTON_UP, 0, 0, ALIGN_Right },
+		{ BUTTON_LEFT, 0, 0, ALIGN_Right },
+		{ BUTTON_RIGHT, 0, 0, ALIGN_Right },
+		{ BUTTON_DOWN, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ BUTTON_THUMBL, 0, 0, ALIGN_Right },
+		{ BUTTON_L3, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ BUTTON_SELECT, 0, 0, ALIGN_Right },
 	};
 
-	ControllerField OnFootPage_X360[] = {
-		{ 0, "", -200.0, -60.0, ALIGN_Right },
-		{ BUTTON_L2, "FEC_CWL", 0, 0, ALIGN_Right },
-		{ BUTTON_L1, "FEC_CEN", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ BUTTON_THUMBL, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ BUTTON_L3, "FEC_CRO", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ BUTTON_UP, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ BUTTON_LEFT, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ BUTTON_RIGHT, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ BUTTON_DOWN, "FEC_MOV", 0, 0, ALIGN_Right },
-		{ 0, "", 0, 0, ALIGN_Right },
-		{ BUTTON_SELECT, "FEC_CMR", 0, 0, ALIGN_Right },
+	static ControllerField Page_X360[] = {
+		{ 0, -200.0, -60.0, ALIGN_Right },
+		{ BUTTON_L2, 0, 0, ALIGN_Right },
+		{ BUTTON_L1, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ BUTTON_THUMBL, 0, 0, ALIGN_Right },
+		{ BUTTON_L3, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ BUTTON_UP, 0, 0, ALIGN_Right },
+		{ BUTTON_LEFT, 0, 0, ALIGN_Right },
+		{ BUTTON_RIGHT, 0, 0, ALIGN_Right },
+		{ BUTTON_DOWN, 0, 0, ALIGN_Right },
+		{ 0, 0, 0, ALIGN_Right },
+		{ BUTTON_SELECT, 0, 0, ALIGN_Right },
 	};
 
-	ControllerField OnFootPage_Shared[] = {
-		{ 0, "", 200.0f, -60.0f, ALIGN_Left },
-		{ BUTTON_R2, "FEC_CWR", 0, 0, ALIGN_Left },
-		{ BUTTON_R1, "FEC_TAR", 0, 0, ALIGN_Left },
-		{ 0, "", 0, 0, ALIGN_Left },
-		{ 0, "", 0, 0, ALIGN_Left },
-		{ BUTTON_TRIANGLE, "FEC_ENV", 0, 0, ALIGN_Left },
-		{ BUTTON_SQUARE, "FEC_JMP", 0, 0, ALIGN_Left },
-		{ BUTTON_CIRCLE, "FEC_FWE", 0, 0, ALIGN_Left },
-		{ BUTTON_CROSS, "FEC_SPN", 0, 0, ALIGN_Left },
-		{ 0, "", 0, 0, ALIGN_Left },
-		{ 0, "", 0, 0, ALIGN_Left },
-		{ BUTTON_THUMBR, "FEC_LOK", 0, 0, ALIGN_Left },
-		{ BUTTON_R3, "FEC_LBA", 0, 0, ALIGN_Left },
-		{ 0, "", 0, 0, ALIGN_Left },
-		{ BUTTON_START, "FEC_PAS", 0, 0, ALIGN_Left },
+	static ControllerField Page_Shared[] = {
+		{ 0, 200.0f, -60.0f, ALIGN_Left },
+		{ BUTTON_R2, 0, 0, ALIGN_Left },
+		{ BUTTON_R1, 0, 0, ALIGN_Left },
+		{ 0, 0, 0, ALIGN_Left },
+		{ 0, 0, 0, ALIGN_Left },
+		{ BUTTON_TRIANGLE, 0, 0, ALIGN_Left },
+		{ BUTTON_SQUARE, 0, 0, ALIGN_Left },
+		{ BUTTON_CIRCLE, 0, 0, ALIGN_Left },
+		{ BUTTON_CROSS, 0, 0, ALIGN_Left },
+		{ 0, 0, 0, ALIGN_Left },
+		{ 0, 0, 0, ALIGN_Left },
+		{ BUTTON_THUMBR, 0, 0, ALIGN_Left },
+		{ BUTTON_R3, 0, 0, ALIGN_Left },
+		{ 0, 0, 0, ALIGN_Left },
+		{ BUTTON_START, 0, 0, ALIGN_Left },
 	};
 
 	if ( CFont::bX360Buttons )
-		PrintControllerMapping(OnFootPage_X360, _countof(OnFootPage_X360));
+		PrintControllerMapping(Page_X360, _countof(Page_X360));
 	else
-		PrintControllerMapping(OnFootPage_PS3, _countof(OnFootPage_PS3));
+		PrintControllerMapping(Page_PS3, _countof(Page_PS3));
 
-	PrintControllerMapping(OnFootPage_Shared, _countof(OnFootPage_Shared));
-
+	PrintControllerMapping(Page_Shared, _countof(Page_Shared));
+	
 	//float		fEntryPosX = -190.0f;
 	//float		fEntryPosY = -30.0f;
 
@@ -2775,6 +2775,272 @@ void CMenuManager::PrintControllerSetupScreen()
 
 	//CFont::SetOrientation(ALIGN_Center);
 	/*CFont::PrintString(RsGlobal.MaximumWidth / 2, _ymiddle(30.0f), "DUMMY");*/
+}
+
+const char* CMenuManager::GetActionNameForFrontend( int button )
+{
+	return m_bPadPageShown == 0 ? GetActionNameForFrontend_OnFoot( button ) : GetActionNameForFrontend_InCar( button );
+}
+
+const char* CMenuManager::GetActionNameForFrontend_OnFoot( int button )
+{
+	uint32_t padMode = CPad::SavedMode;
+	switch ( button )
+	{
+	case BUTTON_UP:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_MOV";
+		case CONTROLS_MODERN:
+			return "FEC_NA";
+		
+		}
+		break;
+	case BUTTON_DOWN:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_MOV";
+		case CONTROLS_MODERN:
+			return "FEC_NA";
+
+		}
+		break;
+	case BUTTON_LEFT:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_MOV";
+		case CONTROLS_MODERN:
+			return "FEC_CWL";
+
+		}
+		break;
+	case BUTTON_RIGHT:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_MOV";
+		case CONTROLS_MODERN:
+			return "FEC_CWR";
+
+		}
+		break;
+	case BUTTON_CROSS:
+		return "FEC_RUN";
+	case BUTTON_CIRCLE:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_FWE";
+		case CONTROLS_MODERN:
+			return "FEC_REL";
+
+		}
+		break;
+	case BUTTON_SQUARE:
+		return "FEC_JMP";
+	case BUTTON_TRIANGLE:
+		return "FEC_ENV";
+	case BUTTON_L1:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_CEN";
+		case CONTROLS_MODERN:
+			return "FEC_PKU";
+
+		}
+		break;
+	case BUTTON_L2:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_CWL";
+		case CONTROLS_MODERN:
+			return "FEC_TAR";
+
+		}
+		break;
+	case BUTTON_L3:
+		return CPad::bSouthpaw ? "FEC_LBA" : "FEC_CRO";
+	case BUTTON_R1:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_TAR";
+		case CONTROLS_MODERN:
+			return "FEC_CEN";
+
+		}
+		break;
+	case BUTTON_R2:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_CWR";
+		case CONTROLS_MODERN:
+			return "FEC_FWE";
+
+		}
+		break;
+	case BUTTON_R3:
+		return CPad::bSouthpaw ? "FEC_CRO" : "FEC_LBA";
+	case BUTTON_START:
+		return "FEC_PAS";
+	case BUTTON_SELECT:
+		return "FEC_CMR";
+	case BUTTON_THUMBL:
+		return CPad::bSouthpaw ? "FEC_LOK" : "FEC_MOV";
+	case BUTTON_THUMBR:
+		return CPad::bSouthpaw ? "FEC_MOV" : "FEC_LOK";
+	}
+	return "";
+}
+
+const char* CMenuManager::GetActionNameForFrontend_InCar( int button )
+{
+	uint32_t padMode = CPad::SavedMode;
+	switch ( button )
+	{
+	case BUTTON_UP:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_VES";
+		case CONTROLS_MODERN:
+			return "FEC_NA";
+
+		}
+		break;
+	case BUTTON_DOWN:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_VES";
+		case CONTROLS_MODERN:
+			return "FEC_NA";
+
+		}
+		break;
+	case BUTTON_LEFT:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_VES";
+		case CONTROLS_MODERN:
+			return "FEC_RSP";
+
+		}
+		break;
+	case BUTTON_RIGHT:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_VES";
+		case CONTROLS_MODERN:
+			return "FEC_RSC";
+
+		}
+		break;
+	case BUTTON_CROSS:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_ACC";
+		case CONTROLS_MODERN:
+			return "FEC_HND";
+
+		}
+		break;
+	case BUTTON_CIRCLE:
+		return "FEC_FWE";
+	case BUTTON_SQUARE:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_BRA";
+		case CONTROLS_MODERN:
+			return "FEC_NA";
+
+		}
+		break;
+	case BUTTON_TRIANGLE:
+		return "FEC_EXV";
+	case BUTTON_L1:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_NA";
+		case CONTROLS_MODERN:
+			return "FEC_LOL";
+
+		}
+		break;
+	case BUTTON_L2:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_LOL";
+		case CONTROLS_MODERN:
+			return "FEC_BRA";
+
+		}
+		break;
+	case BUTTON_L3:
+		return CPad::bSouthpaw ? "FEC_SUB" : "FEC_HOR";
+	case BUTTON_R1:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_HND";
+		case CONTROLS_MODERN:
+			return "FEC_LOR";
+
+		}
+		break;
+	case BUTTON_R2:
+		switch ( padMode )
+		{
+		case CONTROLS_STANDARD_1:
+		case CONTROLS_STANDARD_2:
+			return "FEC_LOR";
+		case CONTROLS_MODERN:
+			return "FEC_ACC";
+
+		}
+		break;
+	case BUTTON_R3:
+		return CPad::bSouthpaw ? "FEC_HOR" : "FEC_SUB";
+	case BUTTON_START:
+		return "FEC_PAS";
+	case BUTTON_SELECT:
+		return "FEC_CMR";
+	case BUTTON_THUMBL:
+		return CPad::bSouthpaw ? "FEC_LOK" : "FEC_VES";
+	case BUTTON_THUMBR:
+		return CPad::bSouthpaw ? "FEC_VES" : "FEC_LOK";
+	}
+	return "";
 }
 
 void CMenuManager::PrintUpdaterScreen()

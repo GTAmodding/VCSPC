@@ -152,7 +152,7 @@ enum eMenuSpecialFlags
 // For right column hack
 union MenuVar
 {
-	long	nIn;
+	int		nIn;
 	float	fOut;
 };
 
@@ -179,11 +179,10 @@ struct MenuItem
 
 struct ControllerField
 {
-	BYTE	buttonID;
-	char	entry[8];
+	uint8_t	buttonID;
 	float	posX;
 	float	posY;
-	BYTE	alignment;
+	uint8_t	alignment;
 };
 
 //static_assert(sizeof(MenuItem) == CMenuItem_ARRAYSIZE, "MenuItem has wrong size!");
@@ -424,6 +423,9 @@ private:
 	void			DrawRadioStationIcons();
 	float			DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width, bool bLocked);
 	void			PrintControllerMapping(ControllerField* pMappings, size_t nCount);
+	const char*		GetActionNameForFrontend( int button );
+	const char*		GetActionNameForFrontend_OnFoot( int button );
+	const char*		GetActionNameForFrontend_InCar( int button );
 
 	int				GetAutoSpacingHeight();
 	void			CentreMousePointer();
