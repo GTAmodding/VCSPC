@@ -591,7 +591,7 @@ void CMenuManager::LoadSettings()
 			//CCamera::m_bUseMouse3rdPerson = m_nController == 0;
 			ms_lodDistScale = m_fDrawDistance;
 			// Fuck everything x2
-			((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, m_dwBrightness * (1.0f/512.0f), true);
+			//((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, m_dwBrightness * (1.0f/512.0f), true);
 			m_dwAppliedAntiAliasingLevel = m_dwAntiAliasingLevel;
 			m_bChangeVideoMode = true;
 			m_nLanguage = CText::GetLanguageIndexByAcronym(LangAcronym);
@@ -1194,7 +1194,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			case 27:
 				{
 					// Brightness
-					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_dwBrightness * (1.0f/192.0f), _width(MENU_SLIDER_WIDTH), false);
+					float	nMouseInput = DisplaySlider(_xmiddle(MENU_TEXT_POSITION_RCOLUMN), fPosY + _height(MENU_SLIDER_HEIGHT/2 - 1.25f), _height(MENU_SLIDER_HEIGHT), _width(100.0f), m_dwBrightness * (1.0f/384.0f), _width(MENU_SLIDER_WIDTH), false);
 
 					if ( i == m_dwSelectedMenuItem )
 					{
@@ -2164,15 +2164,15 @@ void CMenuManager::CheckSliderMovement(signed char nDirection)
 	{
 	case 27:
 		{
-			float	fNewBrightness = m_dwBrightness + (nDirection*12.0f);
+			float	fNewBrightness = m_dwBrightness + (nDirection*24.19f);
 
-			if ( fNewBrightness > 192.0f )
-				fNewBrightness = 192.0f;
+			if ( fNewBrightness > 384.0f )
+				fNewBrightness = 384.0f;
 			else if ( fNewBrightness < 0.0f )
 				fNewBrightness = 0.0f;
 			m_dwBrightness = fNewBrightness;
 
-			((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, fNewBrightness * (1.0f/512.0f), false);
+//			((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, fNewBrightness * (1.0f/512.0f), false);
 			SaveSettings();
 			return;
 		}
@@ -3326,9 +3326,10 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 
 	case 4:
 		// Display Settings
-		m_dwBrightness = 96;
+//		m_dwBrightness = 256;
+		m_dwBrightness = 0x120;
 		// Fuck everything
-		((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, 96.0f/512.0f, true);
+		//((void(__thiscall*)(int,float,bool))0x747200)(0xC92134, 96.0f/512.0f, true);
 
 		m_bHudOn = true;
 		m_bSavePhotos = true;

@@ -3129,9 +3129,9 @@ void Main_Patches()
 	Patch<const void*>(0x6FB97A, &pRefFal);
 	Patch<BYTE>(0x6FB9A0, 0);
 
-	// Relocated sun
-	Patch<float>(0x560A76, 1.0f);
-	Nop(0x560A84, 6);
+	// Relocated sun; now in reversed CTimeCycle code
+//	Patch<float>(0x560A76, 1.0f);
+//	Nop(0x560A84, 6);
 
 	// More vehicles
 #if NUM_VEHICLE_MODELS > 212

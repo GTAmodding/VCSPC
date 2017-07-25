@@ -2,6 +2,7 @@
 #include "PostEffects.h"
 
 #include "Rs.h"
+#include "TimeCycle.h"
 
 bool			CPostEffects::m_bTrailsEnabled;
 bool			CPostEffects::m_bTrailsInitialised;
@@ -16,6 +17,9 @@ IDirect3DVertexBuffer9*	CPostEffects::m_pPostEffectsVertexBuffer;
 IDirect3DIndexBuffer9*	CPostEffects::m_pPostEffectsIndexBuffer;
 RwUInt32			CPostEffects::m_dwVertexBufferSize, CPostEffects::m_dwVertexBufferStride, CPostEffects::m_dwVertexBufferOffset;
 
+WRAPPER bool CPostEffects::IsVisionFXActive(void) { EAXJMP(0x7034F0); }
+bool &CPostEffects::m_bNightVision = *(bool*)0xC402B8;
+bool &CPostEffects::m_bInfraredVision = *(bool*)0xC402B9;
 
 //RwD3D9Vertex	CPostEffects::m_postEffectsVerts[NUM_POSTFX_VERTICES];
 
@@ -103,8 +107,8 @@ void CPostEffects::Init_Trails()
 	float xOffsetScale = nWidth/256.0f;
 	float yOffsetScale = nHeight/128.0f;
 
-	const float uOffsets[] = { -1.0f, 1.0f, 0.0f, 0.0f };
-	const float vOffsets[] = { 0.0f, 0.0f, -1.0f, 1.0f };
+	const float uOffsets[] = { -1.0f, 1.0f, 0.0f, 0.0f,  -1.0f, 1.0f, -1.0f, 1.0f };
+	const float vOffsets[] = { 0.0f, 0.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f, 1.0f };
 
 	// Lock the vertex buffer
 	m_pPostEffectsVertexBuffer->Lock(m_dwVertexBufferOffset, sizeof(pPostEffectsVerts[0]) * NUM_POSTFX_VERTICES,
@@ -174,8 +178,8 @@ void CPostEffects::Init_Trails()
 	pPostEffectsVerts[7].v = vMax + halfV;
 	pPostEffectsVerts[7].emissiveColor = 0xFFFFFFFF;
 
-	RwUInt32 c = 0xFF000000 | 0x010101 * 38;
-	for(int i = 8; i < 24; i++){
+	RwUInt32 c = 0xFF242424;
+	for(int i = 8; i < 40; i++){
 		int idx = (i-8)/4;
 		pPostEffectsVerts[i].x = pPostEffectsVerts[i%4].x;
 		pPostEffectsVerts[i].y = pPostEffectsVerts[i%4].y;
@@ -267,7 +271,7 @@ void CPostEffects::Render_Trails()
 	RwRaster*	pTempRaster2 = ms_pTrailsRaster2;
 
 #ifndef NDEBUG
-	D3DPERF_BeginEvent(0xFFFFFFFF, L"radiosity");
+//	D3DPERF_BeginEvent(0xFFFFFFFF, L"radiosity");
 #endif
 	RwRect	vcsRect;
 	float	radiosityColors[4];
@@ -284,9 +288,13 @@ void CPostEffects::Render_Trails()
 	RwRasterPopContext();
 	RwD3D9SetRenderTarget(0, pTempRaster2);
 
-	RwTexture		tempTexture;
-	tempTexture.raster = pTempRaster1;
-	RwD3D9SetTexture(&tempTexture, 0);
+	static RwTexture		*tempTexture;
+	if(tempTexture == NULL){
+		tempTexture = RwTextureCreate(NULL);
+		tempTexture->filterAddressing = 0x1102;
+	}
+	tempTexture->raster = pTempRaster1;
+	RwD3D9SetTexture(tempTexture, 0);
 
 	RwD3D9SetVertexDeclaration(m_pPostEffectsVertDecl);
 
@@ -296,9 +304,7 @@ void CPostEffects::Render_Trails()
 	RwD3D9SetVertexShader(m_pPostEffectsVS);
 	RwD3D9SetPixelShader(m_pRadiosityPS);
 
-	radiosityColors[0] = 80.0f/255.0f;
-	//radiosityColors[1] = 1.0f;
-	//radiosityColors[2] = 1.0f;
+	radiosityColors[0] = CTimeCycle::m_CurrentColours.radiosityLimit/2/255.0;
 	RwD3D9SetPixelShaderConstant(0, radiosityColors, 1);
 
 	//int blend, srcblend, destblend, depthtest;
@@ -333,12 +339,15 @@ void CPostEffects::Render_Trails()
 		//RwD3D9DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 6, 2, vcsIndices1, m_postEffectsVerts, sizeof(m_postEffectsVerts[0]));
 
 		RwD3D9SetPixelShader(NULL);
-		tempTexture.raster = pTempRaster2;
-		RwD3D9SetTexture(&tempTexture, 0);
+		tempTexture->raster = pTempRaster2;
+		RwD3D9SetTexture(tempTexture, 0);
 		RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)1);
 		RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDONE);
 		RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDONE);
-		RwD3D9DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 8, 0, 6*7, 0, 2*7);
+		if((i % 2) == 0)
+			RwD3D9DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 8, 0, 6*7, 0, 2*7);
+		else
+			RwD3D9DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 24, 0, 6*7, 0, 2*7);
 		//RwD3D9DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 6*7, 2*7, vcsIndices1, m_postEffectsVerts+8, sizeof(m_postEffectsVerts[0]));
 		RwRaster *tmp = pTempRaster1;
 		pTempRaster1 = pTempRaster2;
@@ -347,8 +356,12 @@ void CPostEffects::Render_Trails()
 
 	RwCameraBeginUpdate(Camera);
 
-	tempTexture.raster = pTempRaster2;
-	RwD3D9SetTexture(&tempTexture, 0);
+	tempTexture->raster = pTempRaster2;
+	RwD3D9SetTexture(tempTexture, 0);
+	RwD3D9SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
+	int ints = CTimeCycle::m_CurrentColours.radiosityIntensity*4;
+	RwD3D9SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(0xFF, ints, ints, ints));
+	RwD3D9DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 4, 0, 6, 0, 2);
 	RwD3D9DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 4, 0, 6, 0, 2);
 	//RwD3D9DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 6, 2, vcsIndices1, m_postEffectsVerts+4, sizeof(m_postEffectsVerts[0]));
 
@@ -359,7 +372,7 @@ void CPostEffects::Render_Trails()
 	RwD3D9SetVertexShader(NULL);
 
 #ifndef NDEBUG
-	D3DPERF_EndEvent();
+//	D3DPERF_EndEvent();
 #endif
 }
 

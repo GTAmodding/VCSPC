@@ -14,6 +14,7 @@ CCoronasLinkedListNode							CCoronas::aLinkedList[NUM_CORONAS];
 CRegisteredCorona								CCoronas::aCoronas[NUM_CORONAS];
 int&											CCoronas::bChangeBrightnessImmediately = *(int*)0xC3E034;
 float&											CCoronas::ScreenMult = *(float*)0x8D4B5C;
+float &CCoronas::LightsMult = *(float*)0x8D4B5C;
 
 static std::vector<FlareDef>					SunFlareDef, HeadLightsFlareDef;
 
@@ -579,7 +580,7 @@ void CCoronas::RenderBuffered()
 void CCoronas::RenderDebug()
 {
 #ifndef NDEBUG
-	D3DPERF_BeginEvent(D3DCOLOR_ARGB(0xFF, 0xFF, 0, 0), L"coronas render");
+//	D3DPERF_BeginEvent(D3DCOLOR_ARGB(0xFF, 0xFF, 0, 0), L"coronas render");
 #endif
 
 #ifdef DEVBUILD
@@ -590,7 +591,7 @@ void CCoronas::RenderDebug()
 		RenderBuffered();
 
 #ifndef NDEBUG
-	D3DPERF_EndEvent();
+//	D3DPERF_EndEvent();
 #endif
 }
 

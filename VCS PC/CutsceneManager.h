@@ -28,6 +28,7 @@ struct CutsceneData
 class CCutsceneMgr
 {
 public:
+	static bool &ms_running;
 	static void		SetProperCSPlrModel(char* pModel);
 };
 

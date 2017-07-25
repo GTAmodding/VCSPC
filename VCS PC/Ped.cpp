@@ -75,7 +75,7 @@ void CPed::RenderWeapon(bool bMuzzleFlash, bool bForShadow)
 	if ( m_pWeaponObject )
 	{
 #ifndef NDEBUG
-		D3DPERF_BeginEvent(D3DCOLOR_ARGB(0xFF, 0xFF, 0, 0), L"CPed::RenderWeapon");
+//		D3DPERF_BeginEvent(D3DCOLOR_ARGB(0xFF, 0xFF, 0, 0), L"CPed::RenderWeapon");
 #endif
 
 		RpHAnimHierarchy*	pAnimHierarchy = GetAnimHierarchyFromSkinClump(reinterpret_cast<RpClump*>(m_pRwObject));
@@ -132,7 +132,7 @@ void CPed::RenderWeapon(bool bMuzzleFlash, bool bForShadow)
 			ResetGunFlashAlpha();
 
 #ifndef NDEBUG
-		D3DPERF_EndEvent();
+//		D3DPERF_EndEvent();
 #endif
 	}
 }

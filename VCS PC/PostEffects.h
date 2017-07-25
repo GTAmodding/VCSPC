@@ -3,7 +3,7 @@
 
 #include <d3d9.h>
 
-#define NUM_POSTFX_VERTICES		24
+#define NUM_POSTFX_VERTICES		40
 #define NUM_POSTFX_INDICES		42
 
 class CPostEffects
@@ -27,6 +27,9 @@ public:
 		{ m_bTrailsEnabled = m_bTrailsEnabled == false; }
 	static inline bool	TrailsEnabled()
 		{ return m_bTrailsEnabled; }
+	static bool IsVisionFXActive(void);
+	static bool &m_bNightVision;
+	static bool &m_bInfraredVision;
 
 private:
 	static bool			m_bTrailsEnabled;
@@ -41,6 +44,7 @@ private:
 	static IDirect3DVertexBuffer9*	m_pPostEffectsVertexBuffer;
 	static IDirect3DIndexBuffer9*	m_pPostEffectsIndexBuffer;
 	static RwUInt32					m_dwVertexBufferSize, m_dwVertexBufferStride, m_dwVertexBufferOffset;
+
 
 	//static RwD3D9Vertex	m_postEffectsVerts[NUM_POSTFX_VERTICES];
 };

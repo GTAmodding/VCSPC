@@ -267,6 +267,12 @@
     <ClCompile Include="YCoCg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ColourSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CullZones.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CConfiscatedWeapons.h">
@@ -531,6 +537,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="YCoCg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColourSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CullZones.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

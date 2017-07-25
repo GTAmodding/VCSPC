@@ -178,7 +178,7 @@ popd</Command>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>binkw32.lib;d3d9.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>binkw32.lib;shlwapi.lib;$(DXSDK_DIR)\lib\x86\xinput.lib;steam.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -201,6 +201,11 @@ copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\data\shaders\*.cso"
 if "%COMPUTERNAME%" == "FALLARBOR" (
 copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
 copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\data\shaders\*.cso"
+)
+
+if "%COMPUTERNAME%" == "SOMA" (
+copy /y "$(TargetPath)" "C:\Users\aap\games\VCSPC-dev\VCSPC.dll"
+copy /y "$(OutDir)\*.cso" ""C:\Users\aap\games\VCSPC-dev\data\shaders\*.cso"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -362,6 +367,8 @@ popd</Command>
     <ClCompile Include="CConfiscatedWeapons.cpp" />
     <ClCompile Include="CCRC32.Cpp" />
     <ClCompile Include="CDraw.cpp" />
+    <ClCompile Include="ColourSet.cpp" />
+    <ClCompile Include="CullZones.cpp" />
     <ClCompile Include="CustomBuildingRenderer.cpp" />
     <ClCompile Include="FxSystem.cpp" />
     <ClCompile Include="Gangs.cpp" />
@@ -470,8 +477,10 @@ popd</Command>
     <ClInclude Include="CCRC32.H" />
     <ClInclude Include="Clock.h" />
     <ClInclude Include="ColAccel.h" />
+    <ClInclude Include="ColourSet.h" />
     <ClInclude Include="ControlsMgr.h" />
     <ClInclude Include="Coronas.h" />
+    <ClInclude Include="CullZones.h" />
     <ClInclude Include="CustomBuildingRenderer.h" />
     <ClInclude Include="CutsceneManager.h" />
     <ClInclude Include="FxSystem.h" />

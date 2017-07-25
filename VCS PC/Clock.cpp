@@ -3,6 +3,7 @@
 
 unsigned char&	CClock::ms_nGameClockHours = *(unsigned char*)0xB70153;
 unsigned char&	CClock::ms_nGameClockMinutes = *(unsigned char*)0xB70152;
+unsigned short&	CClock::ms_nGameClockSeconds = *(unsigned short*)0xB70150;
 
 bool CClock::GetIsTimeInRange(unsigned char bHourA, unsigned char bHourB)
 {
