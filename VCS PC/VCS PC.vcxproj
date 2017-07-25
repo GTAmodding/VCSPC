@@ -405,6 +405,7 @@ popd</Command>
     <ClCompile Include="Pad.cpp" />
     <ClCompile Include="Ped.cpp" />
     <ClCompile Include="PedIntelligence.cpp" />
+    <ClCompile Include="PipelineCommon.cpp" />
     <ClCompile Include="PlayerInfo.cpp" />
     <ClCompile Include="PNGArchive.cpp" />
     <ClCompile Include="Pools.cpp" />
@@ -508,6 +509,7 @@ popd</Command>
     <ClInclude Include="Pad.h" />
     <ClInclude Include="Ped.h" />
     <ClInclude Include="PedIntelligence.h" />
+    <ClInclude Include="PipelineCommon.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="PNGArchive.h" />
     <ClInclude Include="Pools.h" />
@@ -564,6 +566,30 @@ popd</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\buildingPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\buildingVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\buildingYCG1PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\buildingYCG2PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Shaders\rtshadowPS.hlsl">
       <FileType>Document</FileType>

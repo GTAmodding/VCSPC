@@ -66,6 +66,10 @@ WRAPPER RwInt8 RpAnisotGetMaxSupportedMaxAnisotropy() { EAXJMP(0x748F20); }
 WRAPPER RwTexture* RpAnisotTextureSetMaxAnisotropy(RwTexture* tex, RwInt8 val) { WRAPARG(tex); WRAPARG(val); EAXJMP(0x748F30); }
 WRAPPER RwInt8 RpAnisotTextureGetMaxAnisotropy(RwTexture* tex) { WRAPARG(tex); EAXJMP(0x748F50); }
 
+WRAPPER RpMatFXMaterialFlags RpMatFXMaterialGetEffects(const RpMaterial *material) { WRAPARG(material); EAXJMP(0x812140); }
+WRAPPER const RpMaterial *RpMatFXMaterialGetUVTransformMatrices(const RpMaterial *material, RwMatrix **baseTransform, RwMatrix **dualTransform)
+{ WRAPARG(material); WRAPARG(baseTransform); WRAPARG(dualTransform); EAXJMP(0x812A50); }
+
 WRAPPER RwBool RwD3D9ChangeMultiSamplingLevels(RwUInt32 numLevels) { WRAPARG(numLevels); EAXJMP(0x7F8A90); }
 WRAPPER RwUInt32 RwD3D9EngineGetMaxMultiSamplingLevels() { EAXJMP(0x7F84E0); }
 WRAPPER RwBool RwD3D9SetRenderTarget(RwUInt32 index, RwRaster* raster) { WRAPARG(index); WRAPARG(raster); EAXJMP(0x7F9E90); }
@@ -81,6 +85,7 @@ WRAPPER void _rwD3D9SetVertexDeclaration(void *vertexDeclaration) { EAXJMP(0x7F9
 WRAPPER void RwD3D9GetRenderState(RwUInt32 state, void *value) { EAXJMP(0x7FC320); }
 WRAPPER void RwD3D9SetRenderState(RwUInt32 state, RwUInt32 value) { EAXJMP(0x7FC2D0); }
 WRAPPER void _rwD3D9SetPixelShaderConstant(RwUInt32 i, const void *data, RwUInt32 size) { EAXJMP(0x7FAD00); }
+WRAPPER void _rwD3D9SetVertexShaderConstant(RwUInt32 registerAddress, const void *constantData, RwUInt32  constantCount) { EAXJMP(0x7FACA0); }
 WRAPPER RwBool RwD3D9CreateVertexDeclaration(const void *elements, void **vertexdeclaration) { EAXJMP(0x7FAA30); }
 WRAPPER void _rwD3D9SetVertexShader(void *shader) { EAXJMP(0x7F9FB0); }
 WRAPPER void RwD3D9SetTextureStageState(RwUInt32 stage, RwUInt32 type, RwUInt32 value) { EAXJMP(0x7FC340); }
@@ -91,6 +96,7 @@ WRAPPER void _rwD3D9SetIndices(void *indexBuffer) { EAXJMP(0x7FA1C0); }
 WRAPPER void _rwD3D9SetStreams(const RxD3D9VertexStream *streams, RwBool useOffsets) { EAXJMP(0x7FA090); }
 WRAPPER void _rwD3D9DrawIndexedPrimitive(RwUInt32 primitiveType, RwInt32 baseVertexIndex, RwUInt32 minIndex,
 		RwUInt32 numVertices, RwUInt32 startIndex, RwUInt32 primitiveCount) { EAXJMP(0x7FA320); }
+WRAPPER void _rwD3D9DrawPrimitive(RwUInt32 primitiveType, RwUInt32 startVertex, RwUInt32 primitiveCount) { EAXJMP(0x7FA360); }
 WRAPPER RwBool RwD3D9IndexBufferCreate(RwUInt32 numIndices, void **indexBuffer) { EAXJMP(0x4C9970); }
 WRAPPER void RwD3D9SetStreamSource(RwUInt32 streamNumber,
                       void *streamData,

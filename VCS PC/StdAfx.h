@@ -163,6 +163,7 @@ void			EnterAmazingScreenshotMode(bool bEnable);
 #include <rwsdk\rtpng.h>
 #include <rwsdk\rpanisot.h>
 #include <rwsdk\rphanim.h>
+#include <rwsdk\rpmatfx.h>
 
 #include <d3d9.h>
 

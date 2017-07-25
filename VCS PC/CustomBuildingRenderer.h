@@ -18,6 +18,7 @@ private:
 	static RwStream*		pluginExtraVertColourStreamWriteCB(RwStream* stream, RwInt32 binaryLength, const void* object, RwInt32 offsetInObject, RwInt32 sizeInObject);
 
 public:
+	static void CustomPipeRenderCB(RwResEntry *repEntry, void *object, RwUInt8 type, RwUInt32 flags);
 	static void				Inject();
 };
 
