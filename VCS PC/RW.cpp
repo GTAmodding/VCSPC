@@ -33,6 +33,7 @@ WRAPPER RwBool RpLightDestroy(RpLight *light) { EAXJMP(0x7520D0); }
 WRAPPER RwMatrix* RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, RwOpCombineType combineOp) { WRAPARG(matrix); WRAPARG(translation); WRAPARG(combineOp); EAXJMP(0x7F2450); }
 WRAPPER RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, RwReal angle, RwOpCombineType combineOp) { WRAPARG(matrix); WRAPARG(axis); WRAPARG(angle); WRAPARG(combineOp); EAXJMP(0x7F1FD0); }
 WRAPPER RwFrame* RwFrameRotate(RwFrame* frame, const RwV3d* axis, RwReal angle, RwOpCombineType combine) { WRAPARG(frame); WRAPARG(axis); WRAPARG(angle); WRAPARG(combine); EAXJMP(0x7F1010); }
+WRAPPER RwFrame *RwFrameTransform(RwFrame *frame, const RwMatrix *m, RwOpCombineType combine) { WRAPARG(frame); WRAPARG(m); WRAPARG(combine); EAXJMP(0x7F0F70); }
 WRAPPER RwImage* RwImageCreate(RwInt32 width, RwInt32 height, RwInt32 depth) { WRAPARG(width); WRAPARG(height); WRAPARG(depth); EAXJMP(0x8026E0); }
 WRAPPER RwImage* RwImageCreateResample(const RwImage* srcImage, RwInt32 width, RwInt32 height) { WRAPARG(srcImage); WRAPARG(width); WRAPARG(height); EAXJMP(0x80CD10); }
 WRAPPER RwImage* RwImageAllocatePixels(RwImage* image) { WRAPARG(image); EAXJMP(0x8027A0); }

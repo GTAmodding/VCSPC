@@ -603,51 +603,9 @@ CTimeCycle::CalcColoursForPoint(float x, float y, float z, CColourSet *colorset)
 	colorset->ambBeforeBrightnessr = colorset->ambr;
 	colorset->ambBeforeBrightnessg = colorset->ambg;
 	colorset->ambBeforeBrightnessb = colorset->ambb;
-	brightness = *(int*)(0xBA6748 + 0x3C);
-	if(brightness >= 256.0f){
-		f = (brightness - 256.0)/128.0 + 1.0;
-		max = colorset->ambr;
-		if(colorset->ambg > max)
-			max = colorset->ambg;
-		if(colorset->ambb > max)
-			max = colorset->ambb;
-		max = max*f - max;
-		colorset->ambr += max;
-		colorset->ambg += max;
-		colorset->ambb += max;
-	}else{
-		f = brightness/256.0f * 0.8 + 0.2;
-		colorset->ambr *= f;
-		colorset->ambg *= f;
-		colorset->ambb *= f;
-	}
-
-	if(f > 1.0){
-		float r, g, b;
-		f = (f-1.0f)*0.06;
-		max = colorset->ambr;
-		if(colorset->ambg > max)
-			max = colorset->ambg;
-		if(colorset->ambb > max)
-			max = colorset->ambb;
-		r = colorset->ambr;
-		g = colorset->ambg;
-		b = colorset->ambb;
-		if(max == 0.0){
-			colorset->ambr = 0.001;
-			colorset->ambg = 0.001;
-			colorset->ambb = 0.001;
-		}
-		if(f > max){
-			f /= max;
-			colorset->ambr *= f;
-			colorset->ambg *= f;
-			colorset->ambb *= f;
-		}
-		m_BrightnessAddedToAmbientRed = colorset->ambr - r;
-		m_BrightnessAddedToAmbientGreen = colorset->ambg - g;
-		m_BrightnessAddedToAmbientBlue = colorset->ambb - b;
-	}
+	m_BrightnessAddedToAmbientRed = 0.0;
+	m_BrightnessAddedToAmbientGreen = 0.0;
+	m_BrightnessAddedToAmbientBlue = 0.0;
 
 	f = 0.0;
 	if(x < -3000.0)
@@ -663,8 +621,6 @@ CTimeCycle::CalcColoursForPoint(float x, float y, float z, CColourSet *colorset)
 	else if(f > 0.0)
 		colorset->lodDistMult = (f/1000.0 + 1.0) * colorset->lodDistMult;
 
-//	if(colorset->fogst >= colorset->farclp)
-//		colorset->fogst = colorset->farclp-0.1;
 	colorset->convertToSA();
 	SetConstantParametersForPostFX();
 }

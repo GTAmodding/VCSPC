@@ -9,6 +9,7 @@ float &CWeather::UnderWaterness = *(float*)0xC8132C;
 float &CWeather::InTunnelness = *(float*)0xC81334;
 bool &CWeather::bScriptsForceRain = *(bool*)0xC812AC;
 int16 &CWeather::WeatherRegion = *(short*)0xC81314;
+bool &CWeather::LightningFlash = *(bool*)0xC812CC;
 
 // Map from VCS to SA weather
 int CWeather::weatherMap[8] = { SUNNY_SF, CLOUDY_SF, RAINY_SF, FOGGY_SF, EXTRASUNNY_SF, RAINY_COUNTRYSIDE, EXTRACOLORS_SA, EXTRASUNNY_COUNTRYSIDE };

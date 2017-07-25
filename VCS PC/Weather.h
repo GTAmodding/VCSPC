@@ -32,6 +32,7 @@ public:
 	static float &InTunnelness;
 	static bool &bScriptsForceRain;
 	static int16 &WeatherRegion;
+	static bool &LightningFlash;
 
 	static int weatherMap[8];
 	static int revWeatherMap[23];
