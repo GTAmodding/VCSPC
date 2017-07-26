@@ -105,50 +105,6 @@ CColourSet CTimeCycle::m_CurrentColours;
 CColourSet &CTimeCycle::m_CurrentColours_exe = *(CColourSet*)0xB7C4A0;
 
 void
-CTimeCycle::SetConstantParametersForPostFX(void)
-{
-	if(!CPostEffects::IsVisionFXActive())
-		return;
-	if(CPostEffects::m_bNightVision){
-		m_CurrentColours.shd = 0;
-		m_CurrentColours.lightshd = 0;
-		m_CurrentColours.poleshd = 0;
-		m_CurrentColours.ambr = 0.0;
-		m_CurrentColours.ambg = 0.4;
-		m_CurrentColours.ambb = 0.0;
-		m_CurrentColours.ambobjr = 0.0;
-		m_CurrentColours.ambobjg = 0.4;
-		m_CurrentColours.ambobjb = 0.0;
-		m_CurrentColours.skytopr = 0;
-		m_CurrentColours.skytopg = 128;
-		m_CurrentColours.skytopb = 0;
-		m_CurrentColours.skybotr = 0;
-		m_CurrentColours.skybotg = 128;
-		m_CurrentColours.skybotb = 0;
-	}
-	if(CPostEffects::m_bInfraredVision){
-		m_CurrentColours.shd = 0;
-		m_CurrentColours.lightshd = 0;
-		m_CurrentColours.poleshd = 0;
-		m_CurrentColours.lightonground = 0;
-		m_CurrentColours.intensityLimit = 0;
-		m_CurrentColours.waterfogalpha = 0;
-		m_CurrentColours.ambr = 0.0;
-		m_CurrentColours.ambg = 0.0;
-		m_CurrentColours.ambb = 1.0;
-		m_CurrentColours.ambobjr = 0.0;
-		m_CurrentColours.ambobjg = 0.0;
-		m_CurrentColours.ambobjb = 1.0;
-		m_CurrentColours.skytopr = 0;
-		m_CurrentColours.skytopg = 0;
-		m_CurrentColours.skytopb = 128;
-		m_CurrentColours.skybotr = 0;
-		m_CurrentColours.skybotg = 0;
-		m_CurrentColours.skybotb = 128;
-	}
-}
-
-void
 CTimeCycle::StartExtraColour(int extracolor, int keepInter)
 {
 	CTimeCycle::m_ExtraColourWeatherType = extracolor / NUMHOURS + EXTRASTART;
@@ -622,7 +578,6 @@ CTimeCycle::CalcColoursForPoint(float x, float y, float z, CColourSet *colorset)
 		colorset->lodDistMult = (f/1000.0 + 1.0) * colorset->lodDistMult;
 
 	colorset->convertToSA();
-	SetConstantParametersForPostFX();
 }
 
 double

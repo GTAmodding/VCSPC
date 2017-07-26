@@ -123,7 +123,6 @@ public:
 	static void CalcColoursForPoint(float x, float y, float z, CColourSet *colorset);
 	static void StartExtraColour(int extracolor, int keepInter);
 	static void FindTimeCycleBox(float x, float y, float z, CTimeCycleBox **box, float *interp, bool checkLod, bool checkFar, CTimeCycleBox *exclude);
-	static void SetConstantParametersForPostFX(void);
 	static double FindFarClipForCoors(float x, float y, float z);
 	static void Update(void);
 };
