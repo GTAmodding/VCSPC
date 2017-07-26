@@ -81,6 +81,28 @@ pipeUploadMatCol(int flags, RpMaterial *m, int loc)
 }
 
 void
+pipeUploadZero(int loc)
+{
+	static float z[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	RwD3D9SetVertexShaderConstant(loc, (void*)z, 1);
+}
+
+void
+pipeUploadLightDirection(RpLight *light, int loc)
+{
+	float c[4];
+	if(RpLightGetFlags(light) & rpLIGHTLIGHTATOMICS){
+		RwV3d *at = RwMatrixGetAt(RwFrameGetLTM(RpLightGetFrame(light)));
+		c[0] = at->x;
+		c[1] = at->y;
+		c[2] = at->z;
+		c[3] = 1.0f;
+		RwD3D9SetVertexShaderConstant(loc, (void*)c, 1);
+	}else
+		pipeUploadZero(loc);
+}
+
+void
 D3D9Render(RxD3D9ResEntryHeader *resEntryHeader, RxD3D9InstanceData *instanceData)
 {
 	if(resEntryHeader->indexBuffer)

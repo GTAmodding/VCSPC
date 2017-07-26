@@ -8,5 +8,5 @@ float4 main(uniform sampler2D Tex : register(s0),
 	float Cg = ycocg.y - ( 0.5 * 256.0 / 255.0 );
 	float Y = ycocg.w;
 
-	return float4(Y + Co - Cg, Y + Cg, Y - Co - Cg, 1.0f) * VertCol * 255.0/128.0;;
+	return float4(Y + Co - Cg, Y + Cg, Y - Co - Cg, 1.0f) * VertCol * 255.0/128.0;
 }

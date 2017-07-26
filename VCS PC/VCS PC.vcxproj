@@ -382,6 +382,7 @@ popd</Command>
     <ClCompile Include="Lighting.cpp" />
     <ClCompile Include="MenuSystem.cpp" />
     <ClCompile Include="ModelInfoAccelerator.cpp" />
+    <ClCompile Include="NeoCarpipe.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ColAccel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -505,6 +506,7 @@ popd</Command>
     <ClInclude Include="MenuSystem.h" />
     <ClInclude Include="ModelInfo.h" />
     <ClInclude Include="ModelInfoAccelerator.h" />
+    <ClInclude Include="NeoCarpipe.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Pad.h" />
     <ClInclude Include="Ped.h" />
@@ -591,6 +593,26 @@ popd</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="Shaders\neoVehiclePass1VS.hlsl" />
+    <FxCompile Include="Shaders\neoVehiclePass2VS.hlsl" />
+    <FxCompile Include="Shaders\neoVehiclePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\neoVehicleYCG1PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\neoVehicleYCG2PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="Shaders\rtshadowPS.hlsl">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -613,60 +635,6 @@ popd</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Shaders\radiosityPS.hlsl">
-      <FileType>Document</FileType>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Shaders\bin\%(Filename)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Shaders\bin\%(Filename)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Shaders\bin\%(Filename)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Shaders\bin\%(Filename)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T ps_2_0 /E mainPS /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Shaders\postfxVS.hlsl">
-      <FileType>Document</FileType>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Shaders\bin\%(Filename)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Shaders\bin\%(Filename)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">
-      </AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Shaders\bin\%(Filename)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">
-      </AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Shaders\bin\%(Filename)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T vs_2_0 /E main /Fo "Shaders\bin\%(Filename).cso" "%(Identity)"</Command>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

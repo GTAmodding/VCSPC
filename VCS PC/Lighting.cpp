@@ -8,6 +8,8 @@
 
 RpLight *&pAmbient = *(RpLight**)0xC886E8;
 RpLight *&pDirect = *(RpLight**)0xC886EC;
+RpLight **pExtraDirectionals = (RpLight**)0xC886F0;	// [6]
+int &NumExtraDirLightsInWorld = *(int*)0xC88708;
 RwRGBAReal &DirectionalLightColourForFrame = *(RwRGBAReal*)0xC886B4;
 RwRGBAReal &AmbientLightColourForFrame_PedsCarsAndObjects = *(RwRGBAReal*)0xC886C4;
 RwRGBAReal &AmbientLightColourForFrame = *(RwRGBAReal*)0xC886D4;

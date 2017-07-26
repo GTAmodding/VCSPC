@@ -3,5 +3,7 @@
 
 extern RpLight *&pAmbient;
 extern RpLight *&pDirect;
+extern RpLight **pExtraDirectionals;
+extern int &NumExtraDirLightsInWorld;
 
 #endif __LIGHTING

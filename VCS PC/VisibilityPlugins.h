@@ -28,6 +28,7 @@ public:
 
 	static void								RenderAlphaAtomics();
 	static void								RenderWeaponPedsForPC();
+	static uint16								GetAtomicId(RpAtomic*);
 };
 
 #endif
