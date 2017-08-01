@@ -66,6 +66,9 @@ struct CColourSet
 	float ambobjg_bl;
 	float ambobjb_bl;
 */
+	float vertmultr;
+	float vertmultg;
+	float vertmultb;
 	float dirr;
 	float dirg;
 	float dirb;

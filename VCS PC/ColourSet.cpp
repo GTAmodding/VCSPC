@@ -6,21 +6,21 @@
 void
 CColourSet::ctor(int h, int w)
 {
-	if(0){	// blur off
-		this->ambr = CTimeCycle::m_nAmbientRed[h][w];
-		this->ambg = CTimeCycle::m_nAmbientGreen[h][w];
-		this->ambb = CTimeCycle::m_nAmbientBlue[h][w];
-		this->ambobjr = CTimeCycle::m_nAmbientRed_Obj[h][w];
-		this->ambobjg = CTimeCycle::m_nAmbientGreen_Obj[h][w];
-		this->ambobjb = CTimeCycle::m_nAmbientBlue_Obj[h][w];
-	}else{
-		this->ambr = CTimeCycle::m_nAmbientRed_Bl[h][w];
-		this->ambg = CTimeCycle::m_nAmbientGreen_Bl[h][w];
-		this->ambb = CTimeCycle::m_nAmbientBlue_Bl[h][w];
-		this->ambobjr = CTimeCycle::m_nAmbientRed_Obj_Bl[h][w];
-		this->ambobjg = CTimeCycle::m_nAmbientGreen_Obj_Bl[h][w];
-		this->ambobjb = CTimeCycle::m_nAmbientBlue_Obj_Bl[h][w];
-	}
+	this->vertmultr = CTimeCycle::m_nAmbientRed[h][w];
+	this->vertmultg = CTimeCycle::m_nAmbientGreen[h][w];
+	this->vertmultb = CTimeCycle::m_nAmbientBlue[h][w];
+	//this->ambobjr = CTimeCycle::m_nAmbientRed_Obj[h][w];
+	//this->ambobjg = CTimeCycle::m_nAmbientGreen_Obj[h][w];
+	//this->ambobjb = CTimeCycle::m_nAmbientBlue_Obj[h][w];
+	this->ambr = CTimeCycle::m_nAmbientRed_Bl[h][w];
+	this->ambg = CTimeCycle::m_nAmbientGreen_Bl[h][w];
+	this->ambb = CTimeCycle::m_nAmbientBlue_Bl[h][w];
+	this->ambobjr = CTimeCycle::m_nAmbientRed_Obj_Bl[h][w];
+	this->ambobjg = CTimeCycle::m_nAmbientGreen_Obj_Bl[h][w];
+	this->ambobjb = CTimeCycle::m_nAmbientBlue_Obj_Bl[h][w];
+	this->dirr = CTimeCycle::m_nDirectionalRed[h][w];
+	this->dirg = CTimeCycle::m_nDirectionalGreen[h][w];
+	this->dirb = CTimeCycle::m_nDirectionalBlue[h][w];
 
 	this->skytopr = CTimeCycle::m_nSkyTopRed[h][w];
 	this->skytopg = CTimeCycle::m_nSkyTopGreen[h][w];
@@ -67,17 +67,6 @@ CColourSet::ctor(int h, int w)
 	this->lodDistMult = 1.0f;
 	this->directionalmult = CTimeCycle::m_nDirectionalMult[h][w] / 100.0f;
 
-/*
-	this->ambr_bl = CTimeCycle::m_nAmbientRed_Bl[h][w];
-	this->ambg_bl = CTimeCycle::m_nAmbientGreen_Bl[h][w];
-	this->ambb_bl = CTimeCycle::m_nAmbientBlue_Bl[h][w];
-	this->ambobjr_bl = CTimeCycle::m_nAmbientRed_Obj_Bl[h][w];
-	this->ambobjg_bl = CTimeCycle::m_nAmbientGreen_Obj_Bl[h][w];
-	this->ambobjb_bl = CTimeCycle::m_nAmbientBlue_Obj_Bl[h][w];
-*/
-	this->dirr = CTimeCycle::m_nDirectionalRed[h][w];
-	this->dirg = CTimeCycle::m_nDirectionalGreen[h][w];
-	this->dirb = CTimeCycle::m_nDirectionalBlue[h][w];
 	this->radiosityIntensity = CTimeCycle::m_nRadiosityIntensity[h][w];
 	this->radiosityLimit = CTimeCycle::m_nRadiosityLimit[h][w];
 	this->fluffycloudtopr = CTimeCycle::m_nFluffyCloudsTopRed[h][w];
@@ -124,6 +113,13 @@ CColourSet::Interpolate(CColourSet *a, CColourSet *b, float fa, float fb, bool i
 	this->ambobjr = fa * a->ambobjr + fb * b->ambobjr;
 	this->ambobjg = fa * a->ambobjg + fb * b->ambobjg;
 	this->ambobjb = fa * a->ambobjb + fb * b->ambobjb;
+	this->vertmultr = fa * a->vertmultr + fb * b->vertmultr;
+	this->vertmultg = fa * a->vertmultg + fb * b->vertmultg;
+	this->vertmultb = fa * a->vertmultb + fb * b->vertmultb;
+	this->dirr = fa * a->dirr + fb * b->dirr;
+	this->dirg = fa * a->dirg + fb * b->dirg;
+	this->dirb = fa * a->dirb + fb * b->dirb;
+
 	this->sprsz = fa * a->sprsz + fb * b->sprsz;
 	this->sprbght = fa * a->sprbght + fb * b->sprbght;
 	this->shd = a->shd * fa + b->shd * fb;
@@ -154,13 +150,8 @@ CColourSet::Interpolate(CColourSet *a, CColourSet *b, float fa, float fb, bool i
 	this->ambr_bl = fa * a->ambr_bl + fb * b->ambr_bl;
 	this->ambg_bl = fa * a->ambg_bl + fb * b->ambg_bl;
 	this->ambb_bl = fa * a->ambb_bl + fb * b->ambb_bl;
-	this->ambobjr_bl = fa * a->ambobjr_bl + fb * b->ambobjr_bl;
-	this->ambobjg_bl = fa * a->ambobjg_bl + fb * b->ambobjg_bl;
-	this->ambobjb_bl = fa * a->ambobjb_bl + fb * b->ambobjb_bl;
 */
-	this->dirr = fa * a->dirr + fb * b->dirr;
-	this->dirg = fa * a->dirg + fb * b->dirg;
-	this->dirb = fa * a->dirb + fb * b->dirb;
+
 	this->radiosityIntensity = fa * a->radiosityIntensity + fb * b->radiosityIntensity;
 	this->radiosityLimit = fa * a->radiosityLimit + fb * b->radiosityLimit;
 	this->blurr = fa * a->blurr + fb * b->blurr;

@@ -275,6 +275,17 @@ CTimeCycle::Initialise(bool unused)
 			m_nAmbientRed_Obj_Bl[h][w] = ambobjr_bl;
 			m_nAmbientGreen_Obj_Bl[h][w] = ambobjg_bl;
 			m_nAmbientBlue_Obj_Bl[h][w] = ambobjb_bl;
+			m_nDirectionalRed[h][w] = dirr;
+			m_nDirectionalGreen[h][w] = dirg;
+			m_nDirectionalBlue[h][w] = dirb;
+
+//			m_nAmbientRed_Obj_Bl[h][w]	= 0;
+//			m_nAmbientGreen_Obj_Bl[h][w]	= 0;
+//			m_nAmbientBlue_Obj_Bl[h][w]	= 0;
+//			m_nDirectionalRed[h][w]		= 255;
+//			m_nDirectionalGreen[h][w]	= 255;
+//			m_nDirectionalBlue[h][w]	= 255;
+
 			m_nSkyTopRed[h][w] = skytopr;
 			m_nSkyTopGreen[h][w] = skytopg;
 			m_nSkyTopBlue[h][w] = skytopb;
@@ -523,6 +534,12 @@ CTimeCycle::CalcColoursForPoint(float x, float y, float z, CColourSet *colorset)
 	colorset->ambobjr /= 255;
 	colorset->ambobjg /= 255;
 	colorset->ambobjb /= 255;
+	colorset->vertmultr /= 255;
+	colorset->vertmultg /= 255;
+	colorset->vertmultb /= 255;
+	colorset->dirr /= 255;
+	colorset->dirg /= 255;
+	colorset->dirb /= 255;
 
 	CShadows::CalcPedShadowValues(
 		m_VectorToSun[m_CurrentStoredValue].x,

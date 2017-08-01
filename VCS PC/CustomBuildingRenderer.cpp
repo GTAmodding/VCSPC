@@ -4,6 +4,7 @@
 #include "Lighting.h"
 #include "PipelineCommon.h"
 #include "YCoCg.h"
+#include "TimeCycle.h"
 
 
 RwInt32& CCustomBuildingDNPipeline::ms_extraVertColourPluginOffset = *(RwInt32*)0x8D12BC;
@@ -118,7 +119,12 @@ CCustomBuildingDNPipeline::CustomPipeRenderCB(RwResEntry *repEntry, void *object
 		hasAlpha = instancedData->vertexAlpha || instancedData->material->color.alpha != 255;
 		RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)hasAlpha);
 
-		pipeUploadMatCol(flags, material, REG_matCol);
+		RwRGBAReal color;
+		RwRGBARealFromRwRGBA(&color, &material->color);
+		color.red *= CTimeCycle::m_CurrentColours.vertmultr;
+		color.green *= CTimeCycle::m_CurrentColours.vertmultg;
+		color.blue *= CTimeCycle::m_CurrentColours.vertmultb;
+		RwD3D9SetVertexShaderConstant(REG_matCol, &color, 1);
 
 		RwD3D9SetVertexShaderConstant(REG_surfProps, &material->surfaceProps, 1);
 

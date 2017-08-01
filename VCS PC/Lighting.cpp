@@ -46,15 +46,16 @@ SetLightsWithTimeOfDayColour(RpWorld*)
 		DirectionalLightColourForFrame.green = CTimeCycle::m_CurrentColours.dirg * CCoronas::LightsMult;
 		DirectionalLightColourForFrame.blue = CTimeCycle::m_CurrentColours.dirb * CCoronas::LightsMult;
 		RpLightSetColor(pDirect, &DirectionalLightColourForFrame);
+		CVector sun = CTimeCycle::m_VectorToSun[CTimeCycle::m_CurrentStoredValue];
 		CVector v0(0.0, 0.0, 1.0);
-		CVector v1 = CrossProduct(v0, CTimeCycle::m_vecDirnLightToSun);
+		CVector v1 = CrossProduct(v0, sun);
 		v1.Normalise();
-		CVector v2 = CrossProduct(v1, CTimeCycle::m_vecDirnLightToSun);
+		CVector v2 = CrossProduct(v1, sun);
 		RwMatrix m;
 		RwMatrixSetIdentity(&m);
 		m.right = *(RwV3d*)&v0;
 		m.up = *(RwV3d*)&v1;
-		v0 = -CTimeCycle::m_vecDirnLightToSun;
+		v0 = -sun;
 		m.at = *(RwV3d*)&v0;
 		RwFrameTransform(RpLightGetFrame(pDirect), &m, rwCOMBINEREPLACE);
 	}
@@ -78,15 +79,33 @@ SetLightsWithTimeOfDayColour(RpWorld*)
 		AmbientLightColourForFrame_PedsCarsAndObjects.blue *= dynamicf;
 		if(AmbientLightColourForFrame_PedsCarsAndObjects.blue > 1.0) AmbientLightColourForFrame_PedsCarsAndObjects.blue = 1.0;
 
-		DirectionalLightColourForFrame.red = AmbientLightColourForFrame.red * dynamicf;
+		// Vice City calculates new directional from ambient, but this must be a bug, even though VCS code appears to do the same o_O
+		DirectionalLightColourForFrame.red = DirectionalLightColourForFrame.red * dynamicf;
 		if(DirectionalLightColourForFrame.red > 1.0) DirectionalLightColourForFrame.red = 1.0;
-		DirectionalLightColourForFrame.green = AmbientLightColourForFrame.green * dynamicf;
+		DirectionalLightColourForFrame.green = DirectionalLightColourForFrame.green * dynamicf;
 		if(DirectionalLightColourForFrame.green > 1.0) DirectionalLightColourForFrame.green = 1.0;
-		DirectionalLightColourForFrame.blue = AmbientLightColourForFrame.blue * dynamicf;
+		DirectionalLightColourForFrame.blue = DirectionalLightColourForFrame.blue * dynamicf;
 		if(DirectionalLightColourForFrame.blue > 1.0) DirectionalLightColourForFrame.blue = 1.0;
 	}
 }
 
+RwRGBAReal &ambientColor = *(RwRGBAReal*)0xC886A4;
+RwRGBAReal &directColor = *(RwRGBAReal*)0xC88694;
+
+//void
+//SetLightColoursForPedsCarsAndObjects(float f)
+//{
+//	directColor.red = DirectionalLightColourForFrame.red * f;
+//	directColor.green = DirectionalLightColourForFrame.green * f;
+//	directColor.blue = DirectionalLightColourForFrame.blue * f;
+//	ambientColor.red = CTimeCycle::m_BrightnessAddedToAmbientRed + AmbientLightColourForFrame_PedsCarsAndObjects.red * f;
+//	ambientColor.green = CTimeCycle::m_BrightnessAddedToAmbientGreen + AmbientLightColourForFrame_PedsCarsAndObjects.green * f;
+//	ambientColor.blue = CTimeCycle::m_BrightnessAddedToAmbientBlue + AmbientLightColourForFrame_PedsCarsAndObjects.blue * f;
+//	RpLightSetColor(pAmbient, &ambientColor);
+//	RpLightSetColor(pDirect, &directColor);
+//}
+
 static StaticPatcher	Patcher([](){
 					Memory::InjectHook(0x53E997, SetLightsWithTimeOfDayColour);
+//					Memory::InjectHook(0x735D90, SetLightColoursForPedsCarsAndObjects, PATCH_JUMP);
 				});
