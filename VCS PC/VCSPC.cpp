@@ -2176,6 +2176,17 @@ RpAtomic* RenderAtomicTest(RpAtomic* atomic)
 	return AtomicDefaultRenderCallBack(atomic);
 }
 
+WRAPPER void CSkidmarks__Render_orig(void) { EAXJMP(0x720640); }
+void CSkidmarks__Render(void)
+{
+	int alphafunc;
+	RwRenderStateGet(rwRENDERSTATEALPHATESTFUNCTION, &alphafunc);
+	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)rwALPHATESTFUNCTIONALWAYS);
+	CSkidmarks__Render_orig();
+	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)alphafunc);
+}
+
+
 #include "SpeechRecognition.h"
 
 void Main_Patches()
@@ -2714,6 +2725,9 @@ void Main_Patches()
 
 	// Enex markers RGB
 	InjectHook(0x440F38, EnexMarkersColorBreak, PATCH_JUMP);
+
+	// Fix skidmark rendering
+	InjectHook(0x53E175, CSkidmarks__Render);
 
 	// Font scale fix
 	InjectHook(0x7193A0, &CFont::SetScaleLang, PATCH_JUMP);
