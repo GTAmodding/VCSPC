@@ -74,6 +74,7 @@ WRAPPER RwInt8 RpAnisotTextureGetMaxAnisotropy(RwTexture* tex) { WRAPARG(tex); E
 WRAPPER RpMatFXMaterialFlags RpMatFXMaterialGetEffects(const RpMaterial *material) { WRAPARG(material); EAXJMP(0x812140); }
 WRAPPER const RpMaterial *RpMatFXMaterialGetUVTransformMatrices(const RpMaterial *material, RwMatrix **baseTransform, RwMatrix **dualTransform)
 { WRAPARG(material); WRAPARG(baseTransform); WRAPARG(dualTransform); EAXJMP(0x812A50); }
+WRAPPER RwReal RpMatFXMaterialGetEnvMapCoefficient(const RpMaterial *material) { WRAPARG(material); EAXJMP(0x8127E0); }
 
 WRAPPER RwBool RwD3D9ChangeMultiSamplingLevels(RwUInt32 numLevels) { WRAPARG(numLevels); EAXJMP(0x7F8A90); }
 WRAPPER RwUInt32 RwD3D9EngineGetMaxMultiSamplingLevels() { EAXJMP(0x7F84E0); }

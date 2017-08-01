@@ -289,7 +289,10 @@ CTimeCycle::Initialise(bool unused)
 			m_nSunCoronaBlue[h][w] = suncoronab;
 			m_fSunSize[h][w] = sunsz*10.0f + 0.5f;
 			m_fSpriteSize[h][w] = sprsz*10.0f + 0.5f;
-			m_fSpriteBrightness[h][w] = sprbght*10.0f + 0.5f;
+//			m_fSpriteBrightness[h][w] = sprbght*10.0f + 0.5f;
+			// HACK: SA can't handle values above 1.0; do something that doesn't look exceptionally crappy
+			m_fSpriteBrightness[h][w] = sprbght*2;
+			if(m_fSpriteBrightness[h][w] > 10) m_fSpriteBrightness[h][w] = 10;
 			m_nShadowStrength[h][w] = shdw;
 			m_nLightShadowStrength[h][w] = lightshd;
 			m_nPoleShadowStrength[h][w] = poleshd;

@@ -27,7 +27,7 @@ VS_OUTPUT main(in VS_INPUT IN)
 	OUT.Position = mul(IN.Position, combined);
 	OUT.Texcoord0 = mul(texmat, float4(IN.TexCoord, 0.0, 1.0)).xy;
 
-	OUT.Color = IN.Color;
+	OUT.Color = IN.Color/2.0;
 	OUT.Color.rgb += ambient*surfAmb * 128.0/255.0;
 	OUT.Color *= matCol;
 

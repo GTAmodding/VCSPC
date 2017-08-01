@@ -555,6 +555,30 @@ popd</Command>
     <ClInclude Include="YCoCg.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Shaders\vcsVehiclePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\vcsVehicleVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\vcsVehicleYCG1PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\vcsVehicleYCG2PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
+    </FxCompile>
     <None Include="LoadVars.inc" />
     <None Include="SaveVars.inc" />
     <FxCompile Include="gen_YCG1PS.hlsl">
@@ -593,8 +617,12 @@ popd</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release Candidate|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="Shaders\neoVehiclePass1VS.hlsl" />
-    <FxCompile Include="Shaders\neoVehiclePass2VS.hlsl" />
+    <FxCompile Include="Shaders\neoVehiclePass1VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\neoVehiclePass2VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="Shaders\neoVehiclePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Dev Build|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

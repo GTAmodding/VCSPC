@@ -18,6 +18,7 @@ class InterpolatedValue
 {
 public:
 	virtual void Read(char *s, int line, int field) = 0;
+	virtual void Copy(int dst, int src) = 0;
 };
 
 class InterpolatedFloat : public InterpolatedValue
@@ -30,6 +31,7 @@ public:
 	InterpolatedFloat(float init);
 	void Read(char *s, int line, int field);
 	float Get(void);
+	void Copy(int dst, int src);
 };
 
 class InterpolatedColor : public InterpolatedValue
@@ -42,6 +44,7 @@ public:
 	InterpolatedColor(const Color &init);
 	void Read(char *s, int line, int field);
 	Color Get(void);
+	void Copy(int dst, int src);
 };
 
 class InterpolatedLight : public InterpolatedColor
@@ -78,6 +81,7 @@ class CarPipe : public CustomPipe
 	static void MakeQuadTexCoords(bool textureSpace);
 	static void RenderReflectionScene(void);
 public:
+	static int PipeSwitch;
 	static InterpolatedFloat fresnel;
 	static InterpolatedFloat power;
 	static InterpolatedLight diffColor;
@@ -87,6 +91,10 @@ public:
 	static void *pixelShader;
 	static void *pixelShaderYCG1;
 	static void *pixelShaderYCG2;
+	static void *vcsVertexShader;
+	static void *vcsPixelShader;
+	static void *vcsPixelShaderYCG1;
+	static void *vcsPixelShaderYCG2;
 	// reflection map
 	static RwCamera *reflectionCam;
 	static RwTexture *reflectionMask;

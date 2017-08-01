@@ -18,6 +18,7 @@
 #include "PcSave.h"
 #include "PostEffects.h"
 #include "Rs.h"
+#include "NeoCarpipe.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -256,7 +257,8 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TEXTURE_FILTERMODE, "FED_TXF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_TRAILS, "FED_TRA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
-		5, "FET_DEF", ACTION_STANDARD, MENU_PAGE_RESTORE_GRAPHICS, 0, 182, 3, 0, 0,
+		MENUACTION_NEOVEH, "NEOVEH", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		5, "FET_DEF", ACTION_STANDARD, MENU_PAGE_RESTORE_GRAPHICS, 0, 0, 3, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 33, 0, 0, 3, 0, 0 },
 
 	// Language
@@ -497,6 +499,7 @@ void CMenuManager::SaveSettings()
 		const float				fShadowDist = CShadows::GetShadowDistance();
 		const RwInt32			nSubSystem = RwEngineGetCurrentSubSystem();
 		const bool				bTrailsEnabled = CPostEffects::TrailsEnabled();
+		const uint8				vehpipe = CarPipe::PipeSwitch;
 
 		//CFileMgr::Write(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
 		CFileMgr::Write(hFile, &m_dwAppliedAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
@@ -511,6 +514,7 @@ void CMenuManager::SaveSettings()
 		CFileMgr::Write(hFile, &bTrailsEnabled, sizeof(bTrailsEnabled));
 		CFileMgr::Write(hFile, &m_dwAppliedResolution, sizeof(m_dwAppliedResolution));
 		CFileMgr::Write(hFile, &nSubSystem, sizeof(nSubSystem));
+		CFileMgr::Write(hFile, &vehpipe, sizeof(vehpipe));
 
 		CFileMgr::CloseFile(hFile);
 	}
@@ -572,6 +576,7 @@ void CMenuManager::LoadSettings()
 			float				fShadowDist;
 			unsigned char		nFilterQuality;
 			bool				bTrailsEnabled;
+			uint8				vehpipe;
 
 			//CFileMgr::Read(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
 			CFileMgr::Read(hFile, &m_dwAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
@@ -586,6 +591,7 @@ void CMenuManager::LoadSettings()
 			CFileMgr::Read(hFile, &bTrailsEnabled, sizeof(bTrailsEnabled));
 			CFileMgr::Read(hFile, &m_dwResolution, sizeof(m_dwAppliedResolution));
 			CFileMgr::Read(hFile, &field_DC, sizeof(field_DC));
+			CFileMgr::Read(hFile, &vehpipe, sizeof(vehpipe));
 
 			// Apply sets
 			//CCamera::m_bUseMouse3rdPerson = m_nController == 0;
@@ -602,6 +608,7 @@ void CMenuManager::LoadSettings()
 			Fx_c::SetTextureFilteringQuality(nFilterQuality);
 
 			CPostEffects::SetTrailsState(bTrailsEnabled);
+			CarPipe::PipeSwitch = vehpipe;
 
 			CShadows::SetShadowQuality(nShadowQuality);
 			CShadows::SetShadowDistance(fShadowDist);
@@ -1109,6 +1116,9 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				break;
 			case MENUACTION_TRAILS:
 				pTextToShow_RightColumn = TheText.Get(CPostEffects::TrailsEnabled() ? "FEM_ON" : "FEM_OFF");
+				break;
+			case MENUACTION_NEOVEH:
+				pTextToShow_RightColumn = CarPipe::PipeSwitch ? "VCS" : "NEO";
 				break;
 			case MENUACTION_VSYNC:
 				pTextToShow_RightColumn = TheText.Get(m_bVSync ? "FEM_ON" : "FEM_OFF");
@@ -2110,6 +2120,10 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 			CPostEffects::SetTrailsState(true);
 			CPostEffects::Radiosity_Init();
 		}
+		SaveSettings();
+		return;
+	case MENUACTION_NEOVEH:
+		CarPipe::PipeSwitch = !CarPipe::PipeSwitch;
 		SaveSettings();
 		return;
 	case MENUACTION_VSYNC:
