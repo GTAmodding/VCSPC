@@ -278,14 +278,6 @@ CTimeCycle::Initialise(bool unused)
 			m_nDirectionalRed[h][w] = dirr;
 			m_nDirectionalGreen[h][w] = dirg;
 			m_nDirectionalBlue[h][w] = dirb;
-
-//			m_nAmbientRed_Obj_Bl[h][w]	= 0;
-//			m_nAmbientGreen_Obj_Bl[h][w]	= 0;
-//			m_nAmbientBlue_Obj_Bl[h][w]	= 0;
-//			m_nDirectionalRed[h][w]		= 255;
-//			m_nDirectionalGreen[h][w]	= 255;
-//			m_nDirectionalBlue[h][w]	= 255;
-
 			m_nSkyTopRed[h][w] = skytopr;
 			m_nSkyTopGreen[h][w] = skytopg;
 			m_nSkyTopBlue[h][w] = skytopb;

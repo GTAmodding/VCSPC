@@ -6,7 +6,7 @@
 #include "Clock.h"
 #include "Weather.h"
 #include "PipelineCommon.h"
-#include "Lighting.h"
+#include "Scene.h"
 #include "VisibilityPlugins.h"
 #include "YCoCg.h"
 #include "TimeCycle.h"

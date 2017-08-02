@@ -15,7 +15,7 @@ public:
 	static void				ChangeBlipBrightness(int nBlipID, int nBrightness);
 	static void				DrawRadarSection(int nX, int nY);
 
-	static DWORD			GetRadarTraceColour(int colour, bool bDark, bool bFriend);
+	static uint32			GetRadarTraceColour(int colour, bool bDark, bool bFriend);
 	static void				LoadTextures();
 
 	// 3D radar test

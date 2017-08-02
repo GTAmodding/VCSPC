@@ -273,13 +273,13 @@
     <ClCompile Include="CullZones.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lighting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PipelineCommon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="neoCarpipe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -554,13 +554,13 @@
     <ClInclude Include="CullZones.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Lighting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PipelineCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NeoCarpipe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

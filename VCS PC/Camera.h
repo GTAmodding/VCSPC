@@ -241,6 +241,22 @@ public:
     bool				m_bFirstPersonRunAboutActive;							// 0x234
 };
 
+struct CQueuedMode
+{
+	short Mode;
+	float Duration;
+	short MinZoom;
+	short MaxZoom;
+};
+
+struct CCamera_obj2
+{
+	int field_0;
+	int field_4;
+	int field_8;
+	int field_C;
+};
+
 class CCamera	: public CPlaceable
 {
 public:
@@ -414,6 +430,132 @@ public:
 	void	*pGarageWeAreIn;
 	void	*pToGarageWeAreInForHackAvoidFirstPerson;
 
+	// taken from my [aap] idb - no idea where they come from
+	CQueuedMode m_PlayerMode;
+	CQueuedMode PlayerWeaponMode;
+	CVector m_PreviousCameraPosition;
+	CVector m_RealPreviousCameraPosition;
+	CVector m_cvecAimingTargetCoors;
+	CVector m_vecFixedModeVector;
+	CVector m_vecFixedModeSource;
+	CVector m_vecFixedModeUpOffSet;
+	CVector m_vecCutSceneOffset;
+	CVector m_cvecStartingSourceForInterPol;
+	CVector m_cvecStartingTargetForInterPol;
+	CVector m_cvecStartingUpForInterPol;
+	CVector m_cvecSourceSpeedAtStartInter;
+	CVector m_cvecTargetSpeedAtStartInter;
+	CVector m_cvecUpSpeedAtStartInter;
+	CVector m_vecSourceWhenInterPol;
+	CVector m_vecTargetWhenInterPol;
+	CVector m_vecUpWhenInterPol;
+	CVector m_vecClearGeometryVec;
+	CVector m_vecGameCamPos;
+	CVector SourceDuringInter;
+	CVector TargetDuringInter;
+	CVector UpDuringInter;
+	CVector m_vecAttachedCamOffset;
+	CVector m_vecAttachedCamLookAt;
+	float m_fAttachedCamAngle;
+	RwCamera *m_pRwCamera;
+	CEntity *pTargetEntity;
+	CEntity *pAttachedEntity;
+	int m_arrPathArray[4];
+	void *m_bMirrorActive;	// Surface*
+	CMatrix m_cameraMatrix;
+	CMatrix m_cameraMatrixOld;
+	CMatrix m_viewMatrix;
+	CMatrix m_matInverse;
+	CMatrix m_matMirrorInverse;
+	CMatrix m_matMirror;
+	CVector m_vecFrustumNormals[4];
+	CVector m_vecFrustumWorldNormals[4];
+	CVector m_vecFrustumWorldNormals_Mirror[4];
+	float m_fFrustumPlaneOffsets[4];
+	float m_fFrustumPlaneOffsets_Mirror[4];
+	CVector m_vecRightFrustumNormal;
+	CVector m_vecBottomFrustumNormal;
+	CVector m_vecTopFrustumNormal;
+	CVector m_vecOldSourceForInter;
+	CVector m_vecOldFrontForInter;
+	CVector m_vecOldUpForInter;
+	float m_vecOldFOVForInter;
+	float m_fFLOATingFade;
+	float m_fFLOATingFadeMusic;
+	float m_fTimeToFadeOut;
+	float m_fTimeToFadeMusic;
+	float m_fTimeToWaitToFadeMusic;
+	float m_fFractionInterToStopMoving;
+	float m_fFractionInterToStopCatchUp;
+	float m_fFractionInterToStopMovingTarget;
+	float m_fFractionInterToStopCatchUpTarget;
+	float m_fGaitSwayBuffer;
+	float m_fScriptPercentageInterToStopMoving;
+	float m_fScriptPercentageInterToCatchUp;
+	float m_fScriptTimeForInterPolation;
+	short m_iFadingDirection;
+	int m_iModeObbeCamIsInForCar;
+	short m_iModeToGoTo;
+	short m_iMusicFadingDirection;
+	short m_iTypeOfSwitch;
+	int m_uiFadeTimeStarted;
+	int m_uiFadeTimeStartedMusic;
+	int field_C48;
+	int field_C4C;
+	int field_C50;
+	float field_C54;
+	float field_C58;
+	float fTransverseStartTime;
+	float fTransverseEndTime;
+	CVector fTransverseEndPoint;
+	CVector fTransverseStartPoint;
+	uint8 bTransverseMode;
+	char field_C7D;
+	char field_C7E;
+	char field_C7F;
+	CVector field_C80;
+	char field_C8C;
+	char field_C8D;
+	char field_C8E;
+	char field_C8F;
+	int JiggleIntensity;
+	float _startJiggleTime;    // ?
+	float _endJiggleTime;	     // ?
+	int field_C9C;
+	int JiggleType;
+	float fZoomStartTime;
+	float fZoomEndTime;
+	float fZoomTo;
+	float fZoomFrom;
+	uint8 bZoomSmooth;
+	char isZooming; // ?
+	char field_CB6;
+	char field_CB7;
+	float fZoom;
+	int field_CBC;
+	int field_CC0;
+	CVector field_CC4;
+	CVector field_CD0;
+	char field_CDC;
+	char field_CDD;
+	char field_CDE;
+	char field_CDF;
+	CVector field_CE0;
+	char field_CEC;
+	char field_CED;
+	char field_CEE;
+	char field_CEF;
+	char field_CF0;
+	char field_CF1;
+	char field_CF2;
+	char field_CF3;
+	CCamera_obj2 field_CF4[5];
+	int field_D44;
+	int field_D48;
+	int field_D4C;
+	int field_D50;
+
+
 	// VCS PC class extension
 	static bool					bDontTouchFOVInWidescreen;
 
@@ -424,6 +566,7 @@ public:
 	int							GetFadeStage();
 	int							GetLookDirection();
 	bool						IsPositionVisible(const CVector& vecPos, float fRadius);
+	bool						IsSphereVisible_(const CVector& center, float fRadius, RwMatrix *mat);
 };
 
 void CamShakeNoPos(CCamera* pCamera, float fStrength);

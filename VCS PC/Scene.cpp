@@ -1,10 +1,12 @@
 #include "StdAfx.h"
-#include "Lighting.h"
+#include "Scene.h"
 
 #include "Coronas.h"
 #include "TimeCycle.h"
 #include "Weather.h"
 #include "Frontend.h"
+#include "PostEffects.h"
+#include "Camera.h"
 
 RpLight *&pAmbient = *(RpLight**)0xC886E8;
 RpLight *&pDirect = *(RpLight**)0xC886EC;
@@ -13,6 +15,8 @@ int &NumExtraDirLightsInWorld = *(int*)0xC88708;
 RwRGBAReal &DirectionalLightColourForFrame = *(RwRGBAReal*)0xC886B4;
 RwRGBAReal &AmbientLightColourForFrame_PedsCarsAndObjects = *(RwRGBAReal*)0xC886C4;
 RwRGBAReal &AmbientLightColourForFrame = *(RwRGBAReal*)0xC886D4;
+RwRGBAReal &AmbientLightColour = *(RwRGBAReal*)0xC886A4;
+RwRGBAReal &DirectionalLightColour = *(RwRGBAReal*)0xC88694;
 
 void
 SetLightsWithTimeOfDayColour(RpWorld*)
@@ -89,8 +93,6 @@ SetLightsWithTimeOfDayColour(RpWorld*)
 	}
 }
 
-RwRGBAReal &ambientColor = *(RwRGBAReal*)0xC886A4;
-RwRGBAReal &directColor = *(RwRGBAReal*)0xC88694;
 
 //void
 //SetLightColoursForPedsCarsAndObjects(float f)
@@ -105,7 +107,109 @@ RwRGBAReal &directColor = *(RwRGBAReal*)0xC88694;
 //	RpLightSetColor(pDirect, &directColor);
 //}
 
+void
+SetBrightMarkerColours(void)
+{
+	DirectionalLightColour.red = (1.0f - DirectionalLightColourForFrame.red) * 0.4f + DirectionalLightColourForFrame.red;
+	DirectionalLightColour.green = (1.0f - DirectionalLightColourForFrame.green) * 0.4f + DirectionalLightColourForFrame.green;
+	DirectionalLightColour.blue = (1.0f - DirectionalLightColourForFrame.blue) * 0.4f + DirectionalLightColourForFrame.blue;
+	AmbientLightColour.red = 0.6;
+	AmbientLightColour.green = 0.6;
+	AmbientLightColour.blue = 0.6;
+	RpLightSetColor(pAmbient, &AmbientLightColour);
+	RpLightSetColor(pDirect, &DirectionalLightColour);
+}
+
+void
+ReSetAmbientAndDirectionalColours(void)
+{
+	RpLightSetColor(pAmbient, &AmbientLightColourForFrame);
+	RpLightSetColor(pDirect, &DirectionalLightColourForFrame);
+}
+
+void
+SetAmbientColours(RwRGBAReal *color)
+{
+	RpLightSetColor(pAmbient, color);
+}
+
+void
+SetDirectionalColours(RwRGBAReal *color)
+{
+	RpLightSetColor(pDirect, color);
+}
+
+void
+ActivateDirectional(void)
+{
+	RpLightSetFlags(pDirect, rpLIGHTLIGHTATOMICS);
+}
+
+WRAPPER void CBirds__Render(void) { EAXJMP(0x712810); }
+WRAPPER void CRopes__Render(void) { EAXJMP(0x556AE0); }
+WRAPPER void CGlass__Render(void) { EAXJMP(0x71CE20); }
+void CMovingThings__Render(void) {}
+WRAPPER void CVisibilityPlugins__RenderReallyDrawLastObjects(void) { EAXJMP(0x733800); }
+WRAPPER void Fx_c__Render(RwCamera *cam, int i) { WRAPARG(cam); WRAPARG(i); EAXJMP(0x49E650); }
+WRAPPER void CWaterCannons__Render(void) { EAXJMP(0x729B30); }
+WRAPPER void CWaterLevel__RenderWaterFog(void) { EAXJMP(0x6E7760); }
+WRAPPER void CClouds__MovingFogRender(void) { EAXJMP(0x716C90); }
+WRAPPER void CClouds__VolumetricCloudsRender(void) { EAXJMP(0x716380); }
+int &CHeli__NumberOfSearchLights = *(int*)0xC1C96C;
+short &CTheScripts__NumberOfScriptSearchLights = *(short*)0xA90830;
+WRAPPER void CHeli__Pre_SearchLightCone(void) { EAXJMP(0x6C4650); }
+WRAPPER void CHeli__RenderAllHeliSearchLights(void) { EAXJMP(0x6C7C50); }
+WRAPPER void CTheScripts__RenderAllSearchLights(void) { EAXJMP(0x493E30); }
+WRAPPER void CHeli__Post_SearchLightCone(void) { EAXJMP(0x6C46E0); }
+WRAPPER void CWeaponEffects__Render(void) { EAXJMP(0x742CF0); }
+WRAPPER void CSpecialFX__Render(void) { EAXJMP(0x726AD0); }
+void CVehicleRecording__Render(void) {}
+WRAPPER void CPointLights__RenderFogEffect(void) { EAXJMP(0x7002D0); }
+WRAPPER void CRenderer__RenderFirstPersonVehicle(void) { EAXJMP(0x553D00); }
+
+WRAPPER void CSkidmarks__Render_orig(void) { EAXJMP(0x720640); }
+void CSkidmarks__Render(void)
+{
+	int alphafunc;
+	RwRenderStateGet(rwRENDERSTATEALPHATESTFUNCTION, &alphafunc);
+	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)rwALPHATESTFUNCTIONALWAYS);
+	CSkidmarks__Render_orig();
+	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)alphafunc);
+}
+
+
+void
+RenderEffects(void)
+{
+	CSpecialFX__Render();	// has to be called before coronas because 3d markers want to draw them
+	CBirds__Render();
+	CSkidmarks__Render();
+	CRopes__Render();
+	CGlass__Render();
+	CMovingThings__Render();
+	CVisibilityPlugins__RenderReallyDrawLastObjects();
+	CCoronas::RenderBuffered();
+	Fx_c__Render(TheCamera.m_pRwCamera, 0);
+	CWaterCannons__Render();
+	CWaterLevel__RenderWaterFog();
+	CClouds__MovingFogRender();
+	CClouds__VolumetricCloudsRender();
+	if(CHeli__NumberOfSearchLights || CTheScripts__NumberOfScriptSearchLights){
+		CHeli__Pre_SearchLightCone();
+		CHeli__RenderAllHeliSearchLights();
+		CTheScripts__RenderAllSearchLights();
+		CHeli__Post_SearchLightCone();
+	}
+	CWeaponEffects__Render();
+	// CSpecialFX__Render was here
+	CVehicleRecording__Render();
+	CPointLights__RenderFogEffect();
+	CRenderer__RenderFirstPersonVehicle();
+	CPostEffects::Render();
+}
+
 static StaticPatcher	Patcher([](){
 					Memory::InjectHook(0x53E997, SetLightsWithTimeOfDayColour);
 //					Memory::InjectHook(0x735D90, SetLightColoursForPedsCarsAndObjects, PATCH_JUMP);
+					Memory::InjectHook(0x53EAD3, RenderEffects);
 				});
