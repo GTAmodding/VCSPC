@@ -639,7 +639,6 @@ void
 CarPipe::SpecularPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 {
 	RwUInt32 src, dst, fog, zwrite, alphatest;
-	RwBool lighting;
 	RxD3D9InstanceData *inst = (RxD3D9InstanceData*)&header[1];
 	int noRefl;
 
@@ -662,7 +661,6 @@ CarPipe::SpecularPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 	RwD3D9SetPixelShader(NULL);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)1);
 
-	RwD3D9GetRenderState(D3DRS_LIGHTING, &lighting);
 	noRefl = CVisibilityPlugins::GetAtomicId(atomic) & 0x6000;
 
 	for(uint32 i = 0; i < header->numMeshes; i++){

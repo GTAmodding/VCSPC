@@ -19,5 +19,5 @@ float4 main(PS_INPUT IN) : COLOR0
 
 	float4 c1 = float4(Y + Co - Cg, Y + Cg, Y - Co - Cg, 1.0f) * IN.color;
 	float4 c2 = tex2D(refltex, IN.texcoord1);
-	return lerp(c1, c2, IN.reflcolor);
+	return float4(lerp(c1, c2, IN.reflcolor).rgb, c1.a);
 }
