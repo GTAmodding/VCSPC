@@ -3,6 +3,8 @@
 
 #include "ModelInfo.h"
 
+bool &CCutsceneMgr::ms_running = *(bool*)0xB5F851;
+
 void CCutsceneMgr::SetProperCSPlrModel(char* pModel)
 {
 	if ( !_strnicmp(pModel, "csplr", 8) )

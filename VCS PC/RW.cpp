@@ -3,6 +3,7 @@
 WRAPPER RwTexDictionary* RwTexDictionaryGetCurrent() { EAXJMP(0x7F3A90); }
 WRAPPER RwTexDictionary* RwTexDictionaryCreate() { EAXJMP(0x7F3600); }
 WRAPPER RwTexDictionary* RwTexDictionarySetCurrent(RwTexDictionary* dict) { WRAPARG(dict); EAXJMP(0x7F3A70); }
+WRAPPER RwTexDictionary* RwTexDictionaryStreamRead(RwStream *stream) { WRAPARG(stream); EAXJMP(0x804C30); }
 WRAPPER RwTexture* RwTextureCreate(RwRaster* raster) { WRAPARG(raster); EAXJMP(0x7F37C0); }
 WRAPPER RwTexture* RwTextureRead(const RwChar* name, const RwChar* maskName) { WRAPARG(name); WRAPARG(maskName); EAXJMP(0x7F3AC0); }
 WRAPPER RwBool RwTextureDestroy(RwTexture* texture) { WRAPARG(texture); EAXJMP(0x7F3820); }
@@ -13,18 +14,22 @@ WRAPPER RpClump* RpClumpCreate() { EAXJMP(0x74A290); }
 WRAPPER RwBool RpClumpDestroy(RpClump* clump) { EAXJMP(0x74A310); }
 WRAPPER RpClump* RpClumpStreamRead(RwStream* stream) { EAXJMP(0x74B420); }
 WRAPPER RpClump* RpClumpStreamWrite(RpClump* clump, RwStream* stream) { EAXJMP(0x74AA10); }
+WRAPPER RpWorld *RpWorldAddCamera(RpWorld *world, RwCamera *camera) { WRAPARG(world); WRAPARG(camera); EAXJMP(0x750F20); }
 WRAPPER RwBool RwImageDestroy(RwImage* image) { WRAPARG(image); EAXJMP(0x802740); }
 WRAPPER RwImage* RtPNGImageRead(const RwChar* imageName) { WRAPARG(imageName); EAXJMP(0x7CF9B0); }
 WRAPPER RwBool RwFrameDestroy(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F05A0); }
 WRAPPER RwMatrix* RwFrameGetLTM(RwFrame* frame) { WRAPARG(frame); EAXJMP(0x7F0990); }
 WRAPPER RwBool RpAtomicDestroy(RpAtomic* atomic) { WRAPARG(atomic); EAXJMP(0x749DC0); }
 WRAPPER RwCamera* RwCameraCreate() { EAXJMP(0x7EE4F0); }
+WRAPPER RwCamera* RwCameraSetNearClipPlane(RwCamera *camera, RwReal nearClip) { WRAPARG(camera); WRAPARG(nearClip); EAXJMP(0x7EE1D0); }
+WRAPPER RwCamera* RwCameraSetFarClipPlane(RwCamera *camera, RwReal farClip) { WRAPARG(camera); WRAPARG(farClip); EAXJMP(0x7EE2A0); }
 WRAPPER RwFrame* RwFrameCreate() { EAXJMP(0x7F0410); }
 WRAPPER RwCamera* RwCameraSetProjection(RwCamera* camera, RwCameraProjection projection) { WRAPARG(camera); WRAPARG(projection); EAXJMP(0x7EE3A0); }
 WRAPPER void* RwIm3DTransform(RwIm3DVertex* pVerts, RwUInt32 numVerts, RwMatrix* ltm, RwUInt32 flags) { WRAPARG(pVerts); WRAPARG(numVerts); WRAPARG(ltm); WRAPARG(flags); EAXJMP(0x7EF450); }
 WRAPPER RwBool RwIm3DRenderIndexedPrimitive(RwPrimitiveType primType, RwImVertexIndex* indices, RwInt32 numIndices) { WRAPARG(primType); WRAPARG(indices); WRAPARG(numIndices); EAXJMP(0x7EF550); }
 WRAPPER RwBool RwIm3DRenderLine(RwInt32 vert1, RwInt32 vert2) { WRAPARG(vert1); WRAPARG(vert2); EAXJMP(0x7EF900); }
 WRAPPER RwBool RwIm3DEnd() { EAXJMP(0x7EF520); }
+WRAPPER RwMatrix *RwMatrixCreate(void) { EAXJMP(0x7F2A50); }
 WRAPPER RwBool RwMatrixDestroy(RwMatrix* mpMat) { WRAPARG(mpMat); EAXJMP(0x7F2A20); }
 WRAPPER RpAtomic* AtomicDefaultRenderCallBack(RpAtomic* atomic) { WRAPARG(atomic); EAXJMP(0x7491C0); }
 WRAPPER RwBool RwStreamFindChunk(RwStream *stream, RwUInt32 type, RwUInt32 *lengthOut, RwUInt32 *versionOut) { WRAPARG(stream); WRAPARG(type); WRAPARG(lengthOut); WRAPARG(versionOut); EAXJMP(0x7ED2D0); }
@@ -33,6 +38,7 @@ WRAPPER RwBool RpLightDestroy(RpLight *light) { EAXJMP(0x7520D0); }
 WRAPPER RwMatrix* RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, RwOpCombineType combineOp) { WRAPARG(matrix); WRAPARG(translation); WRAPARG(combineOp); EAXJMP(0x7F2450); }
 WRAPPER RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, RwReal angle, RwOpCombineType combineOp) { WRAPARG(matrix); WRAPARG(axis); WRAPARG(angle); WRAPARG(combineOp); EAXJMP(0x7F1FD0); }
 WRAPPER RwFrame* RwFrameRotate(RwFrame* frame, const RwV3d* axis, RwReal angle, RwOpCombineType combine) { WRAPARG(frame); WRAPARG(axis); WRAPARG(angle); WRAPARG(combine); EAXJMP(0x7F1010); }
+WRAPPER RwFrame *RwFrameTransform(RwFrame *frame, const RwMatrix *m, RwOpCombineType combine) { WRAPARG(frame); WRAPARG(m); WRAPARG(combine); EAXJMP(0x7F0F70); }
 WRAPPER RwImage* RwImageCreate(RwInt32 width, RwInt32 height, RwInt32 depth) { WRAPARG(width); WRAPARG(height); WRAPARG(depth); EAXJMP(0x8026E0); }
 WRAPPER RwImage* RwImageCreateResample(const RwImage* srcImage, RwInt32 width, RwInt32 height) { WRAPARG(srcImage); WRAPARG(width); WRAPARG(height); EAXJMP(0x80CD10); }
 WRAPPER RwImage* RwImageAllocatePixels(RwImage* image) { WRAPARG(image); EAXJMP(0x8027A0); }
@@ -65,6 +71,11 @@ WRAPPER RwInt8 RpAnisotGetMaxSupportedMaxAnisotropy() { EAXJMP(0x748F20); }
 WRAPPER RwTexture* RpAnisotTextureSetMaxAnisotropy(RwTexture* tex, RwInt8 val) { WRAPARG(tex); WRAPARG(val); EAXJMP(0x748F30); }
 WRAPPER RwInt8 RpAnisotTextureGetMaxAnisotropy(RwTexture* tex) { WRAPARG(tex); EAXJMP(0x748F50); }
 
+WRAPPER RpMatFXMaterialFlags RpMatFXMaterialGetEffects(const RpMaterial *material) { WRAPARG(material); EAXJMP(0x812140); }
+WRAPPER const RpMaterial *RpMatFXMaterialGetUVTransformMatrices(const RpMaterial *material, RwMatrix **baseTransform, RwMatrix **dualTransform)
+{ WRAPARG(material); WRAPARG(baseTransform); WRAPARG(dualTransform); EAXJMP(0x812A50); }
+WRAPPER RwReal RpMatFXMaterialGetEnvMapCoefficient(const RpMaterial *material) { WRAPARG(material); EAXJMP(0x8127E0); }
+
 WRAPPER RwBool RwD3D9ChangeMultiSamplingLevels(RwUInt32 numLevels) { WRAPARG(numLevels); EAXJMP(0x7F8A90); }
 WRAPPER RwUInt32 RwD3D9EngineGetMaxMultiSamplingLevels() { EAXJMP(0x7F84E0); }
 WRAPPER RwBool RwD3D9SetRenderTarget(RwUInt32 index, RwRaster* raster) { WRAPARG(index); WRAPARG(raster); EAXJMP(0x7F9E90); }
@@ -80,6 +91,7 @@ WRAPPER void _rwD3D9SetVertexDeclaration(void *vertexDeclaration) { EAXJMP(0x7F9
 WRAPPER void RwD3D9GetRenderState(RwUInt32 state, void *value) { EAXJMP(0x7FC320); }
 WRAPPER void RwD3D9SetRenderState(RwUInt32 state, RwUInt32 value) { EAXJMP(0x7FC2D0); }
 WRAPPER void _rwD3D9SetPixelShaderConstant(RwUInt32 i, const void *data, RwUInt32 size) { EAXJMP(0x7FAD00); }
+WRAPPER void _rwD3D9SetVertexShaderConstant(RwUInt32 registerAddress, const void *constantData, RwUInt32  constantCount) { EAXJMP(0x7FACA0); }
 WRAPPER RwBool RwD3D9CreateVertexDeclaration(const void *elements, void **vertexdeclaration) { EAXJMP(0x7FAA30); }
 WRAPPER void _rwD3D9SetVertexShader(void *shader) { EAXJMP(0x7F9FB0); }
 WRAPPER void RwD3D9SetTextureStageState(RwUInt32 stage, RwUInt32 type, RwUInt32 value) { EAXJMP(0x7FC340); }
@@ -90,6 +102,7 @@ WRAPPER void _rwD3D9SetIndices(void *indexBuffer) { EAXJMP(0x7FA1C0); }
 WRAPPER void _rwD3D9SetStreams(const RxD3D9VertexStream *streams, RwBool useOffsets) { EAXJMP(0x7FA090); }
 WRAPPER void _rwD3D9DrawIndexedPrimitive(RwUInt32 primitiveType, RwInt32 baseVertexIndex, RwUInt32 minIndex,
 		RwUInt32 numVertices, RwUInt32 startIndex, RwUInt32 primitiveCount) { EAXJMP(0x7FA320); }
+WRAPPER void _rwD3D9DrawPrimitive(RwUInt32 primitiveType, RwUInt32 startVertex, RwUInt32 primitiveCount) { EAXJMP(0x7FA360); }
 WRAPPER RwBool RwD3D9IndexBufferCreate(RwUInt32 numIndices, void **indexBuffer) { EAXJMP(0x4C9970); }
 WRAPPER void RwD3D9SetStreamSource(RwUInt32 streamNumber,
                       void *streamData,

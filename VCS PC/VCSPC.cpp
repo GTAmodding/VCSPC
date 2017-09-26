@@ -62,7 +62,6 @@ void			UserFiles();
 void			HighspeedCamShake(float shake);
 void			ViceSquadCheckInjectA(int townID);
 int				ViceSquadCheckInjectB();
-void			InjectArrowMarker();
 void			OpaqueRadarHack2(RwPrimitiveType primType, RwIm2DVertex* vertices, RwInt32 numVertices);
 void			ReadLoadingSplashes(bool bIntroSplash, int nIntroSplashID);
 void			InitialiseLanguage();
@@ -85,7 +84,6 @@ void			ReleaseDevLogos();
 
 // ASM functions
 void			ViceSquadCheckInjectC();
-void			EnexMarkersColorBreak();
 void			drawRampageTextTimeBreak();
 void			drawRampageTextKillsBreak();
 void			GarageCapacityA();
@@ -343,7 +341,6 @@ CText&						TheText = *(CText*)0xC1B340;
 CRGBA*						BaseColors;
 CMenuManager&				FrontEndMenuManager = *(CMenuManager*)0xBA6748;
 CAudioEngine&				AudioEngine = *(CAudioEngine*)0xB6BC90;
-RpClump**					arrowClump;
 std::pair<void*,int>* const	materialRestoreData = (std::pair<void*,int>*)0xB4DBE8;
 CBlurStage*					blurStages;
 //CGridref*					gridref;
@@ -899,7 +896,6 @@ void DefineVariables()
 	Garage_MessageIDString = (char*)0x96C014;
 	currentFPS = (float*)0xB7CB50;
 	BaseColors = (CRGBA*)0xBAB22C;
-	arrowClump = (RpClump**)0xC7C6F0;
 	blurStages = (CBlurStage*)0x8D5190;
 	//gridref = (CGridref*)0xC72FB0;
 	garages = (CGarages*)0x96C00C;
@@ -2176,6 +2172,7 @@ RpAtomic* RenderAtomicTest(RpAtomic* atomic)
 	return AtomicDefaultRenderCallBack(atomic);
 }
 
+
 #include "SpeechRecognition.h"
 
 void Main_Patches()
@@ -2681,40 +2678,6 @@ void Main_Patches()
 	// No stats update box
 	Patch<BYTE>(0x55B980, 0xC3);
 
-	// Spheres colours
-	//dwFunc = 0x4810E0 + 0x2B;
-//	patch(dwFunc, MARKER_SET_COLOR_A, 4);
-//	dwFunc += 0x6;
-	Patch<BYTE>(0x4810E0 + 0x2B, MARKER_SET_COLOR_B);
-	//dwFunc += 0x2;
-	Patch<BYTE>(0x4810E0 + 0x2B + 0x2, MARKER_SET_COLOR_G);
-	//dwFunc += 0x2;
-	Patch<BYTE>(0x4810E0 + 0x2B + 0x4, MARKER_SET_COLOR_R);
-
- 	Patch<BYTE>(0x585CCB, MARKER_SET_COLOR_B);
-	Patch<BYTE>(0x585CCD, MARKER_SET_COLOR_G);
-	Patch<BYTE>(0x585CCF, MARKER_SET_COLOR_R);
-	/*Patch<BYTE>(0x70CD0B, 0xB4);
-	Patch<BYTE>(0x70CD0D, 0x82);
-	Patch<BYTE>(0x70CD0F, 0xED);
-	Patch<BYTE>(0x70CD58, 0xB4);
-	Patch<BYTE>(0x70CD5A, 0x82);
-	Patch<BYTE>(0x70CD5C, 0xED);
-	Patch<BYTE>(0x70CDAB, 0xB4);
-	Patch<BYTE>(0x70CDAD, 0x82);
-	Patch<BYTE>(0x70CDAF, 0xED);*/
-
-	// Growing/shrinking 3DMarkers
-	Patch<float>(0x440F26, 0.0f);
-	InjectHook(0x72576B, &C3DMarkerSizeHack, PATCH_CALL);
-	Nop(0x725770, 1);
-
-	// New style of markers
-	InjectHook(0x725BA0, &C3DMarkers::PlaceMarkerSet, PATCH_JUMP);
-
-	// Enex markers RGB
-	InjectHook(0x440F38, EnexMarkersColorBreak, PATCH_JUMP);
-
 	// Font scale fix
 	InjectHook(0x7193A0, &CFont::SetScaleLang, PATCH_JUMP);
 
@@ -3129,9 +3092,9 @@ void Main_Patches()
 	Patch<const void*>(0x6FB97A, &pRefFal);
 	Patch<BYTE>(0x6FB9A0, 0);
 
-	// Relocated sun
-	Patch<float>(0x560A76, 1.0f);
-	Nop(0x560A84, 6);
+	// Relocated sun; now in reversed CTimeCycle code
+//	Patch<float>(0x560A76, 1.0f);
+//	Nop(0x560A84, 6);
 
 	// More vehicles
 #if NUM_VEHICLE_MODELS > 212
@@ -4007,25 +3970,6 @@ void Main_Patches()
 	// No Heat Haze
 	Patch<BYTE>(0x72C1B7, 0xEB);
 
-	// arrow.dff as marker
-	Patch<const float*>(0x725636, C3DMarkers::GetPosZMult());
-	Patch<const float*>(0x7259A1, C3DMarkers::GetPosZMult());
-	//Patch<const float*>(0x7232C7, C3DMarkers::GetPosZMult());
-	Patch<const float*>(0x72564B, C3DMarkers::GetMovingMult());
-	Patch<const float*>(0x7259A9, C3DMarkers::GetMovingMult());
-	Nop(0x72563A, 6);
-	Nop(0x72599F, 6);
-	Nop(0x72502B, 6);
-	Nop(0x725647, 2);
-	InjectHook(0x725037, &InjectArrowMarker);
-	Patch<BYTE>(0x726DA6, 5);
-	Patch<DWORD>(0x7232C1, 0xC7C6DC);
-
-	// Arrow sizes
-	Patch<float>(0x585DA5, 2.5f);	// Vehicles
-	Patch<float>(0x585E4D, 1.5f);	// Peds
-	Patch<float>(0x585F8E, 1.0f);	// Objects
-
 	// Own BaseColors::BaseColors
 	// TODO: Come up with something nicer?
 	InjectHook(0x84F1F5, &CRGBA::BaseColors__Constructor);
@@ -4423,25 +4367,6 @@ int ViceSquadCheckInjectB()
 			return 506;
 	}
 	return 0;
-}
-
-void InjectArrowMarker()
-{
-	int				modelID;
-	CBaseModelInfo*	modelInfo = CModelInfo::GetModelInfo("arrow", &modelID);
-	CStreaming::RequestModel(modelID, 2);
-	CStreaming::LoadAllRequestedModels(false);
-
-	RpAtomic*	atomic = reinterpret_cast<RpAtomic*>(modelInfo->CreateInstance());
-	modelInfo->AddRef();
-
-	RwFrame*	frame = RpAtomicGetFrame(atomic);
-	RpClump*	clump = RpClumpCreate();
-	RwFrameSetIdentity(frame);
-	RpClumpAddAtomic(clump, atomic);
-	RpClumpSetFrame(clump, frame);
-	*arrowClump = clump;
-	CTxdStore::PopCurrentTxd();
 }
 
 /*float __stdcall HelperPosXHack(int)
@@ -4873,21 +4798,6 @@ ViceSquadCheckInjectC__NOMODEL:
 		call	FindPlayerWanted
 	//	add		esp, 4
 		jmp		ViceSquadCheckInjectC_JumpBack
-	}
-}
-
-
-
-void __declspec(naked) EnexMarkersColorBreak()
-{
-	_asm
-	{
-		push	96h
-		push	64h
-		push	ebx
-		//push	00h
-		mov		eax, 440F43h
-		jmp		eax
 	}
 }
 
@@ -6264,19 +6174,6 @@ RightShockKeyHack_PressedKeyWeNeed:
 RightShockKeyHack_Return:
 		pop		ebx
 		jmp		RightShockKeyHack_JumpBack
-	}
-}
-
-void __declspec(naked) C3DMarkerSizeHack()
-{
-	_asm
-	{
-		push	eax		// Not keeping it causes marker to flicker
-		mov		ecx, esi
-		call	C3DMarker::CalculateRealSize
-		fst		C3DMarkers::m_PosZMult
-		pop		eax
-		retn
 	}
 }
 

@@ -26,18 +26,19 @@ static const char* const RadarBlipSpriteFilenames[NUM_BLIP_SPRITES] = { "", "", 
 																		"", "", "", "",
 																		"", "", "", "radar_spray" };
 
-DWORD CRadar::GetRadarTraceColour(int colour, bool bDark, bool bFriend)
+uint32 CRadar::GetRadarTraceColour(int colour, bool bDark, bool bFriend)
 {
 	switch ( colour )
 	{
 	case 0:
 		{
 			if ( bFriend )
-				return 0x00007FFF;
+				return 0x484dffff;
+// what is this? arrow markers should have the above instead of this
+//				return 0x00007FFF;
 			if ( bDark )
 				return 0xFF484DFF;	
 			return 0x7F0000FF;
-					
 		}
 	case 1:
 		{
@@ -63,6 +64,7 @@ DWORD CRadar::GetRadarTraceColour(int colour, bool bDark, bool bFriend)
 		}
 	case 5:
 		{
+return 0x00FF00FF;
 			if ( bDark )
 				return 0xFFA5C9FF;
 			return 0x6E103CFF;

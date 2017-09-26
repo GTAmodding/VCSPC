@@ -24,3 +24,5 @@ void CVisibilityPlugins::RenderWeaponPedsForPC()
 		it->V()->RemoveLighting();
 	}
 }
+
+WRAPPER uint16 CVisibilityPlugins::GetAtomicId(RpAtomic *atomic) { WRAPARG(atomic); EAXJMP(0x732370); }

@@ -275,6 +275,13 @@ public:
 								matrix.matrix.up.x * vec.x + matrix.matrix.up.y * vec.y + matrix.matrix.up.z * vec.z,
 								matrix.matrix.at.x * vec.x + matrix.matrix.at.y * vec.y + matrix.matrix.at.z * vec.z); };
 
+	inline void Scale(float f)
+	{
+		matrix.right.x *= f; matrix.right.y *= f; matrix.right.z *= f;
+		matrix.up.x *= f; matrix.up.y *= f; matrix.up.z *= f;
+		matrix.at.x *= f; matrix.at.y *= f; matrix.at.z *= f;
+	}
+
 	inline CVector*	GetRight()
 		{ return reinterpret_cast<CVector*>(&matrix.right); }
 	inline CVector*	GetUp()

@@ -411,7 +411,7 @@ void* RwD3D9CreateVertexShaderFromFile(const char* pFileName)
 	return pVertexShader;
 }
 
-static void* gpGenericPS[NUM_GEN_PS];
+void* gpGenericPS[NUM_GEN_PS];
 
 // Generic shaders
 BOOL RsGenericShadersInit()

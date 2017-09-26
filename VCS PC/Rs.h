@@ -194,5 +194,6 @@ extern RsGlobalType&			RsGlobal;
 extern const DWORD				RsGlobalFrameLimits[5];
 extern bool&					bAnisotSupported;
 extern void*					gpPixelShaderForDefaultCallbacks;
+extern void*					gpGenericPS[NUM_GEN_PS];
 
 #endif

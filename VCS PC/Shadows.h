@@ -42,6 +42,7 @@ public:
 	static bool						ThisPropCanHaveShadow(CEntity* pEntity);
 	static void						SetRealTimeShadowDistances(CEntity* pEntity);
 	static float					GetRealTimeShadowDistances(CEntity* pEntity);
+	static void						CalcPedShadowValues(float x, float y, float z, float *sfx, float *sfy, float *ssx, float *ssy, float *sdx, float *sdy);
 	static void						Inject();
 };
 
