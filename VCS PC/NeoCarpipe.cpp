@@ -3,6 +3,7 @@
 
 #include <DirectXMath.h>
 #include "Rs.h"
+#include "TxdStore.h"
 #include "Clock.h"
 #include "Weather.h"
 #include "PipelineCommon.h"
@@ -46,22 +47,11 @@ void
 neoInit(void)
 {
 	ONCE;
-	// TODO: don't use neo.txd
-	CFileMgr::SetDir("MODELS");
-	RwStream *stream = RwStreamOpen(rwSTREAMFILENAME, rwSTREAMREAD, "neo.txd");
-	CFileMgr::SetDir("");
-	if(RwStreamFindChunk(stream, rwID_TEXDICTIONARY, NULL, NULL))
-		neoTxd = RwTexDictionaryStreamRead(stream);
-	RwStreamClose(stream, NULL);
-	if(neoTxd == NULL){
-		MessageBox(NULL, "Couldn't find Tex Dictionary inside 'neo\\neo.txd'", "Error", MB_ICONERROR | MB_OK);
-		exit(0);
-	}
-	// we can just set this to current because we're executing before CGame::Initialise
-	// which sets up "generic" as the current TXD
-	RwTexDictionarySetCurrent(neoTxd);
 
+	CTxdStore::PushCurrentTxd();
+	CTxdStore::SetCurrentTxd(CTxdStore::FindTxdSlot("particle"));
 	neoCarPipeInit();
+	CTxdStore::PopCurrentTxd();
 }
 
 #define INTERP_SETUP \
@@ -713,12 +703,32 @@ void
 InitialiseGame_hook(void)
 {
 	ONCE;
-	neoInit();
 	InitialiseGame();
+	neoInit();
+}
+
+
+// sun glare
+WRAPPER void CVehicle__DoSunGlare(void *this_) { EAXJMP(0x6DD6F0); }
+
+void __declspec(naked) doglare(void)
+{
+	_asm {
+		mov	ecx,esi
+		call	CVehicle__DoSunGlare
+		mov     [esp+0D4h], edi
+		push	6ABD04h
+		retn
+	}
 }
 
 static StaticPatcher	Patcher([](){
+	// not neo, but enable sun glare
+	Memory::InjectHook(0x6ABCFD, doglare, PATCH_JUMP);
+
+
 	Memory::InjectHook(0x748CFB, InitialiseGame_hook);
+
 	Memory::Patch(0x5D9FE3 +1, CarPipe::RenderCallback);
 	// remove some of the SA vehicle pipe
 	Memory::Nop(0x5DA620, 5);	// for all mats CCustomCarEnvMapPipeline::CustomPipeMaterialSetup

@@ -208,7 +208,35 @@ RenderEffects(void)
 	CPostEffects::Render();
 }
 
+void __declspec(naked) LightningSky()
+{
+	_asm {
+		push	eax
+		push	eax
+		push	eax
+		push	eax
+		push	eax
+		mov	CTimeCycle::m_CurrentColours.skytopr, ax
+		mov	CTimeCycle::m_CurrentColours.skytopg, ax
+		mov	CTimeCycle::m_CurrentColours.skytopb, ax
+		// this is what the game actually uses:
+		mov	ds:0xb7c4c4, ax
+		mov	ds:0xb7c4c6, ax
+		mov	ds:0xb7c4c8, ax
+//		this doesn't work:
+//		mov	CTimeCycle::m_CurrentColours_exe.skytopr, ax
+//		mov	CTimeCycle::m_CurrentColours_exe.skytopg, ax
+//		mov	CTimeCycle::m_CurrentColours_exe.skytopb, ax
+		push	0x53EA2A
+		retn
+	}
+}
+
 static StaticPatcher	Patcher([](){
+//					Memory::Nop(0x53EA1E, 2);	// always lightning sky, for testing purposes
+
+					Memory::InjectHook(0x53EA25, LightningSky, PATCH_JUMP);
+
 					Memory::InjectHook(0x53E997, SetLightsWithTimeOfDayColour);
 //					Memory::InjectHook(0x735D90, SetLightColoursForPedsCarsAndObjects, PATCH_JUMP);
 					Memory::InjectHook(0x53EAD3, RenderEffects);
