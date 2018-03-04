@@ -397,8 +397,8 @@ CTimeCycle::CalcColoursForPoint(float x, float y, float z, CColourSet *colorset)
 	weatherInterp = CWeather::InterpolationValue;
 	invWeatherInterp = 1.0f - weatherInterp;
 	if(weatherBox){
-		boxWeather = (weatherBox->extraColor / NUMHOURS) + 21;
-		boxHour = weatherBox->extraColor % 8;
+		boxWeather = (weatherBox->extraColor / NUMHOURS) + EXTRASTART;
+		boxHour = weatherBox->extraColor % NUMHOURS;
 	}
 	CColourSet curold(curHourSel, CWeather::OldWeatherType);
 	CColourSet nextold(nextHourSel, CWeather::OldWeatherType);
@@ -616,7 +616,8 @@ CTimeCycle::Update(void)
 	memcpy(&m_CurrentColours_exe, &m_CurrentColours, 0xAC);
 }
 
-static StaticPatcher	Patcher([](){
+static StaticPatcher	Patcher([]()
+{
 	// most of these shouldn't be necessary since we're replacing everything!
 	Memory::Patch<void*>(0x55F7C7, (void*)&CTimeCycle::m_nDirectionalMult);
 	Memory::Patch<void*>(0x5BBFEC, (void*)&CTimeCycle::m_nDirectionalMult);
