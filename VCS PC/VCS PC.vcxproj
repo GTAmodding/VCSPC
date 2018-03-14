@@ -383,6 +383,7 @@ popd</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Clock.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="MenuSystem.cpp" />
     <ClCompile Include="ModelInfoAccelerator.cpp" />
@@ -503,6 +504,7 @@ popd</Command>
     <ClInclude Include="Garages.h" />
     <ClInclude Include="GroupedBuildings.h" />
     <ClInclude Include="Hud.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="LinkList.h" />
     <ClInclude Include="Maths.h" />
