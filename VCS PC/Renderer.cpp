@@ -3,6 +3,8 @@
 #include "Scene.h"
 #include "ModelInfo.h"
 
+// FUCK THIS FIX, IT DOESN'T WORK AT ALL. WTF DANNY?
+
 CEntity** CRenderer::ms_aVisibleEntityPtrs = (CEntity**)0xB75898;
 int& CRenderer::ms_nNoOfVisibleEntities = *(int*)0xB76844;
 
@@ -34,5 +36,5 @@ void CRenderer::RenderRoads()
 }
 
 static StaticPatcher	Patcher([](){
-						Memory::InjectHook(0x553A10, CRenderer::RenderRoads, PATCH_JUMP);
+//						Memory::InjectHook(0x553A10, CRenderer::RenderRoads, PATCH_JUMP);
 									});
