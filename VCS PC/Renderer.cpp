@@ -34,5 +34,5 @@ void CRenderer::RenderRoads()
 }
 
 static StaticPatcher	Patcher([](){
-						Memory::InjectHook(0x553A10, CRenderer::RenderRoads);
+						Memory::InjectHook(0x553A10, CRenderer::RenderRoads, PATCH_JUMP);
 									});

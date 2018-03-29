@@ -2340,7 +2340,7 @@ char handlingnames[210][14] = {
 	"ELECTRAG",	// "WAYFARER",
 	"QUADBIKE",	// 170
 	"BMX",
-	"BMXB",		// "CHOPPERB",
+	"BMXG",		// "CHOPPERB",
 	"MTB",
 	"FREEWAY",
 
