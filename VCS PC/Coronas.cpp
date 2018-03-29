@@ -379,8 +379,8 @@ void CCoronas::Render()
 						{
 							float	fColourFogMult = Min(40.0f, vecTransformedCoords.z) * CWeather::Foggyness * 0.025f + 1.0f;	// TODO: Check
 
-							if ( aCoronas[i].Identifier == 1 )	// Sun core
-								vecTransformedCoords.z = RwCameraGetFarClipPlane(Camera) * 0.95f;
+//							if ( aCoronas[i].Identifier == 1 )	// Sun core
+//								vecTransformedCoords.z = RwCameraGetFarClipPlane(Camera) * 0.95f;
 
 							// This R* tweak broke the sun
 							//RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
@@ -493,8 +493,8 @@ void CCoronas::RenderBuffered()
 						{
 							float	fColourFogMult = Min(40.0f, vecTransformedCoords.z) * CWeather::Foggyness * 0.025f + 1.0f;	// TODO: Check
 
-							if ( aCoronas[i].Identifier == 1 )	// Sun core
-								vecTransformedCoords.z = RwCameraGetFarClipPlane(Camera) * 0.95f;
+//							if ( aCoronas[i].Identifier == 1 )	// Sun core
+//								vecTransformedCoords.z = RwCameraGetFarClipPlane(Camera) * 0.95f;
 
 							// This R* tweak broke the sun
 							//RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
@@ -655,9 +655,13 @@ void CCoronas::Inject()
 	InjectHook(0x53C13B, CCoronas::Update);
 	InjectHook(0x53E18E, CCoronas::RenderBuffered);
 
-	static const float	fSunDist = 300.0f;
+	static const float	fSunDist = 150.0f;
 	Patch<const void*>(0x6FC5AA, &fSunDist);
 	Nop(0x6FC5AE, 6);
+	static const float coreSz = 10.64/10.0f;
+	static const float coronaSz = 20.0f/10.0;
+	Patch(0x6FC65C + 2, &coreSz);
+	Patch(0x6FC6E8 + 2, &coronaSz);
 }
 
 static StaticPatcher	Patcher([](){ 

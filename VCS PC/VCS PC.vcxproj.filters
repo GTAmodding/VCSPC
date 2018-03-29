@@ -186,9 +186,6 @@
     <ClCompile Include="Ped.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CustomBankLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="EntryExitMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -453,9 +450,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ped.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BankLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Queue.h">

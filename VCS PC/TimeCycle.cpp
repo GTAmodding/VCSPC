@@ -220,7 +220,7 @@ CTimeCycle::Initialise(bool unused)
 	float blura, bluroff;
 
 	CFileMgr::SetDir("DATA");
-	fd = CFileMgr::OpenFile("TIMECYC_VCS.DAT", "rb");
+	fd = CFileMgr::OpenFile("TIMECYC.DAT", "rb");
 	CFileMgr::SetDir("");
 
 	for(ww = 0; ww < 8; ww++){

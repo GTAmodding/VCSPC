@@ -29,7 +29,6 @@
 #include "Radar.h"
 #include "Pad.h"
 #include "Garages.h"
-#include "BankLoader.h"
 #include "Coronas.h"
 #include "Darkel.h"
 #include "Messages.h"
@@ -44,7 +43,6 @@
 #include "FxSystem.h"
 #include "RealTimeShadowMgr.h"
 #include "Shadows.h"
-#include "ColormodController.h"
 #include "VCSPC_SDK_Internal.h"
 
 // Regular functions
@@ -70,7 +68,8 @@ void			MessageLoop();
 void			CdStreamClearNames();
 void			ParseCommandlineFile();
 char*			ParseCommandlineArgument(char* pArg);
-BOOL			IsAlreadyRunning();
+int			IsAlreadyRunning();
+int			(*IsAlreadyRunning_orig)();
 void			TXDLoadOverride(signed int nIndex, const char* pName);
 void			SaveLanguageHack(FILE* stream, const char* ptr, size_t len);
 void			LoadLanguageHack(FILE* stream, void* buf, size_t len);
@@ -561,10 +560,6 @@ void /*__declspec(noreturn)*/ OnGameTermination()
 	//ExitProcess(0);
 }
 
-#ifdef LITTLE_COLORMOD_CONTROLLER_EXTRA
-#include "ColormodController.h"
-#endif
-
 DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 {
 #ifdef DEVBUILD
@@ -631,11 +626,6 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 			Memory::Patch<const void*>(0x522F5D, &fCurrentFOV);
 			Memory::Patch<float>(0x522F7A, fCurrentFOV);
 		}
-#endif
-
-#ifdef LITTLE_COLORMOD_CONTROLLER_EXTRA
-		if ( GetAsyncKeyState(VK_INSERT) & 0x8000 )
-			CColormodController::Desaturate();
 #endif
 
 #endif
@@ -2175,6 +2165,227 @@ RpAtomic* RenderAtomicTest(RpAtomic* atomic)
 
 #include "SpeechRecognition.h"
 
+char handlingnames[210][14] = {
+	"LANDSTAL",	// 0
+	"BRAVURA",
+	"BUFFALO",
+	"LINERUN",
+	"PEREN",
+	"SENTINEL",
+	"DUMPER",
+	"FIRETRUK",
+	"TRASH",
+	"STRETCH",
+	"MANANA",	// 10
+	"INFERNUS",
+	"VOODOO",
+	"PONY",
+	"MULE",
+	"CHEETAH",
+	"AMBULAN",
+	"MOONBEAM",
+	"ESPERANT",
+	"TAXI",
+	"WASHING",	// 20
+	"BOBCAT",
+	"MRWHOOP",
+	"BFINJECT",
+	"PREMIER",
+	"ENFORCER",
+	"SECURICA",
+	"BANSHEE",
+	"BUS",
+	"RHINO",
+	"BARRACKS",	// 30
+	"HOTKNIFE",
+	"ARTICT1",
+	"PREVION",
+	"COACH",
+	"CABBIE",
+	"STALLION",
+	"RUMPO",
+	"RCBANDIT",
+	"ROMERO",
+	"PACKER",	// 40
+	"MONSTER",
+	"ADMIRAL",
+	"TRAM",
+	"AIRTRAIN",
+	"ARTICT2",
+	"TURISMO",
+	"FLATBED",
+	"YANKEE",
+	"GOLFCART",
+	"SOLAIR",	// 50
+	"TOPFUN",
+	"GLENDALE",
+	"OCEANIC",
+	"PATRIOT",
+	"HERMES",
+	"SABRE",
+	"ZR350",
+	"WALTON",
+	"REGINA",
+	"COMET",	// 60
+	"BURRITO",
+	"CAMPER",
+	"BAGGAGE",
+	"DOZER",
+	"RANCHER",
+	"FBIRANCH",
+	"VIRGO",
+	"GREENWOO",
+	"HOTRING",
+	"SANDKING",	// 70
+	"BLISTAC",
+	"BOXVILLE",
+	"BENSON",
+	"MESA",
+	"BLOODRA",
+	"BLOODRB",
+	"SUPERGT",
+	"ELEGANT",
+	"JOURNEY",
+	"PETROL",	// 80
+	"RDTRAIN",
+	"NEBULA",
+	"COUGAR",	// "MAJESTIC",
+	"BUCCANEE",
+	"CEMENT",
+	"TOWTRUCK",
+	"FORTUNE",
+	"CADRONA",
+	"FBITRUCK",
+	"WILLARD",	// 90
+	"FORKLIFT",
+	"TRACTOR",
+	"COMBINE",
+	"FELTZER",
+	"CUBAN",	// "REMINGTN",
+	"SLAMVAN",
+	"BLADE",
+	"FREIGHT",
+	"STREAK",
+	"VINCENT",	// 100
+	"BULLET",
+	"CLOVER",
+	"SADLER",
+	"RANGER",
+	"HUSTLER",
+	"INTRUDER",
+	"PRIMO",
+	"IDAHO",	// "TAMPA",
+	"SUNRISE",
+	"MERIT",	// 110
+	"UTILITY",
+	"YOSEMITE",
+	"WINDSOR",
+	"MTRUCK_A",
+	"MTRUCK_B",
+	"URANUS",
+	"JESTER",
+	"PIMP",		// "SULTAN",
+	"STRATUM",
+	"ELEGY",	// 120
+	"RCTIGER",
+	"FLASH",
+	"TAHOMA",
+	"SAVANNA",
+	"BANDITO",
+	"FREIFLAT",
+	"CSTREAK",
+	"KART",
+	"MOWER",
+	"DUNE",		// 130
+	"SWEEPER",
+	"BROADWAY",
+	"TORNADO",
+	"DFT30",
+	"GANGRAN",	// "HUNTLEY",
+	"STAFFORD",
+	"NEWSVAN",
+	"6ATV",		// "TUG",
+	"PETROTR",
+	"SENTXS",	// "EMPEROR",	// 140
+	"FLOAT",
+	"STINGER",	// "EUROS",
+	"HOTDOG",
+	"CLUB",
+	"ARTICT3",
+	"RCCAM",
+	"POLICE_LA",
+	"POLICEM",	// "POLICE_SF",
+	"POLICE_VG",
+	"POLRANGER",	// 150
+	"PICADOR",
+	"SWATVAN",
+	"DELUXO",	// "ALPHA",
+	"PHOENIX",
+	"BAGBOXA",
+	"BAGBOXB",
+	"STAIRS",
+	"BOXBURG",
+	"FARM_TR1",
+	"UTIL_TR1",	// 160
+	"ROLLER",
+
+	// bikes
+	"BIKE",
+	"MOPED",
+	"DIRTBIKE",
+	"DOUBLE",	// "FCR900",
+	"NRG500",
+	"ELECTRAP",	// "HPV1000",
+	"STREETFI",	// "BF400",
+	"ELECTRAG",	// "WAYFARER",
+	"QUADBIKE",	// 170
+	"BMX",
+	"CHOPPERB",
+	"MTB",
+	"FREEWAY",
+
+	// boats
+	"PREDATOR",
+	"SPEEDER",
+	"REEFER",
+	"RIO",
+	"SQUALO",
+	"TROPIC",	// 180
+	"COASTGRD",
+	"DINGHY",
+	"MARQUIS",
+	"CUPBOAT",
+	"LAUNCH",
+
+	// planes
+	"SEAPLANE",
+	"VORTEX",
+	"RUSTLER",
+	"BEAGLE",
+	"CROPDUST",	// 190
+	"STUNT",
+	"SHAMAL",
+	"HYDRA",
+	"NEVADA",
+	"AT400",
+	"ANDROM",
+	"DODO",
+
+	// helis
+	"SPARROW",
+	"SEASPAR",
+	"MAVERICK",	// 200
+	"COASTMAV",
+	"POLMAV",
+	"HUNTER",
+	"LEVIATHN",
+	"CARGOBOB",
+	"RAINDANC",
+	"RCBARON",
+	"RCGOBLIN",
+	"RCRAIDER",
+};
+
 void Main_Patches()
 {
 	using namespace Memory;
@@ -2330,11 +2541,9 @@ void Main_Patches()
 	InjectHook(0x53EA12, LaunchRenderThread, PATCH_JUMP);
 #endif
 
-	InjectHook(0x748EDA, &OnGameTermination);
-
-	CAECustomBankLoader::Patch();
-
 	// Fixes a crash when game is launched for the second time and first instance has no created window yet
+	// aap: removed code so linked list of calls keeps working, what was the fix here?
+	IsAlreadyRunning_orig = (int(*)())(*(int*)(0x74872D+1) + 0x74872D + 5);
 	InjectHook(0x74872D, &IsAlreadyRunning);
 
 	Patch<const void*>(0x7486C1, WindowProc);
@@ -4089,22 +4298,7 @@ void Main_Patches()
 	//VirtualProtect((char*)0x86A470, 0x18, dwProtect[0], &dwProtect[1]);
 
 	// Handling data patches
-	//VirtualProtect((char*)0x8D3978, 0xB7C, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
-	_patchHandling(HANDLING_COUGAR, "COUGAR");
-	_patchHandling(HANDLING_CUBAN, "CUBAN");
-	_patchHandling(HANDLING_IDAHO, "IDAHO");
-	_patchHandling(HANDLING_PIMP, "PIMP");
-	_patchHandling(HANDLING_GANGRAN, "GANGRAN");
-	_patchHandling(HANDLING_6ATV, "6ATV");
-	_patchHandling(HANDLING_SENTXS, "SENTXS");
-	_patchHandling(HANDLING_STINGER, "STINGER");
-	_patchHandling(HANDLING_POLICEM, "POLICEM");
-	_patchHandling(HANDLING_DELUXO, "DELUXO");
-	_patchHandling(HANDLING_DOUBLE, "DOUBLE");
-	_patchHandling(HANDLING_ELECTRAP, "ELECTRAP");
-	_patchHandling(HANDLING_STREETFI, "STREETFI");
-	_patchHandling(HANDLING_ELECTRAG, "ELECTRAG");
-	//VirtualProtect((char*)0x8D3978, 0xB7C, dwProtect[0], &dwProtect[1]);
+	memcpy((void*)0x8D3978, handlingnames, sizeof(handlingnames));
 }
 
 void PatchMenus()
@@ -4308,7 +4502,6 @@ void InjectDelayedPatches()
 	Memory::InjectHook(0x6A0050, &CText::Get, PATCH_JUMP);
 
 	CUpdateManager::Init();
-	//CColormodController::Attach();
 
 //	CDLCManager::InitialiseWithUpdater();
 
@@ -4616,10 +4809,10 @@ char* ParseCommandlineArgument(char* pArg)
 	return pArg;
 }
 
-BOOL IsAlreadyRunning()
+int IsAlreadyRunning()
 {
 	//LaunchSteam();
-
+/*
 	CreateEventW(nullptr, FALSE, TRUE, L"Grand theft auto San Andreas");
 
 	if ( GetLastError() == ERROR_ALREADY_EXISTS )
@@ -4640,7 +4833,9 @@ BOOL IsAlreadyRunning()
 		// No point in hooking if we're about to terminate this process! ;)
 		return TRUE;
 	}
-
+*/
+	if(IsAlreadyRunning_orig())
+		return TRUE;
 	InjectDelayedPatches();
 	return FALSE;
 }

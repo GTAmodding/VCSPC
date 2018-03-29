@@ -393,7 +393,6 @@ popd</Command>
     </ClCompile>
     <ClCompile Include="ControlsMgr.cpp" />
     <ClCompile Include="Coronas.cpp" />
-    <ClCompile Include="CustomBankLoader.cpp" />
     <ClCompile Include="Darkel.cpp" />
     <ClCompile Include="DLCManager.cpp" />
     <ClCompile Include="EmpireMgr.cpp" />
@@ -475,7 +474,6 @@ popd</Command>
     <ClInclude Include="3DMarkers.h" />
     <ClInclude Include="AnimMgr.h" />
     <ClInclude Include="Antennas.h" />
-    <ClInclude Include="BankLoader.h" />
     <ClInclude Include="Breakable.h" />
     <ClInclude Include="Building.h" />
     <ClInclude Include="Audio.h" />
