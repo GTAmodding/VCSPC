@@ -2167,7 +2167,7 @@ RpAtomic* RenderAtomicTest(RpAtomic* atomic)
 
 char handlingnames[210][14] = {
 	"LANDSTAL",	// 0
-	"BRAVURA",
+	"CHOLLO",	// "BRAVURA",
 	"BUFFALO",
 	"LINERUN",
 	"PEREN",
@@ -2216,7 +2216,7 @@ char handlingnames[210][14] = {
 	"FLATBED",
 	"YANKEE",
 	"GOLFCART",
-	"SOLAIR",	// 50
+	"YOLA",		// "SOLAIR",	// 50
 	"TOPFUN",
 	"GLENDALE",
 	"OCEANIC",
@@ -2230,7 +2230,7 @@ char handlingnames[210][14] = {
 	"BURRITO",
 	"CAMPER",
 	"BAGGAGE",
-	"DOZER",
+	"BULLDOZE",	// "DOZER",
 	"RANCHER",
 	"FBIRANCH",
 	"VIRGO",
@@ -2268,7 +2268,7 @@ char handlingnames[210][14] = {
 	"STREAK",
 	"VINCENT",	// 100
 	"BULLET",
-	"CLOVER",
+	"SABRETUR",	// "CLOVER",
 	"SADLER",
 	"RANGER",
 	"HUSTLER",
@@ -2289,7 +2289,7 @@ char handlingnames[210][14] = {
 	"ELEGY",	// 120
 	"RCTIGER",
 	"FLASH",
-	"TAHOMA",
+	"FBICAR",	// "TAHOMA",
 	"SAVANNA",
 	"BANDITO",
 	"FREIFLAT",
@@ -2312,7 +2312,7 @@ char handlingnames[210][14] = {
 	"HOTDOG",
 	"CLUB",
 	"ARTICT3",
-	"RCCAM",
+	"BOBO",		// "RCCAM",
 	"POLICE_LA",
 	"POLICEM",	// "POLICE_SF",
 	"POLICE_VG",
@@ -2340,7 +2340,7 @@ char handlingnames[210][14] = {
 	"ELECTRAG",	// "WAYFARER",
 	"QUADBIKE",	// 170
 	"BMX",
-	"CHOPPERB",
+	"BMXB",		// "CHOPPERB",
 	"MTB",
 	"FREEWAY",
 
@@ -2359,11 +2359,11 @@ char handlingnames[210][14] = {
 
 	// planes
 	"SEAPLANE",
-	"VORTEX",
+	"HOVER",	// "VORTEX",
 	"RUSTLER",
 	"BEAGLE",
 	"CROPDUST",	// 190
-	"STUNT",
+	"BIPLANE",	// "STUNT",
 	"SHAMAL",
 	"HYDRA",
 	"NEVADA",
@@ -2379,8 +2379,8 @@ char handlingnames[210][14] = {
 	"POLMAV",
 	"HUNTER",
 	"LEVIATHN",
-	"CARGOBOB",
-	"RAINDANC",
+	"HUEY",		// "CARGOBOB",
+	"AUTOGYRO",	// "RAINDANC",
 	"RCBARON",
 	"RCGOBLIN",
 	"RCRAIDER",
