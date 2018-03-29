@@ -107,6 +107,11 @@ SetLightsWithTimeOfDayColour(RpWorld*)
 //	RpLightSetColor(pDirect, &directColor);
 //}
 
+void DeActivateDirectional()
+{
+	pDirect->object.object.flags = 0;
+}
+
 void
 SetBrightMarkerColours(void)
 {
