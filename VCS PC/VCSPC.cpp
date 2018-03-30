@@ -4299,6 +4299,9 @@ void Main_Patches()
 
 	// Handling data patches
 	memcpy((void*)0x8D3978, handlingnames, sizeof(handlingnames));
+	// Fix code to find handling name
+	InjectHook(0x6F4F64, strcmp);
+	InjectHook(0x6F4F58, strcpy);
 }
 
 void PatchMenus()
