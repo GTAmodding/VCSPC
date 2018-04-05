@@ -2333,14 +2333,14 @@ char handlingnames[210][14] = {
 	"BIKE",
 	"MOPED",
 	"DIRTBIKE",
-	"DOUBLE",	// "FCR900",
+	"ANGEL",	// "FCR900",
 	"NRG500",
 	"ELECTRAP",	// "HPV1000",
 	"STREETFI",	// "BF400",
 	"ELECTRAG",	// "WAYFARER",
 	"QUADBIKE",	// 170
-	"BMX",
-	"BMXG",		// "CHOPPERB",
+	"BMXBOY",	// "BMX",
+	"BMXGIRL",	// "CHOPPERB",
 	"MTB",
 	"FREEWAY",
 
