@@ -2168,7 +2168,7 @@ RpAtomic* RenderAtomicTest(RpAtomic* atomic)
 char handlingnames[210][14] = {
 	"LANDSTAL",	// 0
 	"CHOLLO",	// "BRAVURA",
-	"BUFFALO",
+	"SPEEDER2",
 	"LINERUN",
 	"PEREN",
 	"SENTINEL",
@@ -2190,7 +2190,7 @@ char handlingnames[210][14] = {
 	"BOBCAT",
 	"MRWHOOP",
 	"BFINJECT",
-	"PREMIER",
+	"SPORTS",	// "PREMIER",
 	"ENFORCER",
 	"SECURICA",
 	"BANSHEE",
@@ -2198,7 +2198,7 @@ char handlingnames[210][14] = {
 	"RHINO",
 	"BARRACKS",	// 30
 	"HOTKNIFE",
-	"ARTICT1",
+	"JETSKI",	// "ARTICT1",
 	"PREVION",
 	"COACH",
 	"CABBIE",
@@ -2223,7 +2223,7 @@ char handlingnames[210][14] = {
 	"PATRIOT",
 	"HERMES",
 	"SABRE",
-	"ZR350",
+	"TURBO",	// "ZR350",
 	"WALTON",
 	"REGINA",
 	"COMET",	// 60
@@ -2235,7 +2235,7 @@ char handlingnames[210][14] = {
 	"FBIRANCH",
 	"VIRGO",
 	"GREENWOO",
-	"HOTRING",
+	"BEELING",	// "HOTRING",
 	"SANDKING",	// 70
 	"BLISTAC",
 	"BOXVILLE",
@@ -2252,9 +2252,9 @@ char handlingnames[210][14] = {
 	"COUGAR",	// "MAJESTIC",
 	"BUCCANEE",
 	"CEMENT",
-	"TOWTRUCK",
+	"LUTON",	// "TOWTRUCK",
 	"FORTUNE",
-	"CADRONA",
+	"COSSIE",	// "CADRONA",
 	"FBITRUCK",
 	"WILLARD",	// 90
 	"FORKLIFT",
@@ -2301,7 +2301,7 @@ char handlingnames[210][14] = {
 	"BROADWAY",
 	"TORNADO",
 	"DFT30",
-	"GANGRAN",	// "HUNTLEY",
+	"GANGBUR",	// "HUNTLEY",
 	"STAFFORD",
 	"NEWSVAN",
 	"6ATV",		// "TUG",
@@ -2334,7 +2334,7 @@ char handlingnames[210][14] = {
 	"MOPED",
 	"DIRTBIKE",
 	"ANGEL",	// "FCR900",
-	"NRG500",
+	"DOUBLE",	// "NRG500",
 	"ELECTRAP",	// "HPV1000",
 	"STREETFI",	// "BF400",
 	"ELECTRAG",	// "WAYFARER",
@@ -2355,7 +2355,7 @@ char handlingnames[210][14] = {
 	"DINGHY",
 	"MARQUIS",
 	"CUPBOAT",
-	"LAUNCH",
+	"SCARAB",	// "LAUNCH",
 
 	// planes
 	"SEAPLANE",
