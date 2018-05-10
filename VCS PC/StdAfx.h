@@ -93,7 +93,6 @@ typedef int64_t int64;
 //#define MULTITHREADING_TEST
 //#define NATIVE_MESH_CONVERTER
 
-//#define LITTLE_COLORMOD_CONTROLLER_EXTRA
 //#define CONTROLLABLE_FOV
 
 //#define MAKE_ZZCOOL_MOVIE_DEMO
@@ -112,8 +111,8 @@ typedef int64_t int64;
 #define _height(a) _y(a)
 
 #define MOD_VERSION	"v3.5 BETA"
-#define VERSION_NAME "SilverBlue HesperPalmetto"
-#define VERSION_NAME_UPPERCASE "SILVERBLUE HESPERPALMETTO"
+#define VERSION_NAME "Silver Palmetto"
+#define VERSION_NAME_UPPERCASE "SILVER PALMETTO"
 #define RELEASE_CANDIDATE "1"
 
 #define	PlayerStatsInteger	((int*)0xB78E20)
