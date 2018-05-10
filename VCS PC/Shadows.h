@@ -35,6 +35,9 @@ public:
 	static inline bool				DontRenderShadowsForPoles()
 		{ return m_bShadowQuality == SHADOW_QUALITY_OFF || m_bShadowQuality > SHADOW_QUALITY_MEDIUM; }
 
+	static void UpdateStaticShadows(void);
+	static void RenderStaticShadows(void);
+	static void RenderStoredShadows(void);
 	static bool						StoreRealTimeShadowForVehicle(class CVehicle* pVehicle);
 	static void						StoreRealTimeShadowForObject(class CObject* pObject);
 	static void						StoreRealTimeShadowForBuilding(class CBuilding* pBuilding);

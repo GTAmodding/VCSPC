@@ -194,7 +194,7 @@ int CFileLoader::LoadObject(const char* pLine)
 			pModel = CModelInfo::AddAtomicModel(objID);
 
 		pModel->fLodDistanceUnscaled = fDrawDist;
-		pModel->ulHashKey = CKeyGen::GetUppercaseKey(modelName);
+		pModel->m_hashKey = CKeyGen::GetUppercaseKey(modelName);
 		pModel->SetTexDictionary(texName);
 		SetAtomicModelInfoFlags(pModel, flags);
 
@@ -275,11 +275,11 @@ int CFileLoader::LoadWeaponObject(const char* pLine)
 
 	CWeaponModelInfo*	pModelInfo = CModelInfo::AddWeaponModel(nObjID);
 
-	pModelInfo->ulHashKey = CKeyGen::GetUppercaseKey(modelName);
+	pModelInfo->m_hashKey = CKeyGen::GetUppercaseKey(modelName);
 	pModelInfo->fLodDistanceUnscaled = fDrawDist;
 
 	pModelInfo->SetTexDictionary(texName);
-	CTxdStore::GetPool()->GetAtIndex(pModelInfo->usTextureDictionary)->SetParent(CTxdStore::GetTxdSlot("weapshare"));
+	CTxdStore::GetPool()->GetAtIndex(pModelInfo->m_texDict)->SetParent(CTxdStore::GetTxdSlot("weapshare"));
 
 	pModelInfo->SetAnimFile(animName);
 	pModelInfo->SetColModel(&CTempColModels::ms_colModelWeapon, false);

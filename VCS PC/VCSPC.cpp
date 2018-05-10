@@ -353,7 +353,6 @@ CRunningScript**			pActiveScripts;
 CRunningScript*				ScriptsArray;
 RwIm2DVertex* const			aSpriteVertices = (RwIm2DVertex*)0xC80468;
 RwTexture** const			gpCoronaTexture = (RwTexture**)0xC3E000;
-RwCamera*&					Camera = *(RwCamera**)0xC1703C;
 DWORD*						gameState;
 
 CControllerConfigManager&	ControlsManager = *(CControllerConfigManager*)0xB70198;

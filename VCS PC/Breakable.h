@@ -1,6 +1,13 @@
 #ifndef __BREAKABLE
 #define __BREAKABLE
 
+class BreakManager_c
+{
+public:
+	void Render(bool b);
+};
+extern BreakManager_c &g_breakMan;
+
 // Breakable geometry plugin
 struct Breakable
 {

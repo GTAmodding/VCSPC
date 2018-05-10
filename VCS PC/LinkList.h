@@ -71,7 +71,7 @@ public:
 
 		CLink<T>* pInsertAfter = &m_lnListHead;
 
-		while(pInsertAfter->m_pNext != &m_lnListTail && *pInsertAfter->m_pNext->m_pItem < *pItem) {
+		while(pInsertAfter->m_pNext != &m_lnListTail && pInsertAfter->m_pNext->m_pItem < pItem) {
 			pInsertAfter = pInsertAfter->m_pNext;
 		}
 

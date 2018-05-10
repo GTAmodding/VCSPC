@@ -3,6 +3,7 @@
 
 #include "Rs.h"
 #include "TimeCycle.h"
+#include "Scene.h"
 
 bool			CPostEffects::m_bTrailsEnabled;
 
@@ -104,15 +105,15 @@ CPostEffects::Radiosity_Init(void)
 	float w, h;
 	assert(ms_pRadiosityRaster1 == nullptr);
 	assert(ms_pRadiosityRaster2 == nullptr);
-	ms_pRadiosityRaster1 = RwRasterCreate(256, 128, RwCameraGetRaster(Camera)->depth, rwRASTERTYPECAMERATEXTURE);
-	ms_pRadiosityRaster2 = RwRasterCreate(256, 128, RwCameraGetRaster(Camera)->depth, rwRASTERTYPECAMERATEXTURE);
+	ms_pRadiosityRaster1 = RwRasterCreate(256, 128, RwCameraGetRaster(Scene.camera)->depth, rwRASTERTYPECAMERATEXTURE);
+	ms_pRadiosityRaster2 = RwRasterCreate(256, 128, RwCameraGetRaster(Scene.camera)->depth, rwRASTERTYPECAMERATEXTURE);
 
 	w = 256;
 	h = 128;
 
 	// TODO: tex coords correct?
 	makequad(ms_radiosityVerts, 256, 128);
-	makequad(ms_radiosityVerts+4, RwCameraGetRaster(Camera)->width, RwCameraGetRaster(Camera)->height);
+	makequad(ms_radiosityVerts+4, RwCameraGetRaster(Scene.camera)->width, RwCameraGetRaster(Scene.camera)->height);
 
 	// black vertices; at 8
 	for(i = 0; i < 4; i++){
@@ -158,7 +159,7 @@ CPostEffects::Radiosity(int limit, int intensity)
 		return;
 #endif
 
-	fb = RwCameraGetRaster(Camera);
+	fb = RwCameraGetRaster(Scene.camera);
 	assert(ms_pRadiosityRaster1);
 	assert(ms_pRadiosityRaster1);
 
@@ -174,14 +175,14 @@ CPostEffects::Radiosity(int limit, int intensity)
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 	RwD3D9SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
-	RwCameraEndUpdate(Camera);
+	RwCameraEndUpdate(Scene.camera);
 
 	RwRasterPushContext(ms_pRadiosityRaster2);
 	RwRasterRenderScaled(fb, &r);
 	RwRasterPopContext();
 
-	RwCameraSetRaster(Camera, ms_pRadiosityRaster2);
-	RwCameraBeginUpdate(Camera);
+	RwCameraSetRaster(Scene.camera, ms_pRadiosityRaster2);
+	RwCameraBeginUpdate(Scene.camera);
 
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, NULL);
 	RwD3D9SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT);
@@ -216,9 +217,9 @@ CPostEffects::Radiosity(int limit, int intensity)
 		fb2 = tmp;
 	}
 
-	RwCameraEndUpdate(Camera);
-	RwCameraSetRaster(Camera, fb);
-	RwCameraBeginUpdate(Camera);
+	RwCameraEndUpdate(Scene.camera);
+	RwCameraSetRaster(Scene.camera, fb);
+	RwCameraBeginUpdate(Scene.camera);
 
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, fb2);
 	RwRenderStateSet(rwRENDERSTATETEXTUREADDRESSU, (void*)rwTEXTUREADDRESSCLAMP);
@@ -243,7 +244,7 @@ CPostEffects::Blur_Init(void)
 	assert(ms_pCurrentFb == nullptr);
 	assert(ms_pBlurBuffer == nullptr);
 
-	camras = RwCameraGetRaster(Camera);
+	camras = RwCameraGetRaster(Scene.camera);
 	for(width = 1; width < camras->width; width *= 2);
 	for(height = 1; height < camras->height; height *= 2);
 	ms_pCurrentFb = RwRasterCreate(width, height, camras->depth, rwRASTERTYPECAMERATEXTURE);
@@ -284,8 +285,8 @@ CPostEffects::BlurOverlay(float intensityf, float offset, RwRGBA color)
 
 	bufw = ms_pCurrentFb->width;
 	bufh = ms_pCurrentFb->height;
-	screenw = RwCameraGetRaster(Camera)->width;
-	screenh = RwCameraGetRaster(Camera)->height;
+	screenw = RwCameraGetRaster(Scene.camera)->width;
+	screenh = RwCameraGetRaster(Scene.camera)->height;
 
 	makequad(ms_blurVerts, screenw, screenh, bufw, bufh);
 	for(i = 0; i < 4; i++)
@@ -312,11 +313,11 @@ CPostEffects::BlurOverlay(float intensityf, float offset, RwRGBA color)
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 
 	// get current frame
-	RwCameraEndUpdate(Camera);
+	RwCameraEndUpdate(Scene.camera);
 	RwRasterPushContext(ms_pCurrentFb);
-	RwRasterRenderFast(RwCameraGetRaster(Camera), 0, 0);
+	RwRasterRenderFast(RwCameraGetRaster(Scene.camera), 0, 0);
 	RwRasterPopContext();
-	RwCameraBeginUpdate(Camera);
+	RwCameraBeginUpdate(Scene.camera);
 
 	// blur frame
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, ms_pCurrentFb);
@@ -351,11 +352,11 @@ if(0){
 	RwIm2DRenderIndexedPrimitive(rwPRIMTYPETRILIST, ms_blurVerts+20, 4, ms_blurIndices, 6);
 }
 
-	RwCameraEndUpdate(Camera);
+	RwCameraEndUpdate(Scene.camera);
 	RwRasterPushContext(ms_pBlurBuffer);
-	RwRasterRenderFast(RwCameraGetRaster(Camera), 0, 0);
+	RwRasterRenderFast(RwCameraGetRaster(Scene.camera), 0, 0);
 	RwRasterPopContext();
-	RwCameraBeginUpdate(Camera);
+	RwCameraBeginUpdate(Scene.camera);
 
 	RwD3D9SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
 	CPostEffects::ImmediateModeRenderStatesReStore();

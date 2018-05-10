@@ -17,6 +17,7 @@ WRAPPER void CEntity::Render() { EAXJMP(0x534310); }
 WRAPPER void CEntity::PreRender() { EAXJMP(0x535FA0); }
 
 unsigned char& CGame::bMissionPackGame = *(unsigned char*)0xB72910;
+int32	&CGame::currArea = *(int*)0xB72914;
 
 const unsigned int CKeyGen::keyTable[] = // 0x008CD068
 	{

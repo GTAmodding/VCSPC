@@ -63,6 +63,12 @@ void CVehicle::RenderForShadow(RpClump* pClump)
 	}
 }
 
+WRAPPER void CVehicle::RenderDriverAndPassengers(void) { EAXJMP(0x6D3D60); }
+
+WRAPPER void CVehicle::SetupRender(void) { EAXJMP(0x6D64F0); }
+
+WRAPPER void CVehicle::ResetAfterRender(void) { EAXJMP(0x6D0E20); }
+
 #include "Font.h"
 
 static float		fCurrentY;

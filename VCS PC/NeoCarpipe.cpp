@@ -8,6 +8,7 @@
 #include "Weather.h"
 #include "PipelineCommon.h"
 #include "Scene.h"
+#include "Renderer.h"
 #include "VisibilityPlugins.h"
 #include "YCoCg.h"
 #include "TimeCycle.h"
@@ -266,9 +267,10 @@ enum {
 	LOC_surfProps	= 32,
 };
 
-
-WRAPPER void CRenderer__RenderEverythingBarRoads(void) { EAXJMP(0x553AA0); }
-WRAPPER void CRenderer__RenderFadingInEntities(void) { EAXJMP(0x553220); }
+//WRAPPER void CRenderer__RenderRoads(void) { EAXJMP(0x553A10); }
+//WRAPPER void CRenderer__RenderEverythingBarRoads(void) { EAXJMP(0x553AA0); }
+//WRAPPER void CRenderer__RenderFadingInEntities(void) { EAXJMP(0x5531E0); }
+//WRAPPER void CRenderer__RenderFadingInUnderwaterEntities(void) { EAXJMP(0x553220); }
 
 InterpolatedFloat CarPipe::fresnel(0.4f);
 InterpolatedFloat CarPipe::power(18.0f);
@@ -293,22 +295,12 @@ RwImVertexIndex CarPipe::screenindices[6] = { 0, 1, 2, 0, 2, 3 };
 
 CarPipe carpipe;
 
-WRAPPER void RenderScene(void) { EAXJMP(0x53DF40); }
-
-void
-RenderScene_hook(void)
-{
-	RenderScene();
-	CarPipe::RenderEnvTex();
-}
-
 void
 neoCarPipeInit(void)
 {
 	ONCE;
 	carpipe.Init();
 	CarPipe::SetupEnvMap();
-	Memory::InjectHook(0x53EABF, RenderScene_hook);
 }
 
 //
@@ -316,7 +308,6 @@ neoCarPipeInit(void)
 //
 
 int envMapSize = 256;
-RpWorld *&scene = *(RpWorld**)0xC17038;
 
 void
 CarPipe::SetupEnvMap(void)
@@ -334,7 +325,7 @@ CarPipe::SetupEnvMap(void)
 	RwV2d vw;
 	vw.x = vw.y = 0.4f;
 	RwCameraSetViewWindow(reflectionCam, &vw);
-	RpWorldAddCamera(scene, reflectionCam);
+	RpWorldAddCamera(Scene.world, reflectionCam);
 
 	reflectionTex = RwTextureCreate(envFB);
 	RwTextureSetFilterMode(reflectionTex, rwFILTERLINEAR);
@@ -351,6 +342,7 @@ CarPipe::MakeQuadTexCoords(bool textureSpace)
 		maxU = maxV = 1.0f;
 	}else{
 		assert(0 && "not implemented");
+		return;
 	}
 	screenQuad[0].u = minU;
 	screenQuad[0].v = minV;
@@ -394,14 +386,18 @@ void
 CarPipe::RenderReflectionScene(void)
 {
 	RwRenderStateSet(rwRENDERSTATEFOGENABLE, 0);
-	CRenderer__RenderEverythingBarRoads();
-	CRenderer__RenderFadingInEntities();
+	CRenderer::RenderRoads();
+	CRenderer::RenderEverythingBarRoads();
+	// this renders vehicles and peds in vehicles, probably don't want it here
+	// let's hope it doesn't render some other objects we'd like to see
+	if(PipeSwitch == PIPE_NEO)
+		CRenderer::RenderFadingInEntities();
 }
 
 void
 CarPipe::RenderEnvTex(void)
 {
-	RwCameraEndUpdate(Camera);
+	RwCameraEndUpdate(Scene.camera);
 
 	RwV2d oldvw, vw = { 2.0f, 2.0f };
 	oldvw = reflectionCam->viewWindow;
@@ -420,22 +416,25 @@ CarPipe::RenderEnvTex(void)
 		reflectionMatrix->at.y = 0.0f;
 		reflectionMatrix->at.z = 1.0f;
 	}
-	RwMatrix *cammatrix = RwFrameGetMatrix(RwCameraGetFrame(Camera));
+	RwMatrix *cammatrix = RwFrameGetMatrix(RwCameraGetFrame(Scene.camera));
 	reflectionMatrix->pos = cammatrix->pos;
 	RwMatrixUpdate(reflectionMatrix);
 	if(PipeSwitch == PIPE_NEO)
 		RwFrameTransform(RwCameraGetFrame(reflectionCam), reflectionMatrix, rwCOMBINEREPLACE);
 	else
-		RwFrameTransform(RwCameraGetFrame(reflectionCam), RwFrameGetLTM(RwCameraGetFrame(Camera)), rwCOMBINEREPLACE);
+		RwFrameTransform(RwCameraGetFrame(reflectionCam), RwFrameGetLTM(RwCameraGetFrame(Scene.camera)), rwCOMBINEREPLACE);
 	CColourSet &c = CTimeCycle::m_CurrentColours;
 	RwRGBA color = { c.skytopr, c.skytopg, c.skytopb, 255 };
 	RwCameraClear(reflectionCam, &color, rwCAMERACLEARIMAGE | rwCAMERACLEARZ);
 
 	RwCameraBeginUpdate(reflectionCam);
-	RwCamera *savedcam = Camera;
-	Camera = reflectionCam;	// they do some begin/end updates with this in the called functions :/
+//	RwCamera *savedcam = Scene.camera;
+//	Scene.camera = reflectionCam;	// they do some begin/end updates with this in the called functions :/
+	// not anymore, we have our own code now
+
 	RenderReflectionScene();
-	Camera = savedcam;
+
+//	Scene.camera = savedcam;
 
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)1);
 	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDZERO);
@@ -450,7 +449,7 @@ CarPipe::RenderEnvTex(void)
 	RwCameraEndUpdate(reflectionCam);
 	RwCameraSetViewWindow(reflectionCam, &oldvw);
 
-	RwCameraBeginUpdate(Camera);
+	RwCameraBeginUpdate(Scene.camera);
 #ifdef DEBUGTEX
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, reflectionTex->raster);
 	RwIm2DRenderIndexedPrimitive(rwPRIMTYPETRILIST, screenQuad, 4, screenindices, 6);
@@ -470,11 +469,6 @@ CarPipe::Init(void)
 {
 	CreateShaders();
 	LoadTweakingTable();
-
-	// some camera begin/end stuff in barroads with the rw cam
-//	Nop(0x553C68, 0x553C9F-0x553C68);
-//	Nop(0x553CA4, 3);
-//	Nop(0x553CCA, 0x553CF4-0x553CCA);
 }
 
 void
@@ -732,6 +726,6 @@ static StaticPatcher	Patcher([](){
 	Memory::Patch(0x5D9FE3 +1, CarPipe::RenderCallback);
 	// remove some of the SA vehicle pipe
 	Memory::Nop(0x5DA620, 5);	// for all mats CCustomCarEnvMapPipeline::CustomPipeMaterialSetup
-	Memory::Nop(0x53DFCE, 5);	// CCarFXRenderer::PreRenderUpdate
+//	Memory::Nop(0x53DFCE, 5);	// CCarFXRenderer::PreRenderUpdate - no longer called from our RenderScene
 	Memory::Patch<uint8>(0x5D9900, 0xCC);	// disable CCustomCarEnvMapPipeline::CustomPipeRenderCB
 });

@@ -19,6 +19,7 @@
 #include "PostEffects.h"
 #include "Rs.h"
 #include "NeoCarpipe.h"
+#include "Scene.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -3496,7 +3497,7 @@ void CMenuManager::MessageScreen(const char* pMessage, bool bFullscreen, bool bW
 {
 	if ( !bWithinFrame )
 	{
-		if ( !RsCameraBeginUpdate(Camera) )
+		if ( !RsCameraBeginUpdate(Scene.camera) )
 			return;
 	}
 
@@ -3507,7 +3508,7 @@ void CMenuManager::MessageScreen(const char* pMessage, bool bFullscreen, bool bW
 	if ( bFullscreen )
 	{
 		RwRGBA		colour = { 0, 0, 0, 255 };
-		RwCameraClear(Camera, &colour, rwCAMERACLEARIMAGE);
+		RwCameraClear(Scene.camera, &colour, rwCAMERACLEARIMAGE);
 	}
 
 	SmallMessageScreen(pMessage);

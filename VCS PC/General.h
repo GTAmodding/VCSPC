@@ -131,6 +131,17 @@ public:
 	void							AllocateMatrix();
 };
 
+enum eEntityType
+{
+	ENTITY_TYPE_NOTHING,
+	ENTITY_TYPE_BUILDING,
+	ENTITY_TYPE_VEHICLE,
+	ENTITY_TYPE_PED,
+	ENTITY_TYPE_OBJECT,
+	ENTITY_TYPE_DUMMY,
+	ENTITY_TYPE_NOTINPOOLS
+};
+
 // TODO: May not be the best place to put it?
 class NOVMT CEntity	: public CPlaceable
 {
@@ -239,7 +250,8 @@ public:
 
 class NOVMT CPhysical : public CEntity
 {
-private:
+//private:
+public:
     float				pad1; // 56
     int					__pad2; // 60
 
@@ -378,6 +390,7 @@ class CGame
 {
 public:
 	static unsigned char&		bMissionPackGame;
+	static int32	&currArea;
 };
 
 
@@ -385,7 +398,6 @@ bool CalcScreenCoors(const CVector& vecIn, CVector* vecOut);
 void LoadingScreenLoadingFile(const char* pText);
 
 extern CRGBA*				BaseColors;
-extern RwCamera*&			Camera;
 extern CCRC32				HashHelper;
 
 static_assert(sizeof(CEntity) == 0x38, "Wrong size: CEntity");

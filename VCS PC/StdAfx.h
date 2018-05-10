@@ -3,6 +3,16 @@
 #pragma warning(disable:4733)	// handler not registered as safe handler
 #pragma warning(disable:4725)	// instruction may be inaccurate on some Pentiums
 
+#pragma warning(disable: 4302)	// 'reinterpret_cast': truncation from 'void *' to 'RwUInt8'
+#pragma warning(disable: 4624)	// destructor was implicitly defined as deleted
+#pragma warning(disable: 4100)	// unreferenced formal parameter
+#pragma warning(disable: 4244)	// conversion from '' to 'BYTE', possible loss of data
+#pragma warning(disable: 4996)	// The POSIX name for this item is deprecated
+#pragma warning(disable: 4458)	// declaration of 'pMatrix' hides class member
+#pragma warning(disable: 4189)	// local variable is initialized but not referenced
+#pragma warning(disable: 4505)	// unreferenced local function has been removed
+
+
 #define WIN32_LEAN_AND_MEAN
 #define _CRT_SECURE_NO_WARNINGS
 #define NOMINMAX

@@ -7,6 +7,7 @@
 #include "Weather.h"
 #include "Vehicle.h"
 #include "World.h"
+#include "Scene.h"
 
 std::map<unsigned int,CCoronasLinkedListNode*>	CCoronas::UsedMap;
 CCoronasLinkedListNode							CCoronas::FreeList, CCoronas::UsedList;		
@@ -19,6 +20,9 @@ float &CCoronas::LightsMult = *(float*)0x8D4B5C;
 static std::vector<FlareDef>					SunFlareDef, HeadLightsFlareDef;
 
 WRAPPER void CRegisteredCorona::Update() { EAXJMP(0x6FABF0); }
+
+WRAPPER void CCoronas::RenderReflections(void) { EAXJMP(0x6FB630); }
+WRAPPER void CCoronas::RenderSunReflection(void) { EAXJMP(0x6FBAA0); }
 
 void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned char R, unsigned char G, unsigned char B, unsigned char A, const CVector& Position, float Size, float Range, RwTexture* pTex, unsigned char flareType, unsigned char reflectionType, unsigned char LOSCheck, unsigned char unused, float normalAngle, bool bNeonFade, float PullTowardsCam, bool bFadeIntensity, float FadeSpeed, bool bOnlyFromBelow, bool bWhiteCore)
 {
@@ -315,8 +319,8 @@ void CCoronas::Init()
 
 void CCoronas::Render()
 {
-	int		nWidth = RwRasterGetWidth(RwCameraGetRaster(Camera));
-	int		nHeight = RwRasterGetHeight(RwCameraGetRaster(Camera));
+	int		nWidth = RwRasterGetWidth(RwCameraGetRaster(Scene.camera));
+	int		nHeight = RwRasterGetHeight(RwCameraGetRaster(Scene.camera));
 
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, FALSE);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
@@ -417,8 +421,8 @@ void CCoronas::Render()
 
 void CCoronas::RenderBuffered()
 {
-	int		nWidth = RwRasterGetWidth(RwCameraGetRaster(Camera));
-	int		nHeight = RwRasterGetHeight(RwCameraGetRaster(Camera));
+	int		nWidth = RwRasterGetWidth(RwCameraGetRaster(Scene.camera));
+	int		nHeight = RwRasterGetHeight(RwCameraGetRaster(Scene.camera));
 
 	// For buffered render
 	RwRaster*	pLastRaster = nullptr;

@@ -1,6 +1,10 @@
 #include "StdAfx.h"
 #include "Breakable.h"
 
+BreakManager_c &g_breakMan = *(BreakManager_c*)0xBB4240;
+
+WRAPPER void BreakManager_c::Render(bool b) { EAXJMP(0x59E6A0); }
+
 RwInt32&		g_BreakablePlugin = *(RwInt32*)0xBB4238;
 
 // Fixes a R* bug

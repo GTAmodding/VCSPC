@@ -242,7 +242,10 @@ public:
 	DWORD				unk, unk2;
 	short				m_nGunFlashBlend;
 	short				m_nGunFlashBlend_Secondary;
-	BYTE				__pad10[56];
+	BYTE				__pad10[40];
+	int32				pedState;
+	int32				m_nMoveState;
+	BYTE				__pad11[8];
 	float				fHealth;
 	float				fMaxHealth;
 	float				fArmour;

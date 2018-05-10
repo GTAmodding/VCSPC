@@ -3,6 +3,7 @@
 
 #include "Rs.h"
 #include "Sprite.h"
+#include "Scene.h"
 
 BINK*				CVideoPlayer::m_hBinkPlayer;
 RwRaster*			CVideoPlayer::m_pVideoRaster;
@@ -27,7 +28,7 @@ void CVideoPlayer::UpdateVideoFrame(const CRect* pVideoFrame, const CVector2D& v
 		m_videoFrame.x2 = 0.5f * (RsGlobal.MaximumWidth + vecScale.x);
 		m_videoFrame.y2 = 0.5f * (RsGlobal.MaximumHeight - vecScale.y);
 
-		RwCameraClear(Camera, &colour, rwCAMERACLEARIMAGE);
+		RwCameraClear(Scene.camera, &colour, rwCAMERACLEARIMAGE);
 	}
 	else
 	{
@@ -112,7 +113,7 @@ bool CVideoPlayer::PlayNextFullscreenFrame()
 		{
 			if ( BinkDoFrameAsyncWait(m_hBinkPlayer, 1000) )
 			{
-				if ( RsCameraBeginUpdate(Camera) )
+				if ( RsCameraBeginUpdate(Scene.camera) )
 				{
 					if ( RwUInt8* pPixels = RwRasterLock(m_pVideoRaster, 0, rwRASTERLOCKREADWRITE) )
 					{

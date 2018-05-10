@@ -6,6 +6,7 @@
 #include "Font.h"
 #include "YCoCg.h"
 #include "Frontend.h"
+#include "Scene.h"
 
 const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 
@@ -430,11 +431,11 @@ void DoPreMenuBlackout()
 {
 	RwRGBA		color = { 0, 0, 0, 255 };
 
-	RwCameraClear(Camera, &color, rwCAMERACLEARIMAGE);
+	RwCameraClear(Scene.camera, &color, rwCAMERACLEARIMAGE);
 
 	CFont::SetAlphaFade(255.0f);
 
-	RsCameraShowRaster(Camera);
+	RsCameraShowRaster(Scene.camera);
 }
 
 static char**& pVideoModes = *(char***)0xC920D0;
@@ -543,9 +544,9 @@ void ConvertAndDumpNativeMesh()
 				if ( pClump )
 				{
 					// Instance the model
-					RwCameraBeginUpdate(Camera);
+					RwCameraBeginUpdate(Scene.camera);
 					RpClumpForAllAtomics(pClump, AtomicInstanceCB, nullptr);
-					RwCameraEndUpdate(Camera);
+					RwCameraEndUpdate(Scene.camera);
 
 					strDffName = "meshdump\\out\\";
 					strDffName += findData.cFileName;

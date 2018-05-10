@@ -140,6 +140,10 @@ public:
 	void			ClearWindowOpenFlag(unsigned char nWindow);
 
 	void			RenderForShadow(RpClump* pClump);
+	void RenderDriverAndPassengers(void);
+	void SetupRender(void);
+	void ResetAfterRender(void);
+
 
 	static void		SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha);
 };

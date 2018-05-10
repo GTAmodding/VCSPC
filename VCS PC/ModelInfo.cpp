@@ -253,13 +253,13 @@ void CModelInfo::Inject()
 
 void CBaseModelInfo::SetTexDictionary(const char* pDict)
 {
-	usTextureDictionary = CTxdStore::GetTxdSlot(pDict);
+	m_texDict = CTxdStore::GetTxdSlot(pDict);
 }
 
 void CBaseModelInfo::AddRef()
 {
-	++usNumberOfRefs;
-	CTxdStore::AddRef(usTextureDictionary);
+	++m_numRefs;
+	CTxdStore::AddRef(m_texDict);
 }
 
 void CBaseModelInfo::RecalcDrawDistance(float fOldDist)

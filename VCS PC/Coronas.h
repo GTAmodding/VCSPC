@@ -104,6 +104,8 @@ public:
 	static void							Render();
 	static void							RenderBuffered();
 	static void							RenderDebug();
+	static void RenderReflections(void);
+	static void RenderSunReflection(void);
 
 	// Hacky hacky
 	/*static inline void					PrepareForSizeChange()

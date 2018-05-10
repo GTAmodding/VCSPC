@@ -362,8 +362,7 @@ CTimeCycle::CalcColoursForPoint(float x, float y, float z, CColourSet *colorset)
 	float inc;
 	float camZ;
 	float horiz;
-	float brightness;
-	float max, f;
+	float f;
 
 	FindTimeCycleBox(x, y, z, &lodBox, &lodBoxInterp, true, false, NULL);
 	FindTimeCycleBox(x, y, z, &farBox1, &farBox1Interp, false, true, NULL);
