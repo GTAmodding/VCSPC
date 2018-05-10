@@ -69,6 +69,7 @@ WRAPPER void CVehicle::SetupRender(void) { EAXJMP(0x6D64F0); }
 
 WRAPPER void CVehicle::ResetAfterRender(void) { EAXJMP(0x6D0E20); }
 
+
 #include "Font.h"
 
 static float		fCurrentY;

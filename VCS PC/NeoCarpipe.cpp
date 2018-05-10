@@ -161,74 +161,6 @@ neoReadWeatherTimeBlock(FILE *file, InterpolatedValue *interp)
 		interp->Copy(c, CWeather::weatherMap[CWeather::revWeatherMap[c]]);
 }
 
-#if 0
-RxPipeline*
-neoCreatePipe(void)
-{
-	RxPipeline *pipe;
-	RxPipelineNode *node;
-
-	pipe = RxPipelineCreate();
-	if(pipe){
-		RxLockedPipe *lpipe;
-		lpipe = RxPipelineLock(pipe);
-		if(lpipe){
-			RxNodeDefinition *nodedef= RxNodeDefinitionGetD3D8AtomicAllInOne();
-			RxLockedPipeAddFragment(lpipe, 0, nodedef, NULL);
-			RxLockedPipeUnlock(lpipe);
-
-			node = RxPipelineFindNodeByName(pipe, nodedef->name, NULL, NULL);
-			RxD3D8AllInOneSetInstanceCallBack(node, D3D8AtomicDefaultInstanceCallback_fixed);
-			RxD3D8AllInOneSetRenderCallBack(node, rxD3D8DefaultRenderCallback_xbox);
-			return pipe;
-		}
-		RxPipelineDestroy(pipe);
-	}
-	return NULL;
-}
-
-void
-CustomPipe::CreateRwPipeline(void)
-{
-	rwPipeline = neoCreatePipe();
-}
-
-void
-CustomPipe::SetRenderCallback(RxD3D8AllInOneRenderCallBack cb)
-{
-	RxPipelineNode *node;
-	RxNodeDefinition *nodedef = RxNodeDefinitionGetD3D8AtomicAllInOne();
-	node = RxPipelineFindNodeByName(rwPipeline, nodedef->name, NULL, NULL);
-	originalRenderCB = RxD3D8AllInOneGetRenderCallBack(node);
-	RxD3D8AllInOneSetRenderCallBack(node, cb);
-}
-
-void
-CustomPipe::Attach(RpAtomic *atomic)
-{
-	RpAtomicSetPipeline(atomic, rwPipeline);
-	/*
-	 * From rw 3.7 changelog:
-	 *
-	 *	07/01/03 Cloning atomics with MatFX - BZ#3430
-	 *	  When cloning cloning an atomic with matfx applied the matfx copy callback
-	 *	  would also setup the matfx pipes after they had been setup by the atomic
-	 *	  clone function. This could overwrite things like skin or patch pipes with
-	 *	  generic matfx pipes when it shouldn't.
-	 *
-	 * Since we're not using 3.5 we have to fix this manually:
-	 */
-	*RWPLUGINOFFSET(int, atomic, MatFXAtomicDataOffset) = 0;
-}
-
-RpAtomic*
-CustomPipe::setatomicCB(RpAtomic *atomic, void *data)
-{
-	((CustomPipe*)data)->Attach(atomic);
-	return atomic;
-}
-#endif
-
 
 enum {
 	LOC_combined    = 0,
@@ -257,10 +189,10 @@ void *CarPipe::pixelShader;
 void *CarPipe::pixelShaderYCG1;
 void *CarPipe::pixelShaderYCG2;
 
-void *CarPipe::vcsVertexShader;
-void *CarPipe::vcsPixelShader;
-void *CarPipe::vcsPixelShaderYCG1;
-void *CarPipe::vcsPixelShaderYCG2;
+void *CarPipe::vcsVehiclePass1VS;
+void *CarPipe::vcsVehiclePass2VS;
+void *CarPipe::simplePS;
+
 // reflection map
 RwCamera *CarPipe::reflectionCam;
 RwTexture *CarPipe::reflectionMask;
@@ -444,10 +376,9 @@ CarPipe::CreateShaders(void)
 	pixelShaderYCG1 = RwD3D9CreatePixelShaderFromFile("neoVehicleYCG1");
 	pixelShaderYCG2 = RwD3D9CreatePixelShaderFromFile("neoVehicleYCG2");
 
-	vcsVertexShader = RwD3D9CreateVertexShaderFromFile("vcsVehicle");
-	vcsPixelShader = RwD3D9CreatePixelShaderFromFile("vcsVehicle");
-	vcsPixelShaderYCG1 = RwD3D9CreatePixelShaderFromFile("vcsVehicleYCG1");
-	vcsPixelShaderYCG2 = RwD3D9CreatePixelShaderFromFile("vcsVehicleYCG2");
+	vcsVehiclePass1VS = RwD3D9CreateVertexShaderFromFile("vcsVehiclePass1");
+	vcsVehiclePass2VS = RwD3D9CreateVertexShaderFromFile("vcsVehiclePass2");
+	simplePS = RwD3D9CreatePixelShaderFromFile("simple");
 }
 
 void
@@ -519,7 +450,7 @@ CarPipe::ShaderSetup(RpAtomic *atomic)
 }
 
 void
-CarPipe::DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
+CarPipe::NeoDiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 {
 	RxD3D9InstanceData *inst = (RxD3D9InstanceData*)&header[1];
 	int noRefl;
@@ -530,32 +461,17 @@ CarPipe::DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
 	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
 
-	if(PipeSwitch == PIPE_NEO)
-		RwD3D9SetVertexShader(vertexShaderPass1);
-	else
-		RwD3D9SetVertexShader(vcsVertexShader);
+	RwD3D9SetVertexShader(vertexShaderPass1);
 
 	noRefl = CVisibilityPlugins::GetAtomicId(atomic) & 0x6000;
 
 	for(uint32 i = 0; i < header->numMeshes; i++){
 		RpMaterial *material = inst->material;
 		pipeSetTexture(material->texture, 0);
-		if(PipeSwitch == PIPE_NEO){
-			if(material->texture && YCOCGPLUGINDATACONST(material->texture)->bYCoCgType != 0)
-				RwD3D9SetPixelShader(YCOCGPLUGINDATACONST(material->texture)->bYCoCgType == 2 ? pixelShaderYCG2 : pixelShaderYCG1);
-			else
-				RwD3D9SetPixelShader(pixelShader);
-		}else{
-			if(material->texture && YCOCGPLUGINDATACONST(material->texture)->bYCoCgType != 0)
-				RwD3D9SetPixelShader(YCOCGPLUGINDATACONST(material->texture)->bYCoCgType == 2 ? vcsPixelShaderYCG2 : vcsPixelShaderYCG1);
-			else
-				RwD3D9SetPixelShader(vcsPixelShader);
-		}
-
-		int matfx = RpMatFXMaterialGetEffects(material);
-		float envcoeff = 0.0f;
-		if(!noRefl && matfx == rpMATFXEFFECTENVMAP)
-			envcoeff = RpMatFXMaterialGetEnvMapCoefficient(material);
+		if(material->texture && YCOCGPLUGINDATACONST(material->texture)->bYCoCgType != 0)
+			RwD3D9SetPixelShader(YCOCGPLUGINDATACONST(material->texture)->bYCoCgType == 2 ? pixelShaderYCG2 : pixelShaderYCG1);
+		else
+			RwD3D9SetPixelShader(pixelShader);
 
 		Color c = diffColor.Get();
 		Color diff(c.r*c.a, c.g*c.a, c.b*c.a, 1.0f-c.a);
@@ -569,10 +485,7 @@ CarPipe::DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 		RwD3D9SetVertexShaderConstant(LOC_surfProps, &material->surfaceProps, 1);
 
 		float reflProps[4];
-		if(PipeSwitch == PIPE_NEO)
-			reflProps[0] = material->surfaceProps.specular;
-		else
-			reflProps[0] = envcoeff;
+		reflProps[0] = material->surfaceProps.specular;
 		reflProps[1] = fresnel.Get();
 		reflProps[2] = 1.0;
 		reflProps[3] = power.Get();
@@ -624,6 +537,81 @@ CarPipe::SpecularPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 }
 
 void
+CarPipe::DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
+{
+	RxD3D9InstanceData *inst = (RxD3D9InstanceData*)&header[1];
+
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)1);
+	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
+	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
+
+	RwD3D9SetVertexShader(vcsVehiclePass1VS);
+
+	for(uint32 i = 0; i < header->numMeshes; i++){
+		RpMaterial *material = inst->material;
+		pipeSetTexture(material->texture, 0);
+		if(material->texture && YCOCGPLUGINDATACONST(material->texture)->bYCoCgType != 0)
+			RwD3D9SetPixelShader(gpGenericPS[YCOCGPLUGINDATACONST(material->texture)->bYCoCgType == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
+		else
+			RwD3D9SetPixelShader(simplePS);
+
+		RwRGBAReal mat;
+		RwRGBARealFromRwRGBA(&mat, &inst->material->color);
+		RwD3D9SetVertexShaderConstant(LOC_matCol, (void*)&mat, 1);
+		RwD3D9SetVertexShaderConstant(LOC_surfProps, &material->surfaceProps, 1);
+
+		D3D9RenderDual(1, header, inst);
+		inst++;
+	}
+}
+
+void
+CarPipe::EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
+{
+	RwUInt32 src, dst, fog, zwrite, alphatest;
+	float worldview[16];
+	RxD3D9InstanceData *inst = (RxD3D9InstanceData*)&header[1];
+
+	pipeGetWorldViewMatrix(atomic, worldview);
+	RwD3D9SetVertexShaderConstant(LOC_world, (void*)&worldview, 4);
+
+	RwRenderStateGet(rwRENDERSTATEZWRITEENABLE, &zwrite);
+	RwRenderStateGet(rwRENDERSTATEFOGENABLE, &fog);
+	RwRenderStateGet(rwRENDERSTATESRCBLEND, &src);
+	RwRenderStateGet(rwRENDERSTATEDESTBLEND, &dst);
+	RwRenderStateGet(rwRENDERSTATEALPHATESTFUNCTION, &alphatest);
+
+	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)FALSE);
+	RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void*)FALSE);
+	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
+	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
+	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)rwALPHATESTFUNCTIONALWAYS);
+
+	RwD3D9SetVertexShader(vcsVehiclePass2VS);
+	RwD3D9SetPixelShader(simplePS);
+	RwD3D9SetTexture(reflectionTex, 0);
+
+	int noRefl = CVisibilityPlugins::GetAtomicId(atomic) & 0x6000;
+
+	for(uint32 i = 0; i < header->numMeshes; i++){
+		RpMaterial *material = inst->material;
+
+		int matfx = RpMatFXMaterialGetEffects(material);
+		if(!noRefl && matfx == rpMATFXEFFECTENVMAP){
+			float envcoeff = RpMatFXMaterialGetEnvMapCoefficient(material);
+			RwD3D9SetVertexShaderConstant(LOC_reflProps, (void*)&envcoeff, 4);
+			D3D9Render(header, inst);
+		}
+		inst++;
+	}
+	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)zwrite);
+	RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void*)fog);
+	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)src);
+	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)dst);
+	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)alphatest);
+}
+
+void
 CarPipe::RenderCallback(RwResEntry *repEntry, void *object, RwUInt8 type, RwUInt32 flags)
 {
 		{
@@ -644,9 +632,13 @@ CarPipe::RenderCallback(RwResEntry *repEntry, void *object, RwUInt8 type, RwUInt
 	_rwD3D9SetStreams(header->vertexStream, header->useOffsets);
 	RwD3D9SetVertexDeclaration(header->vertexDeclaration);
 
-	DiffusePass(header, (RpAtomic*)object);
-	if(PipeSwitch == PIPE_NEO)
+	if(PipeSwitch == PIPE_NEO){
+		NeoDiffusePass(header, (RpAtomic*)object);
 		SpecularPass(header, (RpAtomic*)object);
+	}else{
+		DiffusePass(header, (RpAtomic*)object);
+		EnvMapPass(header, (RpAtomic*)object);
+	}
 	RwD3D9SetTexture(NULL, 1);
 	RwD3D9SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
 	RwD3D9SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
@@ -690,6 +682,9 @@ static StaticPatcher	Patcher([](){
 
 	Memory::Patch(0x5D9FE3 +1, CarPipe::RenderCallback);
 	// remove some of the SA vehicle pipe
+	Memory::Nop(0x6D64E3, 6);	// don't set MatFX Env coefficient from Col lighting
+	Memory::Nop(0x4C8899, 5);	// don't set MatFX Env coefficient to 0.25
+
 	Memory::Nop(0x5DA620, 5);	// for all mats CCustomCarEnvMapPipeline::CustomPipeMaterialSetup
 //	Memory::Nop(0x53DFCE, 5);	// CCarFXRenderer::PreRenderUpdate - no longer called from our RenderScene
 	Memory::Patch<uint8>(0x5D9900, 0xCC);	// disable CCustomCarEnvMapPipeline::CustomPipeRenderCB

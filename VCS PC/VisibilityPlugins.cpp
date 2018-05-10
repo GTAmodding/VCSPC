@@ -62,7 +62,8 @@ CVisibilityPlugins::RenderEntity(CEntity *e, float dist)
 void CVisibilityPlugins::RenderAlphaAtomics()
 {
 	// TODO: What is this for? do we really want this?
-	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTIONREF, 0);
+	// actually not even used since it's only used with vehicles and the pipeline uses its own alpha ref with the dual pass
+//	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTIONREF, 0);
 
 	RenderOrderedList(m_alphaList);
 }

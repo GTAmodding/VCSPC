@@ -609,16 +609,13 @@
     <FxCompile Include="Shaders\neoVehiclePS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\vcsVehiclePS.hlsl">
+    <FxCompile Include="Shaders\simplePS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\vcsVehicleYCG1PS.hlsl">
+    <FxCompile Include="Shaders\vcsVehiclePass1VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\vcsVehicleYCG2PS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\vcsVehicleVS.hlsl">
+    <FxCompile Include="Shaders\vcsVehiclePass2VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

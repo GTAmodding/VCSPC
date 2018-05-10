@@ -53,7 +53,7 @@ transpose(void *dst, void *src)
 	m1[3][3] = m2[3][3];
 }
 
-static DirectX::XMMATRIX pipeWorldMat, pipeViewMat, pipeProjMat;
+static DirectX::XMMATRIX pipeWorldMat, pipeViewMat, pipeWorldViewMat, pipeProjMat;
 
 void
 pipeGetComposedTransformMatrix(RpAtomic *atomic, float *out)
@@ -64,8 +64,15 @@ pipeGetComposedTransformMatrix(RpAtomic *atomic, float *out)
 	transpose(&pipeViewMat, RwD3D9D3D9ViewTransform);
 	transpose(&pipeProjMat, RwD3D9D3D9ProjTransform);
 
-	DirectX::XMMATRIX combined = DirectX::XMMatrixMultiply(pipeProjMat, DirectX::XMMatrixMultiply(pipeViewMat, pipeWorldMat));
+	pipeWorldViewMat = DirectX::XMMatrixMultiply(pipeViewMat, pipeWorldMat);
+	DirectX::XMMATRIX combined = DirectX::XMMatrixMultiply(pipeProjMat, pipeWorldViewMat);
 	memcpy(out, &combined, 64);
+}
+
+void
+pipeGetWorldViewMatrix(RpAtomic *atomic, float *out)
+{
+	memcpy(out, &pipeWorldViewMat, 64);
 }
 
 void

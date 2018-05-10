@@ -90,10 +90,10 @@ public:
 	static void *pixelShader;
 	static void *pixelShaderYCG1;
 	static void *pixelShaderYCG2;
-	static void *vcsVertexShader;
-	static void *vcsPixelShader;
-	static void *vcsPixelShaderYCG1;
-	static void *vcsPixelShaderYCG2;
+
+	static void *vcsVehiclePass1VS;
+	static void *vcsVehiclePass2VS;
+	static void *simplePS;
 	// reflection map
 	static RwCamera *reflectionCam;
 	static RwTexture *reflectionMask;
@@ -107,7 +107,9 @@ public:
 	static void SetupEnvMap(void);
 	static void RenderCallback(RwResEntry *repEntry, void *object, RwUInt8 type, RwUInt32 flags);
 	static void ShaderSetup(RpAtomic *atomic);
+	static void NeoDiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic);
 	static void DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic);
+	static void EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic);
 	static void SpecularPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic);
 };
 
