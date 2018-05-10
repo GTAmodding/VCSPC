@@ -20,26 +20,6 @@ enum PipeSwitch {
 	PIPE_VCS
 };
 
-struct CustomEnvMapPipeMaterialData
-{
-	int8_t scaleX;
-	int8_t scaleY;
-	int8_t transScaleX;
-	int8_t transScaleY;
-	int8_t shininess;
-	uint8_t pad3;
-	uint16_t renderFrameCounter;
-	RwTexture *texture;
-};
-RwInt32 &CCustomCarEnvMapPipeline__ms_envMapPluginOffset = *(RwInt32*)0x8D12C4;
-
-struct CustomSpecMapPipeMaterialData
-{
-	float specularity;
-	RwTexture *texture;
-};
-RwInt32 &CCustomCarEnvMapPipeline__ms_specularMapPluginOffset = *(RwInt32*)0x8D12CC;
-
 RwTexDictionary *neoTxd;
 
 int CarPipe::PipeSwitch;
@@ -267,11 +247,6 @@ enum {
 	LOC_surfProps	= 32,
 };
 
-//WRAPPER void CRenderer__RenderRoads(void) { EAXJMP(0x553A10); }
-//WRAPPER void CRenderer__RenderEverythingBarRoads(void) { EAXJMP(0x553AA0); }
-//WRAPPER void CRenderer__RenderFadingInEntities(void) { EAXJMP(0x5531E0); }
-//WRAPPER void CRenderer__RenderFadingInUnderwaterEntities(void) { EAXJMP(0x553220); }
-
 InterpolatedFloat CarPipe::fresnel(0.4f);
 InterpolatedFloat CarPipe::power(18.0f);
 InterpolatedLight CarPipe::diffColor(Color(0.0f, 0.0f, 0.0f, 0.0f));
@@ -383,25 +358,15 @@ CarPipe::MakeScreenQuad(void)
 }
 
 void
-CarPipe::RenderReflectionScene(void)
-{
-	RwRenderStateSet(rwRENDERSTATEFOGENABLE, 0);
-	CRenderer::RenderRoads();
-	CRenderer::RenderEverythingBarRoads();
-	// this renders vehicles and peds in vehicles, probably don't want it here
-	// let's hope it doesn't render some other objects we'd like to see
-	if(PipeSwitch == PIPE_NEO)
-		CRenderer::RenderFadingInEntities();
-}
-
-void
 CarPipe::RenderEnvTex(void)
 {
 	RwCameraEndUpdate(Scene.camera);
 
 	RwV2d oldvw, vw = { 2.0f, 2.0f };
-	oldvw = reflectionCam->viewWindow;
-	RwCameraSetViewWindow(reflectionCam, &vw);
+	if(PipeSwitch == PIPE_NEO)
+		RwCameraSetViewWindow(reflectionCam, &vw);
+	else
+		RwCameraSetViewWindow(reflectionCam, &Scene.camera->viewWindow);
 
 	static RwMatrix *reflectionMatrix;
 	if(reflectionMatrix == NULL){
@@ -447,7 +412,6 @@ CarPipe::RenderEnvTex(void)
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, 0);
 
 	RwCameraEndUpdate(reflectionCam);
-	RwCameraSetViewWindow(reflectionCam, &oldvw);
 
 	RwCameraBeginUpdate(Scene.camera);
 #ifdef DEBUGTEX
@@ -715,6 +679,7 @@ void __declspec(naked) doglare(void)
 		retn
 	}
 }
+
 
 static StaticPatcher	Patcher([](){
 	// not neo, but enable sun glare

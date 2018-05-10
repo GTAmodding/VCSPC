@@ -2,6 +2,7 @@
 #include "VisibilityPlugins.h"
 
 #include "Ped.h"
+#include "Scene.h"
 
 // Atomic and Frame have 4 bytes each
 struct VisibilityClumpData
@@ -18,7 +19,7 @@ CLinkList<CVisibilityPlugins::AlphaObjectInfo>&		CVisibilityPlugins::m_alphaList
 CLinkList<CVisibilityPlugins::AlphaObjectInfo>&		CVisibilityPlugins::m_alphaBoatAtomicList = *(CLinkList<CVisibilityPlugins::AlphaObjectInfo>*)0xC880C8;
 CLinkList<CVisibilityPlugins::AlphaObjectInfo>&		CVisibilityPlugins::m_alphaEntityList = *(CLinkList<CVisibilityPlugins::AlphaObjectInfo>*)0xC88120;
 CLinkList<CVisibilityPlugins::AlphaObjectInfo>&		CVisibilityPlugins::m_alphaUnderwaterEntityList = *(CLinkList<CVisibilityPlugins::AlphaObjectInfo>*)0xC88178;
-CLinkList<CVisibilityPlugins::AlphaObjectInfo>&		CVisibilityPlugins::m_alphaReallyDrawLastList = *(CLinkList<CVisibilityPlugins::AlphaObjectInfo>*)0xC881D0;
+//CLinkList<CVisibilityPlugins::AlphaObjectInfo>&		CVisibilityPlugins::m_alphaReallyDrawLastList = *(CLinkList<CVisibilityPlugins::AlphaObjectInfo>*)0xC881D0;
 CLinkList<CPed*>&									CVisibilityPlugins::ms_weaponPedsForPC = *(CLinkList<CPed*>*)0xC88224;
 
 void
@@ -27,10 +28,19 @@ CVisibilityPlugins::InitAlphaAtomicList(void)
 	m_alphaList.Clear();
 }
 
-WRAPPER bool
+bool
 CVisibilityPlugins::InsertEntityIntoSortedList(CEntity *ent, float sort)
 {
-	EAXJMP(0x734570);
+	// SA adds "grasshouse" models to the really last list here, unnecessary for VCSPC
+
+	AlphaObjectInfo i;
+	i.fCompareValue = sort;
+	i.pObject = ent;
+	i.callback = (VisibilityCallback)RenderEntity;
+	if(ent->bUnderwater)
+		return m_alphaUnderwaterEntityList.InsertSorted(i) != NULL;
+	else
+		return m_alphaEntityList.InsertSorted(i) != NULL;
 }
 
 bool
@@ -90,6 +100,38 @@ CVisibilityPlugins::RenderFadingUnderwaterEntities(void)
 {
 	RenderOrderedList(m_alphaUnderwaterEntityList);
 }
+
+void
+CVisibilityPlugins::RenderAllFadingBuildings(void)
+{
+	RenderOrderedListBuildings(m_alphaUnderwaterEntityList);
+	RenderOrderedListBuildings(m_alphaEntityList);
+}
+
+// This is just used to render The Truth's weed "grasshouse"es
+// unused in VCSPC
+/*
+void
+CVisibilityPlugins::RenderReallyDrawLastObjects(void)
+{
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, NULL);
+	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
+	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
+	RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLNONE);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, NULL);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, NULL);
+	SetAmbientColours();
+	DeActivateDirectional();
+
+	RenderOrderedList(m_alphaReallyDrawLastList);
+
+	RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void*)FALSE);
+}
+*/
 
 WRAPPER void
 CVisibilityPlugins::SetupVehicleVariables(RpClump *clump)

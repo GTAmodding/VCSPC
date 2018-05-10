@@ -35,16 +35,23 @@ public:
 	static inline void						RenderOrderedList(CLinkList<AlphaObjectInfo>& list)
 	{	for ( auto i = list.m_lnListTail.m_pPrev; i != &list.m_lnListHead; i = i->m_pPrev )
 			i->V().callback(i->V().pObject, i->V().fCompareValue); }
+	static inline void						RenderOrderedListBuildings(CLinkList<AlphaObjectInfo>& list)
+	{	for ( auto i = list.m_lnListTail.m_pPrev; i != &list.m_lnListHead; i = i->m_pPrev )
+			if(((CEntity*)i->V().pObject)->nType == ENTITY_TYPE_BUILDING)
+				i->V().callback(i->V().pObject, i->V().fCompareValue);
+	}
 
 	static void InitAlphaAtomicList(void);
 	static bool InsertEntityIntoSortedList(CEntity *ent, float sort);
 	static bool InsertEntityIntoUnderwaterList(CEntity *ent, float sort);
 	static void RenderEntity(CEntity *e, float dist);
-	static void								RenderAlphaAtomics();
-	static void								RenderWeaponPedsForPC();
+	static void RenderAlphaAtomics();
+	static void RenderWeaponPedsForPC();
 	static void RenderBoatAlphaAtomics(void);
 	static void RenderFadingEntities(void);
 	static void RenderFadingUnderwaterEntities(void);
+	static void RenderAllFadingBuildings(void);
+	static void RenderReallyDrawLastObjects(void);
 	static void SetupVehicleVariables(RpClump *clump);
 	static uint16								GetAtomicId(RpAtomic*);
 	static int32 GetClumpAlpha(RpClump *clump);

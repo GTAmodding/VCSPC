@@ -79,7 +79,6 @@ class CarPipe : public CustomPipe
 
 	static void MakeScreenQuad(void);
 	static void MakeQuadTexCoords(bool textureSpace);
-	static void RenderReflectionScene(void);
 public:
 	static int PipeSwitch;
 	static InterpolatedFloat fresnel;

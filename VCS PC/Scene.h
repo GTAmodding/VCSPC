@@ -25,6 +25,7 @@ void ActivateDirectional(void);
 void DeActivateDirectional();
 
 void RenderScene(void);
+void RenderReflectionScene(void);
 void RenderEffects(void);
 
 #endif __LIGHTING

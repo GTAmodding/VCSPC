@@ -7,6 +7,7 @@
 #include "Frontend.h"
 #include "PostEffects.h"
 #include "Renderer.h"
+#include "VisibilityPlugins.h"
 #include "Breakable.h"
 #include "Camera.h"
 #include "Shadows.h"
@@ -172,7 +173,6 @@ WRAPPER void CRopes__Render(void) { EAXJMP(0x556AE0); }
 WRAPPER void CGlass__Render(void) { EAXJMP(0x71CE20); }
 void CMovingThings__Render(void) {}
 WRAPPER void CMovingThings__Render_BeforeClouds(void) { EAXJMP(0x7178F0); }
-WRAPPER void CVisibilityPlugins__RenderReallyDrawLastObjects(void) { EAXJMP(0x733800); }
 WRAPPER void Fx_c__Render(RwCamera *cam, int i) { WRAPARG(cam); WRAPARG(i); EAXJMP(0x49E650); }
 WRAPPER void CWaterCannons__Render(void) { EAXJMP(0x729B30); }
 WRAPPER void CWaterLevel__RenderWaterFog(void) { EAXJMP(0x6E7760); }
@@ -225,10 +225,17 @@ RenderScene(void)
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)1);
 	RwRenderStateSet(rwRENDERSTATESHADEMODE, (void*)rwSHADEMODEGOURAUD);
 
+	CRenderer::SortOutVisibleEntities();
+
 	// CCarFXRenderer::PreRenderUpdate();	// not used in VCSPC
 	CRenderer::RenderRoads();
 	CCoronas::RenderReflections();
-	CRenderer::RenderEverythingBarRoads();
+
+	// We add objects to the sorted lists in SortOutVisibleEntities() now
+	// CRenderer::RenderEverythingBarRoads();
+	// rendering done by...
+	CRenderer::RenderEverythingBarRoadsOpaque();
+
 	g_breakMan.Render(false);
 	CRenderer::RenderFadingInUnderwaterEntities();
 	if(!underwater){
@@ -279,6 +286,13 @@ RenderScene(void)
 }
 
 void
+RenderReflectionScene(void)
+{
+	CRenderer::RenderAllBuildingsOpaque();
+	CRenderer::RenderAllBuildingsTransparent();
+}
+
+void
 RenderEffects(void)
 {
 	CSpecialFX__Render();	// has to be called before coronas because 3d markers want to draw them
@@ -287,7 +301,7 @@ RenderEffects(void)
 	CRopes__Render();
 	CGlass__Render();
 	CMovingThings__Render();
-	CVisibilityPlugins__RenderReallyDrawLastObjects();
+//	CVisibilityPlugins::RenderReallyDrawLastObjects();	// no "grasshouse" in VCSPC
 	CCoronas::RenderBuffered();
 	Fx_c__Render(TheCamera.m_pRwCamera, 0);
 	CWaterCannons__Render();
