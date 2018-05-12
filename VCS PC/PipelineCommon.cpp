@@ -75,6 +75,49 @@ pipeGetWorldViewMatrix(RpAtomic *atomic, float *out)
 	memcpy(out, &pipeWorldViewMat, 64);
 }
 
+WRAPPER RwMatrix *RwMatrixInvert(RwMatrix*, const RwMatrix*) { EAXJMP(0x7F2070); }
+WRAPPER RwReal RwV3dNormalize(RwV3d*, const RwV3d*) { EAXJMP(0x7ED9B0); }
+
+void
+pipeGetEnvMapMatrix(RpAtomic *atomic, float *out)
+{
+	DirectX::XMMATRIX tmp;
+
+	RwMatrix *world = RwFrameGetLTM(RpAtomicGetFrame(atomic));
+	RwCamera *cam = (RwCamera*)RWSRCGLOBAL(curCamera);
+
+	float view[16];
+	// Kill pitch in camera matrix
+	RwMatrix mat = *RwFrameGetLTM(RwCameraGetFrame(cam));
+	mat.pos.x = 0.0f;
+	mat.pos.y = 0.0f;
+	mat.pos.z = 0.0f;
+	mat.at.z = 0.0f;
+	RwV3dNormalize(&mat.at, &mat.at);
+	mat.up.x = 0.0f;
+	mat.up.y = 0.0f;
+	mat.up.z = 1.0f;
+	mat.right.x = -mat.at.y;
+	mat.right.y = mat.at.z;
+	mat.right.z = 0;
+	mat.flags = rwMATRIXTYPEORTHONORMAL;
+
+	// this can be simplified, invert is just transpose as well
+	RwMatrixInvert((RwMatrix*)view, &mat);
+	view[0] = -view[0];
+	view[3] = 0.0f;
+	view[4] = -view[4];
+	view[7] = 0.0f;
+	view[8] = -view[8];
+	view[11] = 0.0f;
+	view[12] = -view[12];
+	view[15] = 1.0f;
+	transpose(&tmp, view);
+
+	tmp = DirectX::XMMatrixMultiply(tmp, pipeWorldMat);
+	memcpy(out, &tmp, 64);
+}
+
 void
 pipeUploadMatCol(int flags, RpMaterial *m, int loc)
 {

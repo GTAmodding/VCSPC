@@ -14,6 +14,8 @@
 #include "TimeCycle.h"
 
 //#define DEBUGTEX
+bool updateEnvMap = true;
+bool chromeCheat = false;
 
 enum PipeSwitch {
 	PIPE_NEO,
@@ -214,7 +216,7 @@ neoCarPipeInit(void)
 // Reflection map
 //
 
-int envMapSize = 256;
+int envMapSize = 128;
 
 void
 CarPipe::SetupEnvMap(void)
@@ -292,6 +294,7 @@ CarPipe::MakeScreenQuad(void)
 void
 CarPipe::RenderEnvTex(void)
 {
+if(!updateEnvMap) return;
 	RwCameraEndUpdate(Scene.camera);
 
 	RwV2d oldvw, vw = { 2.0f, 2.0f };
@@ -565,15 +568,45 @@ CarPipe::DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 	}
 }
 
+/*
+void
+getEnvMapMat(RpAtomic *atomic, float *out)
+{
+	static DirectX::XMMATRIX worldMat;
+	RwCamera *cam = (RwCamera*)RWSRCGLOBAL(curCamera);
+
+	RwMatrixInvert((RwMatrix*)out, RwFrameGetLTM(RwCameraGetFrame(cam)));
+	out[0] = -out[0];
+	out[3] = 0.0f;
+	out[4] = -out[4];
+	out[7] = 0.0f;
+	out[8] = -out[8];
+	out[11] = 0.0f;
+	out[12] = -out[12];
+	out[15] = 1.0f;
+
+	RwMatrix *world = RwFrameGetLTM(RpAtomicGetFrame(atomic));
+
+	RwToD3DMatrix(&worldMat, world);
+	transpose(&pipeViewMat, RwD3D9D3D9ViewTransform);
+	transpose(&pipeProjMat, RwD3D9D3D9ProjTransform);
+
+	DirectX::XMMatrixMultiply(pipeViewMat, worldMat);
+	pipeGetWorldViewMatrix(NULL, out);
+}
+*/
+
 void
 CarPipe::EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 {
 	RwUInt32 src, dst, fog, zwrite, alphatest;
-	float worldview[16];
+	float envmat[16];
 	RxD3D9InstanceData *inst = (RxD3D9InstanceData*)&header[1];
 
-	pipeGetWorldViewMatrix(atomic, worldview);
-	RwD3D9SetVertexShaderConstant(LOC_world, (void*)&worldview, 4);
+//	pipeGetWorldViewMatrix(atomic, envmat);
+	pipeGetEnvMapMatrix(atomic, envmat);
+//	RwD3D9SetVertexShaderConstant(LOC_world, (void*)&envmat, 4);
+	RwD3D9SetVertexShaderConstant(LOC_tex, (void*)&envmat, 4);
 
 	RwRenderStateGet(rwRENDERSTATEZWRITEENABLE, &zwrite);
 	RwRenderStateGet(rwRENDERSTATEFOGENABLE, &fog);
@@ -598,7 +631,9 @@ CarPipe::EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 
 		int matfx = RpMatFXMaterialGetEffects(material);
 		if(!noRefl && matfx == rpMATFXEFFECTENVMAP){
-			float envcoeff = RpMatFXMaterialGetEnvMapCoefficient(material);
+			float envcoeff = 0.5f * RpMatFXMaterialGetEnvMapCoefficient(material);
+			if(chromeCheat)
+				envcoeff = 1.0f;
 			RwD3D9SetVertexShaderConstant(LOC_reflProps, (void*)&envcoeff, 4);
 			D3D9Render(header, inst);
 		}
@@ -624,6 +659,27 @@ CarPipe::RenderCallback(RwResEntry *repEntry, void *object, RwUInt8 type, RwUInt
 			}else
 				keystate = false;
 		}
+		{
+			static bool keystate = false;
+			if(GetAsyncKeyState(VK_F5) & 0x8000){
+				if(!keystate){
+					keystate = true;
+					updateEnvMap = !updateEnvMap;
+				}
+			}else
+				keystate = false;
+		}
+		{
+			static bool keystate = false;
+			if(GetAsyncKeyState(VK_F6) & 0x8000){
+				if(!keystate){
+					keystate = true;
+					chromeCheat = !chromeCheat;
+				}
+			}else
+				keystate = false;
+		}
+
 	RxD3D9ResEntryHeader *header = (RxD3D9ResEntryHeader*)&repEntry[1];
 	ShaderSetup((RpAtomic*)object);
 

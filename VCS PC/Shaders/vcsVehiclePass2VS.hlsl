@@ -12,7 +12,7 @@ struct VS_OUTPUT
 };
 
 float4x4	combined	: register(c0);
-float4x4	world		: register(c4);
+float4x4	tex		: register(c8);
 float4		reflProps	: register(c31);
 
 VS_OUTPUT
@@ -21,10 +21,11 @@ main(in VS_INPUT In)
 	VS_OUTPUT Out;
 
 	Out.position = mul(In.Position, combined);
-	float3 N = normalize(mul(In.Normal, (float3x3)world).xyz);
+
+	float3 N = normalize(mul(In.Normal, (float3x3)tex).xyz);
 	Out.texcoord0 = N.xy*float2(0.5, -0.5) + 0.5;
 
-	Out.color = float4(1, 1, 1, reflProps.x/2);
+	Out.color = float4(1, 1, 1, reflProps.x);
 
 	return Out;
 }
