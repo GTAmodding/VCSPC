@@ -7,6 +7,7 @@
 #include "Pad.h"
 #include "RealTimeShadowMgr.h"
 #include "Shadows.h"
+#include "Rubbish.h"
 
 WRAPPER void CVehicle::SetWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D3080); }
 WRAPPER void CVehicle::ClearWindowOpenFlag(unsigned char nWindow) { WRAPARG(nWindow); EAXJMP(0x6D30B0); }
@@ -69,6 +70,20 @@ WRAPPER void CVehicle::SetupRender(void) { EAXJMP(0x6D64F0); }
 
 WRAPPER void CVehicle::ResetAfterRender(void) { EAXJMP(0x6D0E20); }
 
+WRAPPER void CVehicle::UpdateClumpAlpha(void) { EAXJMP(0x6D2980); }
+
+void
+CVehicle::UpdateClumpAlpha_hook(void)
+{
+	CRubbish::StirUp(this);
+	this->UpdateClumpAlpha();
+}
+
+static StaticPatcher Patcher([](){
+	// Make Automobiles and Bikes stir up rubbish
+	Memory::InjectHook(0x6B19F2, (&CVehicle::UpdateClumpAlpha_hook));
+	Memory::InjectHook(0x6B92F5, (&CVehicle::UpdateClumpAlpha_hook));
+});
 
 #include "Font.h"
 

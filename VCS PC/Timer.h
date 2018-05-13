@@ -7,7 +7,7 @@ public:
 	static int&				m_snTimeInMilliseconds;
 	static int&				m_snTimeInMillisecondsPauseMode;
 	static float&			ms_fTimeStep;
-	//static unsigned int&	m_FrameCounter;
+	static unsigned int&	m_FrameCounter;
 };
 
 inline bool ShowFlashingItem(signed int nOnDuration, signed int nOffDuration)

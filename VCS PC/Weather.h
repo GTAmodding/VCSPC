@@ -24,6 +24,7 @@ enum WeatherType {
 class CWeather
 {
 public:
+	static float &Wind;
 	static float&		Foggyness;
 	static int16 &OldWeatherType;
 	static int16 &NewWeatherType;

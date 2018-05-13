@@ -12,6 +12,7 @@ WRAPPER void CWorld::Add(CEntity* pEntity) { WRAPARG(pEntity); EAXJMP(0x563220);
 WRAPPER void CWorld::Remove(CEntity* pEntity) { WRAPARG(pEntity); EAXJMP(0x563280); }
 WRAPPER bool CWorld::ProcessLineOfSight(const CVector&, const CVector&, CColPoint&, CEntity*&, bool, bool, bool, bool, bool, bool, bool, bool)
 										{ EAXJMP(0x56BA00); }
+WRAPPER double CWorld::FindGroundZFor3DCoord(float x, float y, float z, bool *b, CEntity **ent) { EAXJMP(0x5696C0); }
 
 void CWorld::ClearForRestart()
 {

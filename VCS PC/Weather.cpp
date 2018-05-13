@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Weather.h"
 
+float& CWeather::Wind = *(float*)0xC812F0;
 float& CWeather::Foggyness = *(float*)0xC81300;
 int16 &CWeather::OldWeatherType = *(short*)0xC81320;
 int16 &CWeather::NewWeatherType = *(short*)0xC8131C;

@@ -11,6 +11,7 @@
 #include "Breakable.h"
 #include "Camera.h"
 #include "Shadows.h"
+#include "Rubbish.h"
 #include "NeoCarpipe.h"
 
 GlobalScene &Scene = *(GlobalScene*)0xC17038;
@@ -299,6 +300,7 @@ RenderEffects(void)
 	CBirds__Render();
 	CSkidmarks__Render();
 	CRopes__Render();
+	CRubbish::Render();
 	CGlass__Render();
 	CMovingThings__Render();
 //	CVisibilityPlugins::RenderReallyDrawLastObjects();	// no "grasshouse" in VCSPC

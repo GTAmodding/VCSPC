@@ -48,6 +48,7 @@ public:
 	static void					Add(CEntity* pEntity);
 	static void					Remove(CEntity* pEntity);
 	static bool					ProcessLineOfSight(const CVector&, const CVector&, CColPoint&, CEntity*&, bool, bool, bool, bool, bool, bool, bool, bool);
+	static double					FindGroundZFor3DCoord(float x, float y, float z, bool *b, CEntity **ent);
 
 	static void					ClearForRestart();
 };

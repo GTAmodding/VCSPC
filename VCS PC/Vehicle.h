@@ -143,6 +143,8 @@ public:
 	void RenderDriverAndPassengers(void);
 	void SetupRender(void);
 	void ResetAfterRender(void);
+	void UpdateClumpAlpha(void);
+	void UpdateClumpAlpha_hook(void);
 
 
 	static void		SetComponentAtomicAlpha(RpAtomic* pAtomic, int nAlpha);
