@@ -29,8 +29,8 @@ public:
 	static inline bool	TrailsEnabled()
 		{ return m_bTrailsEnabled; }
 
-private:
 	static bool			m_bTrailsEnabled;
+private:
 
 	static RwRaster*	ms_pRadiosityRaster1;
 	static RwRaster*	ms_pRadiosityRaster2;

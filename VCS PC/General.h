@@ -3,6 +3,12 @@
 
 #include "..\common\Date.h"
 
+class CGeneral
+{
+public:
+	static float GetATanOfXY(float x, float y);
+};
+
 #define FUNC_CEntity__GetBoundCentre				0x534250
 
 class CSimpleTransform

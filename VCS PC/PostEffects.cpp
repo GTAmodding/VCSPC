@@ -4,8 +4,10 @@
 #include "Rs.h"
 #include "TimeCycle.h"
 #include "Scene.h"
+#include "debugmenu_public.h"
 
-bool			CPostEffects::m_bTrailsEnabled;
+bool CPostEffects::m_bTrailsEnabled;
+static int blurEnabled = true;
 
 WRAPPER void CPostEffects::ImmediateModeRenderStatesStore(void) { EAXJMP(0x700CC0); }
 WRAPPER void CPostEffects::ImmediateModeRenderStatesSet(void) { EAXJMP(0x700D70); }
@@ -368,27 +370,34 @@ void CPostEffects::Render()
 	RwRGBA blurcol;
 	if(m_bTrailsEnabled)
 		Radiosity(CTimeCycle::m_CurrentColours.radiosityLimit, CTimeCycle::m_CurrentColours.radiosityIntensity);
-	blurcol.red = CTimeCycle::m_CurrentColours.blurr;
-	blurcol.green = CTimeCycle::m_CurrentColours.blurg;
-	blurcol.blue = CTimeCycle::m_CurrentColours.blurb;
-	BlurOverlay(CTimeCycle::m_CurrentColours.blura, CTimeCycle::m_CurrentColours.bluroffset, blurcol);
+	if(blurEnabled){
+		blurcol.red = CTimeCycle::m_CurrentColours.blurr;
+		blurcol.green = CTimeCycle::m_CurrentColours.blurg;
+		blurcol.blue = CTimeCycle::m_CurrentColours.blurb;
+		BlurOverlay(CTimeCycle::m_CurrentColours.blura, CTimeCycle::m_CurrentColours.bluroffset, blurcol);
+	}
 }
 
 void CPostEffects::Initialise()
 {
-	if(m_bTrailsEnabled){
+//	if(m_bTrailsEnabled){
 		Radiosity_Close();
 		Radiosity_Init();
-	}
+//	}
 	Blur_Close();
 	Blur_Init();
 }
 
 static StaticPatcher	Patcher([](){ 
-						Memory::InjectHook(0x53E227, CPostEffects::Render);
-						Memory::InjectHook(0x5BD779, CPostEffects::Initialise);
-						Memory::InjectHook(0x7482EB, CPostEffects::Initialise);
-						Memory::InjectHook(0x745C7D, CPostEffects::Initialise);
-						Memory::InjectHook(0x53BC27, CPostEffects::Close);
-						Memory::Nop(0x53C0D5, 5);
-									});
+	Memory::InjectHook(0x53E227, CPostEffects::Render);
+	Memory::InjectHook(0x5BD779, CPostEffects::Initialise);
+	Memory::InjectHook(0x7482EB, CPostEffects::Initialise);
+	Memory::InjectHook(0x745C7D, CPostEffects::Initialise);
+	Memory::InjectHook(0x53BC27, CPostEffects::Close);
+	Memory::Nop(0x53C0D5, 5);
+
+	if(DebugMenuLoad()){
+		DebugMenuAddVarBool8("Rendering|Post FX", "Enable Radiosity", (int8*)&CPostEffects::m_bTrailsEnabled, NULL);
+		DebugMenuAddVarBool32("Rendering|Post FX", "Enable Blur", &blurEnabled, NULL);
+	}
+});

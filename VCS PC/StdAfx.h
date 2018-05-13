@@ -76,7 +76,7 @@ typedef int64_t int64;
 //#define INCLUDE_TRIANGLE_RADAR
 //#define TRACE_STREAMS
 //#define TRACE_FUCKING_TEXTURES
-#define INCLUDE_STREAMING_TEXT
+//#define INCLUDE_STREAMING_TEXT
 //#define LIST_MEMORY
 //#define MAKE_CONSOLE
 //#define DUMP_MENUS

@@ -69,12 +69,6 @@ pipeGetComposedTransformMatrix(RpAtomic *atomic, float *out)
 	memcpy(out, &combined, 64);
 }
 
-void
-pipeGetWorldViewMatrix(RpAtomic *atomic, float *out)
-{
-	memcpy(out, &pipeWorldViewMat, 64);
-}
-
 WRAPPER RwMatrix *RwMatrixInvert(RwMatrix*, const RwMatrix*) { EAXJMP(0x7F2070); }
 WRAPPER RwReal RwV3dNormalize(RwV3d*, const RwV3d*) { EAXJMP(0x7ED9B0); }
 
@@ -98,7 +92,7 @@ pipeGetEnvMapMatrix(RpAtomic *atomic, float *out)
 	mat.up.y = 0.0f;
 	mat.up.z = 1.0f;
 	mat.right.x = -mat.at.y;
-	mat.right.y = mat.at.z;
+	mat.right.y = mat.at.x;
 	mat.right.z = 0;
 	mat.flags = rwMATRIXTYPEORTHONORMAL;
 

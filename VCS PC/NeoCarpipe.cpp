@@ -12,10 +12,12 @@
 #include "VisibilityPlugins.h"
 #include "YCoCg.h"
 #include "TimeCycle.h"
+#include "debugmenu_public.h"
 
-//#define DEBUGTEX
-bool updateEnvMap = true;
-bool chromeCheat = false;
+int updateEnvMap = true;
+int chromeCheat = false;
+int debugEnvTex = false;
+int drawEnvCoronas = true;
 
 enum PipeSwitch {
 	PIPE_NEO,
@@ -29,11 +31,9 @@ int CarPipe::PipeSwitch;
 void
 neoInit(void)
 {
-	ONCE;
-
 	CTxdStore::PushCurrentTxd();
 	CTxdStore::SetCurrentTxd(CTxdStore::FindTxdSlot("particle"));
-	neoCarPipeInit();
+	CarPipeInit();
 	CTxdStore::PopCurrentTxd();
 }
 
@@ -205,9 +205,8 @@ RwImVertexIndex CarPipe::screenindices[6] = { 0, 1, 2, 0, 2, 3 };
 CarPipe carpipe;
 
 void
-neoCarPipeInit(void)
+CarPipeInit(void)
 {
-	ONCE;
 	carpipe.Init();
 	CarPipe::SetupEnvMap();
 }
@@ -217,11 +216,13 @@ neoCarPipeInit(void)
 //
 
 int envMapSize = 128;
+RwTexture *coronastar;
 
 void
 CarPipe::SetupEnvMap(void)
 {
 	reflectionMask = RwTextureRead("CarReflectionMask", NULL);
+	coronastar = RwTextureRead("coronastar", NULL);
 
 	RwRaster *envFB = RwRasterCreate(envMapSize, envMapSize, 0, rwRASTERTYPECAMERATEXTURE);
 	RwRaster *envZB = RwRasterCreate(envMapSize, envMapSize, 0, rwRASTERTYPEZBUFFER);
@@ -291,10 +292,85 @@ CarPipe::MakeScreenQuad(void)
 	MakeQuadTexCoords(true);
 }
 
+static RwIm2DVertex coronaVerts[4*4];
+static RwImVertexIndex coronaIndices[6*4];
+static int numCoronaVerts, numCoronaIndices;
+
+static void
+AddCorona(float x, float y, float sz)
+{
+	float nearz, recipz;
+	RwIm2DVertex *v;
+	nearz = RwIm2DGetNearScreenZ();
+	recipz = 1.0f / RwCameraGetNearClipPlane((RwCamera*)RWSRCGLOBAL(curCamera));
+
+	v = &coronaVerts[numCoronaVerts];
+	RwIm2DVertexSetScreenX(&v[0], x);
+	RwIm2DVertexSetScreenY(&v[0], y);
+	RwIm2DVertexSetScreenZ(&v[0], nearz);
+	RwIm2DVertexSetRecipCameraZ(&v[0], recipz);
+	RwIm2DVertexSetU(&v[0], 0.0f, recipz);
+	RwIm2DVertexSetV(&v[0], 0.0f, recipz);
+	RwIm2DVertexSetIntRGBA(&v[0], 0xFF, 0xFF, 0xFF, 0xFF);
+
+	RwIm2DVertexSetScreenX(&v[1], x);
+	RwIm2DVertexSetScreenY(&v[1], y + sz);
+	RwIm2DVertexSetScreenZ(&v[1], nearz);
+	RwIm2DVertexSetRecipCameraZ(&v[1], recipz);
+	RwIm2DVertexSetU(&v[1], 0.0f, recipz);
+	RwIm2DVertexSetV(&v[1], 1.0f, recipz);
+	RwIm2DVertexSetIntRGBA(&v[1], 0xFF, 0xFF, 0xFF, 0xFF);
+
+	RwIm2DVertexSetScreenX(&v[2], x + sz);
+	RwIm2DVertexSetScreenY(&v[2], y + sz);
+	RwIm2DVertexSetScreenZ(&v[2], nearz);
+	RwIm2DVertexSetRecipCameraZ(&v[2], recipz);
+	RwIm2DVertexSetU(&v[2], 1.0f, recipz);
+	RwIm2DVertexSetV(&v[2], 1.0f, recipz);
+	RwIm2DVertexSetIntRGBA(&v[2], 0xFF, 0xFF, 0xFF, 0xFF);
+
+	RwIm2DVertexSetScreenX(&v[3], x + sz);
+	RwIm2DVertexSetScreenY(&v[3], y);
+	RwIm2DVertexSetScreenZ(&v[3], nearz);
+	RwIm2DVertexSetRecipCameraZ(&v[3], recipz);
+	RwIm2DVertexSetU(&v[3], 1.0f, recipz);
+	RwIm2DVertexSetV(&v[3], 0.0f, recipz);
+	RwIm2DVertexSetIntRGBA(&v[3], 0xFF, 0xFF, 0xFF, 0xFF);
+
+
+	coronaIndices[numCoronaIndices++] = numCoronaVerts;
+	coronaIndices[numCoronaIndices++] = numCoronaVerts + 1;
+	coronaIndices[numCoronaIndices++] = numCoronaVerts + 2;
+	coronaIndices[numCoronaIndices++] = numCoronaVerts;
+	coronaIndices[numCoronaIndices++] = numCoronaVerts + 2;
+	coronaIndices[numCoronaIndices++] = numCoronaVerts + 3;
+	numCoronaVerts += 4;
+}
+
+void
+DrawEnvMapCoronas(RwV3d at)
+{
+	const float BIG = 89.0f;
+	const float SMALL = 38.0f;
+
+	float x;
+	numCoronaVerts = 0;
+	numCoronaIndices = 0;
+	x = CGeneral::GetATanOfXY(-at.y, at.x)/(2*M_PI) - 1.0f;
+	x *= BIG+SMALL;
+	AddCorona(x, 12.0f, SMALL);	x += SMALL;
+	AddCorona(x, 0.0f, BIG);	x += BIG;
+	AddCorona(x, 12.0f, SMALL);	x += SMALL;
+	AddCorona(x, 0.0f, BIG);	x += BIG;
+	RwIm2DRenderIndexedPrimitive(rwPRIMTYPETRILIST, coronaVerts, numCoronaVerts, coronaIndices, numCoronaIndices);
+}
+
 void
 CarPipe::RenderEnvTex(void)
 {
-if(!updateEnvMap) return;
+	if(!updateEnvMap)
+		return;
+
 	RwCameraEndUpdate(Scene.camera);
 
 	RwV2d oldvw, vw = { 2.0f, 2.0f };
@@ -337,11 +413,17 @@ if(!updateEnvMap) return;
 //	Scene.camera = savedcam;
 
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)1);
-	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDZERO);
-	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDSRCCOLOR);
-	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, reflectionMask->raster);
-	if(PipeSwitch == PIPE_NEO)
+	if(PipeSwitch == PIPE_NEO){
+		RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDZERO);
+		RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDSRCCOLOR);
+		RwRenderStateSet(rwRENDERSTATETEXTURERASTER, reflectionMask->raster);
 		RwIm2DRenderIndexedPrimitive(rwPRIMTYPETRILIST, screenQuad, 4, screenindices, 6);
+	}else if(drawEnvCoronas){
+		RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDONE);
+		RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDONE);
+		RwRenderStateSet(rwRENDERSTATETEXTURERASTER, coronastar->raster);
+		DrawEnvMapCoronas(RwFrameGetLTM(RwCameraGetFrame(reflectionCam))->at);
+	}
 	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
 	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, 0);
@@ -349,10 +431,10 @@ if(!updateEnvMap) return;
 	RwCameraEndUpdate(reflectionCam);
 
 	RwCameraBeginUpdate(Scene.camera);
-#ifdef DEBUGTEX
-	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, reflectionTex->raster);
-	RwIm2DRenderIndexedPrimitive(rwPRIMTYPETRILIST, screenQuad, 4, screenindices, 6);
-#endif
+	if(debugEnvTex){
+		RwRenderStateSet(rwRENDERSTATETEXTURERASTER, reflectionTex->raster);
+		RwIm2DRenderIndexedPrimitive(rwPRIMTYPETRILIST, screenQuad, 4, screenindices, 6);
+	}
 }
 
 //
@@ -568,34 +650,6 @@ CarPipe::DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 	}
 }
 
-/*
-void
-getEnvMapMat(RpAtomic *atomic, float *out)
-{
-	static DirectX::XMMATRIX worldMat;
-	RwCamera *cam = (RwCamera*)RWSRCGLOBAL(curCamera);
-
-	RwMatrixInvert((RwMatrix*)out, RwFrameGetLTM(RwCameraGetFrame(cam)));
-	out[0] = -out[0];
-	out[3] = 0.0f;
-	out[4] = -out[4];
-	out[7] = 0.0f;
-	out[8] = -out[8];
-	out[11] = 0.0f;
-	out[12] = -out[12];
-	out[15] = 1.0f;
-
-	RwMatrix *world = RwFrameGetLTM(RpAtomicGetFrame(atomic));
-
-	RwToD3DMatrix(&worldMat, world);
-	transpose(&pipeViewMat, RwD3D9D3D9ViewTransform);
-	transpose(&pipeProjMat, RwD3D9D3D9ProjTransform);
-
-	DirectX::XMMatrixMultiply(pipeViewMat, worldMat);
-	pipeGetWorldViewMatrix(NULL, out);
-}
-*/
-
 void
 CarPipe::EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 {
@@ -603,9 +657,7 @@ CarPipe::EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 	float envmat[16];
 	RxD3D9InstanceData *inst = (RxD3D9InstanceData*)&header[1];
 
-//	pipeGetWorldViewMatrix(atomic, envmat);
 	pipeGetEnvMapMatrix(atomic, envmat);
-//	RwD3D9SetVertexShaderConstant(LOC_world, (void*)&envmat, 4);
 	RwD3D9SetVertexShaderConstant(LOC_tex, (void*)&envmat, 4);
 
 	RwRenderStateGet(rwRENDERSTATEZWRITEENABLE, &zwrite);
@@ -649,37 +701,6 @@ CarPipe::EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 void
 CarPipe::RenderCallback(RwResEntry *repEntry, void *object, RwUInt8 type, RwUInt32 flags)
 {
-		{
-			static bool keystate = false;
-			if(GetAsyncKeyState(VK_F7) & 0x8000){
-				if(!keystate){
-					keystate = true;
-					LoadTweakingTable();
-				}
-			}else
-				keystate = false;
-		}
-		{
-			static bool keystate = false;
-			if(GetAsyncKeyState(VK_F5) & 0x8000){
-				if(!keystate){
-					keystate = true;
-					updateEnvMap = !updateEnvMap;
-				}
-			}else
-				keystate = false;
-		}
-		{
-			static bool keystate = false;
-			if(GetAsyncKeyState(VK_F6) & 0x8000){
-				if(!keystate){
-					keystate = true;
-					chromeCheat = !chromeCheat;
-				}
-			}else
-				keystate = false;
-		}
-
 	RxD3D9ResEntryHeader *header = (RxD3D9ResEntryHeader*)&repEntry[1];
 	ShaderSetup((RpAtomic*)object);
 
@@ -708,7 +729,6 @@ WRAPPER void InitialiseGame(void) { EAXJMP(0x53E580); }
 void
 InitialiseGame_hook(void)
 {
-	ONCE;
 	InitialiseGame();
 	neoInit();
 }
@@ -744,4 +764,20 @@ static StaticPatcher	Patcher([](){
 	Memory::Nop(0x5DA620, 5);	// for all mats CCustomCarEnvMapPipeline::CustomPipeMaterialSetup
 //	Memory::Nop(0x53DFCE, 5);	// CCarFXRenderer::PreRenderUpdate - no longer called from our RenderScene
 	Memory::Patch<uint8>(0x5D9900, 0xCC);	// disable CCustomCarEnvMapPipeline::CustomPipeRenderCB
+
+	if(DebugMenuLoad()){
+		DebugMenuEntry *e;
+
+		static const char *pipenames[] = { "Neo", "Leeds" };
+		e = DebugMenuAddVar("Rendering|Vehicle Pipeline", "Style", &CarPipe::PipeSwitch, NULL, 1, 0, 1, pipenames);
+		DebugMenuEntrySetWrap(e, true);
+
+		DebugMenuAddCmd("Rendering|Vehicle Pipeline", "Reload Neo tweak table", CarPipe::LoadTweakingTable);
+
+		DebugMenuAddVarBool32("Rendering|Vehicle Pipeline", "Chrome cars", &chromeCheat, NULL);
+		DebugMenuAddVarBool32("Rendering|Vehicle Pipeline", "Draw Env Map Coronas", &drawEnvCoronas, NULL);
+		DebugMenuAddVarBool32("Rendering|Vehicle Pipeline", "Show Env Map", &debugEnvTex, NULL);
+		DebugMenuAddVarBool32("Rendering|Vehicle Pipeline", "Update Env Map", &updateEnvMap, NULL);
+	}
+
 });

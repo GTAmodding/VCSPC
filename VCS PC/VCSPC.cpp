@@ -44,6 +44,7 @@
 #include "RealTimeShadowMgr.h"
 #include "Shadows.h"
 #include "VCSPC_SDK_Internal.h"
+#include "debugmenu_public.h"
 
 // Regular functions
 //LONG CALLBACK	ExecHandle(EXCEPTION_POINTERS* ep);
@@ -514,6 +515,7 @@ const void*	const			_CText__loadMission_Jumptable[] = { MissionLanguage_CASE_Eng
 const void*	const			ScriptCheckpointsColours_Jumptable[] = { ScriptCheckpointsColours_Normal, ScriptCheckpointsColours_Finish, ScriptCheckpointsColours_Others };
 const BYTE					ScriptCheckpointsColours_IndirectTable[] = { 0, 1, 0, 2, 2, 2, 2, 2, 2 };
 
+DebugMenuAPI gDebugMenuAPI;
 
 BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
 	static unsigned char		cDebuggerNames[][14] = {
@@ -640,6 +642,13 @@ DWORD WINAPI ProcessEmergencyKey(LPVOID lpParam)
 	LogToFile("Process has been killed on user request");
 	OnGameTermination();
 	ExitProcess(0);
+}
+
+void
+InitDebugMenu(void)
+{
+	static int foo;
+	DebugMenuAddVarBool32("VCSPC", "Test", &foo, NULL);
 }
 
 extern "C" __declspec(dllexport) BOOL OnGameLaunch()

@@ -67,15 +67,12 @@ public:
 	static RpAtomic *setatomicCB(RpAtomic *atomic, void *data);
 };
 
-#define ONCE do{ static int once = 0; assert(once == 0); once = 1; }while(0);
-
-void neoCarPipeInit(void);
+void CarPipeInit(void);
 void neoInit(void);
 
 class CarPipe : public CustomPipe
 {
 	void CreateShaders(void);
-	static void LoadTweakingTable(void);
 
 	static void MakeScreenQuad(void);
 	static void MakeQuadTexCoords(bool textureSpace);
@@ -103,6 +100,7 @@ public:
 
 	CarPipe(void);
 	void Init(void);
+	static void LoadTweakingTable(void);
 	static void RenderEnvTex(void);
 	static void SetupEnvMap(void);
 	static void RenderCallback(RwResEntry *repEntry, void *object, RwUInt8 type, RwUInt32 flags);

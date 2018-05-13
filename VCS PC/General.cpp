@@ -8,6 +8,8 @@
 WRAPPER bool CalcScreenCoors(const CVector& vecIn, CVector* vecOut) { WRAPARG(vecIn); WRAPARG(vecOut); EAXJMP(0x71DAB0); }
 WRAPPER void LoadingScreenLoadingFile(const char* pText) { WRAPARG(pText); EAXJMP(0x5B3680); }
 
+WRAPPER float CGeneral::GetATanOfXY(float x, float y) { EAXJMP(0x53CC70); }
+
 WRAPPER void CPlaceable::AllocateMatrix() { EAXJMP(0x54F560); }
 
 WRAPPER void CEntity::UpdateRW() { EAXJMP(0x446F90); }
