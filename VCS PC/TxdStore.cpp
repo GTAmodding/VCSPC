@@ -8,6 +8,7 @@ WRAPPER void CTxdStore::PushCurrentTxd() { EAXJMP(0x7316A0); }
 WRAPPER void CTxdStore::PopCurrentTxd() { EAXJMP(0x7316B0); }
 WRAPPER int CTxdStore::FindTxdSlot(const char* name) { WRAPARG(name); EAXJMP(0x731850); }
 WRAPPER void CTxdStore::SetCurrentTxd(int slot) { WRAPARG(slot); EAXJMP(0x7319C0); }
+WRAPPER void CTxdStore::Create(int index) { WRAPARG(index); EAXJMP(0x731990); }
 WRAPPER void CTxdStore::AddRef(int index) { WRAPARG(index); EAXJMP(0x731A00); }
 WRAPPER int CTxdStore::AddTxdSlot(const char* slotName) { WRAPARG(slotName); EAXJMP(0x731C80); }
 WRAPPER void CTxdStore::RemoveTxdSlot(int slot) { WRAPARG(slot); EAXJMP(0x731CD0); }

@@ -18,6 +18,7 @@ float&			MAX_DISTANCE_REALTIME_SHADOWS_SQR = *(float*)0xC4B6B0;
 float			MAX_DISTANCE_PED_SHADOWS, MAX_DISTANCE_PED_SHADOWS_SQR;
 float			MAX_DISTANCE_CAR_SHADOWS, MAX_DISTANCE_CAR_SHADOWS_SQR;
 
+WRAPPER void CShadows::Init(void) { EAXJMP(0x706CD0); }
 WRAPPER void CShadows::UpdateStaticShadows(void) { EAXJMP(0x707F40); }
 WRAPPER void CShadows::RenderStaticShadows(void) { EAXJMP(0x708300); }
 WRAPPER void CShadows::RenderStoredShadows(void) { EAXJMP(0x70A960); }

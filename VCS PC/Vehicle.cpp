@@ -144,6 +144,8 @@ void CAutomobile::ControlWindows()
 	}
 }
 
+WRAPPER void CHeli::InitHelis(void) { EAXJMP(0x6C4560); }
+
 void CHeli::Render()
 {
 	double		dRotorsSpeed, dMovingRotorSpeed;

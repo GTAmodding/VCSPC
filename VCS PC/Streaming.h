@@ -59,6 +59,9 @@ public:
 	static void		SetModelIsDeletable(int nIndex);
 	static void		RequestSpecialModel(int nIndex, const char* pName, int nPriority);
 	static void		LoadAllRequestedModels(bool bPriorityOnly);
+	static void		LoadInitialVehicles(void);
+	static void		LoadInitialPeds(void);
+	static void		LoadInitialWeapons(void);
 	static int		RandomizeTaxiDriverIDByTown();
 	static bool		RemoveLeastUsedModel(unsigned int nUnknown);
 	static void		DeleteRwObjectsBehindCamera(int nMemUsed);

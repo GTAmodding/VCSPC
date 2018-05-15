@@ -9,6 +9,7 @@
 #include "VisibilityPlugins.h"
 
 // Wrappers
+WRAPPER void CPed::Initialise(void) { EAXJMP(0x5DEBB0); }
 WRAPPER void CPed::GiveWeapon(int WeaponType, int WeaponAmmo, bool bFlag) { WRAPARG(WeaponType); WRAPARG(WeaponAmmo); WRAPARG(bFlag); EAXJMP(0x5E6080); }
 WRAPPER void CPed::GetBonePosition(RwV3d& vecOut, unsigned int nBone, bool bFlag) { WRAPARG(vecOut); WRAPARG(nBone); WRAPARG(bFlag); EAXJMP(0x5E4280); }
 WRAPPER unsigned char CPed::GetWeaponSkill() { EAXJMP(0x5E6580); }

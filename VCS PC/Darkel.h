@@ -26,6 +26,7 @@ public:
 	static inline bool		FrenzyOnGoing()
 		{ return Status == 1 || Status == 4; };
 
+	static void				Init(void);
 	static void				StartFrenzyVCS(eWeaponType weapType, int nTimeLimit, unsigned short wKillsNeeded, int nModelToKill, char* pMsg, int nModelToKill2, int nModelToKill3, int nModelToKill4, bool bSoundMessages, bool bHeadShots);
 	static void				RegisterKillByPlayerVehicle(CPed* pKilledPed, eWeaponType lastWeaponDamage);
 	static void				DrawMessages();

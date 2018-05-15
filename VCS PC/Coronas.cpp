@@ -8,6 +8,7 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "Scene.h"
+#include "TxdStore.h"
 
 std::map<unsigned int,CCoronasLinkedListNode*>	CCoronas::UsedMap;
 CCoronasLinkedListNode							CCoronas::FreeList, CCoronas::UsedList;		
@@ -304,6 +305,29 @@ void CCoronas::ReadFlareDef()
 
 void CCoronas::Init()
 {
+	static const char coronaTexNames[10][26] = {
+		"coronastar",
+		"coronastar",
+		"coronamoon",
+		"coronareflect",
+		"coronaheadlightline",
+		"", "", "", "",
+		"coronaringb"
+	};
+	static const char coronaMaskNames[10][26] = {
+		"", "", "",
+		"coronareflectm",
+		"", "", "", "", "", ""
+	};
+
+	CTxdStore::PushCurrentTxd();
+	CTxdStore::SetCurrentTxd(CTxdStore::FindTxdSlot("particle"));
+	for(int i = 0; i < 10; i++)
+		if(gpCoronaTexture[i] == NULL && *coronaTexNames[i] != '\0')
+			gpCoronaTexture[i] = RwTextureRead(coronaTexNames[i], coronaMaskNames[i]);
+	CTxdStore::PopCurrentTxd();
+	
+
 	// Initialise the lists
 	FreeList.Init();
 	UsedList.Init();
@@ -655,7 +679,7 @@ void CCoronas::Inject()
 
 	InjectHook(0x6FC180, CCoronas::RegisterCorona, PATCH_JUMP);
 	InjectHook(0x6FC4D0, CCoronas::UpdateCoronaCoors, PATCH_JUMP);
-	InjectHook(0x6FAAD9, CCoronas::Init, PATCH_JUMP);
+	// InjectHook(0x6FAAD9, CCoronas::Init, PATCH_JUMP);	// we now call the complete function ourselves
 	InjectHook(0x53C13B, CCoronas::Update);
 	InjectHook(0x53E18E, CCoronas::RenderBuffered);
 

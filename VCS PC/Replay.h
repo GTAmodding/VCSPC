@@ -4,6 +4,7 @@
 class CReplay
 {
 public:
+	static void	Init(void);
 	static unsigned char&		Mode;
 };
 

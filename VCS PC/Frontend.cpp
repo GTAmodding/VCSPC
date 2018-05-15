@@ -1,6 +1,7 @@
 ﻿#include "StdAfx.h"
 #include "Frontend.h"
 
+#include "Game.h"
 #include "Font.h"
 #include "Timer.h"
 #include "UpdateManager.h"
@@ -2483,7 +2484,7 @@ void CMenuManager::DrawOutroSplash()
 
 	if ( !bOutroSplashLoaded )
 	{
-		LoadSplashes(true, 0);
+		CLoadingScreen::LoadSplashes(true, 0);
 
 		CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(512.0f/400.0f, ScreenAspectRatio, true);
 
@@ -3767,10 +3768,18 @@ void CMenuManager::Inject()
 	Memory::InjectHook(0x57ED94, DisplayHelperText_Wrap1);
 }
 
-// TODO: CLoadingScreen
-static unsigned char		bDrawingStyle;
+//
+// CLoadingScreen
+//
 
-void LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID)
+
+uint8	CLoadingScreen::bDrawingStyle;
+bool	&CLoadingScreen::m_bFading = *(bool*)0xBAB31C;
+bool	&CLoadingScreen::m_bFadeInNextSplashFromBlack = *(bool*)0xBAB31E;
+bool	&CLoadingScreen::m_bFadeOutCurrSplashToBlack = *(bool*)0xBAB31F;
+bool	&CLoadingScreen::m_bReadyToDelete = *(bool*)0xBAB33D;
+
+void CLoadingScreen::LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID)
 {
 	unsigned char		bTempIndexes[NUM_LOADING_SPLASHES], bFinalIndexes[NUM_LOADING_SPLASHES];
 	LARGE_INTEGER		lPerformanceCount;
@@ -3822,13 +3831,12 @@ void LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID)
 	LoadscsArchive.CloseArchive();
 }
 
-void LoadingScreen()
+void CLoadingScreen::RenderSplash()
 {
 	CSprite2d::InitPerFrame();
 	RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS, reinterpret_cast<void*>(rwTEXTUREADDRESSCLAMP));
 
-	// TODO: Name these variables
-	if ( *(bool*)0xBAB31C )
+	if ( m_bFading )
 	{
 		if ( bDrawingStyle == 1 )
 		{
@@ -3851,14 +3859,14 @@ void LoadingScreen()
 			}
 		}
 
-		if ( *(bool*)0xBAB31E || *(bool*)0xBAB31F )
+		if ( m_bFadeInNextSplashFromBlack || m_bFadeOutCurrSplashToBlack )
 			CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, *(bool*)0xBAB31E ? 255 - *(unsigned char*)0xBAB320 : *(unsigned char*)0xBAB320));
 		else
 			LoadingSprites[CurrentLoadingSprite-1].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255 - *(unsigned char*)0xBAB320));
 	}
 	else
 	{
-		if ( !*(bool*)0xBAB33D )
+		if ( !m_bReadyToDelete )
 			LoadingSprites[CurrentLoadingSprite].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255));
 	}
 }

@@ -307,6 +307,7 @@ public:
 
 	class CPedEx*		GetEx();
 
+	static void			Initialise(void);
 	void				GiveWeapon(int WeaponType, int WeaponAmmo, bool bFlag=true);
 	void				GetBonePosition(RwV3d& vecOut, unsigned int nBone, bool bFlag);
 	unsigned char		GetWeaponSkill();

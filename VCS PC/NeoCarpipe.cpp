@@ -28,15 +28,6 @@ RwTexDictionary *neoTxd;
 
 int CarPipe::PipeSwitch;
 
-void
-neoInit(void)
-{
-	CTxdStore::PushCurrentTxd();
-	CTxdStore::SetCurrentTxd(CTxdStore::FindTxdSlot("particle"));
-	CarPipeInit();
-	CTxdStore::PopCurrentTxd();
-}
-
 #define INTERP_SETUP \
 		int h1 = CClock::GetHours();								  \
 		int h2 = (h1+1)%24;										  \
@@ -207,8 +198,11 @@ CarPipe carpipe;
 void
 CarPipeInit(void)
 {
+	CTxdStore::PushCurrentTxd();
+	CTxdStore::SetCurrentTxd(CTxdStore::FindTxdSlot("particle"));
 	carpipe.Init();
 	CarPipe::SetupEnvMap();
+	CTxdStore::PopCurrentTxd();
 }
 
 //
@@ -724,16 +718,6 @@ CarPipe::RenderCallback(RwResEntry *repEntry, void *object, RwUInt8 type, RwUInt
 	RwD3D9SetTextureStageState(2, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
 }
 
-// TODO: patch this in somewhere else
-WRAPPER void InitialiseGame(void) { EAXJMP(0x53E580); }
-void
-InitialiseGame_hook(void)
-{
-	InitialiseGame();
-	neoInit();
-}
-
-
 // sun glare
 WRAPPER void CVehicle__DoSunGlare(void *this_) { EAXJMP(0x6DD6F0); }
 
@@ -753,8 +737,6 @@ static StaticPatcher	Patcher([](){
 	// not neo, but enable sun glare
 	Memory::InjectHook(0x6ABCFD, doglare, PATCH_JUMP);
 
-
-	Memory::InjectHook(0x748CFB, InitialiseGame_hook);
 
 	Memory::Patch(0x5D9FE3 +1, CarPipe::RenderCallback);
 	// remove some of the SA vehicle pipe

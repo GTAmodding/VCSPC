@@ -643,7 +643,7 @@ static StaticPatcher	Patcher([](){
 						Memory::Patch<const void*>(0x53C63F, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x53C9E5, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x53EA09, &g_realTimeShadowMan);
-						Memory::Patch<const void*>(0x542487, &g_realTimeShadowMan);
+						// Memory::Patch<const void*>(0x542487, &g_realTimeShadowMan);	// using our own function here now
 						Memory::Patch<const void*>(0x5B1F38, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5BA478, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5E68A4, &g_realTimeShadowMan);

@@ -12,6 +12,7 @@ private:
 	unsigned int	NumGarages;
 
 public:
+	static void		Init_AfterRestart();
 	static void		PrintMessages();
 };
 

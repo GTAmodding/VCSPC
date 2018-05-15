@@ -560,7 +560,8 @@ public:
 	static bool					bDontTouchFOVInWidescreen;
 
 	inline bool					GetFading() { return m_bFading; };
-	
+
+	void						Process();
 	void						DrawBordersForWideScreen();
 	void						GetScreenRect(CRect& rect);
 	int							GetFadeStage();

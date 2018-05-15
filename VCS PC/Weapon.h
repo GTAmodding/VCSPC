@@ -125,6 +125,8 @@ public:
 	void*			m_pParticle;
 
 public:
+	static void		InitialiseWeapons(void);
+
 	bool			IsTypeMelee() const;
 };
 

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Renderer.h"
+#include "Game.h"
 #include "VisibilityPlugins.h"
 #include "Scene.h"
 #include "ModelInfo.h"
@@ -15,6 +16,8 @@ int &CRenderer::ms_nNoOfVisibleLods = *(int*)0xB76840;
 
 int CRenderer::ms_nNumOpaqueObjects;
 CEntity *CRenderer::ms_aOpaqueRenderList[1000];
+
+void CRenderer::Init(void) { }
 
 void
 CRenderer::RenderOneRoad(CEntity* pEntity)

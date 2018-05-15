@@ -507,8 +507,18 @@ public:
 //	void		SaveStatsHTML();
 };
 
-void	LoadingScreen();
-void	LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID);
+class CLoadingScreen
+{
+public:
+	static uint8	bDrawingStyle;
+	static bool	&m_bFading;
+	static bool	&m_bFadeInNextSplashFromBlack;
+	static bool	&m_bFadeOutCurrSplashToBlack;
+	static bool	&m_bReadyToDelete;
+
+	static void	RenderSplash();
+	static void	LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID);
+};
 
 extern CMenuManager&		FrontEndMenuManager;
 

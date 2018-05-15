@@ -138,7 +138,6 @@ CRubbish::StirUp(CVehicle *vehicle)
 static uint8 rand8(void) { return rand(); }
 
 WRAPPER int CCullZones__FindAttributesForCoors(float x, float y, float z) { EAXJMP(0x72D970); }
-WRAPPER bool CWaterLevel__GetWaterLevel(float x, float y, float z, float *level, char wave, CVector *w) { EAXJMP(0x6EB690); }
 
 static float
 FindGroundForRubbish(float x, float y, float z, bool *success)
@@ -147,7 +146,7 @@ FindGroundForRubbish(float x, float y, float z, bool *success)
 	return groundz;
 
 	// get the water to work right :/
-//	if(CWaterLevel__GetWaterLevel(x, y, z, &waterz, false, NULL))
+//	if(CWaterLevel::GetWaterLevel(x, y, z, &waterz, false, NULL))
 //		;
 }
 
@@ -401,7 +400,7 @@ CRubbish::Render(void)
 static StaticPatcher Patcher([](){
 	// TODO: do this better
 	// replace tags for now
-	Memory::InjectHook(0x5BF90A, CRubbish::Init);
+	// Memory::InjectHook(0x5BF90A, CRubbish::Init);
 	// replace custom building for now
 	Memory::InjectHook(0x53C15E, CRubbish::Update);
 

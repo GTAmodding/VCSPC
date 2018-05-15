@@ -16,6 +16,7 @@ public:
 	static inline unsigned short		GetSeconds() 
 						{ return ms_nGameClockSeconds; }
 
+	static void				Initialise(int msPerSecond);
 	static bool				GetIsTimeInRange(unsigned char bHourA, unsigned char bHourB);
 
 	static bool				Convert24To12(unsigned char& bHour);

@@ -444,6 +444,7 @@ static_assert(MAX_BLANK_STATS == 338, "Messed up stats enumerators!");
 class CStats
 {
 public:
+	static void Init(void);
 	static long double	CalcPlayerStat(unsigned int statID);
 	static void			IncrementStat(unsigned int statID, float fAmount);
 	static const char*	FindCriminalRatingNumber();

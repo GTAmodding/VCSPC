@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Weapon.h"
 
+WRAPPER void CWeapon::InitialiseWeapons(void) { EAXJMP(0x73A300); }
 WRAPPER CWeaponInfo* CWeaponInfo::GetWeaponInfo(eWeaponType weaponID, signed char bType) { WRAPARG(weaponID); WRAPARG(bType); EAXJMP(0x743C60); }
 
 bool CWeapon::IsTypeMelee() const

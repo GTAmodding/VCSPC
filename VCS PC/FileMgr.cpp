@@ -410,7 +410,7 @@ void CFileLoader::LoadLevels()
 	if ( CDLCManager::GetDLC(DLC_2DFX)->IsEnabled() )
 		CProject2dfx::EndRegistering();
 
-	CColAccel::endCache();
+	//CColAccel::endCache();	// called from CGame::Initialise again
 
 	// Dumping native mesh
 #ifdef NATIVE_MESH_CONVERTER

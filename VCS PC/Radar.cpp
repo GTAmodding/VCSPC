@@ -6,6 +6,7 @@
 
 CSprite2d* const	CRadar::RadarBlipSprites = (CSprite2d*)0xBAA250;
 
+WRAPPER void CRadar::Initialise(void) { EAXJMP(0x587FB0); }
 WRAPPER void CRadar::ChangeBlipBrightness(int nBlipID, int nBrightness) { WRAPARG(nBlipID); WRAPARG(nBrightness); EAXJMP(0x583C70); }
 WRAPPER void CRadar::DrawRadarSection(int nX, int nY) { WRAPARG(nX); WRAPARG(nY); EAXJMP(0x586110); }
 

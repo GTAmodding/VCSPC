@@ -2620,7 +2620,7 @@ void Main_Patches()
 	Patch(0x4668F9, "plr");
 
 	// No player skin stuff
-	Nop(0x5BA1FA, 5);
+	// Nop(0x5BA1FA, 5);	// now in our own function
 
 	// CDarkel stuff
 	InjectHook(0x47E2E6, &CDarkel::StartFrenzyVCS);
@@ -3179,8 +3179,8 @@ void Main_Patches()
 	InjectHook(0x74747E, &InitialiseLanguage);
 
 	// SPTA support
-	InjectHook(0x5900B0, &LoadSplashes, PATCH_JUMP);
-	InjectHook(0x58FF60, &LoadingScreen, PATCH_JUMP);
+	InjectHook(0x5900B0, &CLoadingScreen::LoadSplashes, PATCH_JUMP);
+	InjectHook(0x58FF60, &CLoadingScreen::RenderSplash, PATCH_JUMP);
 
 	Nop(0x574673, 5);
 	Nop(0x5746A0, 5);
@@ -3537,9 +3537,10 @@ void Main_Patches()
 	//Nop(0x53BC8B, 5);
 	//call(0x53BC95, &CDLCManager::LoadLevelFiles, PATCH_CALL);
 	InjectHook(0x748C3F, &LoadGameWithDLCHack);
-	InjectHook(0x53BC95, &CFileLoader::ParseLevelFile, PATCH_CALL);
-	InjectHook(0x53BC9B, &CFileLoader::ParseLevelFile, PATCH_CALL);
-	InjectHook(0x53BCA0, &CFileLoader::LoadLevels, PATCH_CALL);
+// now in our own CGame::Initialise
+//	InjectHook(0x53BC95, &CFileLoader::ParseLevelFile, PATCH_CALL);
+//	InjectHook(0x53BC9B, &CFileLoader::ParseLevelFile, PATCH_CALL);
+//	InjectHook(0x53BCA0, &CFileLoader::LoadLevels, PATCH_CALL);
 	InjectHook(0x5B8980, &CFileLoader::LoadEntryExit);
 	InjectHook(0x5B8634, &CFileLoader::LoadWeaponObject);
 	Patch<BYTE>(0x5B9299, 0xC3);
@@ -3556,7 +3557,7 @@ void Main_Patches()
 	InjectHook(0x404910, &PedPoolGetAt, PATCH_JUMP);
 
 	// Children & custom pools
-	InjectHook(0x5BF85B, &CPools::Initialise);
+	// InjectHook(0x5BF85B, &CPools::Initialise);	// called from our function now
 	InjectHook(0x53CA5C, &CPools::ShutDown);
 
 	Patch<const char*>(0x4111AE, "empire_perma");
@@ -3934,9 +3935,10 @@ void Main_Patches()
 
 
 	// No stream.ini, gta3.ini and clothes stuff
-	Nop(0x5BA215, 5);
-	Nop(0x5BF865, 5);
-	Nop(0x5BF996, 5);
+	// now in our own function
+	// Nop(0x5BA215, 5);
+	// Nop(0x5BF865, 5);
+	// Nop(0x5BF996, 5);
 	Nop(0x5A8227, 5);
 //	Nop(0x5B8F21, 5);
 
@@ -4260,7 +4262,7 @@ void Main_Patches()
 //	Patch<BYTE>(0x4D5E93, 0);
 
 	// Radar blip names
-	InjectHook(0x5BA2CA, &CRadar::LoadTextures);
+	// InjectHook(0x5BA2CA, &CRadar::LoadTextures);	// now in our own function
 
 	// Global zone name
 	strncpy((char*)0x86506C, "VICE_C", 7);

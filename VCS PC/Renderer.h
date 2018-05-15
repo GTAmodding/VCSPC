@@ -14,6 +14,8 @@ public:
 	static int ms_nNumOpaqueObjects;
 	static CEntity *ms_aOpaqueRenderList[1000];
 
+	static void Init(void);
+
 	static void RenderOneRoad(CEntity* pEntity);
 	static void RenderFadingInEntities(void);
 	static void RenderFadingInUnderwaterEntities(void);

@@ -313,6 +313,7 @@ public:
 	inline bool					GetAnaloguePadRightJustUp()
 					{ return NewState.LEFTSTICKX == 0 && OldState.LEFTSTICKX > 0; }
 
+	void						Clear(bool a, bool b);
 	void						Update(short nPadID);
 
 	static void					DoCheats();

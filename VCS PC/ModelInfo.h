@@ -775,6 +775,7 @@ public:
 	static inline unsigned short						GetModelInfoUInt16(const char* pName)
 		{ int	nID; GetModelInfo(pName, &nID); return static_cast<unsigned short>(nID); }
 
+	static void Initialise(void);
 	static CBaseModelInfo*								GetModelInfo(uint16 id)
 		{ return ms_modelInfoPtrs[id]; }
 	static CBaseModelInfo*								GetModelInfo(const char* pName, int* pOutID = nullptr);

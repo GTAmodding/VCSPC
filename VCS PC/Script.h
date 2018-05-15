@@ -221,6 +221,7 @@ class CTheScripts
 {
 public:
 	static void				Init();
+	static void				Process();
 	static CRunningScript*	StartNewScript(void* nScriptIP);
 
 	static void				SaveAllScripts();

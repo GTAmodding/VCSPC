@@ -11,6 +11,8 @@ FxQuality_e		Fx_c::m_bEffectsQuality;
 //WRAPPER void Fx_c::SetFxQuality(FxQuality_e eQuality) { WRAPARG(eQuality); EAXJMP(0x49EA40); }
 //WRAPPER FxQuality_e Fx_c::GetFxQuality() { EAXJMP(0x49EA50); }
 
+WRAPPER void Fx_c::Init(void) { EAXJMP(0x49EA90); }
+
 unsigned char Fx_c::GetMaxTextureFilteringQuality()
 {
 	static unsigned char		bCachedMaxQuality = 0;

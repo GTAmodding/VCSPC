@@ -375,6 +375,7 @@ popd</Command>
     <ClCompile Include="CullZones.cpp" />
     <ClCompile Include="CustomBuildingRenderer.cpp" />
     <ClCompile Include="FxSystem.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Gangs.cpp" />
     <ClCompile Include="CGridref.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -433,6 +434,7 @@ popd</Command>
     <ClCompile Include="Radar.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="CWanted.cpp" />
+    <ClCompile Include="WaterLevel.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="PcSave.cpp" />
     <ClCompile Include="Rs.cpp" />
@@ -491,6 +493,7 @@ popd</Command>
     <ClInclude Include="CustomBuildingRenderer.h" />
     <ClInclude Include="CutsceneManager.h" />
     <ClInclude Include="FxSystem.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Gangs.h" />
     <ClInclude Include="CGridref.h" />
     <ClInclude Include="Darkel.h" />
@@ -544,6 +547,7 @@ popd</Command>
     <ClInclude Include="Radar.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="CWanted.h" />
+    <ClInclude Include="WaterLevel.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="PcSave.h" />
     <ClInclude Include="Rs.h" />

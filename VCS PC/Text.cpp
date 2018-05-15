@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "Text.h"
 
-#include "General.h"
+#include "Game.h"
 
 WRAPPER void CText::Load(bool bKeepMissionText) { WRAPARG(bKeepMissionText); EAXJMP(0x6A01A0); }
 WRAPPER void CText::Unload(bool bKeepMissionText) { WRAPARG(bKeepMissionText); EAXJMP(0x69FF20); }

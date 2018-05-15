@@ -45,6 +45,7 @@ public:
 	static CSector* const		ms_aSectors;
 
 public:
+	static void					Initialise(void);
 	static void					Add(CEntity* pEntity);
 	static void					Remove(CEntity* pEntity);
 	static bool					ProcessLineOfSight(const CVector&, const CVector&, CColPoint&, CEntity*&, bool, bool, bool, bool, bool, bool, bool, bool);

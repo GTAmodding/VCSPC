@@ -13,6 +13,7 @@
 #include "Shadows.h"
 #include "Rubbish.h"
 #include "NeoCarpipe.h"
+#include "WaterLevel.h"
 
 GlobalScene &Scene = *(GlobalScene*)0xC17038;
 
@@ -176,7 +177,6 @@ void CMovingThings__Render(void) {}
 WRAPPER void CMovingThings__Render_BeforeClouds(void) { EAXJMP(0x7178F0); }
 WRAPPER void Fx_c__Render(RwCamera *cam, int i) { WRAPARG(cam); WRAPARG(i); EAXJMP(0x49E650); }
 WRAPPER void CWaterCannons__Render(void) { EAXJMP(0x729B30); }
-WRAPPER void CWaterLevel__RenderWaterFog(void) { EAXJMP(0x6E7760); }
 WRAPPER void CClouds__MovingFogRender(void) { EAXJMP(0x716C90); }
 WRAPPER void CClouds__VolumetricCloudsRender(void) { EAXJMP(0x716380); }
 WRAPPER void CClouds__Render(void) { EAXJMP(0x713950); }
@@ -192,7 +192,6 @@ WRAPPER void CSpecialFX__Render(void) { EAXJMP(0x726AD0); }
 void CVehicleRecording__Render(void) {}
 WRAPPER void CPointLights__RenderFogEffect(void) { EAXJMP(0x7002D0); }
 WRAPPER void CRenderer__RenderFirstPersonVehicle(void) { EAXJMP(0x553D00); }
-WRAPPER void CWaterLevel__RenderWater(void) { EAXJMP(0x6EF650); }
 
 
 int &CMirrors__TypeOfMirror = *(int*)0xC7C724;
@@ -241,7 +240,7 @@ RenderScene(void)
 	CRenderer::RenderFadingInUnderwaterEntities();
 	if(!underwater){
 		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLNONE);
-		CWaterLevel__RenderWater();
+		CWaterLevel::RenderWater();
 		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLBACK);
 	}
 	CRenderer::RenderFadingInEntities();
@@ -278,7 +277,7 @@ RenderScene(void)
 
 	if(underwater){
 		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLNONE);
-		CWaterLevel__RenderWater();
+		CWaterLevel::RenderWater();
 		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLBACK);
 	}
 	// stencilShadows2();	// not used in VCSPC
@@ -307,7 +306,7 @@ RenderEffects(void)
 	CCoronas::RenderBuffered();
 	Fx_c__Render(TheCamera.m_pRwCamera, 0);
 	CWaterCannons__Render();
-	CWaterLevel__RenderWaterFog();
+	CWaterLevel::RenderWaterFog();
 	CClouds__MovingFogRender();
 	CClouds__VolumetricCloudsRender();
 	if(CHeli__NumberOfSearchLights || CTheScripts__NumberOfScriptSearchLights){

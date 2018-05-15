@@ -174,6 +174,8 @@ public:
 		{ CHeli::Render(); }
 
 	virtual void		Render() override;
+
+	static void InitHelis(void);
 };
 
 class NOVMT CPlane : public CAutomobile

@@ -21,6 +21,8 @@ public:
 	//void					SetFxQuality(FxQuality_e eQuality);
 	//FxQuality_e				GetFxQuality();
 
+	void Init(void);
+
 	// VCS PC class extension
 	static void				SetTextureFilteringQuality(unsigned char nQuality)
 		{ m_bTextureFiltering = nQuality; }

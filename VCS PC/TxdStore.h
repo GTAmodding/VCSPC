@@ -27,6 +27,7 @@ public:
 	static int			AddTxdSlot(const char* pFileName);
 	static int			FindTxdSlot(const char* pFileName);
 	static void			SetCurrentTxd(int slot);
+	static void			Create(int index);
 	static void			AddRef(int index);
 	static void			RemoveTxdSlot(int slot);
 	static void			LoadTxd(int slot, const char* fp);

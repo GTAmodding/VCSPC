@@ -12,6 +12,7 @@ private:
 	static CSprite2d* const	RadarBlipSprites;		
 
 public:
+	static void				Initialise(void);
 	static void				ChangeBlipBrightness(int nBlipID, int nBrightness);
 	static void				DrawRadarSection(int nX, int nY);
 

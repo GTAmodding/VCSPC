@@ -88,6 +88,14 @@ public:
 	void	BaseColors__Constructor();
 };
 
+class CDraw
+{
+public:
+	static float &ms_fFOV;
+	static float &ms_fLODDistance;
+	static void SetFOV(float fov);
+};
+
 class CRect
 {
 public:
@@ -390,15 +398,6 @@ private:
 	// Precalculated table of 256 CRC32 hash keys computed according to the polynomial 0xEDB88320.
 	static const unsigned int keyTable[];
 };
-
-// TODO: Move away?
-class CGame
-{
-public:
-	static unsigned char&		bMissionPackGame;
-	static int32	&currArea;
-};
-
 
 bool CalcScreenCoors(const CVector& vecIn, CVector* vecOut);
 void LoadingScreenLoadingFile(const char* pText);

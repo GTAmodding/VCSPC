@@ -92,6 +92,7 @@ public:
 	inline int			GetLastTimeArmourLost() const
 						{ return LastTimeArmourLost; };
 
+	void			Clear();
 	void			KillPlayer();
 	void			ArrestPlayer();
 };

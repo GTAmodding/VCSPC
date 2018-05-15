@@ -16,6 +16,7 @@ enum
 	STATTYPE_OUTOF
 };
 
+WRAPPER void CStats::Init(void) { EAXJMP(0x55C0C0); }
 WRAPPER long double CStats::CalcPlayerStat(unsigned int statID) { WRAPARG(statID); EAXJMP(0x559AF0); }
 WRAPPER void CStats::IncrementStat(unsigned int statID, float fAmount) { WRAPARG(statID); WRAPARG(fAmount); EAXJMP(0x55C180); }
 WRAPPER const char* CStats::FindCriminalRatingNumber() { EAXJMP(0x55A210); }

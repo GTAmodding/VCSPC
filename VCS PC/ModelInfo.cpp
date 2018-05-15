@@ -31,6 +31,7 @@ unsigned char							CPedModelInfoVCS::ms_currentCol[4];
 float&									ms_lodDistScale = *(float*)0x8CD800;
 
 // Wrappers
+WRAPPER void CModelInfo::Initialise(void) { EAXJMP(0x4C6810); }
 WRAPPER CBaseModelInfo* CModelInfo::GetModelInfo(const char* pName, int* pOutID) { WRAPARG(pName); WRAPARG(pOutID); EAXJMP(0x4C5940); }
 WRAPPER CWeaponModelInfo* CModelInfo::AddWeaponModel(int nModelID) { WRAPARG(nModelID); EAXJMP(0x4C6710); }
 

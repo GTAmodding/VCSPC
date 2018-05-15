@@ -22,6 +22,7 @@ void CColAccel::startCache()
 	// Call SA startCache...
 	((void(*)())0x5B31A0)();
 
+#ifdef USE_COLACCEL
 	// ...and now finish what R* never did
 	if ( FILE* hFile = CFileMgr::OpenFile(mp_cCacheName, "rb") )
 	{
@@ -58,6 +59,7 @@ void CColAccel::startCache()
 		m_iNumIPLItems = 0;
 		m_iCacheState = 1;
 	}
+#endif
 }
 
 void CColAccel::endCache()
@@ -73,7 +75,7 @@ void CColAccel::endCache()
 #ifdef USE_COLACCEL
 
 static StaticPatcher	Patcher([](){ 
-						Memory::InjectHook(0x53BC8B, &CColAccel::startCache);
+//						Memory::InjectHook(0x53BC8B, &CColAccel::startCache);	// now in our own CGame::Initialise
 						Memory::Patch<WORD>(0x5B2BA1, 0x30EB);
 									});
 

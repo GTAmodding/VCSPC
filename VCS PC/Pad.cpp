@@ -27,6 +27,7 @@ short	CPad::ChangeCamera_HoldTimer;
 
 CX360Pad*	pXboxPad[1];
 
+WRAPPER void CPad::Clear(bool a, bool b) { EAXJMP(0x541A70); }
 WRAPPER void CPad::UpdatePads() { EAXJMP(0x541DD0); }
 WRAPPER void CPad::StartShake(short nTime, unsigned char nDur, unsigned int nNoShakeBeforeThis) { EAXJMP(0x53F920); }
 

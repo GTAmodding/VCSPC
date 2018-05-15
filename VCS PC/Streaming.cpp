@@ -17,12 +17,16 @@ WRAPPER void CStreaming::RequestModel(int nIndex, int nPriority) { WRAPARG(nInde
 WRAPPER void CStreaming::SetModelIsDeletable(int nIndex) { WRAPARG(nIndex); EAXJMP(0x409C10); }
 WRAPPER void CStreaming::RequestSpecialModel(int nIndex, const char* pName, int nPriority) { WRAPARG(nIndex); WRAPARG(pName); WRAPARG(nPriority); EAXJMP(0x409D10); }
 WRAPPER void CStreaming::LoadAllRequestedModels(bool bPriorityOnly) { WRAPARG(bPriorityOnly); EAXJMP(0x40EA10); }
+WRAPPER void CStreaming::LoadInitialPeds(void) { EAXJMP(0x40D3D0); }	  // TODO: just reimplement those
+WRAPPER void CStreaming::LoadInitialWeapons(void) { EAXJMP(0x40A120); }	  // TODO: just reimplement those
 WRAPPER int CStreaming::RandomizeTaxiDriverIDByTown() { EAXJMP(0x407D50); }
 WRAPPER bool CStreaming::RemoveLeastUsedModel(unsigned int nUnknown) { WRAPARG(nUnknown); EAXJMP(0x40CFD0); }
 WRAPPER void CStreaming::DeleteRwObjectsBehindCamera(int nMemUsed) { WRAPARG(nMemUsed); EAXJMP(0x40D7C0); }
 WRAPPER void CStreaming::Init() { EAXJMP(0x5B8AD0); }
 
 WRAPPER void CStreaming::LoadCdDirectory(const char* pArchiveName, int nArchiveIndex, CBlowFish* pEncryption) { WRAPARG(pArchiveName); WRAPARG(nArchiveIndex); WRAPARG(pEncryption); EAXJMP(0x5B6170); }
+
+void CStreaming::LoadInitialVehicles(void) { }
 
 void CStreaming::SetModelTxdIsDeletable(int nIndex)
 {

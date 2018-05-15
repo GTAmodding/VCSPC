@@ -6,6 +6,8 @@
 #include "Messages.h"
 #include "Text.h"
 
+WRAPPER void CGarages::Init_AfterRestart() { EAXJMP(0x448B60); }
+
 void CGarages::PrintMessages()
 {
 	if ( CTimer::m_snTimeInMilliseconds < garages->MessageStartTime || CTimer::m_snTimeInMilliseconds >= garages->MessageEndTime )

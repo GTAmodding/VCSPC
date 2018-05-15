@@ -135,3 +135,8 @@ void CRGBA::BaseColors__Constructor()
 	this[14].b = 0x2C;
 	this[14].a = 0xFF;
 }
+
+float &CDraw::ms_fFOV = *(float*)0x8D5038;
+float &CDraw::ms_fLODDistance = *(float*)0xC3EF98;
+
+void CDraw::SetFOV(float fov) { ms_fFOV = fov; }
