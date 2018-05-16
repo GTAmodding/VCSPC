@@ -515,6 +515,7 @@ const void*	const			_CText__loadMission_Jumptable[] = { MissionLanguage_CASE_Eng
 const void*	const			ScriptCheckpointsColours_Jumptable[] = { ScriptCheckpointsColours_Normal, ScriptCheckpointsColours_Finish, ScriptCheckpointsColours_Others };
 const BYTE					ScriptCheckpointsColours_IndirectTable[] = { 0, 1, 0, 2, 2, 2, 2, 2, 2 };
 
+std::vector<Reversed::Range> Reversed::reversed;
 DebugMenuAPI gDebugMenuAPI;
 
 BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
@@ -3209,7 +3210,7 @@ void Main_Patches()
 
 	// Autoupdater
 	InjectHook(0x53E77C, &CUpdateManager::Process);
-	InjectHook(0x53BF4E, &UpdaterProcessHack);		// REVERSED TODO this is now in our function
+	// InjectHook(0x53BF4E, &UpdaterProcessHack);		// REVERSED TODO this is now in our function
 	//InjectHook(0x579526, &UpdaterMenuDrawHack, PATCH_JUMP);
 	//InjectHook(0x579D50, &UpdaterTextSwap, PATCH_JUMP);
 //	InjectHook(0x576E13, &MenuToggleHack, PATCH_JUMP
@@ -3531,7 +3532,7 @@ void Main_Patches()
 	InjectHook(0x7488FB, &ReadCommandlineFile, PATCH_JUMP);
 
 	// DLC support
-	Patch<const char*>(0x5BF8B2, CFileLoader::GetParticlesPath());
+	// Patch<const char*>(0x5BF8B2, CFileLoader::GetParticlesPath());	// REVERSED
 	Patch<const char*>(0x5BCFF7, CFileLoader::GetPedgrpPath());
 	Patch<const char*>(0x5BC0AA, CFileLoader::GetPopcyclePath());
 	Patch<const char*>(0x5BBADA, CFileLoader::GetTimecycPath());

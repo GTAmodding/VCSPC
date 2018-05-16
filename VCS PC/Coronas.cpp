@@ -26,6 +26,7 @@ WRAPPER void CCoronas::RenderReflections(void) { EAXJMP(0x6FB630); }
 WRAPPER void CCoronas::DoSunAndMoon(void) { EAXJMP(0x6FC5A0); }
 WRAPPER void CCoronas::RenderSunReflection(void) { EAXJMP(0x6FBAA0); }
 
+static Reversed RegisterCorona_kill(0x6FC185, 0x6FC4CF);
 void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned char R, unsigned char G, unsigned char B, unsigned char A, const CVector& Position, float Size, float Range, RwTexture* pTex, unsigned char flareType, unsigned char reflectionType, unsigned char LOSCheck, unsigned char unused, float normalAngle, bool bNeonFade, float PullTowardsCam, bool bFadeIntensity, float FadeSpeed, bool bOnlyFromBelow, bool bWhiteCore)
 {
 	UNREFERENCED_PARAMETER(unused);
@@ -183,6 +184,7 @@ void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned cha
 	}
 }
 
+static Reversed Update_kill(0x6FADF0, 0x6FAEBF);
 void CCoronas::Update()
 {
 	ScreenMult = Min(1.0f, CTimer::ms_fTimeStep * 0.03f + ScreenMult);
@@ -233,6 +235,7 @@ void CCoronas::Update()
 	}
 }
 
+static Reversed UpdateCoronaCoors_kill(0x6FC4D5, 0x6FC57F);
 void CCoronas::UpdateCoronaCoors(unsigned int nID, const CVector& vecPosition, float fMaxDist, float fNormalAngle)
 {
 	CVector*	pCamPos = &TheCamera.GetCoords();
@@ -342,6 +345,7 @@ void CCoronas::Init()
 	ReadFlareDef();
 }
 
+static Reversed Render_kill(0x6FAEC0, 0x6FB62F);
 void CCoronas::Render()
 {
 	int		nWidth = RwRasterGetWidth(RwCameraGetRaster(Scene.camera));

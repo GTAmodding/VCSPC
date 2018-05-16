@@ -147,6 +147,7 @@ RwBool RsSelectDevice()
 	return FALSE;
 }
 
+static Reversed CameraSize_kill(0x72FC75, 0x72FD8F);
 void CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio)
 {
 	if ( !camera )
@@ -442,6 +443,7 @@ void DoPreMenuBlackout()
 }
 
 static char**& pVideoModes = *(char***)0xC920D0;
+static Reversed FreeDisplayModesList_kill(0x745A80, 0x745AEF);
 void FreeDisplayModesList()
 {
 	for ( int i = 0, j = GetNumDisplayModes(); i < j; i++ )
@@ -457,6 +459,7 @@ int GetNumDisplayModes()
 	return RwEngineGetNumVideoModes();
 }
 
+static Reversed GetDisplayModesList_kill(0x745AF5, 0x745C6F);
 char** GetDisplayModesList()
 {
 	static RwInt32 lastSubSystem = -1;

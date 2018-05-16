@@ -656,6 +656,7 @@ void CHud::PrintBreathForPlayer(int playerID, float posX, float posY)
 	}
 }
 
+static Reversed DrawWeaponIcon_kill(0x58D7D0, 0x58D99F);
 void CHud::DrawWeaponIcon(CPed* pPed, float iX, float iY, int fAlpha)
 {
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);

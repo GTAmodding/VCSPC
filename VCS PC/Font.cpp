@@ -606,6 +606,7 @@ char* CFont::ParseToken(char* pText, CRGBA& rColor, bool bIgnoreColors, char* pC
 	return pCharToWorkWith;
 }
 
+static Reversed Initialise_kill(0x5BA690, 0x5BA84F);
 void CFont::Initialise()
 {
 	int		nSlot = CTxdStore::AddTxdSlot("fonts");
@@ -720,6 +721,7 @@ void CFont::InitialiseButtons()
 	}
 }
 
+static Reversed Shutdown_kill(0x7189B0, 0x718A0F);
 void CFont::Shutdown()
 {
 	for ( int i = 0; i < NUM_FONT_SHEETS; i++ )

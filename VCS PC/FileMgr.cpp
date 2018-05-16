@@ -52,6 +52,7 @@ void SetAtomicModelInfoFlags(CAtomicModelInfo* pInfo, unsigned int dwFlags)
 		pInfo->SetCastShadowFlag();
 }
 
+static Reversed GetMyDocumentsDir_kill(0x744FB0, 0x7451AF);
 wchar_t* CFileMgr::GetMyDocumentsDir()
 {
 	static wchar_t	cUserFilesPath[MAX_PATH];

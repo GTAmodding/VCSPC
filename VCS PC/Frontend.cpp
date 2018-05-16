@@ -657,6 +657,7 @@ void CMenuManager::LoadSettings()
 	CFileMgr::SetDir("");
 }
 
+static Reversed DrawStandardMenus_kill(0x5794A0, 0x57B43F);
 void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 {
 	CFont::SetBackground(0, 0);
@@ -1383,6 +1384,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	}
 }
 
+static Reversed DisplayHelperText_kill(0x57E245, 0x57E4CF);
 void CMenuManager::DisplayHelperText(const char* pText)
 {
 	CFont::SetScale(_width(0.4f), _height(m_bCurrentMenuPage != 5 ? 0.6f : 0.5f));
@@ -1514,6 +1516,7 @@ void CMenuManager::DisplayHelperText(const char* pText)
 	}
 }
 
+static Reversed ProcessMenuOptions_kill(0x576FE0, 0x5773CF);
 void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, bool bEnterInput)
 {
 	switch ( aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].action )
@@ -2176,6 +2179,7 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 	}
 }
 
+static Reversed CheckSliderMovement_kill(0x573440, 0x57367F);
 void CMenuManager::CheckSliderMovement(signed char nDirection)
 {
 	switch ( aScreens[m_bCurrentMenuPage].entryList[m_dwSelectedMenuItem].action )
@@ -3896,6 +3900,9 @@ UserInputArrowSoundMenus_False:
 		retn
 	}
 }
+
+
+static Reversed ProcessPCMenuOptions_kill(0x57CD50, 0x57D51F);
 
 
 static StaticPatcher	Patcher([](){

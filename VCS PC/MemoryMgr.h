@@ -16,49 +16,49 @@ enum
 	PATCH_JUMP,
 };
 
-// Debug checker to make sure reversed functions don't still get hacks
-template<typename AT>
-inline void CheckMemoryBanList(AT address)
+// Debug checker to make sure reversed functions don't still get hacks and aren't executed
+// TODO: guard against non-static instances?
+class Reversed
 {
+public:
+	struct Range { uint32 start; uint32 end; };
+	static std::vector<Range> reversed;
+	Reversed(uint32 start, uint32 end) {
 #ifdef DEVBUILD
-	unsigned int	nAddress = (unsigned int)address;
-
-	assert(nAddress < 0x5794A0 || nAddress > 0x57B43F);
-	assert(nAddress < 0x576FE0 || nAddress > 0x5773CF);
-	assert(nAddress < 0x57CD50 || nAddress > 0x57D51F);
-	assert(nAddress < 0x573440 || nAddress > 0x57367F);
-	assert(nAddress < 0x72FC75 || nAddress > 0x72FD8F);
-	assert(nAddress < 0x6FC185 || nAddress > 0x6FC4CF);
-	assert(nAddress < 0x6FC4D5 || nAddress > 0x6FC57F);
-	assert(nAddress < 0x6FADF0 || nAddress > 0x6FAEBF);
-	assert(nAddress < 0x6FAEC0 || nAddress > 0x6FB62F);
-	assert(nAddress < 0x744FB0 || nAddress > 0x7451AF);
-	assert(nAddress < 0x5BA690 || nAddress > 0x5BA84F);
-	assert(nAddress < 0x7189B0 || nAddress > 0x718A0F);
-	assert(nAddress < 0x57E245 || nAddress > 0x57E4CF);
-	assert(nAddress < 0x58D7D0 || nAddress > 0x58D99F);
-	assert(nAddress < 0x745AF5 || nAddress > 0x745C6F);
-	assert(nAddress < 0x745A80 || nAddress > 0x745AEF);
-#else
-	UNREFERENCED_PARAMETER(address);
+		Range r = { start, end };
+		reversed.push_back(r);
+		uint32 size = end-start;
+		DWORD dwProtect[2];
+		VirtualProtect((void*)start, size, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
+		memset((void*)start, 0xCC, size);
+		VirtualProtect((void*)start, size, dwProtect[0], &dwProtect[1]);
 #endif
-}
+	}
+	static void check(uint32 address) {
+#ifdef DEVBUILD
+		int l = reversed.size();
+		for(int i = 0; i < l; i++)
+			if(address >= reversed[i].start && address <= reversed[i].end)
+				assert(0 && "address in reversed function");
+#endif
+	}
+};
 
 namespace Memory
 {
 	template<typename T, typename AT>
 	inline void		Patch(AT address, T value)
-	{ CheckMemoryBanList(address); *(T*)address = value; }
+	{ Reversed::check((uint32)address); *(T*)address = value; }
 
 	template<typename AT>
 	inline void		Nop(AT address, unsigned int nCount)
 	// TODO: Finish multibyte nops
-	{ CheckMemoryBanList(address); memset((void*)address, 0x90, nCount); }
+	{ Reversed::check((uint32)address); memset((void*)address, 0x90, nCount); }
 
 	template<typename AT, typename HT>
 	inline void		InjectHook(AT address, HT hook)
 	{
-		CheckMemoryBanList(address);
+		Reversed::check((uint32)address);
 		DWORD		dwHook;
 		_asm
 		{
@@ -72,7 +72,7 @@ namespace Memory
 	template<typename AT, typename HT>
 	inline void		InjectHook(AT address, HT hook, unsigned int nType)
 	{
-		CheckMemoryBanList(address);
+		Reversed::check((uint32)address);
 		DWORD		dwHook;
 		_asm
 		{

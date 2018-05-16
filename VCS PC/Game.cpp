@@ -49,6 +49,7 @@ void (*DebugMenuProcess)(void);
 void (*DebugMenuRender)(void);
 static void stub(void) { }
 
+static Reversed Initialise_kill(0x53BC80, 0x53BCEF);
 bool
 CGame::Initialise(const char *fileName)
 {
@@ -181,11 +182,10 @@ WRAPPER void WaterCreatureManager_c::Init(void) { EAXJMP(0x6E3F90); }
 WRAPPER void WaterCreatureManager_c::Update(float t) { EAXJMP(0x6E4F10); }
 WaterCreatureManager_c &g_waterCreatureMan = *(WaterCreatureManager_c*)0xC1DF30;
 
+static Reversed Init1_kill(0x5BF840, 0x5BF9CF);
 bool
 CGame::Init1(const char *fileName)
 {
-	//EAXJMP(0x5BF840);
-
 	CMaths__InitMathsTables();
 	strcpy(CGame::aDatFile, fileName);
 	CPools::Initialise();
@@ -198,7 +198,7 @@ CGame::Init1(const char *fileName)
 	CTxdStore::Create(gameTxdSlot);
 	CTxdStore::AddRef(gameTxdSlot);
 	int particle = CTxdStore::AddTxdSlot("particle");
-	CTxdStore::LoadTxd(particle, "MODELS\\PARTICLE.TXD");
+	CTxdStore::LoadTxd(particle, CFileLoader::GetParticlesPath());
 	CTxdStore::AddRef(particle);
 	CTxdStore::SetCurrentTxd(gameTxdSlot);
 	CGameLogic__InitAtStartOfGame();
@@ -251,6 +251,7 @@ CGame::Init1(const char *fileName)
 	return true;
 }
 
+static Reversed Init2_kill(0x5BA1A0, 0x5BA3FF);
 bool
 CGame::Init2(const char *fileName)
 {
@@ -333,6 +334,7 @@ CGame::Init2(const char *fileName)
 	return true;
 }
 
+static Reversed Init3_kill(0x5BA400, 0x5BA48F);
 bool
 CGame::Init3(const char *fileName)
 {
@@ -408,6 +410,7 @@ WRAPPER void CRoadBlocks__GenerateRoadBlocks(void) { EAXJMP(0x4629E0); }
 
 int &CWindModifiers__Number = *(int*)0xC81450;
 
+static Reversed Process_kill(0x53BEE0, 0x53C23F);
 void
 CGame::Process(void)
 {
@@ -578,6 +581,7 @@ DoRWStuffEndOfFrame(void)
 }
 */
 
+static Reversed Idle_kill(0x53E920, 0x53EC0F);
 void
 Idle(void *arg)
 {
@@ -675,8 +679,10 @@ Idle(void *arg)
 	DoRWStuffEndOfFrame();
 }
 
+#include <vector>
+
 static StaticPatcher Patcher([](){
 	Memory::InjectHook(0x53E58E, CGame::Initialise);
 	// Memory::InjectHook(0x53E981, CGame::Process);
-	Memory::InjectHook(0x53E920, Idle, PATCH_JUMP);
+	Memory::InjectHook(0x53ECBD, Idle);
 });
