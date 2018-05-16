@@ -22,10 +22,17 @@ CLinkList<CVisibilityPlugins::AlphaObjectInfo>&		CVisibilityPlugins::m_alphaUnde
 //CLinkList<CVisibilityPlugins::AlphaObjectInfo>&		CVisibilityPlugins::m_alphaReallyDrawLastList = *(CLinkList<CVisibilityPlugins::AlphaObjectInfo>*)0xC881D0;
 CLinkList<CPed*>&									CVisibilityPlugins::ms_weaponPedsForPC = *(CLinkList<CPed*>*)0xC88224;
 
+WRAPPER void CVisibilityPlugins::SetRenderWareCamera(RwCamera *cam) { EAXJMP(0x7328C0); }
+
 void
 CVisibilityPlugins::InitAlphaAtomicList(void)
 {
 	m_alphaList.Clear();
+}
+
+void CVisibilityPlugins::ResetWeaponPedsForPC()
+{
+	ms_weaponPedsForPC.Clear();
 }
 
 bool

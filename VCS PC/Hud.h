@@ -92,6 +92,7 @@ public:
 	static void		SetPagerMessage(char* pMsg);
 	static bool		HelpMessageShown();
 
+	static void		DrawAfterFade();
 	static void		DrawHUD();
 	static void		DrawWanted();
 	static void		DrawOnscreenTimer();

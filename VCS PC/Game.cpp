@@ -31,6 +31,9 @@
 #include "PostEffects.h"
 #include "TimeCycle.h"
 #include "Breakable.h"
+#include "Hud.h"
+#include "VisibilityPlugins.h"
+#include "Scene.h"
 #include "debugmenu_public.h"
 
 bool &CGame::bMissionPackGame = *(bool*)0xB72910;
@@ -398,11 +401,9 @@ WRAPPER void CGameLogic__Update(void) { EAXJMP(0x442AD0); }
 WRAPPER void CGangWars__Update(void) { EAXJMP(0x446610); }
 WRAPPER void CConversations__Update(void) { EAXJMP(0x43C590); }
 WRAPPER void CPedToPlayerConversations__Update(void) { EAXJMP(0x43B0F0); }
-
 WRAPPER void CCarCtrl__GenerateRandomCars(void) { EAXJMP(0x4341C0); }
 WRAPPER void CCarCtrl__RemoveDistantCars(void) { EAXJMP(0x42CD10); }
 WRAPPER void CCarCtrl__RemoveCarsIfThePoolGetsFull(void) { EAXJMP(0x4322B0); }
-
 WRAPPER void CRoadBlocks__GenerateRoadBlocks(void) { EAXJMP(0x4629E0); }
 
 int &CWindModifiers__Number = *(int*)0xC81450;
@@ -535,7 +536,147 @@ CGame::Process(void)
 	CWaterLevel::PreRenderWater();
 }
 
+
+WRAPPER void CMirrors__BeforeMainRender(void) { EAXJMP(0x727140); }
+WRAPPER void CMirrors__RenderMirrorBuffer(void) { EAXJMP(0x726090); }
+WRAPPER void CMessages__Display(bool) { EAXJMP(0x69EFC0); }
+WRAPPER void CCredits__RenderCredits(void) { EAXJMP(0x5A87F0); }
+
+WRAPPER void DoFade(void) { EAXJMP(0x53E600); }
+void RenderFontBuffer(void) { CFont::RenderFontBuffer(); }
+
+int &CPointLights__NumLights = *(int*)0xC3F0D0;
+
+RwRGBA &gColourTop = *(RwRGBA*)0xB72CA0 ;
+
+void
+CCredits__Render(void)
+{
+	if(CCredits__bCreditsGoing)
+		if(!FrontEndMenuManager.m_bMenuActive)
+			CCredits__RenderCredits();
+}
+
+void
+Render2dStuffAfterFade(void)
+{
+	CHud::DrawAfterFade();
+	CMessages__Display(0);
+	RenderFontBuffer();
+	// CCredits__Render();	// already rendered in Idle
+}
+
+/*
+void
+DoRWStuffEndOfFrame(void)
+{
+	// CDebug::DebugDisplayTextBuffer();
+	// FlushObrsPrintfs();
+
+	RwCameraEndUpdate(Scene.camera);
+	RsCameraShowRaster(Scene.camera);
+}
+*/
+
+void
+Idle(void *arg)
+{
+	static int lastTime;
+
+	while(CTimer::GetCurrentTimeInMilliseconds() - lastTime < 14);
+
+	CTimer::Update();
+	CSprite2d::InitPerFrame();
+	CFont::InitPerFrame();
+	CPointLights__NumLights = 0;
+	CGame::Process();
+	AudioEngine.Service();
+	SetLightsWithTimeOfDayColour(Scene.world);
+
+	if(arg == NULL)
+		return;
+
+	if(!FrontEndMenuManager.m_bMenuActive && TheCamera.GetFadeStage() != 2){
+		RwV2d pos;
+		pos.x = RsGlobal.MaximumWidth / 2.0f;
+		pos.y = RsGlobal.MaximumHeight / 2.0f;
+		RsMouseSetPos(&pos);
+
+		CRenderer::ConstructRenderList();
+		CRenderer::PreRender();
+		CWorld::ProcessPedsAfterPreRender();
+		g_realTimeShadowMan.Update();
+		CMirrors__BeforeMainRender();
+
+		// TODO: reverse this to the old VC code, right now the arguments do nothing!
+		if(CWeather::LightningFlash){
+			// TODO: clean this up once everything is under our control
+			CTimeCycle::m_CurrentColours.skybotr = 255;
+			CTimeCycle::m_CurrentColours.skybotg = 255;
+			CTimeCycle::m_CurrentColours.skybotb = 255;
+			CTimeCycle::m_CurrentColours.skytopr = 255;
+			CTimeCycle::m_CurrentColours.skytopg = 255;
+			CTimeCycle::m_CurrentColours.skytopb = 255;
+			CTimeCycle::m_CurrentColours_exe.skybotr = 255;
+			CTimeCycle::m_CurrentColours_exe.skybotg = 255;
+			CTimeCycle::m_CurrentColours_exe.skybotb = 255;
+			CTimeCycle::m_CurrentColours_exe.skytopr = 255;
+			CTimeCycle::m_CurrentColours_exe.skytopg = 255;
+			CTimeCycle::m_CurrentColours_exe.skytopb = 255;
+			if(!DoRWStuffStartOfFrame_Horizon(255, 255, 255, 255, 255, 255, 255))
+				return;
+		}else{
+			if(!DoRWStuffStartOfFrame_Horizon(
+							CTimeCycle::m_CurrentColours.skytopr,
+							CTimeCycle::m_CurrentColours.skytopg,
+							CTimeCycle::m_CurrentColours.skytopb,
+							CTimeCycle::m_CurrentColours.skybotr,
+							CTimeCycle::m_CurrentColours.skybotg,
+							CTimeCycle::m_CurrentColours.skybotb,
+							255))
+				return;
+		}
+
+		DefinedState();
+		RwCameraSetFarClipPlane(Scene.camera, CTimeCycle::m_CurrentColours.farclp);
+		RwCameraSetFogDistance(Scene.camera, CTimeCycle::m_CurrentColours.fogst);
+
+		CMirrors__RenderMirrorBuffer();
+		RenderScene();
+
+		CVisibilityPlugins::RenderWeaponPedsForPC();
+		CVisibilityPlugins::ResetWeaponPedsForPC();
+
+		RenderEffects();
+
+		// skipping camera motion blur, not used
+
+		Render2dStuff();
+
+		DebugMenuRender();
+	}else{
+		CDraw::CalculateAspectRatio();
+		CameraSize(Scene.camera, NULL, tan(CDraw::ms_fFOV * M_PI / 360.0f), CDraw::ms_fAspectRatio);
+		CVisibilityPlugins::SetRenderWareCamera(Scene.camera);
+		RwCameraClear(Scene.camera, &gColourTop, rwCAMERACLEARZ);
+		if(!RsCameraBeginUpdate(Scene.camera))
+			return;
+	}
+
+	if(FrontEndMenuManager.m_bMenuActive)
+		FrontEndMenuManager.DrawFrontEnd();
+
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, NULL);
+	DoFade();
+
+	Render2dStuffAfterFade();
+	CCredits__Render();
+
+	DoRWStuffEndOfFrame();
+}
+
 static StaticPatcher Patcher([](){
 	Memory::InjectHook(0x53E58E, CGame::Initialise);
-	Memory::InjectHook(0x53E981, CGame::Process);
+	// Memory::InjectHook(0x53E981, CGame::Process);
+	Memory::InjectHook(0x53E920, Idle, PATCH_JUMP);
 });

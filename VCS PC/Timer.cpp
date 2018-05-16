@@ -9,6 +9,7 @@ bool &CTimer::m_CodePause = *(bool*)0xB7CB48;
 bool &CTimer::m_UserPause = *(bool*)0xB7CB49;
 bool &CTimer::bSkipProcessThisFrame = *(bool*)0xB7CB89;
 
+WRAPPER void CTimer::Update() { EAXJMP(0x561B10); }
 WRAPPER int CTimer::GetCurrentTimeInCycles() { EAXJMP(0x561A80); }
 WRAPPER int CTimer::GetCyclesPerMillisecond() { EAXJMP(0x561A40); }
 

@@ -601,14 +601,6 @@ static void BuildingShadowsKeep()
 	g_realTimeShadowMan.KeepBuildingShadowsAlive();
 }
 
-static void UpdateShadowsHack(RwCamera* camera)
-{
-	g_realTimeShadowMan.Update();
-	
-	//((void(*)())0x707F40)();
-	RwCameraBeginUpdate(camera);
-}
-
 RwRaster* ShadowRasterCreateHook(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags)
 {
 	return RwRasterCreate( width, height, depth, flags | rwRASTERFORMATLUM8 );
@@ -639,11 +631,11 @@ static StaticPatcher	Patcher([](){
 
 						// Increased shadows limit
 						Memory::Patch<const void*>(0x45D412, &g_realTimeShadowMan);
-						Memory::Patch<const void*>(0x53BE63, &g_realTimeShadowMan);	// REVERSED TODO
+						// Memory::Patch<const void*>(0x53BE63, &g_realTimeShadowMan);	// REVERSED
 						Memory::Patch<const void*>(0x53C63F, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x53C9E5, &g_realTimeShadowMan);
-						Memory::Patch<const void*>(0x53EA09, &g_realTimeShadowMan);
-						// Memory::Patch<const void*>(0x542487, &g_realTimeShadowMan);	// using our own function here now
+						// Memory::Patch<const void*>(0x53EA09, &g_realTimeShadowMan);	// REVERSED
+						// Memory::Patch<const void*>(0x542487, &g_realTimeShadowMan);	// REVERSED
 						Memory::Patch<const void*>(0x5B1F38, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5BA478, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5E68A4, &g_realTimeShadowMan);
@@ -651,10 +643,6 @@ static StaticPatcher	Patcher([](){
 						Memory::InjectHook(0x705B9A, ShadowRasterCreateHook);
 						//Memory::Patch<const void*>(0x854980, &g_realTimeShadowMan);
 						//Memory::Patch<const void*>(0x856AD0, &g_realTimeShadowMan);
-
-						// Shadows rendering AFTER RenderScene
-						//Memory::InjectHook(0x53E0B9, UpdateShadowsHack);
-						//Memory::Nop(0x53EA0D, 5);
 
 
 						Memory::Patch<const void*>(0x5BA12C, &g_realTimeShadowMan.m_bInitialised);

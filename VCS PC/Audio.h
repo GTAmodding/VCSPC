@@ -82,6 +82,7 @@ public:
 class CAudioEngine
 {
 public:
+	void				Service(void);
 	void				ReportFrontendAudioEvent(long nSoundID, float fUnk, float fVolume);
 	void				SetMusicMasterVolume(signed char nVolume);
 	void				SetEffectsMasterVolume(signed char nVolume);

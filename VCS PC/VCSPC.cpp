@@ -1963,6 +1963,7 @@ void TempExitFix()
 	ExitProcess(0);
 }
 
+#ifdef MULTITHREADING_TEST
 void __declspec(naked) DrawFrame()
 {
 	_asm
@@ -2005,6 +2006,7 @@ LaunchRenderThread_Ret:
 		retn
 	}
 }
+#endif
 
 /*static const RwMatrix* pMat;
 static const RwSphere* pSphere;
@@ -3283,12 +3285,12 @@ void Main_Patches()
 	Nop(0x5D1EA9, 2);
 
 	// Frame Limiter
-	Patch<WORD>(0x53E923, 0x43EB);
+	// Patch<WORD>(0x53E923, 0x43EB);	// REVERSED what is this anyway?
 	Patch<WORD>(0x748D81, 0x1B0);
 	Patch<WORD>(0x748D98, 0xC030);
 	InjectHook(0x748D83, &MaxosFrameLimitHack, PATCH_JUMP);
 	InjectHook(0x748D9A, &MaxosFrameLimitHack, PATCH_JUMP);
-	Nop(0x53E9A5, 1);
+	// Nop(0x53E9A5, 1);		// REVERSED
 
 	//InjectHook(0x57CECA, &FrameLimit_SwitchInject, PATCH_JUMP);
 	//InjectHook(0x579EF3, &FrameLimit_StringInject);

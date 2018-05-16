@@ -1,5 +1,5 @@
-#ifndef __LIGHTING
-#define __LIGHTING
+#ifndef __SCENE
+#define __SCENE
 
 struct GlobalScene
 {
@@ -14,6 +14,8 @@ extern RpLight **pExtraDirectionals;
 extern int &NumExtraDirLightsInWorld;
 extern RwRGBAReal& AmbientLightColourForFrame;
 
+void DefinedState(void);
+
 void SetLightsWithTimeOfDayColour(RpWorld*);
 void SetBrightMarkerColours(void);
 void ReSetAmbientAndDirectionalColours(void);
@@ -27,5 +29,6 @@ void DeActivateDirectional();
 void RenderScene(void);
 void RenderReflectionScene(void);
 void RenderEffects(void);
+void Render2dStuff(void);
 
-#endif __LIGHTING
+#endif __SCENE

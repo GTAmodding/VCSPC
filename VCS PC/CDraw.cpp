@@ -137,6 +137,10 @@ void CRGBA::BaseColors__Constructor()
 }
 
 float &CDraw::ms_fFOV = *(float*)0x8D5038;
+float &CDraw::ms_fAspectRatio = *(float*)0xC3EFA4;
 float &CDraw::ms_fLODDistance = *(float*)0xC3EF98;
+
+// this is probably crap
+WRAPPER void CDraw::CalculateAspectRatio(void) { EAXJMP(0x6FF420); }
 
 void CDraw::SetFOV(float fov) { ms_fFOV = fov; }

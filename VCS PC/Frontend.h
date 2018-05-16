@@ -483,6 +483,7 @@ public:
 	bool			CheckHover(int, int, int, int);
 
 	void			SetDefaultPreferences(signed char bScreen);
+	void			DrawFrontEnd();
 	void			DrawBackEnd();
 	//float			GetLeftColumnPos_Height(long posY);
 	float			GetRightColumnPos(MenuVar& sPosY);

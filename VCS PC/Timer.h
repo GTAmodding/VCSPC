@@ -12,6 +12,7 @@ public:
 	static bool	&m_UserPause;
 	static bool	&bSkipProcessThisFrame;
 
+	static void Update();
 	static int GetCurrentTimeInCycles();
 	static int GetCyclesPerMillisecond();
 	static int GetCurrentTimeInMilliseconds();

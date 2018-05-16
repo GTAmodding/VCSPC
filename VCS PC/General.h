@@ -92,8 +92,10 @@ class CDraw
 {
 public:
 	static float &ms_fFOV;
+	static float &ms_fAspectRatio;
 	static float &ms_fLODDistance;
 	static void SetFOV(float fov);
+	static void CalculateAspectRatio(void);
 };
 
 class CRect

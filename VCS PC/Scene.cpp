@@ -28,6 +28,29 @@ RwRGBAReal &AmbientLightColour = *(RwRGBAReal*)0xC886A4;
 RwRGBAReal &DirectionalLightColour = *(RwRGBAReal*)0xC88694;
 
 void
+DefinedState(void)
+{
+	RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS, (void*)rwTEXTUREADDRESSWRAP);
+	RwRenderStateSet(rwRENDERSTATETEXTUREPERSPECTIVE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATESHADEMODE, (void*)rwSHADEMODEGOURAUD);
+	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)FALSE);
+	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
+	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
+	RwRenderStateSet(rwRENDERSTATEBORDERCOLOR, (void*)RWRGBALONG(0, 0, 0, 255));
+	RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void*)FALSE);
+	RwRenderStateSet(rwRENDERSTATEFOGCOLOR, (void*)RWRGBALONG(CTimeCycle::m_CurrentColours.skybotr,
+		CTimeCycle::m_CurrentColours.skybotg,
+		CTimeCycle::m_CurrentColours.skybotb, 255));
+	RwRenderStateSet(rwRENDERSTATEFOGTYPE, (void*)rwFOGTYPELINEAR);
+	RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLNONE);
+	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)rwALPHATESTFUNCTIONGREATER);
+	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTIONREF, (void*)2);
+}
+
+void
 SetLightsWithTimeOfDayColour(RpWorld*)
 {
 	if(pAmbient){
@@ -323,6 +346,13 @@ RenderEffects(void)
 	CPostEffects::Render();
 }
 
+// TODO: reverse this
+WRAPPER void
+Render2dStuff(void)
+{
+	EAXJMP(0x53E230);
+}
+
 void __declspec(naked) LightningSky()
 {
 	_asm {
@@ -348,13 +378,12 @@ void __declspec(naked) LightningSky()
 }
 
 static StaticPatcher	Patcher([](){
-//					Memory::Nop(0x53EA1E, 2);	// always lightning sky, for testing purposes
+					// Memory::InjectHook(0x53EA25, LightningSky, PATCH_JUMP);	// REVERSED
+					// Memory::InjectHook(0x53E997, SetLightsWithTimeOfDayColour);	// REVERSED
+					// Memory::InjectHook(0x53EAD3, RenderEffects);			// REVERSED
+					// Memory::InjectHook(0x53E170, RenderEffects, PATCH_JUMP);	// REVERSED
+					// Memory::InjectHook(0x53DF40, RenderScene, PATCH_JUMP);	// REVERSED
 
-					Memory::InjectHook(0x53EA25, LightningSky, PATCH_JUMP);
-
-					Memory::InjectHook(0x53E997, SetLightsWithTimeOfDayColour);
 //					Memory::InjectHook(0x735D90, SetLightColoursForPedsCarsAndObjects, PATCH_JUMP);
-					Memory::InjectHook(0x53EAD3, RenderEffects);
-					Memory::InjectHook(0x53E170, RenderEffects, PATCH_JUMP);
-					Memory::InjectHook(0x53DF40, RenderScene, PATCH_JUMP);
+
 				});

@@ -16,6 +16,9 @@ public:
 
 	static void Init(void);
 
+	static void ConstructRenderList(void);
+	static void PreRender(void);
+
 	static void RenderOneRoad(CEntity* pEntity);
 	static void RenderFadingInEntities(void);
 	static void RenderFadingInUnderwaterEntities(void);

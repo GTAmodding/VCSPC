@@ -145,11 +145,14 @@ enum RsGenericPS
 // R* RW function extensions
 RwTexture*		RwTextureGtaStreamRead(RwStream* stream);
 
+void			RsMouseSetPos(RwV2d *pos);
+void			RsCameraShowRaster(RwCamera*);
 RsEventStatus	RsEventHandler(RsEvent eventID, void* param);
 RwChar*			RsPathnameCreate(const RwChar* srcBuffer);
 void			RsPathnameDestroy(RwChar* buffer);
 BOOL			RsCameraBeginUpdate(RwCamera* pCamera);
 
+bool			DoRWStuffStartOfFrame_Horizon(uint16 topr, uint16 topg, uint16 topb, uint16 botr, uint16 botg, uint16 botb, uint16 alpha);
 void			DoRWStuffEndOfFrame();
 void			DefinedState2d();
 void			CameraSize(RwCamera* camera, RwRect* rect, float fViewWindow, float fAspectRatio);

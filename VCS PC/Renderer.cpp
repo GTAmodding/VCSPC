@@ -17,6 +17,10 @@ int &CRenderer::ms_nNoOfVisibleLods = *(int*)0xB76840;
 int CRenderer::ms_nNumOpaqueObjects;
 CEntity *CRenderer::ms_aOpaqueRenderList[1000];
 
+WRAPPER void CRenderer::ConstructRenderList(void) { EAXJMP(0x5556E0); }
+WRAPPER void CRenderer::PreRender(void) { EAXJMP(0x553910); }
+
+
 void CRenderer::Init(void) { }
 
 void

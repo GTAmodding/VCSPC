@@ -41,7 +41,9 @@ public:
 				i->V().callback(i->V().pObject, i->V().fCompareValue);
 	}
 
+	static void SetRenderWareCamera(RwCamera *cam);
 	static void InitAlphaAtomicList(void);
+	static void ResetWeaponPedsForPC();
 	static bool InsertEntityIntoSortedList(CEntity *ent, float sort);
 	static bool InsertEntityIntoUnderwaterList(CEntity *ent, float sort);
 	static void RenderEntity(CEntity *e, float dist);
