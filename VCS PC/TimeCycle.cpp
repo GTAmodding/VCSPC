@@ -104,6 +104,7 @@ RwRGBA &CTimeCycle::m_BelowHorizonGrey = *(RwRGBA*)0xB7CB10;
 CColourSet CTimeCycle::m_CurrentColours;
 CColourSet &CTimeCycle::m_CurrentColours_exe = *(CColourSet*)0xB7C4A0;
 
+static Reversed StartExtraColour_kill(0x55FEC0 + 5, 0x55FF1F);
 void
 CTimeCycle::StartExtraColour(int extracolor, int keepInter)
 {
@@ -191,6 +192,7 @@ CTimeCycle::CopyWeather(int dst, int src)
 	}
 }
 
+static Reversed Initialise_kill(0x5BBAC0 + 5, 0x5BC08F);
 void
 CTimeCycle::Initialise(bool unused)
 {
@@ -219,9 +221,9 @@ CTimeCycle::Initialise(bool unused)
 	float waterr, waterg, waterb, watera;
 	float blura, bluroff;
 
-	CFileMgr::SetDir("DATA");
-	fd = CFileMgr::OpenFile("TIMECYC.DAT", "rb");
-	CFileMgr::SetDir("");
+//	CFileMgr::SetDir("DATA");	// path returned is relative to root
+	fd = CFileMgr::OpenFile(CFileLoader::GetTimecycPath(), "rb");
+//	CFileMgr::SetDir("");
 
 	for(ww = 0; ww < 8; ww++){
 		w = CWeather::weatherMap[ww];
@@ -346,6 +348,7 @@ static uint8 timecycleHours[25] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 static uint8 timecycleHorizon[24] = { 30, 30, 30, 30, 30, 30, 30, 50, 52, 54, 56, 58, 60, 60, 60, 60, 60, 60, 60, 60, 50, 42, 35, 32 };
 int &tunnelWeather = *(int*)0x8CDEE0;
 
+static Reversed CalcColoursForPoint_kill(0x5603D0, 0x5616DF);
 void
 CTimeCycle::CalcColoursForPoint(float x, float y, float z, CColourSet *colorset)
 {
@@ -591,6 +594,7 @@ CTimeCycle::CalcColoursForPoint(float x, float y, float z, CColourSet *colorset)
 	colorset->convertToSA();
 }
 
+static Reversed FindFarClipForCoors_kill(0x5616E0 + 5, 0x56175F);
 double
 CTimeCycle::FindFarClipForCoors(float x, float y, float z)
 {
@@ -607,6 +611,7 @@ CTimeCycle::FindFarClipForCoors(float x, float y, float z)
 	return s.farclp;
 }
 
+static Reversed Update_kill(0x561760, 0x56179F);
 void
 CTimeCycle::Update(void)
 {
@@ -752,12 +757,12 @@ static StaticPatcher	Patcher([]()
 	Memory::InjectHook(0x55FEC0, CTimeCycle::StartExtraColour, PATCH_JUMP);
 
 	Memory::InjectHook(0x5BBAC0, CTimeCycle::Initialise, PATCH_JUMP);
-	Memory::InjectHook(0x55F4B0, &CColourSet::ctor, PATCH_JUMP);
-	Memory::InjectHook(0x55F870, &CColourSet::Interpolate, PATCH_JUMP);
-	Memory::InjectHook(0x5603D0, CTimeCycle::CalcColoursForPoint, PATCH_JUMP);
+	// Memory::InjectHook(0x55F4B0, &CColourSet::ctor, PATCH_JUMP);
+	// Memory::InjectHook(0x55F870, &CColourSet::Interpolate, PATCH_JUMP);
+	// Memory::InjectHook(0x5603D0, CTimeCycle::CalcColoursForPoint, PATCH_JUMP);
 	Memory::InjectHook(0x5616E0, CTimeCycle::FindFarClipForCoors, PATCH_JUMP);
-	Memory::InjectHook(0x561760, CTimeCycle::Update, PATCH_JUMP);
+	// Memory::InjectHook(0x561760, CTimeCycle::Update, PATCH_JUMP);
 
 	Memory::InjectHook(0x72B916, CWeather::FindWeatherTypesList);
 	Memory::InjectHook(0x72A640, CWeather::UpdateWeatherRegion, PATCH_JUMP);
-				});
+});

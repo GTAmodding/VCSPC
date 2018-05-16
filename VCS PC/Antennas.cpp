@@ -160,13 +160,13 @@ void CAntennas::DebugDisplay()
 void CAntennas::Inject()
 {
 	// Jump from the end of CGlass::Init()
-	Memory::InjectHook(0x720560, Init, PATCH_JUMP);
+	Memory::InjectHook(0x720560, Init, PATCH_JUMP);		// have to keep this because of ReInit
 
 	// Jump from the end of CGlass::Update()
-	Memory::InjectHook(0x71B0F0, Update, PATCH_JUMP);
+	// Memory::InjectHook(0x71B0F0, Update, PATCH_JUMP);	// REVERSED
 
 	// Replaces a nullsub CMovingThings::Render()
-	Memory::InjectHook(0x53E184, Render);
+	// Memory::InjectHook(0x53E184, Render);	// REVERSED
 }
 
 static StaticPatcher	Patcher([](){ 

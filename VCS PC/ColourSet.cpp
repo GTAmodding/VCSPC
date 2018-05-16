@@ -3,6 +3,7 @@
 
 #include "TimeCycle.h"
 
+static Reversed ctor_kill(0x55F4B0, 0x55F7EF);
 void
 CColourSet::ctor(int h, int w)
 {
@@ -79,6 +80,7 @@ CColourSet::ctor(int h, int w)
 	this->bluroffset = CTimeCycle::m_fBlurOffset[h][w];
 }
 
+static Reversed Interpolate_kill(0x55F870, 0x55FEBF);
 void
 CColourSet::Interpolate(CColourSet *a, CColourSet *b, float fa, float fb, bool ignoreSky)
 {

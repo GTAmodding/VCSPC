@@ -11,6 +11,7 @@
 #include "Breakable.h"
 #include "Camera.h"
 #include "Shadows.h"
+#include "Antennas.h"
 #include "Rubbish.h"
 #include "NeoCarpipe.h"
 #include "WaterLevel.h"
@@ -50,6 +51,7 @@ DefinedState(void)
 	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTIONREF, (void*)2);
 }
 
+static Reversed SetLightsWithTimeOfDayColour_kill(0x7354E0, 0x73571F);
 void
 SetLightsWithTimeOfDayColour(RpWorld*)
 {
@@ -230,6 +232,7 @@ void CSkidmarks__Render(void)
 	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)alphafunc);
 }
 
+static Reversed RenderScene_kill(0x53DF40, 0x53E15F);
 void
 RenderScene(void)
 {
@@ -315,6 +318,7 @@ RenderReflectionScene(void)
 	CRenderer::RenderAllBuildingsTransparent();
 }
 
+static Reversed RenderEffects_kill(0x53E170, 0x53E22F);
 void
 RenderEffects(void)
 {
@@ -322,6 +326,7 @@ RenderEffects(void)
 	CBirds__Render();
 	CSkidmarks__Render();
 	CRopes__Render();
+	CAntennas::Render();
 	CRubbish::Render();
 	CGlass__Render();
 	CMovingThings__Render();
@@ -339,6 +344,7 @@ RenderEffects(void)
 		CHeli__Post_SearchLightCone();
 	}
 	CWeaponEffects__Render();
+	// no CPlayerPed::DrawTriangleForMouseRecruitPed
 	// CSpecialFX__Render was here
 	CVehicleRecording__Render();
 	CPointLights__RenderFogEffect();
@@ -353,32 +359,7 @@ Render2dStuff(void)
 	EAXJMP(0x53E230);
 }
 
-void __declspec(naked) LightningSky()
-{
-	_asm {
-		push	eax
-		push	eax
-		push	eax
-		push	eax
-		push	eax
-		mov	CTimeCycle::m_CurrentColours.skytopr, ax
-		mov	CTimeCycle::m_CurrentColours.skytopg, ax
-		mov	CTimeCycle::m_CurrentColours.skytopb, ax
-		// this is what the game actually uses:
-		mov	ds:0xb7c4c4, ax
-		mov	ds:0xb7c4c6, ax
-		mov	ds:0xb7c4c8, ax
-//		this doesn't work:
-//		mov	CTimeCycle::m_CurrentColours_exe.skytopr, ax
-//		mov	CTimeCycle::m_CurrentColours_exe.skytopg, ax
-//		mov	CTimeCycle::m_CurrentColours_exe.skytopb, ax
-		push	0x53EA2A
-		retn
-	}
-}
-
 static StaticPatcher	Patcher([](){
-					// Memory::InjectHook(0x53EA25, LightningSky, PATCH_JUMP);	// REVERSED
 					// Memory::InjectHook(0x53E997, SetLightsWithTimeOfDayColour);	// REVERSED
 					// Memory::InjectHook(0x53EAD3, RenderEffects);			// REVERSED
 					// Memory::InjectHook(0x53E170, RenderEffects, PATCH_JUMP);	// REVERSED

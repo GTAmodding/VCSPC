@@ -3302,7 +3302,7 @@ void Main_Patches()
 	//Nop(0x573BB8, 3);
 
 	// No green blip
-	Patch<BYTE>(0x53E1EC, 0xEB);
+	// Patch<BYTE>(0x53E1EC, 0xEB);		// REVERSED
 
 	// HJ
 //	Patch<BYTE>(0x55AC70, sizeof(HJ_Stats_Jumptable) / sizeof(void*) - 1);
@@ -3371,10 +3371,10 @@ void Main_Patches()
 	Patch<const void*>(0x6A80CA, &fRhinoHitStrength);
 
 	// SF weather
-	Patch<BYTE>(0x72A640, 0xE9);
-	Patch<DWORD>(0x72A641, 0xE3);
-	Patch<BYTE>(0x72A731, 0xC3);
-	Patch<BYTE>(0x705065, 0xEB);
+	// Patch<BYTE>(0x72A640, 0xE9);		// REVERSED
+	// Patch<DWORD>(0x72A641, 0xE3);
+	// Patch<BYTE>(0x72A731, 0xC3);
+	// Patch<BYTE>(0x705065, 0xEB);
 
 	// Force metric system
 	InjectHook(0x56D220, &UseMetricSystem, PATCH_JUMP);
@@ -3535,7 +3535,7 @@ void Main_Patches()
 	// Patch<const char*>(0x5BF8B2, CFileLoader::GetParticlesPath());	// REVERSED
 	Patch<const char*>(0x5BCFF7, CFileLoader::GetPedgrpPath());
 	Patch<const char*>(0x5BC0AA, CFileLoader::GetPopcyclePath());
-	Patch<const char*>(0x5BBADA, CFileLoader::GetTimecycPath());
+	// Patch<const char*>(0x5BBADA, CFileLoader::GetTimecycPath());
 
 	//Nop(0x53BC8B, 5);
 	//call(0x53BC95, &CDLCManager::LoadLevelFiles, PATCH_CALL);

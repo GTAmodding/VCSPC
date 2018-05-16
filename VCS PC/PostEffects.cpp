@@ -394,7 +394,7 @@ void CPostEffects::Initialise()
 }
 
 static StaticPatcher	Patcher([](){ 
-	Memory::InjectHook(0x53E227, CPostEffects::Render);
+	// Memory::InjectHook(0x53E227, CPostEffects::Render);	// Reversed
 	Memory::InjectHook(0x5BD779, CPostEffects::Initialise);
 	Memory::InjectHook(0x7482EB, CPostEffects::Initialise);
 	Memory::InjectHook(0x745C7D, CPostEffects::Initialise);

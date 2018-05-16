@@ -53,12 +53,14 @@ WRAPPER void CWeather::Init(void) { EAXJMP(0x72A480); }
 WRAPPER void CWeather::Update(void) { EAXJMP(0x72B850); }
 WRAPPER void CWeather::RenderRainStreaks(void) { EAXJMP(0x72AF70); }
 
+static Reversed UpdateWeatherRegion_kill(0x72A640 + 5, 0x72A78F);
 void
 CWeather::UpdateWeatherRegion(CVector*)
 {
 	CWeather::WeatherRegion = 0;
 }
 
+static Reversed FindWeatherTypesList_kill(0x72A520, 0x72A56F);
 uint8*
 CWeather::FindWeatherTypesList(void)
 {
@@ -67,10 +69,10 @@ CWeather::FindWeatherTypesList(void)
 }
 
 static StaticPatcher	Patcher([](){
-					for(int i = 0; i < 256; i++)
-						weatherTypesList[i] = CWeather::weatherMap[weatherTypesList[i]];
-					Memory::InjectHook(0x72B916, CWeather::FindWeatherTypesList);
-					Memory::InjectHook(0x72A640, CWeather::UpdateWeatherRegion, PATCH_JUMP);
-					// 256 entries in weather type list
-					Memory::Patch<uint32>(0x72B903 +2, 0x8000007F);
-				});
+	for(int i = 0; i < 256; i++)
+		weatherTypesList[i] = CWeather::weatherMap[weatherTypesList[i]];
+	Memory::InjectHook(0x72B916, CWeather::FindWeatherTypesList);
+	Memory::InjectHook(0x72A640, CWeather::UpdateWeatherRegion, PATCH_JUMP);
+	// 256 entries in weather type list
+	Memory::Patch<uint32>(0x72B903 +2, 0x8000007F);
+});

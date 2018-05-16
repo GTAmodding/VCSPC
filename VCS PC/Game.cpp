@@ -32,6 +32,7 @@
 #include "TimeCycle.h"
 #include "Breakable.h"
 #include "Hud.h"
+#include "Antennas.h"
 #include "VisibilityPlugins.h"
 #include "Scene.h"
 #include "debugmenu_public.h"
@@ -443,6 +444,9 @@ CGame::Process(void)
 		CHeli::UpdateHelis();
 		CDarkel::Update();
 		CSkidmarks__Update();
+
+		CAntennas::Update();
+
 		CGlass__Update();
 		CWanted::UpdateEachFrame();
 		CCreepingFire__Update();
