@@ -23,6 +23,15 @@
 #include "Stats.h"
 #include "Replay.h"
 #include "Garages.h"
+#include "CutsceneManager.h"
+#include "Frontend.h"
+#include "Weather.h"
+#include "Font.h"
+#include "UserDisplay.h"
+#include "PostEffects.h"
+#include "TimeCycle.h"
+#include "Breakable.h"
+#include "debugmenu_public.h"
 
 bool &CGame::bMissionPackGame = *(bool*)0xB72910;
 int32 &CGame::currArea = *(int*)0xB72914;
@@ -33,10 +42,22 @@ char *CGame::aDatFile = (char*)0xB728EC;	// [32]
 WRAPPER void sub_70F9E0(void) { EAXJMP(0x70F9E0); }
 WRAPPER void LoadingScreen(const char *str1, const char *str2, const char *unused) { EAXJMP(0x53DED0); }
 
+void (*DebugMenuProcess)(void);
+void (*DebugMenuRender)(void);
+static void stub(void) { }
+
 bool
 CGame::Initialise(const char *fileName)
 {
 	char dlcname[256];
+
+	if(DebugMenuLoad()){
+		DebugMenuProcess = (void(*)(void))GetProcAddress(gDebugMenuAPI.module, "DebugMenuProcess");
+		DebugMenuRender = (void(*)(void))GetProcAddress(gDebugMenuAPI.module, "DebugMenuRender");
+	}else{
+		DebugMenuProcess = stub;
+		DebugMenuRender = stub;
+	}
 
 	CGame::Init1(fileName);
 	CColAccel::startCache();
@@ -71,7 +92,6 @@ WRAPPER bool CCustomRoadsignMgr__Initialise(void) { EAXJMP(0x6FE120); }
 WRAPPER void CReferences__Init(void) { EAXJMP(0x5719B0); }
 WRAPPER void CDebug__DebugInitTextBuffer(void) { EAXJMP(0x532240); }
 WRAPPER void CTagManager__Init(void) { EAXJMP(0x49CC50); }
-WRAPPER void CWeather__Init(void) { EAXJMP(0x72A480); }
 WRAPPER void CCover__Init(void) { EAXJMP(0x698710); }
 WRAPPER void CCullZones__Init(void) { EAXJMP(0x72D6B0); }
 WRAPPER void COcclusion__Init(void) { EAXJMP(0x71DCA0); }
@@ -83,14 +103,12 @@ WRAPPER void CStuntJumpManager__Init(void) { EAXJMP(0x49CA50); }
 WRAPPER void CSetPieces__Init(void) { EAXJMP(0x4994F0); }
 WRAPPER void CTheZones__Init(void) { EAXJMP(0x572670); }
 void CTheZones__PostZoneCreation(void) { }
-WRAPPER void CUserDisplay__Init(void) { EAXJMP(0x571EE0); }
 WRAPPER void CMessages__Init(void) { EAXJMP(0x69EE00); }
 WRAPPER void CMessages__ClearAllMessagesDisplayedByGame(bool b) { EAXJMP(0x69EDC0); }
 WRAPPER void CVehicleRecording__Init(void) { EAXJMP(0x459390); }
 WRAPPER void CRestart__Initialise(void) { EAXJMP(0x460630); }
 WRAPPER void CAnimManager__Initialise(void) { EAXJMP(0x5BF6B0); }
 WRAPPER void CAnimManager__LoadAnimFiles(void) { EAXJMP(0x4D5620); }
-WRAPPER void CCutsceneMgr__Initialise(void) { EAXJMP(0x4D5A20); }
 WRAPPER void CCarCtrl__Init(void) { EAXJMP(0x4212E0); }
 WRAPPER void CPickups__Init(void) { EAXJMP(0x454A70); }
 WRAPPER void CTheCarGenerators__Init(void) { EAXJMP(0x6F3270); }
@@ -123,24 +141,29 @@ class CPathFind
 {
 public:
 	void Init(void);
+	void UpdateStreaming(bool);
 	void AllocatePathFindInfoMem(void) { }
 	void PreparePathData(void) { }
 };
 WRAPPER void CPathFind::Init(void) { EAXJMP(0x44D080); }
+WRAPPER void CPathFind::UpdateStreaming(bool) { EAXJMP(0x450A60); }
 CPathFind &ThePaths = *(CPathFind*)0x96F050;
 
 class InteriorManager_c
 {
 public:
 	void Init(void);
+	void Update(void);
 };
 WRAPPER void InteriorManager_c::Init(void) { EAXJMP(0x5C0500); }
+WRAPPER void InteriorManager_c::Update(void) { EAXJMP(0x598F50); }
 InteriorManager_c &g_interiorMan = *(InteriorManager_c*)0xBAF670;
 
 class ProcObjectMan_c
 {
 public:
 	void Init(void);
+	void Update(void) { }
 };
 WRAPPER void ProcObjectMan_c::Init(void) { EAXJMP(0x5A3EA0); }
 ProcObjectMan_c &g_procObjMan = *(ProcObjectMan_c*)0xBAF670;
@@ -149,8 +172,10 @@ class WaterCreatureManager_c
 {
 public:
 	void Init(void);
+	void Update(float t);
 };
 WRAPPER void WaterCreatureManager_c::Init(void) { EAXJMP(0x6E3F90); }
+WRAPPER void WaterCreatureManager_c::Update(float t) { EAXJMP(0x6E4F10); }
 WaterCreatureManager_c &g_waterCreatureMan = *(WaterCreatureManager_c*)0xC1DF30;
 
 bool
@@ -178,12 +203,14 @@ CGame::Init1(const char *fileName)
 	CConversations__Clear();
 	CPedToPlayerConversations__Clear();
 	CQuadTreeNode__InitPool();
-	if(!CPlantMgr__Initialise() || !CCustomRoadsignMgr__Initialise())
+	// if(!CPlantMgr__Initialise())	// not used in VCSPC
+	// 	return false;
+	if(!CCustomRoadsignMgr__Initialise())
 		return false;
 	CReferences__Init();
 	CDebug__DebugInitTextBuffer();
 	CTagManager__Init();
-	CWeather__Init();
+	CWeather::Init();
 	CCover__Init();
 	CCullZones__Init();
 	COcclusion__Init();
@@ -193,14 +220,14 @@ CGame::Init1(const char *fileName)
 	CStuntJumpManager__Init();
 	CSetPieces__Init();
 	CTheZones__Init();
-	CUserDisplay__Init();
+	CUserDisplay::Init();
 	CMessages__Init();
 	CMessages__ClearAllMessagesDisplayedByGame(0);
 	CVehicleRecording__Init();
 	CRestart__Initialise();
 	CWorld::Initialise();
 	CAnimManager__Initialise();
-	CCutsceneMgr__Initialise();
+	CCutsceneMgr::Initialise();
 	CCarCtrl__Init();
 	InitModelIndices();
 	CModelInfo::Initialise();
@@ -318,6 +345,197 @@ CGame::Init3(const char *fileName)
 	return true;
 }
 
+class CLoadMonitor
+{
+public:
+	void BeginFrame(void);
+	void EndFrame(void);
+};
+WRAPPER void CLoadMonitor::BeginFrame(void) { EAXJMP(0x53D030); }
+WRAPPER void CLoadMonitor::EndFrame(void) { EAXJMP(0x53D0B0); }
+CLoadMonitor &g_LoadMonitor = *(CLoadMonitor*)0xB72978;
+
+class CFireManager
+{
+public:
+	void Update(void);
+};
+WRAPPER void CFireManager::Update(void) { EAXJMP(0x53AF00); }
+CFireManager &gFireManager = *(CFireManager*)0xB71F80;
+
+class CInterestingEvents
+{
+public:
+	void ScanForNearbyEntities(void);
+};
+WRAPPER void CInterestingEvents::ScanForNearbyEntities(void) { EAXJMP(0x605A30); }
+CInterestingEvents &g_InterestingEvents = *(CInterestingEvents*)0xC0B058;
+
+WRAPPER void CTheZones__Update(void) { EAXJMP(0x572D10); }
+WRAPPER void CCover__Update(void) { EAXJMP(0x6997E0); }
+WRAPPER void CAudioZones__Update(bool, float, float, float) { EAXJMP(0x5083C0); }
+void CAudioZones__Update(bool b, CVector v) { CAudioZones__Update(b, v.x, v.y, v.z); }
+WRAPPER void CCheat__DoCheats(void) { EAXJMP(0x439AF0); }
+WRAPPER void CSkidmarks__Update(void) { EAXJMP(0x439AF0); }
+WRAPPER void CGlass__Update(void) { EAXJMP(0x7205C0); }
+WRAPPER void CCreepingFire__Update(void) { EAXJMP(0x539CE0); }
+WRAPPER void CSetPieces__Update(void) { EAXJMP(0x49AA00); }
+WRAPPER void CPopulation__Update(bool) { EAXJMP(0x616650); }
+WRAPPER void CTheCarGenerators__Process(void) { EAXJMP(0x6F3F40); }
+WRAPPER void CClouds__Update(void) { EAXJMP(0x712FF0); }
+WRAPPER void CMovingThings__Update(void) { EAXJMP(0x7185B0); }
+WRAPPER void CWaterCannons__Update(void) { EAXJMP(0x72A3C0); }
+WRAPPER void CPickups__Update(void) { EAXJMP(0x458DE0); }
+WRAPPER void CCarCtrl__PruneVehiclesOfInterest(void) { EAXJMP(0x423F10); }
+WRAPPER void CEntryExitManager__Update(void) { EAXJMP(0x440D10); }
+WRAPPER void CStuntJumpManager__Update(void) { EAXJMP(0x49C490); }
+WRAPPER void CBirds__Update(void) { EAXJMP(0x712330); }
+WRAPPER void CSpecialFX__Update(void) { EAXJMP(0x726AA0); }
+WRAPPER void CRopes__Update(void) { EAXJMP(0x558D70); }
+WRAPPER void CPopCycle__Update(void) { EAXJMP(0x610BF0); }
+WRAPPER void CCullZones__Update(void) { EAXJMP(0x72DEC0); }
+WRAPPER void CGameLogic__Update(void) { EAXJMP(0x442AD0); }
+WRAPPER void CGangWars__Update(void) { EAXJMP(0x446610); }
+WRAPPER void CConversations__Update(void) { EAXJMP(0x43C590); }
+WRAPPER void CPedToPlayerConversations__Update(void) { EAXJMP(0x43B0F0); }
+
+WRAPPER void CCarCtrl__GenerateRandomCars(void) { EAXJMP(0x4341C0); }
+WRAPPER void CCarCtrl__RemoveDistantCars(void) { EAXJMP(0x42CD10); }
+WRAPPER void CCarCtrl__RemoveCarsIfThePoolGetsFull(void) { EAXJMP(0x4322B0); }
+
+WRAPPER void CRoadBlocks__GenerateRoadBlocks(void) { EAXJMP(0x4629E0); }
+
+int &CWindModifiers__Number = *(int*)0xC81450;
+
+void
+CGame::Process(void)
+{
+	CPad::UpdatePads();
+	g_LoadMonitor.BeginFrame();
+
+	int timer = CTimer::GetCurrentTimeInMilliseconds();
+	CStreaming::Update();
+	timer = CTimer::GetCurrentTimeInMilliseconds() - timer;
+	CCutsceneMgr::Update();
+	DebugMenuProcess();
+	if(!CCutsceneMgr::ms_cutsceneProcessing && !CTimer::m_CodePause)
+		FrontEndMenuManager.Process();
+	CTheZones__Update();
+	CCover__Update();
+	CAudioZones__Update(false, TheCamera.GetCoords());
+	CWindModifiers__Number = 0;
+
+	if(!CTimer::m_UserPause && !CTimer::m_CodePause){
+		// CSprite2d::SetRecipNearClip();	// no-op
+		CSprite2d::InitPerFrame();
+		CFont::InitPerFrame();
+		CCheat__DoCheats();
+		CClock::Update();
+		CWeather::Update();
+		CTheScripts::Process();
+		// CCollision::Update();	// no-op
+		ThePaths.UpdateStreaming(false);
+		// CTrain::UpdateTrains();	// no-op
+		CHeli::UpdateHelis();
+		CDarkel::Update();
+		CSkidmarks__Update();
+		CGlass__Update();
+		CWanted::UpdateEachFrame();
+		CCreepingFire__Update();
+		CSetPieces__Update();
+		gFireManager.Update();
+
+		if(timer < 4){
+			timer = CTimer::GetCurrentTimeInMilliseconds();
+			CPopulation__Update(true);
+			timer = CTimer::GetCurrentTimeInMilliseconds() - timer;
+		}else
+			CPopulation__Update(false);
+
+		CWeapon::UpdateWeapons();
+		if(!CCutsceneMgr::ms_running)
+			CTheCarGenerators__Process();
+		// if(CReplay::Mode != 1)
+		// 	CCranes::UpdateCranes();	// no-op
+		CClouds__Update();
+		CMovingThings__Update();
+		CWaterCannons__Update();
+		CUserDisplay::Process();
+		CReplay::Update();
+		CWorld::Process();
+		g_LoadMonitor.EndFrame();
+
+		if(!CTimer::bSkipProcessThisFrame){
+			CPickups__Update();
+			CCarCtrl__PruneVehiclesOfInterest();
+			CGarages::Update();
+			CEntryExitManager__Update();
+			CStuntJumpManager__Update();
+			CBirds__Update();
+
+			CRubbish::Render();
+
+			CSpecialFX__Update();
+			CRopes__Update();
+		}
+
+		CPostEffects::Update();
+		CTimeCycle::Update();
+		CPopCycle__Update();
+
+		
+		if(*((uint8*)&g_InterestingEvents + 0x12c) & 1 )
+			g_InterestingEvents.ScanForNearbyEntities();
+
+		if(CReplay::ShouldStandardCameraBeProcessed())
+			TheCamera.Process();
+		else
+			TheCamera.ProcessFade();
+
+		CCullZones__Update();
+
+		if(CReplay::Mode != 1){
+			CGameLogic__Update();
+			CGangWars__Update();
+		}
+
+		CConversations__Update();
+		CPedToPlayerConversations__Update();
+		// CBridge::Update();	// no-op
+
+		CCoronas::DoSunAndMoon();
+		CCoronas::Update();
+		CShadows::UpdatePermanentShadows();
+
+		// not used in VCSPC
+		// CPlantMgr::Update(TheCamera.GetCoords());
+		// CCustomBuildingRenderer::Update();
+
+		// stencil shadows also not used
+		// [skipped]
+
+		if(CReplay::Mode != 1){
+			if(timer < 4)
+				CCarCtrl__GenerateRandomCars();
+			CRoadBlocks__GenerateRoadBlocks();
+			CCarCtrl__RemoveDistantCars();
+			CCarCtrl__RemoveCarsIfThePoolGetsFull();
+		}
+
+		float t = CTimer::ms_fTimeStep / 50.0f;
+		Fx_c::Update(TheCamera.m_pRwCamera, t);
+		g_breakMan.Update(CTimer::ms_fTimeStep);
+		g_interiorMan.Update();
+		g_procObjMan.Update();
+		g_waterCreatureMan.Update(t);
+
+		CEmpireManager::Process();
+	}
+
+	CWaterLevel::PreRenderWater();
+}
+
 static StaticPatcher Patcher([](){
 	Memory::InjectHook(0x53E58E, CGame::Initialise);
+	Memory::InjectHook(0x53E981, CGame::Process);
 });

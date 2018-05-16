@@ -439,6 +439,7 @@ static inline const char* GetTitlePCByLanguage()
 	return cTitlePCNames[FrontEndMenuManager.GetLanguage()];
 }
 
+WRAPPER void CMenuManager::Process(void) { EAXJMP(0x57B440); }
 WRAPPER void CMenuManager::DrawWindow(const CRect& rect, const char* pKey, unsigned char nColour, CRGBA backColour, bool bUnused, bool bBackground) { WRAPARG(rect); WRAPARG(pKey); WRAPARG(nColour); WRAPARG(backColour); WRAPARG(bUnused); WRAPARG(bBackground); EAXJMP(0x573EE0); }
 WRAPPER void CMenuManager::SmallMessageScreen(const char* pMessage) { WRAPARG(pMessage); EAXJMP(0x574010); }
 WRAPPER void CMenuManager::InitialiseChangedLanguageSettings(bool bRemapButtons) { WRAPARG(bRemapButtons); EAXJMP(0x573260); }

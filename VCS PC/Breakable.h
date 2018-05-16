@@ -4,6 +4,7 @@
 class BreakManager_c
 {
 public:
+	void Update(float t);
 	void Render(bool b);
 };
 extern BreakManager_c &g_breakMan;

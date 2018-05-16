@@ -10,6 +10,7 @@ bool& CCamera::m_bUseMouse3rdPerson = *(bool*)0xB6EC2E;
 WRAPPER void CamShakeNoPos(CCamera* pCamera, float fStrength) { WRAPARG(pCamera); WRAPARG(fStrength); EAXJMP(0x50A970); }
 
 WRAPPER void CCamera::Process() { EAXJMP(0x52B730); }
+WRAPPER void CCamera::ProcessFade() { EAXJMP(0x50B5D0); }
 WRAPPER int CCamera::GetFadeStage() { EAXJMP(0x50AE20); }
 WRAPPER int CCamera::GetLookDirection() { EAXJMP(0x50AE90); }
 WRAPPER bool CCamera::IsPositionVisible(const CVector& vecPos, float fRadius) { WRAPARG(vecPos); WRAPARG(fRadius); EAXJMP(0x420D40); }

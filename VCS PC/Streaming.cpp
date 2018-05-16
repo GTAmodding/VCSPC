@@ -23,6 +23,7 @@ WRAPPER int CStreaming::RandomizeTaxiDriverIDByTown() { EAXJMP(0x407D50); }
 WRAPPER bool CStreaming::RemoveLeastUsedModel(unsigned int nUnknown) { WRAPARG(nUnknown); EAXJMP(0x40CFD0); }
 WRAPPER void CStreaming::DeleteRwObjectsBehindCamera(int nMemUsed) { WRAPARG(nMemUsed); EAXJMP(0x40D7C0); }
 WRAPPER void CStreaming::Init() { EAXJMP(0x5B8AD0); }
+WRAPPER void CStreaming::Update() { EAXJMP(0x40E670); }
 
 WRAPPER void CStreaming::LoadCdDirectory(const char* pArchiveName, int nArchiveIndex, CBlowFish* pEncryption) { WRAPARG(pArchiveName); WRAPARG(nArchiveIndex); WRAPARG(pEncryption); EAXJMP(0x5B6170); }
 

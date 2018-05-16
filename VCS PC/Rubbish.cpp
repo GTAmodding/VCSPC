@@ -398,12 +398,6 @@ CRubbish::Render(void)
 }
 
 static StaticPatcher Patcher([](){
-	// TODO: do this better
-	// replace tags for now
-	// Memory::InjectHook(0x5BF90A, CRubbish::Init);
-	// replace custom building for now
-	Memory::InjectHook(0x53C15E, CRubbish::Update);
-
 	if(DebugMenuLoad()){
 		DebugMenuAddVarBool8("Rendering", "Rubbish invisible", (int8*)&CRubbish::bRubbishInvisible, NULL);
 	}

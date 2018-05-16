@@ -3,6 +3,7 @@
 
 BreakManager_c &g_breakMan = *(BreakManager_c*)0xBB4240;
 
+WRAPPER void BreakManager_c::Update(float t) { EAXJMP(0x59E670); }
 WRAPPER void BreakManager_c::Render(bool b) { EAXJMP(0x59E6A0); }
 
 RwInt32&		g_BreakablePlugin = *(RwInt32*)0xBB4238;

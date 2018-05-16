@@ -7,6 +7,7 @@
 #include "Text.h"
 
 WRAPPER void CGarages::Init_AfterRestart() { EAXJMP(0x448B60); }
+WRAPPER void CGarages::Update() { EAXJMP(0x44C8C0); }
 
 void CGarages::PrintMessages()
 {

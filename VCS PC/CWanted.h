@@ -35,6 +35,8 @@ public:
 	inline int		GetTimeWantedLevelChanged() { return m_LastTimeWantedLevelChanged; }
 
 	bool			AreMiamiViceRequired();
+
+	static void		UpdateEachFrame();
 };
 
 static_assert(sizeof(CWanted) == 0x29C, "Wrong size: CWanted");

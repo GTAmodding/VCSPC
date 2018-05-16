@@ -21,6 +21,7 @@ unsigned short&	CDarkel::Status = *(unsigned short*)0x96A704;
 unsigned int	CDarkel::TotalKillsNeeded;
 
 // Wrappers
+WRAPPER void CDarkel::Update(void) { EAXJMP(0x43DAC0); }
 WRAPPER void CDarkel::StartFrenzy(eWeaponType weapType, int nTimeLimit, unsigned short wKillsNeeded, int nModelToKill, char* pMsg, int nModelToKill2, int nModelToKill3, int nModelToKill4, bool bSoundMessages, bool bHeadShots)
 { WRAPARG(weapType); WRAPARG(nTimeLimit); WRAPARG(wKillsNeeded); WRAPARG(nModelToKill); WRAPARG(pMsg); WRAPARG(nModelToKill2); WRAPARG(nModelToKill3); WRAPARG(nModelToKill4); WRAPARG(bSoundMessages); WRAPARG(bHeadShots); EAXJMP(0x43D3B0); }
 WRAPPER bool CDarkel::ThisPedShouldBeKilledForFrenzy(CPed* pPed) { WRAPARG(pPed); EAXJMP(0x43D2F0); }

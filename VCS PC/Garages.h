@@ -13,6 +13,7 @@ private:
 
 public:
 	static void		Init_AfterRestart();
+	static void		Update();
 	static void		PrintMessages();
 };
 

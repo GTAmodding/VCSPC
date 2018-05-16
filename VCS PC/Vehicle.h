@@ -176,6 +176,7 @@ public:
 	virtual void		Render() override;
 
 	static void InitHelis(void);
+	static void UpdateHelis(void);
 };
 
 class NOVMT CPlane : public CAutomobile

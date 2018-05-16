@@ -8,6 +8,13 @@ public:
 	static int&				m_snTimeInMillisecondsPauseMode;
 	static float&			ms_fTimeStep;
 	static unsigned int&	m_FrameCounter;
+	static bool	&m_CodePause;
+	static bool	&m_UserPause;
+	static bool	&bSkipProcessThisFrame;
+
+	static int GetCurrentTimeInCycles();
+	static int GetCyclesPerMillisecond();
+	static int GetCurrentTimeInMilliseconds();
 };
 
 inline bool ShowFlashingItem(signed int nOnDuration, signed int nOffDuration)

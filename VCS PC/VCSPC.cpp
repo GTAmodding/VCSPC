@@ -2783,8 +2783,8 @@ void Main_Patches()
 
 	// User display
 	InjectHook(0x588B50, &CHud::HelpMessageShown, PATCH_JUMP);
-	InjectHook(0x571F07, &CUserDisplay::Init, PATCH_JUMP);
-	InjectHook(0x53C08B, &CUserDisplay::Process);
+	// InjectHook(0x571F07, &CUserDisplay::Init, PATCH_JUMP);	// REVERSED and changed
+	// InjectHook(0x53C08B, &CUserDisplay::Process);	// REVERSED
 
 	InjectHook(0x53E50E, &COnscreenTimer::ProcessForDisplay);
 	InjectHook(0x5720AF, &COnscreenTimer::Process);
@@ -3207,7 +3207,7 @@ void Main_Patches()
 
 	// Autoupdater
 	InjectHook(0x53E77C, &CUpdateManager::Process);
-	InjectHook(0x53BF4E, &UpdaterProcessHack);
+	InjectHook(0x53BF4E, &UpdaterProcessHack);		// REVERSED TODO this is now in our function
 	//InjectHook(0x579526, &UpdaterMenuDrawHack, PATCH_JUMP);
 	//InjectHook(0x579D50, &UpdaterTextSwap, PATCH_JUMP);
 //	InjectHook(0x576E13, &MenuToggleHack, PATCH_JUMP
@@ -3561,7 +3561,7 @@ void Main_Patches()
 	InjectHook(0x53CA5C, &CPools::ShutDown);
 
 	Patch<const char*>(0x4111AE, "empire_perma");
-	InjectHook(0x53C215, &CEmpireManager::Process);
+	// InjectHook(0x53C215, &CEmpireManager::Process);	// REVERSED
 
 	// Menu background
 	Patch<DWORD>(0x57B764, 0x36EBC030);
@@ -4919,8 +4919,8 @@ void EnterAmazingScreenshotMode(bool bEnable)
 
 	if ( bEnable )
 	{
-		Memory::Nop(0x53BF8A, 2);
-		Memory::Nop(0x53BF96, 6);
+		Memory::Nop(0x53BF8A, 2);		// REVERSED TODO this is now in our function
+		Memory::Nop(0x53BF96, 6);		// REVERSED TODO
 		Memory::Nop(0x58FCC2, 4);
 		Memory::Nop(0x58D4BE, 8);
 		Memory::Patch<BYTE>(0x561B06, 1);
@@ -4928,12 +4928,12 @@ void EnterAmazingScreenshotMode(bool bEnable)
 	}
 	else
 	{
-		Memory::Patch<WORD>(0x53BF8A, 0xC084);
-		Memory::Patch<DWORD>(0x53BF96, 0x0298850F);
+		Memory::Patch<WORD>(0x53BF8A, 0xC084);		// REVERSED TODO this is now in our function
+		Memory::Patch<DWORD>(0x53BF96, 0x0298850F);	// REVERSED TODO
 		Memory::Patch<DWORD>(0x58FCC2, 0x4D75C084);
 		Memory::Patch<DWORD>(0x58D4BE, 0x850FC084);
 		Memory::Patch<DWORD>(0x58D4C2, 0x000000AF);
-		Memory::Patch<WORD>(0x53BF9A, 0);
+		Memory::Patch<WORD>(0x53BF9A, 0);		// REVERSED TODO this is now in our function
 		Memory::Patch<BYTE>(0x561B06, 0);
 		Memory::Patch<BYTE>(0xB7CB49, 0);
 	}

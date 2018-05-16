@@ -49,6 +49,8 @@ static uint8 weatherTypesList[256] = {
 	7, 7, 7, 4, 4, 4, 7, 7, 7, 3, 7, 7, 7, 7, 7, 7, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 7, 7, 7, 4, 4, 0, 2, 2, 1, 2, 5, 2, 2, 1, 1, 0, 0
 };
 
+WRAPPER void CWeather::Init(void) { EAXJMP(0x72A480); }
+WRAPPER void CWeather::Update(void) { EAXJMP(0x72B850); }
 WRAPPER void CWeather::RenderRainStreaks(void) { EAXJMP(0x72AF70); }
 
 void

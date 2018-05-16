@@ -20,6 +20,7 @@ public:
 
 	static void			Render();
 	static void			Initialise();
+	static void			Update();
 	static void			Close();
 
 	static inline void	SetTrailsState(bool bEnable)

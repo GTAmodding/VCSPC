@@ -22,6 +22,8 @@ WRAPPER void CShadows::Init(void) { EAXJMP(0x706CD0); }
 WRAPPER void CShadows::UpdateStaticShadows(void) { EAXJMP(0x707F40); }
 WRAPPER void CShadows::RenderStaticShadows(void) { EAXJMP(0x708300); }
 WRAPPER void CShadows::RenderStoredShadows(void) { EAXJMP(0x70A960); }
+WRAPPER void CShadows::UpdatePermanentShadows(void) { EAXJMP(0x70C950); }
+
 
 WRAPPER void CShadows::CalcPedShadowValues(float x, float y, float z, float *sfx, float *sfy, float *ssx, float *ssy, float *sdx, float *sdy)
 { WRAPARG(x); WRAPARG(y); WRAPARG(z); WRAPARG(sfx); WRAPARG(sfy); WRAPARG(ssx); WRAPARG(ssy); WRAPARG(sdx); WRAPARG(sdy); EAXJMP(0x7076C0); }
@@ -276,8 +278,8 @@ void CShadows::Inject()
 	Memory::InjectHook(0x5E6759, ShowShadowsConditionHack, PATCH_JUMP);
 	
 	// No stencil shadows
-	Memory::Patch<BYTE>(0x53E159, 0xC3);
-	Memory::Nop(0x53C1AB, 5);
+	// Memory::Patch<BYTE>(0x53E159, 0xC3);	// REVERSED
+	// Memory::Nop(0x53C1AB, 5);		// REVERSED
 	
 	// Off vehicle shadows
 	//Memory::Patch<BYTE>(0x70F9B0, 0xA1);

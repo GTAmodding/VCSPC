@@ -13,6 +13,7 @@ public:
 	static bool Init1(const char *fileName);
 	static bool Init2(const char *fileName);
 	static bool Init3(const char *fileName);
+	static void Process(void);
 };
 
 #endif

@@ -23,6 +23,7 @@ static std::vector<FlareDef>					SunFlareDef, HeadLightsFlareDef;
 WRAPPER void CRegisteredCorona::Update() { EAXJMP(0x6FABF0); }
 
 WRAPPER void CCoronas::RenderReflections(void) { EAXJMP(0x6FB630); }
+WRAPPER void CCoronas::DoSunAndMoon(void) { EAXJMP(0x6FC5A0); }
 WRAPPER void CCoronas::RenderSunReflection(void) { EAXJMP(0x6FBAA0); }
 
 void CCoronas::RegisterCorona(unsigned int nID, CEntity* pAttachTo, unsigned char R, unsigned char G, unsigned char B, unsigned char A, const CVector& Position, float Size, float Range, RwTexture* pTex, unsigned char flareType, unsigned char reflectionType, unsigned char LOSCheck, unsigned char unused, float normalAngle, bool bNeonFade, float PullTowardsCam, bool bFadeIntensity, float FadeSpeed, bool bOnlyFromBelow, bool bWhiteCore)
@@ -679,9 +680,9 @@ void CCoronas::Inject()
 
 	InjectHook(0x6FC180, CCoronas::RegisterCorona, PATCH_JUMP);
 	InjectHook(0x6FC4D0, CCoronas::UpdateCoronaCoors, PATCH_JUMP);
-	// InjectHook(0x6FAAD9, CCoronas::Init, PATCH_JUMP);	// we now call the complete function ourselves
-	InjectHook(0x53C13B, CCoronas::Update);
-	InjectHook(0x53E18E, CCoronas::RenderBuffered);
+	// InjectHook(0x6FAAD9, CCoronas::Init, PATCH_JUMP);	// REVERSED
+	// InjectHook(0x53C13B, CCoronas::Update);		// REVERSED
+	// InjectHook(0x53E18E, CCoronas::RenderBuffered);	// REVERSED
 
 	static const float	fSunDist = 150.0f;
 	Patch<const void*>(0x6FC5AA, &fSunDist);

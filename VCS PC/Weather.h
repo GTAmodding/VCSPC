@@ -38,6 +38,8 @@ public:
 	static int weatherMap[8];
 	static int revWeatherMap[23];
 
+	static void Init(void);
+	static void Update(void);
 	static void RenderRainStreaks(void);
 	static void UpdateWeatherRegion(CVector*);
 	static uint8 *FindWeatherTypesList(void);

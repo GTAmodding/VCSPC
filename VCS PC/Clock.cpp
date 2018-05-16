@@ -6,6 +6,7 @@ unsigned char&	CClock::ms_nGameClockMinutes = *(unsigned char*)0xB70152;
 unsigned short&	CClock::ms_nGameClockSeconds = *(unsigned short*)0xB70150;
 
 WRAPPER void CClock::Initialise(int msPerSecond) { EAXJMP(0x52CD90); }
+WRAPPER void CClock::Update(void) { EAXJMP(0x52CF10); }
 
 bool CClock::GetIsTimeInRange(unsigned char bHourA, unsigned char bHourB)
 {

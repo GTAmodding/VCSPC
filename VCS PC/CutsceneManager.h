@@ -29,7 +29,12 @@ class CCutsceneMgr
 {
 public:
 	static bool &ms_running;
+	static bool &ms_cutsceneProcessing;
+
+	static void		Initialise(void);
+	static void		Update(void);
 	static void		SetProperCSPlrModel(char* pModel);
+
 };
 
 #endif

@@ -479,9 +479,11 @@ void COnscreenTimer::SetSoundOnTime(int* pVar, int nSoundOnTime)
 		m_timer.m_nSoundOnTime = nSoundOnTime;
 }
 
+WRAPPER void CUserDisplay__Init_original(void) { EAXJMP(0x571EE0); }
 
 void CUserDisplay::Init()
 {
+	CUserDisplay__Init_original();
 	OnscnTimer.Init();
 	Pager.Init();
 }

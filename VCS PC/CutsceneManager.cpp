@@ -4,6 +4,11 @@
 #include "ModelInfo.h"
 
 bool &CCutsceneMgr::ms_running = *(bool*)0xB5F851;
+bool &CCutsceneMgr::ms_cutsceneProcessing = *(bool*)0xB5F852;
+
+WRAPPER void CCutsceneMgr::Initialise(void) { EAXJMP(0x4D5A20); }
+WRAPPER void CCutsceneMgr::Update(void) { EAXJMP(0x4D5D00); }
+
 
 void CCutsceneMgr::SetProperCSPlrModel(char* pModel)
 {

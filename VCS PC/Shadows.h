@@ -35,17 +35,18 @@ public:
 	static inline bool				DontRenderShadowsForPoles()
 		{ return m_bShadowQuality == SHADOW_QUALITY_OFF || m_bShadowQuality > SHADOW_QUALITY_MEDIUM; }
 
-	static void Init(void);
-	static void UpdateStaticShadows(void);
-	static void RenderStaticShadows(void);
-	static void RenderStoredShadows(void);
+	static void						Init(void);
+	static void						UpdateStaticShadows(void);
+	static void						RenderStaticShadows(void);
+	static void						RenderStoredShadows(void);
+	static void						UpdatePermanentShadows(void);
 	static bool						StoreRealTimeShadowForVehicle(class CVehicle* pVehicle);
 	static void						StoreRealTimeShadowForObject(class CObject* pObject);
 	static void						StoreRealTimeShadowForBuilding(class CBuilding* pBuilding);
 	static void						InitialiseChangedSettings();
 	static bool						ThisPropCanHaveShadow(CEntity* pEntity);
 	static void						SetRealTimeShadowDistances(CEntity* pEntity);
-	static float					GetRealTimeShadowDistances(CEntity* pEntity);
+	static float						GetRealTimeShadowDistances(CEntity* pEntity);
 	static void						CalcPedShadowValues(float x, float y, float z, float *sfx, float *sfy, float *ssx, float *ssy, float *sdx, float *sdy);
 	static void						Inject();
 };

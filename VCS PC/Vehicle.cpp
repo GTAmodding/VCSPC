@@ -145,6 +145,7 @@ void CAutomobile::ControlWindows()
 }
 
 WRAPPER void CHeli::InitHelis(void) { EAXJMP(0x6C4560); }
+WRAPPER void CHeli::UpdateHelis(void) { EAXJMP(0x6C79A0); }
 
 void CHeli::Render()
 {

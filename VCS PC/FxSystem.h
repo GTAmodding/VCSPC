@@ -22,6 +22,7 @@ public:
 	//FxQuality_e				GetFxQuality();
 
 	void Init(void);
+	static void Update(RwCamera *c, float t);
 
 	// VCS PC class extension
 	static void				SetTextureFilteringQuality(unsigned char nQuality)

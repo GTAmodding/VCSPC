@@ -23,6 +23,7 @@ typedef void (*DebugMenuEntrySetAddress_TYPE)(DebugMenuEntry *e, void *addr);
 struct DebugMenuAPI
 {
 	bool isLoaded;
+	HMODULE module;
 	DebugMenuAddInt8_TYPE addint8;
 	DebugMenuAddInt16_TYPE addint16;
 	DebugMenuAddInt32_TYPE addint32;
@@ -101,6 +102,7 @@ inline bool DebugMenuLoad(void)
 	gDebugMenuAPI.setstrings = (DebugMenuEntrySetStrings_TYPE)GetProcAddress(mod, "DebugMenuEntrySetStrings");
 	gDebugMenuAPI.setaddress = (DebugMenuEntrySetAddress_TYPE)GetProcAddress(mod, "DebugMenuEntrySetAddress");
 	gDebugMenuAPI.isLoaded = true;
+	gDebugMenuAPI.module = mod;
 	return true;
 }
 

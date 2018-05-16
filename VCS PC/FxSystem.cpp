@@ -12,6 +12,7 @@ FxQuality_e		Fx_c::m_bEffectsQuality;
 //WRAPPER FxQuality_e Fx_c::GetFxQuality() { EAXJMP(0x49EA50); }
 
 WRAPPER void Fx_c::Init(void) { EAXJMP(0x49EA90); }
+WRAPPER void Fx_c::Update(RwCamera *c, float t) { EAXJMP(0x49E640); }
 
 unsigned char Fx_c::GetMaxTextureFilteringQuality()
 {

@@ -562,6 +562,7 @@ public:
 	inline bool					GetFading() { return m_bFading; };
 
 	void						Process();
+	void						ProcessFade();
 	void						DrawBordersForWideScreen();
 	void						GetScreenRect(CRect& rect);
 	int							GetFadeStage();

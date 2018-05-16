@@ -126,6 +126,7 @@ public:
 
 public:
 	static void		InitialiseWeapons(void);
+	static void		UpdateWeapons(void);
 
 	bool			IsTypeMelee() const;
 };

@@ -9,6 +9,7 @@ unsigned char&		CWorld::PlayerInFocus = *(unsigned char*)0xB7CD74;
 CSector* const		CWorld::ms_aSectors = (CSector*)0xB7D0B8;
 
 WRAPPER void CWorld::Initialise(void) { EAXJMP(0x5631E0); }
+WRAPPER void CWorld::Process(void) { EAXJMP(0x5684A0); }
 WRAPPER void CWorld::Add(CEntity* pEntity) { WRAPARG(pEntity); EAXJMP(0x563220); }
 WRAPPER void CWorld::Remove(CEntity* pEntity) { WRAPARG(pEntity); EAXJMP(0x563280); }
 WRAPPER bool CWorld::ProcessLineOfSight(const CVector&, const CVector&, CColPoint&, CEntity*&, bool, bool, bool, bool, bool, bool, bool, bool)

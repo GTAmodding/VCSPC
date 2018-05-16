@@ -46,6 +46,7 @@ public:
 
 public:
 	static void					Initialise(void);
+	static void					Process(void);
 	static void					Add(CEntity* pEntity);
 	static void					Remove(CEntity* pEntity);
 	static bool					ProcessLineOfSight(const CVector&, const CVector&, CColPoint&, CEntity*&, bool, bool, bool, bool, bool, bool, bool, bool);

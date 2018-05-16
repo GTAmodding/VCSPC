@@ -36,6 +36,11 @@ RwImVertexIndex CPostEffects::ms_radiosityIndices[7*6] = {
 	12, 13, 14, 14, 13, 15,
 };
 
+void
+CPostEffects::Update()
+{
+}
+
 void CPostEffects::DoScreenModeDependentInitializations()
 {
 	// So far we don't need this
@@ -394,7 +399,7 @@ static StaticPatcher	Patcher([](){
 	Memory::InjectHook(0x7482EB, CPostEffects::Initialise);
 	Memory::InjectHook(0x745C7D, CPostEffects::Initialise);
 	Memory::InjectHook(0x53BC27, CPostEffects::Close);
-	Memory::Nop(0x53C0D5, 5);
+	// Memory::Nop(0x53C0D5, 5);	// REVERSED
 
 	if(DebugMenuLoad()){
 		DebugMenuAddVarBool8("Rendering|Post FX", "Enable Radiosity", (int8*)&CPostEffects::m_bTrailsEnabled, NULL);

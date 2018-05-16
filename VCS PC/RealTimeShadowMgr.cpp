@@ -639,7 +639,7 @@ static StaticPatcher	Patcher([](){
 
 						// Increased shadows limit
 						Memory::Patch<const void*>(0x45D412, &g_realTimeShadowMan);
-						Memory::Patch<const void*>(0x53BE63, &g_realTimeShadowMan);
+						Memory::Patch<const void*>(0x53BE63, &g_realTimeShadowMan);	// REVERSED TODO
 						Memory::Patch<const void*>(0x53C63F, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x53C9E5, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x53EA09, &g_realTimeShadowMan);
