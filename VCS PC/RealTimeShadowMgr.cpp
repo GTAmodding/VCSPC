@@ -234,6 +234,7 @@ static const tShadowQualitySettings			gShadowSettings[] = {
 		{ 9, 8, 6, true, false }
 	};
 
+static Reversed Init_kill(0x7067C0, 0x70684F);
 void CRealTimeShadowManager::Init()
 {
 	if ( !m_bInitialised )
@@ -324,7 +325,10 @@ void CRealTimeShadowManager::Exit()
 	if ( m_bInitialised )
 	{
 		for ( int i = 0; i < NUM_MAX_REALTIME_SHADOWS; i++ )
+		{
 			delete m_pShadows[i];
+			m_pShadows[i] = nullptr;
+		}
 
 		// This wasn't a real RpLight
 		RwFrameDestroy(RpLightGetFrame(m_pGlobalLight));
@@ -622,7 +626,7 @@ static void __declspec(naked) ReturnShadowHack()
 static StaticPatcher	Patcher([](){ 
 						Memory::InjectHook(0x706B19, ReturnShadowHack, PATCH_JUMP);
 
-						Memory::InjectHook(0x7067C0, &CRealTimeShadowManager::Init, PATCH_JUMP);
+						Memory::InjectHook(0x53BE67, &CRealTimeShadowManager::Init);
 						Memory::InjectHook(0x706A60, &CRealTimeShadowManager::Exit, PATCH_JUMP);
 						Memory::InjectHook(0x706BA0, &CRealTimeShadowManager::DoShadowThisFrame, PATCH_JUMP);
 						Memory::InjectHook(0x706AC2, &CRealTimeShadowManager::ReInit);
@@ -631,13 +635,13 @@ static StaticPatcher	Patcher([](){
 
 						// Increased shadows limit
 						Memory::Patch<const void*>(0x45D412, &g_realTimeShadowMan);
-						// Memory::Patch<const void*>(0x53BE63, &g_realTimeShadowMan);	// REVERSED
+						Memory::Patch<const void*>(0x53BE63, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x53C63F, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x53C9E5, &g_realTimeShadowMan);
 						// Memory::Patch<const void*>(0x53EA09, &g_realTimeShadowMan);	// REVERSED
-						// Memory::Patch<const void*>(0x542487, &g_realTimeShadowMan);	// REVERSED
+						Memory::Patch<const void*>(0x542487, &g_realTimeShadowMan);
 						Memory::Patch<const void*>(0x5B1F38, &g_realTimeShadowMan);
-						// Memory::Patch<const void*>(0x5BA478, &g_realTimeShadowMan);	// REVERSED
+						//Memory::Patch<const void*>(0x5BA478, &g_realTimeShadowMan);	// REVERSED
 						Memory::Patch<const void*>(0x5E68A4, &g_realTimeShadowMan);
 
 						Memory::InjectHook(0x705B9A, ShadowRasterCreateHook);

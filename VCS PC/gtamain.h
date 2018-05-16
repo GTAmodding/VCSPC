@@ -1,5 +1,5 @@
-#ifndef __SCENE
-#define __SCENE
+#ifndef __GTAMAIN
+#define __GTAMAIN
 
 struct GlobalScene
 {
@@ -13,6 +13,12 @@ extern RpLight *&pDirect;
 extern RpLight **pExtraDirectionals;
 extern int &NumExtraDirLightsInWorld;
 extern RwRGBAReal& AmbientLightColourForFrame;
+
+void LoadingScreen(const char *str1, const char *str2, const char *unused);
+
+extern void (*DebugMenuProcess)(void);
+extern void (*DebugMenuRender)(void);
+void DebugMenuInit(void);
 
 void DefinedState(void);
 
@@ -31,4 +37,4 @@ void RenderReflectionScene(void);
 void RenderEffects(void);
 void Render2dStuff(void);
 
-#endif __SCENE
+#endif __GTAMAIN

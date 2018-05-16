@@ -3,7 +3,7 @@
 
 #include "Rs.h"
 #include "Sprite.h"
-#include "Scene.h"
+#include "gtamain.h"
 
 BINK*				CVideoPlayer::m_hBinkPlayer;
 RwRaster*			CVideoPlayer::m_pVideoRaster;

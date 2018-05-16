@@ -6,7 +6,7 @@
 #include "Font.h"
 #include "YCoCg.h"
 #include "Frontend.h"
-#include "Scene.h"
+#include "gtamain.h"
 
 const DWORD RsGlobalFrameLimits[] = { 0, 25, 30, 50, 60 };
 
@@ -21,7 +21,7 @@ void*		gpPixelShaderForDefaultCallbacks = nullptr;
 WRAPPER void RsMouseSetPos(RwV2d *pos) { EAXJMP(0x6194A0); }
 WRAPPER RsEventStatus RsEventHandler(RsEvent eventID, void* param) { WRAPARG(eventID); WRAPARG(param); EAXJMP(0x619B60); }
 WRAPPER bool DoRWStuffStartOfFrame_Horizon(uint16 topr, uint16 topg, uint16 topb, uint16 botr, uint16 botg, uint16 botb, uint16 alpha) { EAXJMP(0x53D7A0); }
-WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
+//WRAPPER void DoRWStuffEndOfFrame() { EAXJMP(0x53D840); }
 WRAPPER void DefinedState2d() { EAXJMP(0x734750); }
 WRAPPER RpHAnimHierarchy* GetAnimHierarchyFromSkinClump(RpClump* pClump) { WRAPARG(pClump); EAXJMP(0x734A40); }
 

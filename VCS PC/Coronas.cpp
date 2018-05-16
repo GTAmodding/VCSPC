@@ -7,7 +7,7 @@
 #include "Weather.h"
 #include "Vehicle.h"
 #include "World.h"
-#include "Scene.h"
+#include "gtamain.h"
 #include "TxdStore.h"
 
 std::map<unsigned int,CCoronasLinkedListNode*>	CCoronas::UsedMap;

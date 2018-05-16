@@ -2,7 +2,7 @@
 #include "VisibilityPlugins.h"
 
 #include "Ped.h"
-#include "Scene.h"
+#include "gtamain.h"
 
 // Atomic and Frame have 4 bytes each
 struct VisibilityClumpData

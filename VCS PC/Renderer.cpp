@@ -2,7 +2,7 @@
 #include "Renderer.h"
 #include "Game.h"
 #include "VisibilityPlugins.h"
-#include "Scene.h"
+#include "gtamain.h"
 #include "ModelInfo.h"
 #include "Vehicle.h"
 #include "Ped.h"
@@ -19,6 +19,7 @@ CEntity *CRenderer::ms_aOpaqueRenderList[1000];
 
 WRAPPER void CRenderer::ConstructRenderList(void) { EAXJMP(0x5556E0); }
 WRAPPER void CRenderer::PreRender(void) { EAXJMP(0x553910); }
+WRAPPER void CRenderer::RenderFirstPersonVehicle(void) { EAXJMP(0x553D00); }
 
 
 void CRenderer::Init(void) { }

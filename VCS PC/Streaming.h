@@ -66,6 +66,7 @@ public:
 	static bool		RemoveLeastUsedModel(unsigned int nUnknown);
 	static void		DeleteRwObjectsBehindCamera(int nMemUsed);
 	static void		Init();
+	static void		InitImageList();
 	static void		Update();
 
 	static void		SetModelTxdIsDeletable(int nIndex);

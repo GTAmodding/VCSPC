@@ -20,7 +20,7 @@
 #include "PostEffects.h"
 #include "Rs.h"
 #include "NeoCarpipe.h"
-#include "Scene.h"
+#include "gtamain.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -2332,8 +2332,9 @@ void CMenuManager::DrawBackEnd()
 	CFont::PrintString(_xleft(2.5f), _ydown(20.5f), VERSION_NAME_UPPERCASE);
 #endif
 
-	if ( m_bCurrentMenuPage != 44 )
-		CUpdateManager::Display();
+// UPDATER removed for now
+//	if ( m_bCurrentMenuPage != 44 )
+//		CUpdateManager::Display();
 
 #ifdef INCLUDE_PROMO_BANNER
 	if ( bCurrentScreen == 33 || bCurrentScreen == 34 || bCurrentScreen == 41 )

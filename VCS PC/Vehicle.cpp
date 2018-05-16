@@ -144,6 +144,11 @@ void CAutomobile::ControlWindows()
 	}
 }
 
+int &CHeli::NumberOfSearchLights = *(int*)0xC1C96C;
+
+WRAPPER void CHeli::Pre_SearchLightCone(void) { EAXJMP(0x6C4650); }
+WRAPPER void CHeli::RenderAllHeliSearchLights(void) { EAXJMP(0x6C7C50); }
+WRAPPER void CHeli::Post_SearchLightCone(void) { EAXJMP(0x6C46E0); }
 WRAPPER void CHeli::InitHelis(void) { EAXJMP(0x6C4560); }
 WRAPPER void CHeli::UpdateHelis(void) { EAXJMP(0x6C79A0); }
 

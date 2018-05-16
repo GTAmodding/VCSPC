@@ -220,9 +220,12 @@ public:
 class CTheScripts
 {
 public:
+	static int16				&NumberOfScriptSearchLights;
+
 	static void				Init();
 	static void				Process();
 	static CRunningScript*	StartNewScript(void* nScriptIP);
+	static void				RenderAllSearchLights(void);
 
 	static void				SaveAllScripts();
 	static void				LoadAllScripts();

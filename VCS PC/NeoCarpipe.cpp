@@ -7,7 +7,7 @@
 #include "Clock.h"
 #include "Weather.h"
 #include "PipelineCommon.h"
-#include "Scene.h"
+#include "gtamain.h"
 #include "Renderer.h"
 #include "VisibilityPlugins.h"
 #include "YCoCg.h"

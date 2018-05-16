@@ -20,15 +20,19 @@
 
 CScriptFunction		CRunningScript::ms_scriptFunction[NUM_SCRIPTS];
 
+int16 &CTheScripts::NumberOfScriptSearchLights = *(short*)0xA90830;
+
 // Wrappers
 WRAPPER bool CTheScripts::IsPlayerOnAMission() { EAXJMP(0x464D50); }
 WRAPPER void CTheScripts::Process() { EAXJMP(0x46A000); }
 WRAPPER CRunningScript* CTheScripts::StartNewScript(void* nScriptIP) { WRAPARG(nScriptIP); EAXJMP(0x464C20); }
+WRAPPER void CTheScripts::RenderAllSearchLights(void) { EAXJMP(0x493E30); }
 WRAPPER void CRunningScript::StoreParameters(int16 numParams) { WRAPARG(numParams); EAXJMP(0x464370); }
 WRAPPER void CRunningScript::UpdateCompareFlag(bool result) { WRAPARG(result); EAXJMP(0x4859D0); }
 WRAPPER unsigned short CRunningScript::GetGlobalVarOffset() { EAXJMP(0x464700); }
 WRAPPER void* CRunningScript::GetPointerToScriptVariable(int32 nParam = 0) { WRAPARG(nParam); EAXJMP(0x464790); }
 WRAPPER void CRunningScript::SetIP(int32 IP) { WRAPARG(IP); EAXJMP(0x464DA0); }
+
 
 void CRunningScript::Init()
 {

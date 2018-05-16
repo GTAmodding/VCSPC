@@ -18,6 +18,7 @@ public:
 
 	static void ConstructRenderList(void);
 	static void PreRender(void);
+	static void RenderFirstPersonVehicle(void);
 
 	static void RenderOneRoad(CEntity* pEntity);
 	static void RenderFadingInEntities(void);

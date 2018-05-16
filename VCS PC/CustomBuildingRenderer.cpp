@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "CustomBuildingRenderer.h"
 
-#include "Scene.h"
+#include "gtamain.h"
 #include "PipelineCommon.h"
 #include "YCoCg.h"
 #include "TimeCycle.h"

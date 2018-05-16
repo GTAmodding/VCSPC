@@ -175,8 +175,14 @@ public:
 
 	virtual void		Render() override;
 
+	static int &NumberOfSearchLights;
+
 	static void InitHelis(void);
 	static void UpdateHelis(void);
+	static void Pre_SearchLightCone(void);
+	static void RenderAllHeliSearchLights(void);
+	static void Post_SearchLightCone(void);
+
 };
 
 class NOVMT CPlane : public CAutomobile

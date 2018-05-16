@@ -596,7 +596,9 @@ void CHud::DrawPermanentTexts()
 	CSprite2d::DrawRect(CRect(1280.0f - 44.8f, -5.0f, 1285.0f, 725.0f), CRGBA(255, 0, 0, 255));
 #endif
 #endif
-	CUpdateManager::Display();
+
+// UPDATER removed for now
+//	CUpdateManager::Display();
 }
 
 void CHud::PrintHealthForPlayer(int playerID, float posX, float posY)

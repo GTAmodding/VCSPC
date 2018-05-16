@@ -21,12 +21,17 @@ enum
 class Reversed
 {
 public:
-	struct Range { uint32 start; uint32 end; };
-	static std::vector<Range> reversed;
+	uint32 start;
+	uint32 end;
+	Reversed *next;
+
+	static Reversed *reversed;
 	Reversed(uint32 start, uint32 end) {
 #ifdef DEVBUILD
-		Range r = { start, end };
-		reversed.push_back(r);
+		this->start = start;
+		this->end = end;
+		this->next = reversed;
+		reversed = this;
 		uint32 size = end-start;
 		DWORD dwProtect[2];
 		VirtualProtect((void*)start, size, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
@@ -36,9 +41,8 @@ public:
 	}
 	static void check(uint32 address) {
 #ifdef DEVBUILD
-		int l = reversed.size();
-		for(int i = 0; i < l; i++)
-			if(address >= reversed[i].start && address <= reversed[i].end)
+		for(Reversed *r = reversed; r; r = r->next)
+			if(address >= r->start && address <= r->end)
 				assert(0 && "address in reversed function");
 #endif
 	}

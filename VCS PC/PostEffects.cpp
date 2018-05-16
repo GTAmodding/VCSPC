@@ -3,7 +3,7 @@
 
 #include "Rs.h"
 #include "TimeCycle.h"
-#include "Scene.h"
+#include "gtamain.h"
 #include "debugmenu_public.h"
 
 bool CPostEffects::m_bTrailsEnabled;

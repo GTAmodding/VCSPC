@@ -13,9 +13,9 @@ public:
 	static bool	&bSkipProcessThisFrame;
 
 	static void Update();
-	static int GetCurrentTimeInCycles();
-	static int GetCyclesPerMillisecond();
-	static int GetCurrentTimeInMilliseconds();
+	static uint32 GetCurrentTimeInCycles();
+	static uint32 GetCyclesPerMillisecond();
+	static uint32 GetCurrentTimeInMilliseconds();
 };
 
 inline bool ShowFlashingItem(signed int nOnDuration, signed int nOffDuration)

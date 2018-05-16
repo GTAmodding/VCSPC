@@ -515,7 +515,7 @@ const void*	const			_CText__loadMission_Jumptable[] = { MissionLanguage_CASE_Eng
 const void*	const			ScriptCheckpointsColours_Jumptable[] = { ScriptCheckpointsColours_Normal, ScriptCheckpointsColours_Finish, ScriptCheckpointsColours_Others };
 const BYTE					ScriptCheckpointsColours_IndirectTable[] = { 0, 1, 0, 2, 2, 2, 2, 2, 2 };
 
-std::vector<Reversed::Range> Reversed::reversed;
+Reversed *Reversed::reversed;
 DebugMenuAPI gDebugMenuAPI;
 
 BOOL CALLBACK CECheck(HWND hwnd, LPARAM lParam) {
@@ -3286,7 +3286,7 @@ void Main_Patches()
 	Nop(0x5D1EA9, 2);
 
 	// Frame Limiter
-	// Patch<WORD>(0x53E923, 0x43EB);	// REVERSED what is this anyway?
+	// Patch<WORD>(0x53E923, 0x43EB);	// REVERSED, jumps over wait loop
 	Patch<WORD>(0x748D81, 0x1B0);
 	Patch<WORD>(0x748D98, 0xC030);
 	InjectHook(0x748D83, &MaxosFrameLimitHack, PATCH_JUMP);
@@ -3552,8 +3552,8 @@ void Main_Patches()
 	Nop(0x5BD00B, 5);
 	Nop(0x5BC09F, 5);
 	Nop(0x5BC0BE, 5);
-	Nop(0x5BBACF, 5);
-	Nop(0x5BBAEA, 5);
+	// Nop(0x5BBACF, 5);	// REVERSED
+	// Nop(0x5BBAEA, 5);	// REVERSED
 
 	// Pools fixes
 	InjectHook(0x4048E0, &VehiclePoolGetAt, PATCH_JUMP);

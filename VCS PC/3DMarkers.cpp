@@ -5,7 +5,7 @@
 #include "ModelInfo.h"
 #include "Streaming.h"
 #include "TxdStore.h"
-#include "Scene.h"
+#include "gtamain.h"
 #include "Camera.h"
 #include "Coronas.h"
 
