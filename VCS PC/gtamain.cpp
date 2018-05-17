@@ -73,9 +73,10 @@ DefinedState(void)
 	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
 	RwRenderStateSet(rwRENDERSTATEBORDERCOLOR, (void*)RWRGBALONG(0, 0, 0, 255));
 	RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void*)FALSE);
-	RwRenderStateSet(rwRENDERSTATEFOGCOLOR, (void*)RWRGBALONG(CTimeCycle::m_CurrentColours.skybotr,
-		CTimeCycle::m_CurrentColours.skybotg,
-		CTimeCycle::m_CurrentColours.skybotb, 255));
+	RwRenderStateSet(rwRENDERSTATEFOGCOLOR, (void*)RWRGBALONG(
+		CTimeCycle::GetSkyBottomRed(),
+		CTimeCycle::GetSkyBottomGreen(),
+		CTimeCycle::GetSkyBottomBlue(), 255));
 	RwRenderStateSet(rwRENDERSTATEFOGTYPE, (void*)rwFOGTYPELINEAR);
 	RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLNONE);
 	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)rwALPHATESTFUNCTIONGREATER);
@@ -87,12 +88,12 @@ void
 SetLightsWithTimeOfDayColour(RpWorld*)
 {
 	if(pAmbient){
-		AmbientLightColourForFrame.red = CTimeCycle::m_CurrentColours.ambr * CCoronas::LightsMult;
-		AmbientLightColourForFrame.green = CTimeCycle::m_CurrentColours.ambg * CCoronas::LightsMult;
-		AmbientLightColourForFrame.blue = CTimeCycle::m_CurrentColours.ambb * CCoronas::LightsMult;
-		AmbientLightColourForFrame_PedsCarsAndObjects.red = CTimeCycle::m_CurrentColours.ambobjr * CCoronas::LightsMult;
-		AmbientLightColourForFrame_PedsCarsAndObjects.green = CTimeCycle::m_CurrentColours.ambobjg * CCoronas::LightsMult;
-		AmbientLightColourForFrame_PedsCarsAndObjects.blue = CTimeCycle::m_CurrentColours.ambobjb * CCoronas::LightsMult;
+		AmbientLightColourForFrame.red = CTimeCycle::GetAmbientRed() * CCoronas::LightsMult;
+		AmbientLightColourForFrame.green = CTimeCycle::GetAmbientGreen() * CCoronas::LightsMult;
+		AmbientLightColourForFrame.blue = CTimeCycle::GetAmbientBlue() * CCoronas::LightsMult;
+		AmbientLightColourForFrame_PedsCarsAndObjects.red = CTimeCycle::GetAmbientRed_Obj() * CCoronas::LightsMult;
+		AmbientLightColourForFrame_PedsCarsAndObjects.green = CTimeCycle::GetAmbientGreen_Obj() * CCoronas::LightsMult;
+		AmbientLightColourForFrame_PedsCarsAndObjects.blue = CTimeCycle::GetAmbientBlue_Obj() * CCoronas::LightsMult;
 		// Game most likely uses PS2 color range here too. We should do this in a shader but for now just convert the intensity here
 		AmbientLightColourForFrame_PedsCarsAndObjects.red *= 255.0/128.0;
 		AmbientLightColourForFrame_PedsCarsAndObjects.green *= 255.0/128.0;
@@ -111,9 +112,9 @@ SetLightsWithTimeOfDayColour(RpWorld*)
 		RpLightSetColor(pAmbient, &AmbientLightColourForFrame);
 	}
 	if(pDirect){
-		DirectionalLightColourForFrame.red = CTimeCycle::m_CurrentColours.dirr * CCoronas::LightsMult;
-		DirectionalLightColourForFrame.green = CTimeCycle::m_CurrentColours.dirg * CCoronas::LightsMult;
-		DirectionalLightColourForFrame.blue = CTimeCycle::m_CurrentColours.dirb * CCoronas::LightsMult;
+		DirectionalLightColourForFrame.red = CTimeCycle::GetDirectionalRed() * CCoronas::LightsMult;
+		DirectionalLightColourForFrame.green = CTimeCycle::GetDirectionalGreen() * CCoronas::LightsMult;
+		DirectionalLightColourForFrame.blue = CTimeCycle::GetDirectionalBlue() * CCoronas::LightsMult;
 		RpLightSetColor(pDirect, &DirectionalLightColourForFrame);
 		CVector sun = CTimeCycle::m_VectorToSun[CTimeCycle::m_CurrentStoredValue];
 		CVector v0(0.0, 0.0, 1.0);
@@ -237,6 +238,8 @@ void CSkidmarks__Render(void)
 	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)alphafunc);
 }
 
+int renderTransparent = 1;
+
 static Reversed RenderScene_kill(0x53DF40, 0x53E15F);
 void
 RenderScene(void)
@@ -275,7 +278,8 @@ RenderScene(void)
 		CWaterLevel::RenderWater();
 		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLBACK);
 	}
-	CRenderer::RenderFadingInEntities();
+	if(renderTransparent)
+		CRenderer::RenderFadingInEntities();
 
 	if(!CMirrors::bRenderingReflection){
 		float nearclip = RwCameraGetNearClipPlane(Scene.camera);
@@ -326,12 +330,13 @@ RenderEnvScene(void)
 				255, 255, 255,
 				255);
 	else
-		CClouds::RenderBackground(CTimeCycle::m_CurrentColours.skytopr,
-				CTimeCycle::m_CurrentColours.skytopg,
-				CTimeCycle::m_CurrentColours.skytopb,
-				CTimeCycle::m_CurrentColours.skybotr,
-				CTimeCycle::m_CurrentColours.skybotg,
-				CTimeCycle::m_CurrentColours.skybotb,
+		CClouds::RenderBackground(
+				CTimeCycle::GetSkyTopRed(),
+				CTimeCycle::GetSkyTopGreen(),
+				CTimeCycle::GetSkyTopBlue(),
+				CTimeCycle::GetSkyBottomRed(),
+				CTimeCycle::GetSkyBottomGreen(),
+				CTimeCycle::GetSkyBottomBlue(),
 				255);
 	CClouds::RenderHorizon();
 	CRenderer::RenderAllBuildingsOpaque();
@@ -434,6 +439,13 @@ DoRWStuffEndOfFrame(void)
 	RsCameraShowRaster(Scene.camera);
 }
 
+void
+RenderMenus(void)
+{
+	if(FrontEndMenuManager.m_bMenuActive)
+		FrontEndMenuManager.DrawFrontEnd();
+}
+
 static Reversed Idle_kill(0x53E920, 0x53EC0F);
 void
 Idle(void *arg)
@@ -466,28 +478,30 @@ Idle(void *arg)
 		g_realTimeShadowMan.Update();
 		CMirrors::BeforeMainRender();
 
+		// Do this BEFORE DoRWStuffStartOfFrame
+		RwCameraSetFarClipPlane(Scene.camera, CTimeCycle::GetFarClip());
+		RwCameraSetFogDistance(Scene.camera, CTimeCycle::GetFogStart());
+
 		if(CWeather::LightningFlash){
 			// sets fog colour in DefinedState
-			CTimeCycle::m_CurrentColours.skybotr = 255;
-			CTimeCycle::m_CurrentColours.skybotg = 255;
-			CTimeCycle::m_CurrentColours.skybotb = 255;
+			CTimeCycle::SetSkyBottomRed(255);
+			CTimeCycle::SetSkyBottomGreen(255);
+			CTimeCycle::SetSkyBottomBlue(255);
 			if(!DoRWStuffStartOfFrame_Horizon(255, 255, 255, 255, 255, 255, 255))
 				return;
 		}else{
 			if(!DoRWStuffStartOfFrame_Horizon(
-							CTimeCycle::m_CurrentColours.skytopr,
-							CTimeCycle::m_CurrentColours.skytopg,
-							CTimeCycle::m_CurrentColours.skytopb,
-							CTimeCycle::m_CurrentColours.skybotr,
-							CTimeCycle::m_CurrentColours.skybotg,
-							CTimeCycle::m_CurrentColours.skybotb,
+							CTimeCycle::GetSkyTopRed(),
+							CTimeCycle::GetSkyTopGreen(),
+							CTimeCycle::GetSkyTopBlue(),
+							CTimeCycle::GetSkyBottomRed(),
+							CTimeCycle::GetSkyBottomGreen(),
+							CTimeCycle::GetSkyBottomBlue(),
 							255))
 				return;
 		}
 
 		DefinedState();
-		RwCameraSetFarClipPlane(Scene.camera, CTimeCycle::m_CurrentColours.farclp);
-		RwCameraSetFogDistance(Scene.camera, CTimeCycle::m_CurrentColours.fogst);
 
 		CMirrors::RenderMirrorBuffer();
 		RenderScene();
@@ -511,8 +525,7 @@ Idle(void *arg)
 			return;
 	}
 
-	if(FrontEndMenuManager.m_bMenuActive)
-		FrontEndMenuManager.DrawFrontEnd();
+	RenderMenus();
 
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, NULL);
 	DoFade();
@@ -527,4 +540,8 @@ Idle(void *arg)
 static StaticPatcher Patcher([](){
 	Memory::InjectHook(0x53ECBD, Idle);
 //	Memory::InjectHook(0x735D90, SetLightColoursForPedsCarsAndObjects, PATCH_JUMP);
+
+	if(DebugMenuLoad()){
+		DebugMenuAddVarBool32("Rendering", "Render Transparent Entities", &renderTransparent, NULL);
+	}
 });

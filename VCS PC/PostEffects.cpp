@@ -374,12 +374,12 @@ void CPostEffects::Render()
 {
 	RwRGBA blurcol;
 	if(m_bTrailsEnabled)
-		Radiosity(CTimeCycle::m_CurrentColours.radiosityLimit, CTimeCycle::m_CurrentColours.radiosityIntensity);
+		Radiosity(CTimeCycle::GetRadiosityLimit(), CTimeCycle::GetRadiosityIntensity());
 	if(blurEnabled){
-		blurcol.red = CTimeCycle::m_CurrentColours.blurr;
-		blurcol.green = CTimeCycle::m_CurrentColours.blurg;
-		blurcol.blue = CTimeCycle::m_CurrentColours.blurb;
-		BlurOverlay(CTimeCycle::m_CurrentColours.blura, CTimeCycle::m_CurrentColours.bluroffset, blurcol);
+		blurcol.red = CTimeCycle::GetBlurRed();
+		blurcol.green = CTimeCycle::GetBlurGreen();
+		blurcol.blue = CTimeCycle::GetBlurBlue();
+		BlurOverlay(CTimeCycle::GetBlurAlpha(), CTimeCycle::GetBlurOffset(), blurcol);
 	}
 }
 

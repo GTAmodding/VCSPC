@@ -121,9 +121,9 @@ CCustomBuildingDNPipeline::CustomPipeRenderCB(RwResEntry *repEntry, void *object
 
 		RwRGBAReal color;
 		RwRGBARealFromRwRGBA(&color, &material->color);
-		color.red *= CTimeCycle::m_CurrentColours.vertmultr;
-		color.green *= CTimeCycle::m_CurrentColours.vertmultg;
-		color.blue *= CTimeCycle::m_CurrentColours.vertmultb;
+		color.red *= CTimeCycle::GetMaterialMultRed();
+		color.green *= CTimeCycle::GetMaterialMultGreen();
+		color.blue *= CTimeCycle::GetMaterialMultBlue();
 		RwD3D9SetVertexShaderConstant(REG_matCol, &color, 1);
 
 		RwD3D9SetVertexShaderConstant(REG_surfProps, &material->surfaceProps, 1);

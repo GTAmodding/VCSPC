@@ -393,8 +393,7 @@ CarPipe::RenderEnvTex(void)
 		RwFrameTransform(RwCameraGetFrame(reflectionCam), reflectionMatrix, rwCOMBINEREPLACE);
 	else
 		RwFrameTransform(RwCameraGetFrame(reflectionCam), RwFrameGetLTM(RwCameraGetFrame(Scene.camera)), rwCOMBINEREPLACE);
-	CColourSet &c = CTimeCycle::m_CurrentColours;
-	RwRGBA color = { c.skytopr, c.skytopg, c.skytopb, 255 };
+	RwRGBA color = { CTimeCycle::GetSkyTopRed(), CTimeCycle::GetSkyTopGreen(), CTimeCycle::GetSkyTopBlue(), 255 };
 	if(CWeather::LightningFlash)
 		color.red = color.green = color.blue = 255;
 	RwCameraClear(reflectionCam, &color, rwCAMERACLEARIMAGE | rwCAMERACLEARZ);
