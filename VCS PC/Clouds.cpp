@@ -42,6 +42,10 @@ CClouds::RenderBackground(uint16 topr, uint16 topg, uint16 topb, uint16 botr, ui
 	ms_cameraRoll = right.z < 0.0f ? -acos(c) : acos(c);
 	ms_HorizonTilt = tan(ms_cameraRoll) * height/2;
 
+	// clear background, this is done somewhere else in VCS but whatever
+	CRGBA clearcol(32, 32, 32, 255);
+	CSprite2d::DrawRect(CRect(0, 0, width, height), clearcol, clearcol, clearcol, clearcol);
+
 	if(UseDarkBackground()){
 		ms_colourTop.r = 50;
 		ms_colourTop.g = 50;
@@ -149,9 +153,17 @@ CClouds::RenderHorizon(void)
 	int width = RsGlobal.MaximumWidth;
 	int height = RsGlobal.MaximumHeight;
 
-	// This seems rather pointless...the little strip should have this colour already?
-	// But then we do draw stuff between Background and here...
+	// VCS has half the colors, probably because of PS2 colour space conversion
+	// so always convert in these cases
+
+	// small strip gradient
+	ms_colourBottom.r /= 2;
+	ms_colourBottom.g /= 2;
+	ms_colourBottom.b /= 2;
 	ms_colourBottom.a = 230;
+	ms_colourTop.r /= 2;
+	ms_colourTop.g /= 2;
+	ms_colourTop.b /= 2;
 	ms_colourTop.a = 80;
 	float topleft = ms_horizonZ + ms_HorizonTilt;
 	float topright = ms_horizonZ - ms_HorizonTilt;
@@ -165,32 +177,20 @@ CClouds::RenderHorizon(void)
 		ms_colourTop, ms_colourTop, ms_colourBottom, ms_colourBottom);
 
 	// gradient from bottom to background
-	ms_colourBkGrd.r = CTimeCycle::m_CurrentColours.ambr * 128;
-	ms_colourBkGrd.g = CTimeCycle::m_CurrentColours.ambg * 128;
-	ms_colourBkGrd.b = CTimeCycle::m_CurrentColours.ambb * 128;
-	ms_colourBkGrd.a = 255;
+	ms_colourBkGrd.r = 100/2;
+	ms_colourBkGrd.g = 100/2;
+	ms_colourBkGrd.b = 100/2;
+	ms_colourBkGrd.a = 0;
 	topleft = botleft;
 	topright = botright;
-	botleft = topleft + height/448.0f*32.0f;
-	botright = topright + height/448.0f*32.0f;
+	botleft = topleft + height/448.0f*36.0f;
+	botright = topright + height/448.0f*36.0f;
 	CSprite2d::DrawAnyRect(
 		0.0f, topleft,
 		width, topright,
 		0.0f, botleft,
 		width, botright,
 		ms_colourBottom, ms_colourBottom, ms_colourBkGrd, ms_colourBkGrd);
-
-	// pure background
-	topleft = botleft;
-	topright = botright;
-	botleft = topleft < height ? height : topleft;
-	botright = topright < height ? height : topright;
-	CSprite2d::DrawAnyRect(
-		0.0f, topleft,
-		width, topright,
-		0.0f, botleft,
-		width, botright,
-		ms_colourBkGrd, ms_colourBkGrd, ms_colourBkGrd, ms_colourBkGrd);
 
 	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)TRUE);
