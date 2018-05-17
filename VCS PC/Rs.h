@@ -142,8 +142,10 @@ enum RsGenericPS
 	NUM_GEN_PS
 };
 
+
 // R* RW function extensions
 RwTexture*		RwTextureGtaStreamRead(RwStream* stream);
+bool			RwRasterHasAlpha(RwRaster *raster);
 
 void			RsMouseSetPos(RwV2d *pos);
 void			RsCameraShowRaster(RwCamera*);

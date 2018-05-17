@@ -97,7 +97,7 @@ public:
 
 	void Clear(void) {
 		while(m_lnListHead.m_pNext != &m_lnListTail) {
-			m_lnListHead.m_pNext->Remove();
+			Remove(m_lnListHead.m_pNext);
 		}
 	}
 
@@ -118,6 +118,21 @@ public:
 			return pCurrent->m_pNext;
 		}
 	}
+
+	int CountElements(void) {
+		int n = 0;
+		for ( auto i = m_lnListTail.m_pPrev; i != &m_lnListHead; i = i->m_pPrev )
+			n++;
+		return n;
+	}
+
+	int CountFreeElements(void) {
+		int n = 0;
+		for ( auto i = m_lnFreeListTail.m_pPrev; i != &m_lnFreeListHead; i = i->m_pPrev )
+			n++;
+		return n;
+	}
+
 
 	CLink<T> m_lnListHead; // 0-12
 	//head of the list of active links

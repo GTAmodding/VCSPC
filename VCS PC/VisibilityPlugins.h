@@ -4,6 +4,7 @@
 #include "LinkList.h"
 
 class CPed;
+class CBaseModelInfo;
 
 class CVisibilityPlugins
 {
@@ -41,6 +42,9 @@ public:
 				i->V().callback(i->V().pObject, i->V().fCompareValue);
 	}
 
+	static int CalculateFadingAtomicAlpha(CBaseModelInfo*, CEntity*, float dist);
+	static void RenderFadingAtomic(CBaseModelInfo*, RpAtomic*, int alpha);
+	static void RenderFadingClump(CBaseModelInfo*, RpClump*, int alpha);
 	static void SetRenderWareCamera(RwCamera *cam);
 	static void InitAlphaAtomicList(void);
 	static void ResetWeaponPedsForPC();

@@ -500,6 +500,15 @@ UploadLightColorWithSpecular(RpLight *light, int loc)
 		pipeUploadZero(loc);
 }
 
+bool
+SkipInst(RxD3D9InstanceData *inst)
+{
+	bool hasAlpha = inst->material->color.alpha != 255;
+	bool render = hasAlpha && CRenderer::bRenderTransparent ||
+		!hasAlpha && CRenderer::bRenderOpaque;
+	return !render;
+}
+
 void
 CarPipe::ShaderSetup(RpAtomic *atomic)
 {
@@ -553,6 +562,11 @@ CarPipe::NeoDiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 
 	for(uint32 i = 0; i < header->numMeshes; i++){
 		RpMaterial *material = inst->material;
+		if(SkipInst(inst)){
+			inst++;
+			continue;
+		}
+
 		pipeSetTexture(material->texture, 0);
 		if(material->texture && YCOCGPLUGINDATACONST(material->texture)->bYCoCgType != 0)
 			RwD3D9SetPixelShader(YCOCGPLUGINDATACONST(material->texture)->bYCoCgType == 2 ? pixelShaderYCG2 : pixelShaderYCG1);
@@ -611,8 +625,9 @@ CarPipe::SpecularPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 	noRefl = CVisibilityPlugins::GetAtomicId(atomic) & 0x6000;
 
 	for(uint32 i = 0; i < header->numMeshes; i++){
-		if(!noRefl && inst->material->surfaceProps.specular != 0.0f)
-			D3D9Render(header, inst);
+		if(!SkipInst(inst))
+			if(!noRefl && inst->material->surfaceProps.specular != 0.0f)
+				D3D9Render(header, inst);
 		inst++;
 	}
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)zwrite);
@@ -635,6 +650,11 @@ CarPipe::DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 
 	for(uint32 i = 0; i < header->numMeshes; i++){
 		RpMaterial *material = inst->material;
+		if(SkipInst(inst)){
+			inst++;
+			continue;
+		}
+
 		pipeSetTexture(material->texture, 0);
 		if(material->texture && YCOCGPLUGINDATACONST(material->texture)->bYCoCgType != 0)
 			RwD3D9SetPixelShader(gpGenericPS[YCOCGPLUGINDATACONST(material->texture)->bYCoCgType == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
@@ -681,6 +701,10 @@ CarPipe::EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 
 	for(uint32 i = 0; i < header->numMeshes; i++){
 		RpMaterial *material = inst->material;
+		if(SkipInst(inst)){
+			inst++;
+			continue;
+		}
 
 		int matfx = RpMatFXMaterialGetEffects(material);
 		if(!noRefl && matfx == rpMATFXEFFECTENVMAP){
@@ -738,7 +762,6 @@ void __declspec(naked) doglare(void)
 		retn
 	}
 }
-
 
 static StaticPatcher	Patcher([](){
 	// not neo, but enable sun glare

@@ -17,6 +17,9 @@ int &CRenderer::ms_nNoOfVisibleLods = *(int*)0xB76840;
 int CRenderer::ms_nNumOpaqueObjects;
 CEntity *CRenderer::ms_aOpaqueRenderList[1000];
 
+bool CRenderer::bRenderOpaque;
+bool CRenderer::bRenderTransparent;
+
 WRAPPER void CRenderer::ConstructRenderList(void) { EAXJMP(0x5556E0); }
 WRAPPER void CRenderer::PreRender(void) { EAXJMP(0x553910); }
 WRAPPER void CRenderer::RenderFirstPersonVehicle(void) { EAXJMP(0x553D00); }
@@ -46,6 +49,8 @@ CRenderer::RenderOneNonRoad(CEntity *entity)
 		CVisibilityPlugins::InitAlphaAtomicList();
 		v->RenderDriverAndPassengers();
 		v->SetupRender();
+		// just make sure...
+		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLNONE);
 	}else if(!entity->bBackfaceCulled)
 		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLNONE);
 
@@ -54,10 +59,24 @@ CRenderer::RenderOneNonRoad(CEntity *entity)
 
 	if(entity->nType == ENTITY_TYPE_VEHICLE){
 		CVehicle *v = (CVehicle*)entity;
+
+		// set it again because CVehicle::DoHeadLightBeam resets it to BACK
+		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLNONE);
+
+		// This renders all meshes with opaque material color
+		// before transparent meshes. Should fix windows as
+		// they don't write z.
 		v->bImBeingRendered = 1;
+		CRenderer::bRenderTransparent = false;
 		CVisibilityPlugins::RenderAlphaAtomics();
+		CRenderer::bRenderOpaque = false;
+		CRenderer::bRenderTransparent = true;
+		CVisibilityPlugins::RenderAlphaAtomics();
+		CRenderer::bRenderOpaque = true;
 		v->bImBeingRendered = 0;
+
 		v->ResetAfterRender();
+		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLBACK);
 	}else if(!entity->bBackfaceCulled)
 		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLBACK);
 

@@ -14,6 +14,9 @@ public:
 	static int ms_nNumOpaqueObjects;
 	static CEntity *ms_aOpaqueRenderList[1000];
 
+	static bool bRenderOpaque;
+	static bool bRenderTransparent;
+
 	static void Init(void);
 
 	static void ConstructRenderList(void);

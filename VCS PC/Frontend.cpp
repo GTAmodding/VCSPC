@@ -2120,12 +2120,12 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		if ( CPostEffects::TrailsEnabled() )
 		{
 			CPostEffects::SetTrailsState(false);
-			CPostEffects::Radiosity_Close();
+		//	CPostEffects::Radiosity_Close();	// radiosity always initialised now
 		}
 		else
 		{
 			CPostEffects::SetTrailsState(true);
-			CPostEffects::Radiosity_Init();
+		//	CPostEffects::Radiosity_Init();		// radiosity always initialised now
 		}
 		SaveSettings();
 		return;

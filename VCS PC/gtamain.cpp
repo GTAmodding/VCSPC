@@ -238,7 +238,8 @@ void CSkidmarks__Render(void)
 	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)alphafunc);
 }
 
-int renderTransparent = 1;
+// int renderTransparent = 1;
+// int renderTwoPasses = 0;
 
 static Reversed RenderScene_kill(0x53DF40, 0x53E15F);
 void
@@ -262,6 +263,9 @@ RenderScene(void)
 
 	CRenderer::SortOutVisibleEntities();
 
+	CRenderer::bRenderOpaque = true;
+	CRenderer::bRenderTransparent = true;
+
 	// CCarFXRenderer::PreRenderUpdate();	// not used in VCSPC
 	CRenderer::RenderRoads();
 	CCoronas::RenderReflections();
@@ -278,8 +282,8 @@ RenderScene(void)
 		CWaterLevel::RenderWater();
 		RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLBACK);
 	}
-	if(renderTransparent)
-		CRenderer::RenderFadingInEntities();
+	CRenderer::RenderFadingInEntities();
+//return;
 
 	if(!CMirrors::bRenderingReflection){
 		float nearclip = RwCameraGetNearClipPlane(Scene.camera);
@@ -541,7 +545,8 @@ static StaticPatcher Patcher([](){
 	Memory::InjectHook(0x53ECBD, Idle);
 //	Memory::InjectHook(0x735D90, SetLightColoursForPedsCarsAndObjects, PATCH_JUMP);
 
-	if(DebugMenuLoad()){
-		DebugMenuAddVarBool32("Rendering", "Render Transparent Entities", &renderTransparent, NULL);
-	}
+//	if(DebugMenuLoad()){
+//		DebugMenuAddVarBool32("Rendering", "Render Transparent Entities", &renderTransparent, NULL);
+//		DebugMenuAddVarBool32("Rendering", "Render Transparent objects in two passes", &renderTwoPasses, NULL);
+//	}
 });

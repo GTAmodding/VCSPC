@@ -334,6 +334,31 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 	return pTexture;
 }
 
+typedef struct _rwD3D9RasterExt _rwD3D9RasterExt;
+struct _rwD3D9RasterExt
+{
+    void                    *texture;
+    void                    *palette;
+    RwUInt8                 alpha;              /* This texture has alpha */
+    RwUInt8                 cube : 4;           /* This texture is a cube texture */
+    RwUInt8                 face : 4;           /* The active face of a cube texture */
+    RwUInt8                 automipmapgen : 4;  /* This texture uses automipmap generation */
+    RwUInt8                 compressed : 4;     /* This texture is compressed */
+    RwUInt8                 lockedMipLevel;
+    void                    *lockedSurface;
+    D3DLOCKED_RECT          lockedRect;
+    D3DFORMAT               d3dFormat;          /* D3D format */
+    LPDIRECT3DSWAPCHAIN9    swapChain;
+    HWND                    window;
+};
+
+int32 &__RwD3D9RasterExtOffset = *(int*)0xB4E9E0;
+
+bool RwRasterHasAlpha(RwRaster *raster)
+{
+	return RWPLUGINOFFSET(_rwD3D9RasterExt, raster, __RwD3D9RasterExtOffset)->alpha;
+}
+
 // Shader helpers
 static HMODULE thisModule = nullptr;
 void* RwD3D9CreatePixelShaderFromResource(WORD wResource)
