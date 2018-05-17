@@ -41,13 +41,6 @@ WRAPPER void CTheZones::Init(void) { EAXJMP(0x572670); }
 WRAPPER void CTheZones::Update(void) { EAXJMP(0x572D10); }
 
 
-WRAPPER void CClouds::Init(void) { EAXJMP(0x7138D0); }
-WRAPPER void CClouds::Update(void) { EAXJMP(0x712FF0); }
-WRAPPER void CClouds::MovingFogRender(void) { EAXJMP(0x716C90); }
-WRAPPER void CClouds::VolumetricCloudsRender(void) { EAXJMP(0x716380); }
-WRAPPER void CClouds::Render(void) { EAXJMP(0x713950); }
-WRAPPER void CClouds::RenderBottomFromHeight(void) { EAXJMP(0x7154B0); }
-
 bool &CCredits::bCreditsGoing = *(bool*)0xC6E97C;
 WRAPPER void CCredits::RenderCredits(void) { EAXJMP(0x5A87F0); }
 

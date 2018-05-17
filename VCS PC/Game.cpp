@@ -26,6 +26,7 @@
 #include "CutsceneManager.h"
 #include "Frontend.h"
 #include "Weather.h"
+#include "Clouds.h"
 #include "Font.h"
 #include "UserDisplay.h"
 #include "PostEffects.h"

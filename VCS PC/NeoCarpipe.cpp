@@ -395,16 +395,24 @@ CarPipe::RenderEnvTex(void)
 		RwFrameTransform(RwCameraGetFrame(reflectionCam), RwFrameGetLTM(RwCameraGetFrame(Scene.camera)), rwCOMBINEREPLACE);
 	CColourSet &c = CTimeCycle::m_CurrentColours;
 	RwRGBA color = { c.skytopr, c.skytopg, c.skytopb, 255 };
+	if(CWeather::LightningFlash)
+		color.red = color.green = color.blue = 255;
 	RwCameraClear(reflectionCam, &color, rwCAMERACLEARIMAGE | rwCAMERACLEARZ);
 
 	RwCameraBeginUpdate(reflectionCam);
-//	RwCamera *savedcam = Scene.camera;
-//	Scene.camera = reflectionCam;	// they do some begin/end updates with this in the called functions :/
-	// not anymore, we have our own code now
 
-	RenderReflectionScene();
-
-//	Scene.camera = savedcam;
+	if(PipeSwitch == PIPE_NEO)
+		RenderEnvSceneNeo();
+	else{
+		// little hack to make CClouds aware of our env map size
+		int width = RsGlobal.MaximumWidth;
+		int height = RsGlobal.MaximumHeight;
+		RsGlobal.MaximumWidth = envMapSize;
+		RsGlobal.MaximumHeight = envMapSize;
+		RenderEnvScene();
+		RsGlobal.MaximumWidth = width;
+		RsGlobal.MaximumHeight = height;
+	}
 
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)1);
 	if(PipeSwitch == PIPE_NEO){

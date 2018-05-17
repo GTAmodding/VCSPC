@@ -4,6 +4,7 @@
 #include "Coronas.h"
 #include "TimeCycle.h"
 #include "Weather.h"
+#include "Clouds.h"
 #include "Frontend.h"
 #include "PostEffects.h"
 #include "Renderer.h"
@@ -249,6 +250,7 @@ RenderScene(void)
 	if(CMirrors::TypeOfMirror == 0){
 		CMovingThings__Render_BeforeClouds();
 		CClouds::Render();
+		CClouds::RenderHorizon();	// for old background
 	}
 
 	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)1);
@@ -316,7 +318,28 @@ RenderScene(void)
 }
 
 void
-RenderReflectionScene(void)
+RenderEnvScene(void)
+{
+	// TODO: maybe set up some render states here?
+	if(CWeather::LightningFlash)
+		CClouds::RenderBackground(255, 255, 255,
+				255, 255, 255,
+				255);
+	else
+		CClouds::RenderBackground(CTimeCycle::m_CurrentColours.skytopr,
+				CTimeCycle::m_CurrentColours.skytopg,
+				CTimeCycle::m_CurrentColours.skytopb,
+				CTimeCycle::m_CurrentColours.skybotr,
+				CTimeCycle::m_CurrentColours.skybotg,
+				CTimeCycle::m_CurrentColours.skybotb,
+				255);
+	CClouds::RenderHorizon();
+	CRenderer::RenderAllBuildingsOpaque();
+	CRenderer::RenderAllBuildingsTransparent();
+}
+
+void
+RenderEnvSceneNeo(void)
 {
 	CRenderer::RenderAllBuildingsOpaque();
 	CRenderer::RenderAllBuildingsTransparent();
@@ -381,6 +404,25 @@ WRAPPER void DoFade(void) { EAXJMP(0x53E600); }
 
 RwRGBA &gColourTop = *(RwRGBA*)0xB72CA0 ;
 
+
+static Reversed DoRWStuffStartOfFrame_Horizon_kill(0x53D7A0, 0x53D82F);
+bool
+DoRWStuffStartOfFrame_Horizon(uint16 topr, uint16 topg, uint16 topb, uint16 botr, uint16 botg, uint16 botb, uint16 alpha)
+{
+	CDraw::CalculateAspectRatio();
+	CameraSize(Scene.camera, NULL, tan(CDraw::ms_fFOV * M_PI / 360.0f), CDraw::ms_fAspectRatio);
+	CVisibilityPlugins::SetRenderWareCamera(Scene.camera);
+	RwCameraClear(Scene.camera, &gColourTop, rwCAMERACLEARZ | rwCAMERACLEARSTENCIL);	// rwCAMERACLEARSTENCIL not needed since we're no longer doing shadows
+	if(!RsCameraBeginUpdate(Scene.camera))
+		return false;
+	DefinedState();
+	TheCamera.m_viewMatrix.Update();
+
+	CClouds::RenderBackground(topr, topg, topb, botr, botg, botb, alpha);	// old gradient
+	//CClouds::RenderSkyPolys();
+	return true;
+}
+
 static Reversed DoRWStuffEndOfFrame_kill(0x53D840, 0x53D86F);
 void
 DoRWStuffEndOfFrame(void)
@@ -424,21 +466,11 @@ Idle(void *arg)
 		g_realTimeShadowMan.Update();
 		CMirrors::BeforeMainRender();
 
-		// TODO: reverse this to the old VC code, right now the arguments do nothing!
 		if(CWeather::LightningFlash){
-			// TODO: clean this up once everything is under our control
+			// sets fog colour in DefinedState
 			CTimeCycle::m_CurrentColours.skybotr = 255;
 			CTimeCycle::m_CurrentColours.skybotg = 255;
 			CTimeCycle::m_CurrentColours.skybotb = 255;
-			CTimeCycle::m_CurrentColours.skytopr = 255;
-			CTimeCycle::m_CurrentColours.skytopg = 255;
-			CTimeCycle::m_CurrentColours.skytopb = 255;
-			CTimeCycle::m_CurrentColours_exe.skybotr = 255;
-			CTimeCycle::m_CurrentColours_exe.skybotg = 255;
-			CTimeCycle::m_CurrentColours_exe.skybotb = 255;
-			CTimeCycle::m_CurrentColours_exe.skytopr = 255;
-			CTimeCycle::m_CurrentColours_exe.skytopg = 255;
-			CTimeCycle::m_CurrentColours_exe.skytopb = 255;
 			if(!DoRWStuffStartOfFrame_Horizon(255, 255, 255, 255, 255, 255, 255))
 				return;
 		}else{

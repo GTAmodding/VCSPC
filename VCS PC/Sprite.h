@@ -10,6 +10,7 @@ class CSprite
 {
 public:
 	static bool		CalcScreenCoors(const RwV3d& vecIn, RwV3d* vecOut, float* fWidth, float* fHeight, bool bCheckFarClip, bool bCheckNearClip);
+	static float		CalcHorizonCoors();
 	static void		FlushSpriteBuffer();
 
 	static void		InitSpriteBuffer2D();
@@ -62,6 +63,8 @@ public:
 	static void			SetVertices(const CRect&, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&, float, float, float, float, float, float, float, float);
 	static void			SetVertices(float, float, float, float, float, float, float, float, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&);
 	static void			DrawRect(const CRect& rect, const CRGBA& colour);
+	static void			DrawRect(const CRect& rect, const CRGBA& c1, const CRGBA& c2, const CRGBA& c3, const CRGBA& c4);
+	static void			DrawAnyRect(float fX1, float fY1, float fX2, float fY2, float fX3, float fY3, float fX4, float fY4, const CRGBA& c1, const CRGBA& c2, const CRGBA& c3, const CRGBA& c4);
 };
 
 extern RwIm2DVertex* const	aSpriteVertices;

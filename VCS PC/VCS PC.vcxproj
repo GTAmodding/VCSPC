@@ -371,6 +371,7 @@ popd</Command>
     <ClCompile Include="CConfiscatedWeapons.cpp" />
     <ClCompile Include="CCRC32.Cpp" />
     <ClCompile Include="CDraw.cpp" />
+    <ClCompile Include="Clouds.cpp" />
     <ClCompile Include="ColourSet.cpp" />
     <ClCompile Include="CullZones.cpp" />
     <ClCompile Include="CustomBuildingRenderer.cpp" />
@@ -486,6 +487,7 @@ popd</Command>
     <ClInclude Include="CConfiscatedWeapons.h" />
     <ClInclude Include="CCRC32.H" />
     <ClInclude Include="Clock.h" />
+    <ClInclude Include="Clouds.h" />
     <ClInclude Include="ColAccel.h" />
     <ClInclude Include="ColourSet.h" />
     <ClInclude Include="ControlsMgr.h" />

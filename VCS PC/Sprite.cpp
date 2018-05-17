@@ -17,6 +17,13 @@ WRAPPER void CSprite::RenderOneXLUSprite(float x, float y, float z, float halfWi
 WRAPPER void CSprite::RenderBufferedOneXLUSprite2D(float, float, float, float, const RwRGBA&, short, unsigned char)
 						{ EAXJMP(0x70F440); }
 
+WRAPPER float CSprite::CalcHorizonCoors() { EAXJMP(0x70E3E0); }
+
+
+// Arguments:
+// 0---1
+// |   |
+// 2---3
 WRAPPER void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4)
 { WRAPARG(rect); WRAPARG(rgb1); WRAPARG(rgb2); WRAPARG(rgb3); WRAPARG(rgb4); EAXJMP(0x727420); }
 // TODO: Name params
@@ -108,7 +115,28 @@ void CSprite2d::DrawRect(const CRect& rect, const CRGBA& colour)
 {
 	SetVertices(rect, colour, colour, colour, colour);
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
+	// shouldn't we use the XLU version for this?
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, reinterpret_cast<void*>(colour.a != 255));
 	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, FALSE);
+}
+
+void CSprite2d::DrawRect(const CRect& rect, const CRGBA& c1, const CRGBA& c2, const CRGBA& c3, const CRGBA& c4)
+{
+	SetVertices(rect, c1, c2, c3, c4);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, 0);
+	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, FALSE);
+}
+
+void CSprite2d::DrawAnyRect(float fX1, float fY1, float fX2, float fY2, float fX3, float fY3, float fX4, float fY4, const CRGBA& c1, const CRGBA& c2, const CRGBA& c3, const CRGBA& c4)
+{
+	SetVertices(fX1, fY1, fX2, fY2, fX3, fY3, fX4, fY4, c1, c2, c3, c4);
+	if(c1.a != 255 || c2.a != 255 || c3.a != 255 || c4.a != 255)
+		RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
+	else
+		RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)FALSE);
+	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, aSpriteVertices, 4);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
 }

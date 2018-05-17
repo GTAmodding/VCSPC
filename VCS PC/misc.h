@@ -58,17 +58,6 @@ public:
 extern CInterestingEvents &g_InterestingEvents;
 
 
-class CClouds
-{
-public:
-	static void Init(void);
-	static void Update(void);
-	static void MovingFogRender(void);
-	static void VolumetricCloudsRender(void);
-	static void Render(void);
-	static void RenderBottomFromHeight(void);
-};
-
 class CTheZones
 {
 public:

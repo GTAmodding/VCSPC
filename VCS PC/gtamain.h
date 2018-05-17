@@ -33,7 +33,8 @@ void ActivateDirectional(void);
 void DeActivateDirectional();
 
 void RenderScene(void);
-void RenderReflectionScene(void);
+void RenderEnvScene(void);
+void RenderEnvSceneNeo(void);
 void RenderEffects(void);
 void Render2dStuff(void);
 
