@@ -112,6 +112,13 @@ WRAPPER RwBool RwD3D9CreateVertexBuffer(RwUInt32 stride,
                          RwUInt32 size,
                          void **vertexBuffer,
 						 RwUInt32 *offset) { EAXJMP(0x7F5500); }
+WRAPPER RwInt32 RwRasterRegisterPlugin(RwInt32 size,
+                                            RwUInt32 pluginID,
+                                            RwPluginObjectConstructor
+                                            constructCB,
+                                            RwPluginObjectDestructor
+                                            destructCB,
+                                            RwPluginObjectCopy copyCB) { EAXJMP(0x7FB0B0); }
 WRAPPER RwInt32 RwTextureRegisterPlugin(RwInt32 size,
                                             RwUInt32 pluginID,
                                             RwPluginObjectConstructor

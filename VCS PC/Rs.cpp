@@ -354,7 +354,7 @@ struct _rwD3D9RasterExt
 
 int32 &__RwD3D9RasterExtOffset = *(int*)0xB4E9E0;
 
-bool RwRasterHasAlpha(RwRaster *raster)
+RwUInt8 RwRasterHasAlpha(RwRaster *raster)
 {
 	return RWPLUGINOFFSET(_rwD3D9RasterExt, raster, __RwD3D9RasterExtOffset)->alpha;
 }
@@ -597,6 +597,7 @@ void ConvertAndDumpNativeMesh()
 	}
 }
 
+// This is no longer used i believe
 void SetUpGeneric_DNPipe(RxD3D9InstanceData* instanceData, RwTexture* texture)
 {
 	// TEMP
@@ -605,8 +606,8 @@ void SetUpGeneric_DNPipe(RxD3D9InstanceData* instanceData, RwTexture* texture)
 	if ( gpPixelShaderForDefaultCallbacks == nullptr )
 	{
 		// Is YCoCg texture?
-		if ( texture != nullptr && YCOCGPLUGINDATACONST(texture)->bYCoCgType != 0 )
-			RwD3D9SetPixelShader(gpGenericPS[YCOCGPLUGINDATACONST(texture)->bYCoCgType == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
+		if ( texture != nullptr && RwTextureGetYCoCgType(texture) != 0 )
+			RwD3D9SetPixelShader(gpGenericPS[RwTextureGetYCoCgType(texture) == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
 		else
 			RwD3D9SetPixelShader(nullptr);
 	}
@@ -623,8 +624,8 @@ void SetGenericShaders_InstanceData(RxD3D9InstanceData* pInstanceData)
 	}
 
 	RwTexture*	pMaterialTexture = RpMaterialGetTexture(pInstanceData->material);
-	if ( pMaterialTexture != nullptr && YCOCGPLUGINDATACONST(pMaterialTexture)->bYCoCgType != 0 )
-		RwD3D9SetPixelShader(gpGenericPS[YCOCGPLUGINDATACONST(pMaterialTexture)->bYCoCgType == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
+	if ( pMaterialTexture != nullptr && RwTextureGetYCoCgType(pMaterialTexture) != 0 )
+		RwD3D9SetPixelShader(gpGenericPS[RwTextureGetYCoCgType(pMaterialTexture) == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
 	else
 		RwD3D9SetPixelShader(nullptr);
 }

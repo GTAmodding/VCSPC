@@ -99,8 +99,8 @@ CCustomBuildingDNPipeline::CustomPipeRenderCB(RwResEntry *repEntry, void *object
 		material = instancedData->material;
 
 		// Is YCoCg texture?
-		if(material->texture && YCOCGPLUGINDATACONST(material->texture)->bYCoCgType != 0)
-			RwD3D9SetPixelShader(YCOCGPLUGINDATACONST(material->texture)->bYCoCgType == 2 ? buildingYCG2PS : buildingYCG1PS);
+		if(material->texture && RwTextureGetYCoCgType(material->texture) != 0)
+			RwD3D9SetPixelShader(RwTextureGetYCoCgType(material->texture) == 2 ? buildingYCG2PS : buildingYCG1PS);
 		else
 			RwD3D9SetPixelShader(buildingPS);
 		pipeSetTexture(material->texture, 0);

@@ -31,22 +31,26 @@ static void* YCoCgPluginCopy(void *dstObject, const void *srcObject, RwInt32 off
 static RwStream* YCoCgPluginRead(RwStream *stream, RwInt32 binaryLength, void *object, RwInt32 offsetInObject, RwInt32 sizeInObject)
 {
 	DWORD	dwBuf;
+	RwTexture *tex = (RwTexture*)object;
+	assert(tex->raster);
 	RwStreamRead(stream, &dwBuf, sizeof(dwBuf));
 	if ( dwBuf == MAKEFOURCC('1', 'G', 'C', 'Y') )
-		YCOCGPLUGINDATA(object)->bYCoCgType = 1;
+		YCOCGPLUGINDATA(tex->raster)->bYCoCgType = 1;
 	else if ( dwBuf == MAKEFOURCC('2', 'G', 'C', 'Y') )
-		YCOCGPLUGINDATA(object)->bYCoCgType = 2;
+		YCOCGPLUGINDATA(tex->raster)->bYCoCgType = 2;
 	return stream;
 }
 
 static RwStream* YCoCgPluginWrite(RwStream *stream, RwInt32 binaryLength, const void *object, RwInt32 offsetInObject, RwInt32 sizeInObject)
 {
-	if ( YCOCGPLUGINDATA(object)->bYCoCgType == 1 )
+	RwTexture *tex = (RwTexture*)object;
+	assert(tex->raster);
+	if ( YCOCGPLUGINDATA(tex->raster)->bYCoCgType == 1 )
 	{
 		const DWORD		dwBuf = MAKEFOURCC('1', 'G', 'C', 'Y');
 		RwStreamWrite(stream, &dwBuf, sizeof(dwBuf));						
 	}
-	else if ( YCOCGPLUGINDATA(object)->bYCoCgType == 2 )
+	else if ( YCOCGPLUGINDATA(tex->raster)->bYCoCgType == 2 )
 	{
 		const DWORD		dwBuf = MAKEFOURCC('2', 'G', 'C', 'Y');
 		RwStreamWrite(stream, &dwBuf, sizeof(dwBuf));						
@@ -56,14 +60,20 @@ static RwStream* YCoCgPluginWrite(RwStream *stream, RwInt32 binaryLength, const 
 
 static RwInt32 YCoCgPluginGetSize(const void *object, RwInt32 offsetInObject, RwInt32 sizeInObject)
 {
-	return YCOCGPLUGINDATACONST(object)->bYCoCgType != 0 ? sizeof(DWORD) : -1;
+	RwTexture *tex = (RwTexture*)object;
+	assert(tex->raster);
+	return YCOCGPLUGINDATACONST(tex->raster)->bYCoCgType != 0 ? sizeof(DWORD) : -1;
 }
 
 BOOL YCoCgPluginAttach()
 {
-	gYCoCgPluginOffset = RwTextureRegisterPlugin(sizeof(YCoCgPlugin), MAKEFOURCC('F', 'G', 'A', 'M'),
+	// this is where we want to store the actual data
+	gYCoCgPluginOffset = RwRasterRegisterPlugin(sizeof(YCoCgPlugin), MAKEFOURCC('F', 'G', 'A', 'M'),
 							YCoCgPluginCtor, nullptr, YCoCgPluginCopy);
 
+	// but when streaming we read it from the texture
+	RwTextureRegisterPlugin(sizeof(YCoCgPlugin), MAKEFOURCC('F', 'G', 'A', 'M'),
+							nullptr, nullptr, nullptr);
 	RwTextureRegisterPluginStream(MAKEFOURCC('F', 'G', 'A', 'M'),
 							YCoCgPluginRead, YCoCgPluginWrite, YCoCgPluginGetSize);
 

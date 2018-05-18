@@ -568,8 +568,8 @@ CarPipe::NeoDiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 		}
 
 		pipeSetTexture(material->texture, 0);
-		if(material->texture && YCOCGPLUGINDATACONST(material->texture)->bYCoCgType != 0)
-			RwD3D9SetPixelShader(YCOCGPLUGINDATACONST(material->texture)->bYCoCgType == 2 ? pixelShaderYCG2 : pixelShaderYCG1);
+		if(material->texture && RwTextureGetYCoCgType(material->texture) != 0)
+			RwD3D9SetPixelShader(RwTextureGetYCoCgType(material->texture) == 2 ? pixelShaderYCG2 : pixelShaderYCG1);
 		else
 			RwD3D9SetPixelShader(pixelShader);
 
@@ -656,8 +656,8 @@ CarPipe::DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 		}
 
 		pipeSetTexture(material->texture, 0);
-		if(material->texture && YCOCGPLUGINDATACONST(material->texture)->bYCoCgType != 0)
-			RwD3D9SetPixelShader(gpGenericPS[YCOCGPLUGINDATACONST(material->texture)->bYCoCgType == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
+		if(material->texture && RwTextureGetYCoCgType(material->texture) != 0)
+			RwD3D9SetPixelShader(gpGenericPS[RwTextureGetYCoCgType(material->texture) == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
 		else
 			RwD3D9SetPixelShader(simplePS);
 
