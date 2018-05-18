@@ -28,6 +28,7 @@ public:
 	static float&		Foggyness;
 	static int16 &OldWeatherType;
 	static int16 &NewWeatherType;
+	static int16 &ForcedWeatherType;
 	static float &InterpolationValue;
 	static float &UnderWaterness;
 	static float &InTunnelness;
@@ -43,6 +44,8 @@ public:
 	static void RenderRainStreaks(void);
 	static void UpdateWeatherRegion(CVector*);
 	static uint8 *FindWeatherTypesList(void);
+	static void ReleaseWeather(void) { ForcedWeatherType = -1; }
+	static void ForceWeatherNow(int16 w) { ForcedWeatherType = OldWeatherType = NewWeatherType = w; }
 };
 
 #endif

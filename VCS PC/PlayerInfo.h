@@ -14,7 +14,8 @@ private:
 
 class CPlayerInfo
 {
-private:
+//private:
+public:
 	CPed*			pPed;											// 0x0
 	CPlayerPedData	data;									// 0x4
 	CVehicle*		pVehicle;									// 0xB0

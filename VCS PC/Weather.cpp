@@ -5,6 +5,7 @@ float& CWeather::Wind = *(float*)0xC812F0;
 float& CWeather::Foggyness = *(float*)0xC81300;
 int16 &CWeather::OldWeatherType = *(short*)0xC81320;
 int16 &CWeather::NewWeatherType = *(short*)0xC8131C;
+int16 &CWeather::ForcedWeatherType = *(short*)0xC81318;
 float &CWeather::InterpolationValue = *(float*)0xC8130C;
 float &CWeather::UnderWaterness = *(float*)0xC8132C;
 float &CWeather::InTunnelness = *(float*)0xC81334;

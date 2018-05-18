@@ -104,7 +104,7 @@ WRAPPER void CGarages__Init(void) { EAXJMP(0x447120); }
 WRAPPER void CAudioZones__Init(void) { EAXJMP(0x5081A0); }
 WRAPPER void CStreaming__ReadIniFile(void) { EAXJMP(0x5BCCD0); }
 WRAPPER void CTaskSimpleFight__LoadMeleeData(void) { EAXJMP(0x5BEDC0); }
-WRAPPER void CCheat__ResetCheats(void) { EAXJMP(0x438450); }
+//WRAPPER void CCheat__ResetCheats(void) { EAXJMP(0x438450); }
 
 WRAPPER bool CCustomCarPlateMgr__Initialise(void) { EAXJMP(0x6FD500); }
 WRAPPER void CRoadBlocks__Init(void) { EAXJMP(0x461100); }
@@ -125,7 +125,7 @@ WRAPPER void CShopping__Init(void) { EAXJMP(0x49C290); }
 WRAPPER void CCover__Update(void) { EAXJMP(0x6997E0); }
 WRAPPER void CAudioZones__Update(bool, float, float, float) { EAXJMP(0x5083C0); }
 void CAudioZones__Update(bool b, CVector v) { CAudioZones__Update(b, v.x, v.y, v.z); }
-WRAPPER void CCheat__DoCheats(void) { EAXJMP(0x439AF0); }
+//WRAPPER void CCheat__DoCheats(void) { EAXJMP(0x439AF0); }
 WRAPPER void CSkidmarks__Update(void) { EAXJMP(0x7205C0); }
 WRAPPER void CGlass__Update(void) { EAXJMP(0x71B0D0); }
 WRAPPER void CCreepingFire__Update(void) { EAXJMP(0x539CE0); }

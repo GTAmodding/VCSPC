@@ -4,6 +4,7 @@
 int&				CTimer::m_snTimeInMilliseconds = *(int*)0xB7CB84;
 int&				CTimer::m_snTimeInMillisecondsPauseMode = *(int*)0xB7CB7C;
 float&				CTimer::ms_fTimeStep = *(float*)0xB7CB5C;
+float&				CTimer::ms_fTimeScale = *(float*)0xB7CB64;
 unsigned int&		CTimer::m_FrameCounter = *(unsigned int*)0xB7CB4C;
 bool &CTimer::m_CodePause = *(bool*)0xB7CB48;
 bool &CTimer::m_UserPause = *(bool*)0xB7CB49;

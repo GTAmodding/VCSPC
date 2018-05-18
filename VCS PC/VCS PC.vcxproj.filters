@@ -297,6 +297,9 @@
     <ClCompile Include="Clouds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cheat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CConfiscatedWeapons.h">
@@ -594,6 +597,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RW.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheatdef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

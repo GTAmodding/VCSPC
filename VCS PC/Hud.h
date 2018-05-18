@@ -107,6 +107,7 @@ public:
 	static void		DrawBigMessage3();
 	static void		DrawBarChartWithRoundBorder(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor);
 	static void		DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor);
+	static void		SetHelpMessage(const char *text, bool b1, bool b2, bool b3);
 	static float	GetYPosBasedOnHealth(unsigned char plrID, float position, signed char offset);
 };
 

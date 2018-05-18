@@ -12,10 +12,10 @@
 #include "VisibilityPlugins.h"
 #include "YCoCg.h"
 #include "TimeCycle.h"
+#include "Cheat.h"
 #include "debugmenu_public.h"
 
 int updateEnvMap = true;
-int chromeCheat = false;
 int debugEnvTex = false;
 int drawEnvCoronas = true;
 
@@ -709,7 +709,7 @@ CarPipe::EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic)
 		int matfx = RpMatFXMaterialGetEffects(material);
 		if(!noRefl && matfx == rpMATFXEFFECTENVMAP){
 			float envcoeff = 0.5f * RpMatFXMaterialGetEnvMapCoefficient(material);
-			if(chromeCheat)
+			if(CCheat::m_aCheatsActive[CCheat::CHROMECARS])
 				envcoeff = 1.0f;
 			RwD3D9SetVertexShaderConstant(LOC_reflProps, (void*)&envcoeff, 4);
 			D3D9Render(header, inst);
@@ -786,7 +786,7 @@ static StaticPatcher	Patcher([](){
 
 		DebugMenuAddCmd("Rendering|Vehicle Pipeline", "Reload Neo tweak table", CarPipe::LoadTweakingTable);
 
-		DebugMenuAddVarBool32("Rendering|Vehicle Pipeline", "Chrome cars", &chromeCheat, NULL);
+		DebugMenuAddVarBool8("Rendering|Vehicle Pipeline", "Chrome cars", (int8*)&CCheat::m_aCheatsActive[CCheat::CHROMECARS], NULL);
 		DebugMenuAddVarBool32("Rendering|Vehicle Pipeline", "Draw Env Map Coronas", &drawEnvCoronas, NULL);
 		DebugMenuAddVarBool32("Rendering|Vehicle Pipeline", "Show Env Map", &debugEnvTex, NULL);
 		DebugMenuAddVarBool32("Rendering|Vehicle Pipeline", "Update Env Map", &updateEnvMap, NULL);

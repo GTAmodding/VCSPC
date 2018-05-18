@@ -53,6 +53,7 @@ WRAPPER void CHud::DrawBarChart(float fX, float fY, WORD wWidth, WORD wHeight, f
 {	WRAPARG(fX); WRAPARG(fY); WRAPARG(wWidth); WRAPARG(wHeight); WRAPARG(fPercentage); WRAPARG(drawBlueLine); WRAPARG(drawPercentage); WRAPARG(drawBorder); WRAPARG(dwColor); WRAPARG(dwForeColor);
 	EAXJMP(0x728640); }
 WRAPPER void CHud::DrawAfterFade(void) { EAXJMP(0x58D490); }
+WRAPPER void CHud::SetHelpMessage(const char *text, bool b1, bool b2, bool b3) { EAXJMP(0x588BE0); }
 
 static const char* const			HudSpriteFilenames[NUM_HUD_SPRITES] = { "fist", "siteM16", "siterocket", "radardisc", "barOutline", "pager" };
 

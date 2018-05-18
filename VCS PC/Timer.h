@@ -7,6 +7,7 @@ public:
 	static int&				m_snTimeInMilliseconds;
 	static int&				m_snTimeInMillisecondsPauseMode;
 	static float&			ms_fTimeStep;
+	static float&			ms_fTimeScale;
 	static unsigned int&	m_FrameCounter;
 	static bool	&m_CodePause;
 	static bool	&m_UserPause;

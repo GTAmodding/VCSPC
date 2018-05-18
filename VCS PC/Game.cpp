@@ -35,6 +35,7 @@
 #include "Hud.h"
 #include "Antennas.h"
 #include "VisibilityPlugins.h"
+#include "Cheat.h"
 #include "gtamain.h"
 #include "misc.h"
 
@@ -131,7 +132,7 @@ CGame::Init1(const char *fileName)
 	ThePaths.Init();
 	ThePaths.AllocatePathFindInfoMem();
 	CTaskSimpleFight__LoadMeleeData();
-	CCheat__ResetCheats();
+	CCheat::ResetCheats();
 	g_fx.Init();	// Fx_c;
 
 	CarPipeInit();
@@ -263,7 +264,7 @@ CGame::Process(void)
 		// CSprite2d::SetRecipNearClip();	// no-op
 		CSprite2d::InitPerFrame();
 		CFont::InitPerFrame();
-		CCheat__DoCheats();
+		CCheat::DoCheats();
 		CClock::Update();
 		CWeather::Update();
 		CTheScripts::Process();
