@@ -341,17 +341,12 @@ CRubbish::Render(void)
 
 			float vx1, vx2;
 			float vy1, vy2;
-			if(textype == 0 || textype == 1){
-				vx1 = sin(sheet->angle) * 0.9f;
-				vy1 = cos(sheet->angle) * 0.9f;
-				vx2 = cos(sheet->angle) * 0.3f;
-				vy2 = - sin(sheet->angle) * 0.3f;
-			}else{
-				vx1 = sin(sheet->angle) * 0.3f;
-				vy1 = cos(sheet->angle) * 0.3f;
-				vx2 = cos(sheet->angle) * 0.3f;
-				vy2 = - sin(sheet->angle) * 0.3f;
-			}
+			static float sizes[4] =  { 0.4, 0.8, 0.3, 0.3 };	// all square in VCS
+
+			vx1 = sin(sheet->angle) * sizes[textype];
+			vy1 = cos(sheet->angle) * sizes[textype];
+			vx2 = cos(sheet->angle) * sizes[textype];
+			vy2 = - sin(sheet->angle) * sizes[textype];
 
 			alpha = RubbishVisibility*alpha/255;
 
@@ -397,7 +392,14 @@ CRubbish::Render(void)
 	RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTION, (void*)alphafunc);
 }
 
+void
+CRubbish::SetVisibility(bool v)
+{
+	bRubbishInvisible = !v;
+}
+
 static StaticPatcher Patcher([](){
+	Memory::InjectHook(0x7204C0, CRubbish::SetVisibility, PATCH_JUMP);
 	if(DebugMenuLoad()){
 		DebugMenuAddVarBool8("Rendering", "Rubbish invisible", (int8*)&CRubbish::bRubbishInvisible, NULL);
 	}

@@ -45,6 +45,7 @@ public:
 	static void Update(void);
 	static void StirUp(CVehicle *vehicle);
 	static void Render(void);
+	static void SetVisibility(bool v);
 };
 
 #endif
