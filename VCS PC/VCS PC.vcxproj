@@ -534,6 +534,7 @@ popd</Command>
     <ClInclude Include="Queue.h" />
     <ClInclude Include="RealTimeShadowMgr.h" />
     <ClInclude Include="Replay.h" />
+    <ClInclude Include="RW.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Shadows.h" />
     <ClInclude Include="SpeechRecognition.h" />

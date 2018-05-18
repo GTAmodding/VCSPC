@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Rs.h"
 
+#include "RW.h"
 #include "Camera.h"
 #include "FxSystem.h"
 #include "Font.h"
@@ -334,31 +335,6 @@ RwTexture* RwTextureGtaStreamRead(RwStream* stream)
 	return pTexture;
 }
 
-typedef struct _rwD3D9RasterExt _rwD3D9RasterExt;
-struct _rwD3D9RasterExt
-{
-    void                    *texture;
-    void                    *palette;
-    RwUInt8                 alpha;              /* This texture has alpha */
-    RwUInt8                 cube : 4;           /* This texture is a cube texture */
-    RwUInt8                 face : 4;           /* The active face of a cube texture */
-    RwUInt8                 automipmapgen : 4;  /* This texture uses automipmap generation */
-    RwUInt8                 compressed : 4;     /* This texture is compressed */
-    RwUInt8                 lockedMipLevel;
-    void                    *lockedSurface;
-    D3DLOCKED_RECT          lockedRect;
-    D3DFORMAT               d3dFormat;          /* D3D format */
-    LPDIRECT3DSWAPCHAIN9    swapChain;
-    HWND                    window;
-};
-
-int32 &__RwD3D9RasterExtOffset = *(int*)0xB4E9E0;
-
-RwUInt8 RwRasterHasAlpha(RwRaster *raster)
-{
-	return RWPLUGINOFFSET(_rwD3D9RasterExt, raster, __RwD3D9RasterExtOffset)->alpha;
-}
-
 // Shader helpers
 static HMODULE thisModule = nullptr;
 void* RwD3D9CreatePixelShaderFromResource(WORD wResource)
@@ -630,6 +606,15 @@ void SetGenericShaders_InstanceData(RxD3D9InstanceData* pInstanceData)
 		RwD3D9SetPixelShader(nullptr);
 }
 
+void SetGenericShaders_SubmitNoLight(void)
+{
+	RwRaster *r = rwD3D9StageCache[0].curTexRaster;
+	if(r && RwRasterGetYCoCgType(r))
+		RwD3D9SetPixelShader(gpGenericPS[RwRasterGetYCoCgType(r) == 2 ? GEN_PS_YCG2 : GEN_PS_YCG1]);
+	else
+		RwD3D9SetPixelShader(nullptr);
+}
+
 void __declspec(naked) rxD3D9VertexShaderDefaultMeshRenderCallBack_Hook()
 {
 	_asm
@@ -670,6 +655,16 @@ rxD3D9DefaultRenderCallback_Hook_Return:
 	}
 }
 
+void __declspec(naked) rxD3D9SubmitNode_Hook()
+{
+	_asm
+	{
+		call	SetGenericShaders_SubmitNoLight
+		push	0x80E3D9
+		retn
+	}
+}
+
 
 static StaticPatcher	Patcher([](){ 
 						using namespace Memory;
@@ -685,6 +680,9 @@ static StaticPatcher	Patcher([](){
 
 						// Generic shaders for default render callbacks
 						Patch<BYTE>(0x756E00, 0xEB);
+
+						// Generic shaders for Im3D
+						InjectHook(0x80E3BC, rxD3D9SubmitNode_Hook, PATCH_JUMP);
 
 						Patch<DWORD>(0x756FEF, 0x50F0468D);
 						InjectHook(0x756FF3, SetGenericShaders_InstanceData, PATCH_CALL);

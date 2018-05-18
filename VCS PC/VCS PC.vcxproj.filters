@@ -593,6 +593,9 @@
     <ClInclude Include="Clouds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RW.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="LoadVars.inc">

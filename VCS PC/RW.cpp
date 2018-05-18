@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "RW.h"
 
 WRAPPER RwTexDictionary* RwTexDictionaryGetCurrent() { EAXJMP(0x7F3A90); }
 WRAPPER RwTexDictionary* RwTexDictionaryCreate() { EAXJMP(0x7F3600); }
@@ -381,6 +382,17 @@ void _rwObjectHasFrameSetFrame(void* object, RwFrame* frame)
 	}
 }
 
+
+// extension, but not currently used
+int32 &__RwD3D9RasterExtOffset = *(int*)0xB4E9E0;
+
+RwUInt8 RwRasterHasAlpha(RwRaster *raster)
+{
+	return RWPLUGINOFFSET(_rwD3D9RasterExt, raster, __RwD3D9RasterExtOffset)->alpha;
+}
+
+
+
 struct RwD3D9DisplayMode
 {
 	D3DDISPLAYMODE		DisplayMode;
@@ -394,6 +406,8 @@ static unsigned int& NumMaxD3D9DisplayModes = *(unsigned int*)0xC9BEE0;
 static unsigned int& NumD3D9DisplayModes = *(unsigned int*)0xC97C40;
 static UINT& ActiveAdapter = *(UINT*)0xC97C24;
 static D3DFORMAT* const FormatsToEnumerate = (D3DFORMAT*)0x884788;
+
+_rwD3D9StageStateCache *rwD3D9StageCache = (_rwD3D9StageStateCache*)0xC9A508;
 
 
 void D3D9CreateDisplayModesList()
