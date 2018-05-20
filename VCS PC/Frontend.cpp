@@ -2489,39 +2489,45 @@ void CMenuManager::DrawOutroSplash()
 	static bool		bOutroSplashLoaded = false;
 	static CRect	rectSpriteDimensions;
 
-	if ( !bOutroSplashLoaded )
-	{
-		CLoadingScreen::LoadSplashes(true, 0);
+    if (bNoOutro) 
+    {
+        exit(0);
+    }
+    else 
+    {
+        if (!bOutroSplashLoaded)
+        {
+            CLoadingScreen::LoadSplashes(true, 0);
 
-		CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(512.0f/400.0f, ScreenAspectRatio, true);
+            CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(512.0f / 400.0f, ScreenAspectRatio, true);
 
-		rectSpriteDimensions.x1 = 0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x);
-		rectSpriteDimensions.y1 = 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y);
-		rectSpriteDimensions.x2 = 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x);
-		rectSpriteDimensions.y2 = 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y);
+            rectSpriteDimensions.x1 = 0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x);
+            rectSpriteDimensions.y1 = 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y);
+            rectSpriteDimensions.x2 = 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x);
+            rectSpriteDimensions.y2 = 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y);
 
-		bOutroSplashLoaded = true;
-	}
+            bOutroSplashLoaded = true;
+        }
 
-	// TODO: Smooth when CTimer is rewritten
-	if ( CTimer::m_snTimeInMillisecondsPauseMode - outroTimer > 15 )
-	{
-		if ( outroPageAlpha != 255 )
-		{
-			outroPageAlpha += 25;
-			if ( outroPageAlpha > 255 )
-				outroPageAlpha = 255;
-		}
-		else
-			++outroPageFrameCounter;
-		outroTimer = CTimer::m_snTimeInMillisecondsPauseMode;
-	}
+        // TODO: Smooth when CTimer is rewritten
+        if (CTimer::m_snTimeInMillisecondsPauseMode - outroTimer > 15)
+        {
+            if (outroPageAlpha != 255)
+            {
+                outroPageAlpha += 25;
+                if (outroPageAlpha > 255)
+                    outroPageAlpha = 255;
+            }
+            else
+                ++outroPageFrameCounter;
+            outroTimer = CTimer::m_snTimeInMillisecondsPauseMode;
+        }
 
-	CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, static_cast<BYTE>(outroPageAlpha)));
-	LoadingSprites[0].Draw(rectSpriteDimensions, CRGBA(255, 255, 255, static_cast<BYTE>(outroPageAlpha)));
-	if ( outroPageAlpha == 255 && outroPageFrameCounter == 90 )
-		RsEventHandler(rsQUITAPP, nullptr);
-
+        CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, static_cast<BYTE>(outroPageAlpha)));
+        LoadingSprites[0].Draw(rectSpriteDimensions, CRGBA(255, 255, 255, static_cast<BYTE>(outroPageAlpha)));
+        if (outroPageAlpha == 255 && outroPageFrameCounter == 90)
+            RsEventHandler(rsQUITAPP, nullptr);
+    }
 }
 
 void CMenuManager::PrintStats()
@@ -3842,6 +3848,7 @@ void CLoadingScreen::RenderSplash()
 {
 	CSprite2d::InitPerFrame();
 	RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS, reinterpret_cast<void*>(rwTEXTUREADDRESSCLAMP));
+    CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(640.0f / 448.0f, WidescreenSupport::SetAspectRatio(), true);
 
 	if ( m_bFading )
 	{
@@ -3855,27 +3862,27 @@ void CLoadingScreen::RenderSplash()
 			if ( !CurrentLoadingSprite )
 			{
 				// title_pc
-				CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(640.0f/448.0f, WidescreenSupport::SetAspectRatio(), true);
 
 				LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
 			}
 			else
 			{
 				// Regular
-				LoadingSprites[CurrentLoadingSprite].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255));
-			}
+                LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
+            }
 		}
 
 		if ( m_bFadeInNextSplashFromBlack || m_bFadeOutCurrSplashToBlack )
 			CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, *(bool*)0xBAB31E ? 255 - *(unsigned char*)0xBAB320 : *(unsigned char*)0xBAB320));
 		else
-			LoadingSprites[CurrentLoadingSprite-1].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255 - *(unsigned char*)0xBAB320));
+            LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
+			//LoadingSprites[CurrentLoadingSprite-1].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255 - *(unsigned char*)0xBAB320));
 	}
 	else
 	{
 		if ( !m_bReadyToDelete )
-			LoadingSprites[CurrentLoadingSprite].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255));
-	}
+            LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
+    }
 }
 
 static void __declspec(naked) UserInputArrowSoundMenus()

@@ -34,7 +34,7 @@ long double CPed::GetCrosshairSize()
 	if ( !pWeapon->GetWeaponType() )
 		return 0.0;
 
-	return 0.5 / pWeapon->GetAccuracy();
+	return 0.5f;
 }
 
 void CPed::Remap()

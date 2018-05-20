@@ -81,7 +81,6 @@ void			LoadDevLogos();
 void			ReleaseDevLogos();
 #endif*/
 
-
 // ASM functions
 void			ViceSquadCheckInjectC();
 void			drawRampageTextTimeBreak();
@@ -239,6 +238,7 @@ DWORD				stackPtr;
 HANDLE				gStreamFiles[NUM_STREAMS];
 char				gStreamNames[NUM_STREAMS][64];
 bool				InAmazingScreenshotMode;
+bool                bNoOutro;
 #ifdef INCLUDE_MULTIFONTFILES
 bool				bCanReloadFonts = false;
 eFontFileIDs		bLastFontsID;
@@ -366,7 +366,7 @@ void						(*TheScriptsInitFunc)();
 
 const float					LoadingBarHeight = 27.5f;
 const float					LoadingBarWidth = 155.0f;
-const float					LoadingBarPosX = 40.0f;
+const float					LoadingBarPosX = 36.0f;
 const float					LoadingBarPosY = 55.0f;
 const float					fMapZonePosX = 7.5f;
 //const float					fMenuSliderPosY2 = MENU_SLIDER_POSY / 448.0;
@@ -3890,7 +3890,7 @@ void Main_Patches()
 	//call(0x58FD18, &CGridref::Draw, PATCH_JUMP);
 
 	// Bar
-	Patch<BYTE>(0x590376, 11);
+	/*Patch<BYTE>(0x590376, 11);
 	Patch<BYTE>(0x590389, 11);
 	Patch<BYTE>(0x5903A1, 11);
 	Patch<const void*>(0x5903CA, &LoadingBarPosX);
@@ -3899,8 +3899,9 @@ void Main_Patches()
 	Patch<const void*>(0x590405, &LoadingBarHeight);
 	Patch<BYTE>(0x590478, 2);
 	//patch(0x590D2B, 93, 4);
-	//patch(0x590D68, 93, 4);
-	InjectHook(0x590480, &CHud::DrawSquareBar);
+	//patch(0x590D68, 93, 4);*/
+    //Patch<const void*>(0x5903CA, &LoadingBarPosX);
+	InjectHook(0x590480, &CHud::DrawSquareBar, PATCH_CALL);
 
 	// One loading music
 	Patch<WORD>(0x5B9B1F, 0xC030);
@@ -4315,6 +4316,40 @@ void Main_Patches()
 	// Fix code to find handling name
 	InjectHook(0x6F4F64, strcmp);
 	InjectHook(0x6F4F58, strcpy);
+
+    // New patches
+    // No crouch moves.
+    static float fMoveOffset = 0.0f;
+    static float fMoveOffset_Extra = 0.016666668;
+
+    Patch<const void*>(0x687F8D + 0x2, &fMoveOffset);
+    Patch<const void*>(0x687F9B + 0x2, &fMoveOffset);
+
+    // No reloading moves.
+    if (FindPlayerPed(-1)) {
+        if (FindPlayerPed(-1)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eState == 0)
+            fMoveOffset_Extra = 0.0f;
+    }
+
+    Patch<const void*>(0x688456 + 0x2, &fMoveOffset_Extra);
+
+    // No aiming moves.
+    Patch<const void*>(0x687CF8 + 0x2, &fMoveOffset);
+    Patch<const void*>(0x687D02 + 0x2, &fMoveOffset);
+
+    // No diving
+    Nop(0x688B38, 6);
+    Nop(0x68B245, 6);
+
+    static float fTiming = 6.0f;
+    Patch<const void*>(0x68A831 + 0x2, &fTiming);
+    Patch<const void*>(0x68A7EC + 0x2, &fTiming);
+
+    Nop(0x68A5F0, 2);
+
+    // Arm Aim offset. Breaks Movements.
+    // Patch<BYTE>(0x618864, 0x75);
+    //
 }
 
 void PatchMenus()
@@ -4774,6 +4809,12 @@ char* ParseCommandlineArgument(char* pArg)
 			*(bool*)0xC402CF = true;
 			return pArg;
 		}
+
+        if (!stricmp(pArg, "-nooutro"))
+        {
+            bNoOutro = true;
+            return pArg;
+        }
 
 		/*if ( !_strnicmp(pArg, "-pedshadowquality", 18) )
 		{

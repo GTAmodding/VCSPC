@@ -1181,9 +1181,34 @@ void CHud::DrawBarChartWithRoundBorder(float fX, float fY, WORD wWidth, WORD wHe
 }*/
 
 // This is just ugh
+
+static void DrawProgressBar(float x, float y, float width, float height, float progress, bool border, bool shadow) {
+    // Shadow
+    if (shadow)
+        CSprite2d::DrawRect(CRect((x + (10.0f)), (y + (10.0f)), (x + (10.0f) + width + (2.0f)), (y + (10.0f) + height + (4.0f))),
+            CRGBA(0, 0, 0, 205));
+    // Border
+    if (border)
+        CSprite2d::DrawRect(CRect((x - (2.0f)), (y - (2.0f)), (x - (2.0f) + width + (6.0f)), (y - (2.0f) + height + (6.0f))),
+            CRGBA(0, 0, 0, 255));
+    // progress value is 0.0 - 100.0
+    if (progress >= 100.0f)
+        progress = 100.0f;
+    else {
+        // Back
+        CSprite2d::DrawRect(CRect((x), (y), (x + width), (y + height)),
+            CRGBA(255, 255, 255, 255));
+    }
+    if (progress > 0.0f) {
+        CSprite2d::DrawRect(CRect((x), (y), (x + width * (progress / 100.f)),
+            (y + height)), CRGBA(237, 130, 180, 255));
+    }
+}
+
 void CHud::DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor)
 {
-	CRect coords;
+    DrawProgressBar(_xleft(42.0f) / ScreenAspectRatio + _xmiddle(-320), fY, _width(174.0f), _height(12.0f), fPercentage, 1, 1);
+	/*CRect coords;
 
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
 	RwRenderStateSet(rwRENDERSTATESHADEMODE, (void*)rwSHADEMODEFLAT);
@@ -1204,13 +1229,13 @@ void CHud::DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fP
 		coords.y2 = fY + wHeight + (_height(1.0 * drawBorder));
 		CDraw::Rect(&coords, &backColour);*/
 
-		CSprite2d::DrawRect(CRect(	fX - (_xleft((1.0 * drawBorder))),
+	/*	CSprite2d::DrawRect(CRect(	fX - (_xleft((1.0 * drawBorder))),
 								fY - (_y(1.0 * drawBorder)),
 								fX + wWidth + (_width(1.0 * drawBorder)),
 								fY + wHeight + (_height(1.0 * drawBorder))),
 					CRGBA(0, 0, 0, 255));
-	}
-	if ( drawShadow )
+	}*/
+	/*if ( drawShadow )
 	{
 		CRGBA shadowColour(0, 0, 0, 200);
 
@@ -1228,7 +1253,7 @@ void CHud::DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fP
 	coords.y2 = fY + wHeight;
 	CSprite2d::DrawRect(coords, whiteColour);
 	coords.x2 = fX + wWidth * ((fPercentage + 1.0) / 100.0);
-	CSprite2d::DrawRect(coords, dwColour);
+	CSprite2d::DrawRect(coords, dwColour);*/
 }
 
 float CHud::GetYPosBasedOnHealth(unsigned char plrID, float position, signed char offset)

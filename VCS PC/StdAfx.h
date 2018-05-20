@@ -218,6 +218,8 @@ extern char					gString[552];
 extern char					gUString[552];
 extern CCRC32				HashHelper;
 
+extern bool                 bNoOutro;
+
 #ifdef INCLUDE_MULTIFONTFILES
 extern bool					bCanReloadFonts;
 extern eFontFileIDs			bLastFontsID;
