@@ -175,7 +175,7 @@ public:
     virtual void	ProcessCollision();
     virtual void	ProcessShift();
     virtual void	TestCollision();
-    virtual void	Teleport();
+    virtual void	Teleport(float x, float y, float z, bool resetorient);
     virtual void	SpecialEntityPreCollisionStuff();
     virtual void	SpecialEntityCalcCollisionSteps();
     virtual void	PreRender();

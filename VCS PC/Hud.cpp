@@ -95,7 +95,8 @@ void CHud::ReInitialise()
 	// Call SA ReInitialise function
 	((void(*)())0x588880)();
 
-#ifndef DEVBUILD
+//#ifndef DEVBUILD
+#if 1
 	bShouldFPSBeDisplayed = false;
 #else
 	bShouldFPSBeDisplayed = true;

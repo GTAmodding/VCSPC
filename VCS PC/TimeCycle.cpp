@@ -10,6 +10,7 @@
 #include "Timer.h"
 #include "Shadows.h"
 #include "Camera.h"
+#include "debugmenu_public.h"
 
 uint8 CTimeCycle::m_nDirectionalMult[NUMHOURS][NUMWEATHERS];
 uint8 CTimeCycle::m_nWaterFogAlpha[NUMHOURS][NUMWEATHERS];
@@ -633,4 +634,28 @@ static StaticPatcher	Patcher([]()
 
 	Memory::InjectHook(0x72B916, CWeather::FindWeatherTypesList);
 	Memory::InjectHook(0x72A640, CWeather::UpdateWeatherRegion, PATCH_JUMP);
+
+	if(DebugMenuLoad()){
+		// this is a bit ugly because we're reusing the SA weathers :/
+		static const char *weathers[] = {
+			"*Extrasunny", "*Sunny", "*Extrasunny", "*Sunny", "*Cloudy",
+			"Sunny", "Extrasunny", "Cloudy", "Rainy", "Foggy",
+			"*Sunny", "*Extrasunny", "*Cloudy",
+			"Ultrasunny", "*Sunny", "*Cloudy", "Hurricane",
+			"*Extrasunny", "*Sunny", "*Hurricane",
+			"*Sunny",  
+		};
+
+		DebugMenuEntry *e;
+		e = DebugMenuAddVar("Time & Weather", "Current Hour", &CClock::ms_nGameClockHours, NULL, 1, 0, 23, NULL);
+		DebugMenuEntrySetWrap(e, true);
+		e = DebugMenuAddVar("Time & Weather", "Current Minute", &CClock::ms_nGameClockMinutes,
+			[](){ CWeather::InterpolationValue = CClock::ms_nGameClockMinutes/60.0f + CClock::ms_nGameClockSeconds/3600.0f; }, 1, 0, 59, NULL);
+		DebugMenuEntrySetWrap(e, true);
+		e = DebugMenuAddVar("Time & Weather", "Old Weather", &CWeather::OldWeatherType, NULL, 1, 0, 20, weathers);
+		DebugMenuEntrySetWrap(e, true);
+		e = DebugMenuAddVar("Time & Weather", "New Weather", &CWeather::NewWeatherType, NULL, 1, 0, 20, weathers);
+		DebugMenuEntrySetWrap(e, true);
+		DebugMenuAddVar("Time & Weather", "Time scale", &CTimer::ms_fTimeScale, NULL, 0.1f, 0.0f, 10.0f);
+	}
 });

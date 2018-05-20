@@ -8,6 +8,7 @@
 #include "Weather.h"
 #include "World.h"
 #include "Streaming.h"
+#include "debugmenu_public.h"
 
 /*
 CHEAT1    Cheat activated
@@ -79,7 +80,14 @@ CCheat::AddToCheatString(char ch, char *cheatstring)
 
 		for(i = 0; i < NUMCHEATS; i++){
 			if(key == m_aCheatHashKeys[i*2] || key == m_aCheatHashKeys[i*2+1]){
-				const char *msg = TheText.Get("CHEAT1");
+				const char *gxt = "CHEAT1";
+				if(i >= WEAPON1 && i <= WEAPON3)	gxt = "CHEAT2";
+				else if(i == HEALTH)	gxt = "CHEAT3";
+				else if(i == ARMOUR)	gxt = "CHEAT4";
+				else if(i == WANTEDLEVELDOWN || i == WANTEDLEVELUP)	gxt = "CHEAT5";
+				else if(i == MONEY)	gxt = "CHEAT6";
+				else if(i >= SUNNY && i <= FOGGY)	gxt = "CHEAT7";
+				const char *msg = TheText.Get(gxt);
 				CHud::SetHelpMessage(msg, true, false, false);
 				if(m_aCheatFunctions[i])
 					m_aCheatFunctions[i]();
@@ -280,4 +288,54 @@ static StaticPatcher Patcher([](){
 	Memory::Patch<int8>(0x4C8546 + 2, 1);
 
 	Memory::Patch(0x52CF2C + 1, &CCheat::m_aCheatsActive[CCheat::FASTCLOCK]);
+
+
+	if(DebugMenuLoad()){
+		DebugMenuAddCmd("Spawn", "Spawn Admiral", [](){ VehicleCheat(VT_ADMIRAL); });
+		DebugMenuAddCmd("Spawn", "Spawn Washington", [](){ VehicleCheat(VT_WASHING); });
+		DebugMenuAddCmd("Spawn", "Spawn Stretch", [](){ VehicleCheat(VT_STRETCH); });
+		DebugMenuAddCmd("Spawn", "Spawn Oceanic", [](){ VehicleCheat(VT_OCEANIC); });
+		DebugMenuAddCmd("Spawn", "Spawn Cheetah", [](){ VehicleCheat(VT_CHEETAH); });
+		DebugMenuAddCmd("Spawn", "Spawn Infernus", [](){ VehicleCheat(VT_INFERNUS); });
+		DebugMenuAddCmd("Spawn", "Spawn Banshee", [](){ VehicleCheat(VT_BANSHEE); });
+		DebugMenuAddCmd("Spawn", "Spawn Deluxo", [](){ VehicleCheat(VT_DELUXO); });
+		DebugMenuAddCmd("Spawn", "Spawn Phoenix", [](){ VehicleCheat(VT_PHOENIX); });
+		DebugMenuAddCmd("Spawn", "Spawn Stinger", [](){ VehicleCheat(VT_STINGER); });
+		DebugMenuAddCmd("Spawn", "Spawn Chollo", [](){ VehicleCheat(VT_CHOLLO); });
+		DebugMenuAddCmd("Spawn", "Spawn Cuban", [](){ VehicleCheat(VT_CUBAN); });
+		DebugMenuAddCmd("Spawn", "Spawn Voodoo", [](){ VehicleCheat(VT_VOODOO); });
+		DebugMenuAddCmd("Spawn", "Spawn Police", [](){ VehicleCheat(VT_POLICEM); });
+		DebugMenuAddCmd("Spawn", "Spawn Taxi", [](){ VehicleCheat(VT_TAXI); });
+		DebugMenuAddCmd("Spawn", "Spawn PCJ600", [](){ VehicleCheat(VT_PCJ600); });
+		DebugMenuAddCmd("Spawn", "Spawn Sanchez", [](){ VehicleCheat(VT_SANCHEZ); });
+		DebugMenuAddCmd("Spawn", "Spawn Quad", [](){ VehicleCheat(VT_QUAD); });
+		DebugMenuAddCmd("Spawn", "Spawn Maverick", [](){ VehicleCheat(VT_MAVERICK); });
+		DebugMenuAddCmd("Spawn", "Spawn Hunter", [](){ VehicleCheat(VT_HUNTER); });
+/*
+		DebugMenuAddCmd("Spawn", "Spawn 6atv", [](){ VehicleCheat(VT_6ATV); });
+		DebugMenuAddCmd("Spawn", "Spawn Admiral", [](){ VehicleCheat(VT_ADMIRAL); });
+		DebugMenuAddCmd("Spawn", "Spawn Cheetah", [](){ VehicleCheat(VT_CHEETAH); });
+		// autogyro
+		DebugMenuAddCmd("Spawn", "Spawn Baggage", [](){ VehicleCheat(VT_BAGGAGE); });
+		DebugMenuAddCmd("Spawn", "Spawn Banshee", [](){ VehicleCheat(VT_BANSHEE); });
+		DebugMenuAddCmd("Spawn", "Spawn Perennial", [](){ VehicleCheat(VT_PEREN); });
+		DebugMenuAddCmd("Spawn", "Spawn Blista", [](){ VehicleCheat(VT_BLISTAC); });
+		DebugMenuAddCmd("Spawn", "Spawn BMX boy", [](){ VehicleCheat(VT_BMXBOY); });
+		DebugMenuAddCmd("Spawn", "Spawn BMX girl", [](){ VehicleCheat(VT_BMXGIRL); });
+		DebugMenuAddCmd("Spawn", "Spawn Bobcat", [](){ VehicleCheat(VT_BOBCAT); });
+		// bulldozer
+		DebugMenuAddCmd("Spawn", "Spawn Burrito", [](){ VehicleCheat(VT_BURRITO); });
+		DebugMenuAddCmd("Spawn", "Spawn Cabbie", [](){ VehicleCheat(VT_CABBIE); });
+		DebugMenuAddCmd("Spawn", "Spawn Caddy", [](){ VehicleCheat(VT_CADDY); });
+		DebugMenuAddCmd("Spawn", "Spawn Speeder", [](){ VehicleCheat(VT_SPEEDER); });
+		DebugMenuAddCmd("Spawn", "Spawn Pimp", [](){ VehicleCheat(VT_PIMP); });
+		DebugMenuAddCmd("Spawn", "Spawn Deluxo", [](){ VehicleCheat(VT_DELUXO); });
+		// huey
+		DebugMenuAddCmd("Spawn", "Spawn ElectraG", [](){ VehicleCheat(VT_ELECTRAG); });
+		DebugMenuAddCmd("Spawn", "Spawn ElectraP", [](){ VehicleCheat(VT_ELECTRAP); });
+		DebugMenuAddCmd("Spawn", "Spawn Esperanto", [](){ VehicleCheat(VT_ESPERANT); });
+		DebugMenuAddCmd("Spawn", "Spawn FBI car", [](){ VehicleCheat(VT_FBITRUCK); });
+		DebugMenuAddCmd("Spawn", "Spawn Firetruck", [](){ VehicleCheat(VT_FIRETRUK); });
+*/
+	}
 });

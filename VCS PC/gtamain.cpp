@@ -450,6 +450,22 @@ RenderMenus(void)
 		FrontEndMenuManager.DrawFrontEnd();
 }
 
+bool hide2Dstuff = false;
+
+void
+RenderDebugShit(void)
+{
+	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, FALSE);
+	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, FALSE);
+	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
+	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
+	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
+	RwRenderStateSet(rwRENDERSTATEFOGENABLE, FALSE);
+	RwRenderStateSet(rwRENDERSTATECULLMODE, (void*)rwCULLMODECULLNONE);
+
+	DebugMenuRender();
+}
+
 static Reversed Idle_kill(0x53E920, 0x53EC0F);
 void
 Idle(void *arg)
@@ -517,9 +533,10 @@ Idle(void *arg)
 
 		// skipping camera motion blur, not used
 
-		Render2dStuff();
+		RenderDebugShit();
 
-		DebugMenuRender();
+		if(!hide2Dstuff)
+			Render2dStuff();
 	}else{
 		CDraw::CalculateAspectRatio();
 		CameraSize(Scene.camera, NULL, tan(CDraw::ms_fFOV * M_PI / 360.0f), CDraw::ms_fAspectRatio);
@@ -545,8 +562,9 @@ static StaticPatcher Patcher([](){
 	Memory::InjectHook(0x53ECBD, Idle);
 //	Memory::InjectHook(0x735D90, SetLightColoursForPedsCarsAndObjects, PATCH_JUMP);
 
-//	if(DebugMenuLoad()){
+	if(DebugMenuLoad()){
+		DebugMenuAddVarBool8("Misc", "Hide 2D stuff", (int8*)&hide2Dstuff, NULL);
 //		DebugMenuAddVarBool32("Rendering", "Render Transparent Entities", &renderTransparent, NULL);
 //		DebugMenuAddVarBool32("Rendering", "Render Transparent objects in two passes", &renderTwoPasses, NULL);
-//	}
+	}
 });
