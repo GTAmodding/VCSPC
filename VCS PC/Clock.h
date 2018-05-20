@@ -3,7 +3,8 @@
 
 class CClock
 {
-private:
+//private:
+public:
 	static unsigned char&	ms_nGameClockHours;
 	static unsigned char&	ms_nGameClockMinutes;
 	static unsigned short&	ms_nGameClockSeconds;

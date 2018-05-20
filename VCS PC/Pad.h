@@ -158,7 +158,8 @@ public:
 	DWORD				NoShakeBeforeThis;
 	BYTE				NoShakeFreq;
 
-private:
+//private:
+public:
 	static CMouseControllerState&	PCTempMouseControllerState;
 	static CMouseControllerState&	NewMouseControllerState;
 	static CMouseControllerState&	OldMouseControllerState;

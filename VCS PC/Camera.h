@@ -239,6 +239,11 @@ public:
     CAutomobile		*	m_pLastCarEntered;										// 0x22C // So interpolation works
     CPed			*	m_pLastPedLookedAt;										// 0x230 // So interpolation works 
     bool				m_bFirstPersonRunAboutActive;							// 0x234
+
+
+	void Process(void);
+	void GetVectorsReadyForRW(void);
+	void Process_Debug(float*, float, float, float);
 };
 
 struct CQueuedMode
@@ -569,6 +574,8 @@ public:
 	int							GetLookDirection();
 	bool						IsPositionVisible(const CVector& vecPos, float fRadius);
 	bool						IsSphereVisible_(const CVector& center, float fRadius, RwMatrix *mat);
+	void						CopyCameraMatrixToRWCam(bool);
+	void						InitialiseCameraForDebugMode(void);
 };
 
 void CamShakeNoPos(CCamera* pCamera, float fStrength);
