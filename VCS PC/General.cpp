@@ -18,6 +18,9 @@ WRAPPER void CEntity::CleanUpOldReference(CEntity** pAddress) { WRAPARG(pAddress
 WRAPPER void CEntity::Render() { EAXJMP(0x534310); }
 WRAPPER void CEntity::PreRender() { EAXJMP(0x535FA0); }
 
+WRAPPER CVector *__cdecl FindPlayerCentreOfWorld(int nIndex) { EAXJMP(0x56E250); }
+
+
 const unsigned int CKeyGen::keyTable[] = // 0x008CD068
 	{
 		0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,

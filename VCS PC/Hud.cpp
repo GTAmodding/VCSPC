@@ -19,6 +19,8 @@
 #include "TxdStore.h"
 #include "Rs.h"
 #include "Sprite.h"
+#include "Pad.h"
+#include "Radar.h"
 
 bool					CHud::bShouldFPSBeDisplayed;
 bool					CHud::bLCSPS2Style;
@@ -39,7 +41,7 @@ float					CHud::BigMessage3Alpha;
 int&					CHud::m_HelpMessageState = *(int*)0xBAA474;
 short&					CHud::m_ItemToFlash = *(short*)0xBAB1DC;
 char					CHud::m_PagerMessage[16];
-CSprite2d* const		CHud::Sprites = (CSprite2d*)0xBAB1FC;
+CSprite2d   		    CHud::Sprites[NUM_HUD_SPRITES];
 
 static unsigned char	PagerOn;
 static bool				PagerSoundPlayed;
@@ -54,8 +56,9 @@ WRAPPER void CHud::DrawBarChart(float fX, float fY, WORD wWidth, WORD wHeight, f
 	EAXJMP(0x728640); }
 WRAPPER void CHud::DrawAfterFade(void) { EAXJMP(0x58D490); }
 WRAPPER void CHud::SetHelpMessage(const char *text, bool b1, bool b2, bool b3) { EAXJMP(0x588BE0); }
+WRAPPER void CHud::SetMessage(char *text) { EAXJMP(0x588F60); }
 
-static const char* const			HudSpriteFilenames[NUM_HUD_SPRITES] = { "fist", "siteM16", "siterocket", "radardisc", "barOutline", "pager" };
+static const char* const			HudSpriteFilenames[NUM_HUD_SPRITES] = { "fist", "siteM16", "siterocket", "radardisc", "barOutline", "pager", "sitesniper", "sitelaser", "laserdot", "triangle_64", "viewfinder_128"};
 
 void CHud::GetRidOfAllCustomHUDMessages()
 {
@@ -74,7 +77,7 @@ void CHud::GetRidOfAllCustomHUDMessages()
 
 void CHud::Initialise()
 {
-	CPNGArchive		HudSPTA("models\\hud.spta");
+	CPNGArchive		HudSPTA("pc\\textures\\hud.spta");
 
 	// Temp
 	HudSPTA.SetDirectory("weapons");
@@ -268,14 +271,14 @@ void CHud::DrawHUD()
 	_snprintf(string, sizeof(string), moneyText, displayedScore);
 	CFont::SetProportional(false);
 	CFont::SetBackground(0, 0);
-	CFont::SetScale(_width(0.53f), _height(0.95f));
+	CFont::SetScale(_width(0.52f), _height(0.98f));
 	CFont::SetOrientation(ALIGN_Right);
 	CFont::SetRightJustifyWrap(0.0);
 	CFont::SetFontStyle(FONT_Hud);
 	CFont::SetEdge(0);
 	CFont::SetDropColor(CRGBA(0, 0, 0, HUD_TRANSPARENCY_BACK));
 
-	CFont::PrintString(_x(HUD_POS_X - 115.5f), _y(HUD_POS_Y + 37.5f), string);
+	CFont::PrintString(_x(HUD_POS_X - 113.5f), _y(HUD_POS_Y + 37.5f), string);
 
 	// 1st player weapon icon
 	DrawWeaponIcon(playerPed, _x(HUD_POS_X - 58.5f), _y(HUD_POS_Y - 21.0f), HUD_TRANSPARENCY_BACK);
@@ -339,14 +342,21 @@ void CHud::DrawHUD()
 			}
 		}
 
-		Sprites[HUD_Pager].Draw(CRect(_xleft(32.5f - PagerXOffset), _y(117.5f), _xleft(202.5f - PagerXOffset), _y(32.5f)), CRGBA(255, 255, 255, 255));
+        float fTextBoxOffset = 0.0f;
+
+        if (CHud::m_HelpMessageState)
+            fTextBoxOffset = 60.0f;
+        else
+            fTextBoxOffset = 0.0f;
+
+		Sprites[HUD_Pager].Draw(CRect(_xleft(32.5f - PagerXOffset), _y(117.5f + fTextBoxOffset), _xleft(202.5f - PagerXOffset), _y(32.5f + fTextBoxOffset)), CRGBA(255, 255, 255, 255));
 
 		CFont::SetProportional(false);
 		CFont::SetScale(_width(0.5f), _height(1.4f));
 		CFont::SetOrientation(ALIGN_Left);
 		CFont::SetColor(CRGBA(0, 0, 0, 255));
 		CFont::SetFontStyle(FONT_PagerFont);
-		CFont::PrintString(_xleft(50.0f - PagerXOffset), _y(47.5f), m_PagerMessage);
+		CFont::PrintString(_xleft(50.0f - PagerXOffset), _y(47.5f + fTextBoxOffset), m_PagerMessage);
 	}
 }
 
@@ -380,6 +390,119 @@ void CHud::DrawWanted()
 		}
 
 	}
+}
+
+char LaserScopeDot(CVector2D const& coords, float const& fDotSize) {
+    return ((char(__thiscall*)(eWeaponType const&, CVector2D const&, float const&))0x73A8D0)(FindPlayerPed(0)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eWeaponType, coords, fDotSize);
+}
+
+void __cdecl CHud::DrawCrosshairs() {
+    CPed *player = FindPlayerPed(-1);
+    int GetWeaponInfo = CWeaponInfo::GetWeaponInfo((eWeaponType)player->weaponSlots[player->m_bActiveWeapon].m_eWeaponType, 1)->dwModelID;
+    WORD Mode = TheCamera.Cams[TheCamera.ActiveCam].Mode;
+
+    float m_f3rdPersonCHairMultX = *(float*)0xB6EC14;
+    float m_f3rdPersonCHairMultY = *(float*)0xB6EC10;
+
+    float x = RsGlobal.MaximumWidth * m_f3rdPersonCHairMultX;
+    float y = RsGlobal.MaximumHeight * m_f3rdPersonCHairMultY;
+
+    float fHalfSize = 326.0f;
+    CVector2D coords;
+    float fRealDotSize;
+    float f2DDotSizeW;
+    float f2DDotSizeH;
+
+    if (!FindPlayerPed(0)->pPlayerData->m_bHaveTargetSelected) {
+        if (Mode != 53 || !TheCamera.m_bUseTransitionBeta || *(int*)0xA44490) {
+            if (Mode == MODE_AIMWEAPON_FROMCAR || Mode == MODE_AIMWEAPON || Mode == MODE_AIMWEAPON_ATTACHED || Mode == MODE_ROCKETLAUNCHER || Mode == MODE_ROCKETLAUNCHER_HS || Mode == MODE_SNIPER || Mode == MODE_CAMERA) {
+                switch (GetWeaponInfo) {
+                case 357: // Sniper
+                    Sprites[HUD_SiteSniper].Draw(_xmiddle(-fHalfSize), _ymiddle(-fHalfSize), _width(fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Left Top
+                    Sprites[HUD_SiteSniper].Draw(_xmiddle(fHalfSize), _ymiddle(-fHalfSize), _width(-fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Right Top
+                    Sprites[HUD_SiteSniper].Draw(_xmiddle(-fHalfSize), _ymiddle(fHalfSize), _width(fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Left Bottom
+                    Sprites[HUD_SiteSniper].Draw(_xmiddle(fHalfSize), _ymiddle(fHalfSize), _width(-fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Right Bottom
+
+                    // PILLAR BOX
+                    CSprite2d::DrawRect(CRect(-2.0f, -2.0f, (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) + 2.0f + _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
+                    CSprite2d::DrawRect(CRect(RsGlobal.MaximumWidth, -2.0, RsGlobal.MaximumWidth - (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) - 2.0f - _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
+                    break;
+                case 358: // Laser
+                    Sprites[HUD_SiteLaser].Draw(_xmiddle(-fHalfSize), _ymiddle(-fHalfSize), _width(fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Left Top
+                    Sprites[HUD_SiteLaser].Draw(_xmiddle(fHalfSize), _ymiddle(-fHalfSize), _width(-fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Right Top
+                    Sprites[HUD_SiteLaser].Draw(_xmiddle(-fHalfSize), _ymiddle(fHalfSize), _width(fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Left Bottom
+                    Sprites[HUD_SiteLaser].Draw(_xmiddle(fHalfSize), _ymiddle(fHalfSize), _width(-fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Right Bottom
+
+                    RwRenderStateSet(rwRENDERSTATESRCBLEND, reinterpret_cast<void *>(2));
+                    fRealDotSize = 25.0f;
+                    LaserScopeDot(coords, fRealDotSize);
+                    f2DDotSizeW = RsGlobal.MaximumWidth *  0.0015625 * 1.3334 / ScreenAspectRatio * fRealDotSize;
+                    f2DDotSizeH = RsGlobal.MaximumHeight * 0.002232143 * fRealDotSize;
+
+                    Sprites[HUD_LaserDot].Draw(coords.x - f2DDotSizeW / 2, coords.y - f2DDotSizeH / 2, f2DDotSizeW, f2DDotSizeH, CRGBA(155, 0, 0, 105)); // Laser Dot
+                    RwRenderStateSet(rwRENDERSTATESRCBLEND, reinterpret_cast<void *>(-1));
+
+                    // PILLAR BOX
+                    CSprite2d::DrawRect(CRect(-2.0f, -2.0f, (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) + 2.0f + _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
+                    CSprite2d::DrawRect(CRect(RsGlobal.MaximumWidth, -2.0, RsGlobal.MaximumWidth - (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) - 2.0f - _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
+                    break;
+                case 359: // Rocketla
+                    Sprites[HUD_Siterocket].Draw(_xmiddle(-68.0f / 2), _ymiddle(-68.0f / 2), _width(68.0f), _height(68.0f), CRGBA(150, 255, 150, 255));
+                    break;
+                case 367: // Camera
+                    Sprites[HUD_ViewFinder].Draw(CRect(0.0f, 0.0f + RsGlobal.MaximumHeight / 2, 0.0f + RsGlobal.MaximumWidth / 2, 0.0f), CRGBA(255, 255, 255, 255)); // Left Top
+                    Sprites[HUD_ViewFinder].Draw(CRect(RsGlobal.MaximumWidth, 0.0f + RsGlobal.MaximumHeight / 2, RsGlobal.MaximumWidth - RsGlobal.MaximumWidth / 2, 0.0f), CRGBA(255, 255, 255, 255)); // Right Top
+                    Sprites[HUD_ViewFinder].Draw(CRect(0.0f, RsGlobal.MaximumHeight - RsGlobal.MaximumHeight / 2, 0.0f + RsGlobal.MaximumWidth / 2, RsGlobal.MaximumHeight), CRGBA(255, 255, 255, 255)); // Left Bottom
+                    Sprites[HUD_ViewFinder].Draw(CRect(RsGlobal.MaximumWidth, RsGlobal.MaximumHeight - RsGlobal.MaximumHeight / 2, RsGlobal.MaximumWidth - RsGlobal.MaximumWidth / 2, RsGlobal.MaximumHeight), CRGBA(255, 255, 255, 255)); // Right Bottom
+                    break;
+                default:
+                    Sprites[HUD_SiteM16].Draw(x - _width(31.0f / 2), y - _height(29.0f / 2), _width(31.0f), _height(29.0f), CRGBA(255, 255, 255, 255));
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void __cdecl DrawSpriteWithAngle(CSprite2d sprite, float x, float y, float r_angle, unsigned int width, unsigned int height, CRGBA const& color) {
+    CVector2D posn[4];
+
+    posn[0].x = x - width / 1.2f;
+
+    posn[0].y = y + height / 1.2f;
+
+    posn[1].x = x + width / 1.2f;
+
+    posn[1].y = y + height / 1.2f;
+
+    posn[2].x = x - width / 1.2f;
+
+    posn[2].y = y - height / 1.2f;
+
+    posn[3].x = x + width / 1.2f;
+
+    posn[3].y = y - height / 1.2f;
+
+    RotateVertices(posn, 4, x, y, r_angle);
+
+    sprite.Draw(posn[2].x, posn[2].y, posn[3].x, posn[3].y, posn[0].x, posn[0].y, posn[1].x, posn[1].y, CRGBA(color));
+}
+
+void __cdecl CHud::DrawTarget(float a1, float a2, int a3, int a4, int a5, int a6, float a7, unsigned __int8 a8, unsigned __int8 a9, unsigned __int8 a10, __int16 a11, float a12, char a13) {
+    WORD Mode = TheCamera.Cams[TheCamera.ActiveCam].Mode;
+
+    if (a7 >= 10.0)
+        a7 = 10.0;
+    else if (a7 <= 8.0)
+        a7 = 8.0;
+
+    float size = 6.8f;// *(a7 / 8);
+    if (Mode == MODE_AIMWEAPON) {
+        DrawSpriteWithAngle(Sprites[HUD_Triangle], a1 - 32.0f, a2 - 6.0f, -0.6, _width(size), _width(size), CRGBA(a8, a9, a10, a11)); // Left
+        DrawSpriteWithAngle(Sprites[HUD_Triangle], a1 + 32.0f, a2 - 6.0f, 3.8, _width(size), _width(size), CRGBA(a8, a9, a10, a11)); // Right
+
+        DrawSpriteWithAngle(Sprites[HUD_Triangle], a1, a2 + 52.0f, 1.6, _width(size), _width(size), CRGBA(a8, a9, a10, a11)); // Bottom
+    }
 }
 
 void CHud::DrawOnscreenTimer()
@@ -1133,64 +1256,14 @@ void CHud::DrawBarChartWithRoundBorder(float fX, float fY, WORD wWidth, WORD wHe
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, FALSE);
 }
 
-/*void CHud::DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor)
-{
-	CRect coords;
-
-	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, NULL);
-	RwRenderStateSet(rwRENDERSTATESHADEMODE, (void*)rwSHADEMODEFLAT);
-
-	wHeight /= 2.0;
-	fY += wHeight;
-	if (fPercentage < 0.0)
-		fPercentage = 0.0;
-	if ( drawBorder )
-	{
-		/*RwRGBA backColour(0, 0, 0, 255);
-
-		coords.x1 = fX - (_x((640.0 - 1.0 * drawBorder)));
-		coords.y1 = fY - (_y(1.0 * drawBorder));
-		coords.x2 = fX + wWidth + (_width(1.0 * drawBorder));
-		coords.y2 = fY + wHeight + (_height(1.0 * drawBorder));
-		CDraw::Rect(&coords, &backColour);*/
-
-/*		CDraw::Rect(&CRect(	fX - (_x((640.0 - 1.0 * drawBorder))),
-								fY - (_y(1.0 * drawBorder)),
-								fX + wWidth + (_width(1.0 * drawBorder)),
-								fY + wHeight + (_height(1.0 * drawBorder))),
-					&CRGBA(0, 0, 0, 255));
-	}
-	if ( drawShadow )
-	{
-		CRGBA shadowColour(0, 0, 0, 200);
-
-		coords.x1 = fX + (_x((640.0 - 2.0 * drawShadow)));
-		coords.y1 = fY + (_y(2.0 * drawShadow));
-		coords.x2 = fX + wWidth + (_width(2.0 * drawShadow));
-		coords.y2 = fY + wHeight + (_height(2.0 * drawShadow));
-		CDraw::Rect(&coords, &shadowColour);
-	}
-	CRGBA whiteColour(255, 255, 255, 255);
-
-	coords.x1 = fX;
-	coords.y1 = fY;
-	coords.x2 = fX + wWidth;
-	coords.y2 = fY + wHeight;
-	CDraw::Rect(&coords, &whiteColour);
-	coords.x2 = fX + wWidth * ((fPercentage + 1.0) / 100.0);
-	CDraw::Rect(&coords, &dwColour);
-}*/
-
-// This is just ugh
-
 static void DrawProgressBar(float x, float y, float width, float height, float progress, bool border, bool shadow) {
     // Shadow
     if (shadow)
-        CSprite2d::DrawRect(CRect((x + (10.0f)), (y + (10.0f)), (x + (10.0f) + width + (2.0f)), (y + (10.0f) + height + (4.0f))),
+        CSprite2d::DrawRect(CRect((x + 10.0f), (y + 10.0f), (x + 10.0f + width + 2.0f), (y + 10.0f + height + 4.0f)),
             CRGBA(0, 0, 0, 205));
     // Border
     if (border)
-        CSprite2d::DrawRect(CRect((x - (2.0f)), (y - (2.0f)), (x - (2.0f) + width + (6.0f)), (y - (2.0f) + height + (6.0f))),
+        CSprite2d::DrawRect(CRect((x - 2.0f), (y - 2.0f), (x - 2.0f + width + 4.0f), (y - 2.0f + height + 4.0f)),
             CRGBA(0, 0, 0, 255));
     // progress value is 0.0 - 100.0
     if (progress >= 100.0f)
@@ -1206,55 +1279,8 @@ static void DrawProgressBar(float x, float y, float width, float height, float p
     }
 }
 
-void CHud::DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor)
-{
+void CHud::DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor) {
     DrawProgressBar(_xleft(42.0f) / ScreenAspectRatio + _xmiddle(-320), fY, _width(174.0f), _height(12.0f), fPercentage, 1, 1);
-	/*CRect coords;
-
-	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nullptr);
-	RwRenderStateSet(rwRENDERSTATESHADEMODE, (void*)rwSHADEMODEFLAT);
-
-	wWidth *= ScreenAspectRatio * (3.0f/4.0f);
-
-	wHeight /= 2.0;
-	fY += wHeight;
-	if (fPercentage < 0.0)
-		fPercentage = 0.0;
-	if ( drawBorder )
-	{
-		/*RwRGBA backColour(0, 0, 0, 255);
-
-		coords.x1 = fX - (_x((640.0 - 1.0 * drawBorder)));
-		coords.y1 = fY - (_y(1.0 * drawBorder));
-		coords.x2 = fX + wWidth + (_width(1.0 * drawBorder));
-		coords.y2 = fY + wHeight + (_height(1.0 * drawBorder));
-		CDraw::Rect(&coords, &backColour);*/
-
-	/*	CSprite2d::DrawRect(CRect(	fX - (_xleft((1.0 * drawBorder))),
-								fY - (_y(1.0 * drawBorder)),
-								fX + wWidth + (_width(1.0 * drawBorder)),
-								fY + wHeight + (_height(1.0 * drawBorder))),
-					CRGBA(0, 0, 0, 255));
-	}*/
-	/*if ( drawShadow )
-	{
-		CRGBA shadowColour(0, 0, 0, 200);
-
-		coords.x1 = fX + (_xleft((2.0 * drawShadow)));
-		coords.y1 = fY + (_y(2.0 * drawShadow));
-		coords.x2 = fX + wWidth + (_width(2.0 * drawShadow));
-		coords.y2 = fY + wHeight + (_height(2.0 * drawShadow));
-		CSprite2d::DrawRect(coords, shadowColour);
-	}
-	CRGBA whiteColour(255, 255, 255, 255);
-
-	coords.x1 = fX;
-	coords.y1 = fY;
-	coords.x2 = fX + wWidth;
-	coords.y2 = fY + wHeight;
-	CSprite2d::DrawRect(coords, whiteColour);
-	coords.x2 = fX + wWidth * ((fPercentage + 1.0) / 100.0);
-	CSprite2d::DrawRect(coords, dwColour);*/
 }
 
 float CHud::GetYPosBasedOnHealth(unsigned char plrID, float position, signed char offset)

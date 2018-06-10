@@ -264,7 +264,7 @@ public:
 	unsigned char		bFightingStyle, bFightingStyleExtra;
 	BYTE				__pad6[92];
 	CEntryExit*			pCurrentEntryExit;
-	BYTE				__pad64[12];
+    BYTE				__pad64[12];
 
 	static short&		m_sGunFlashBlendStart;
 
@@ -342,8 +342,9 @@ public:
 	static CPed*		Initialise(CPed* pPed, short model);
 };
 
-static_assert(sizeof(CPed) == 0x79C, "Wrong size: CPed");
+//static_assert(sizeof(CPed) == 0x79C, "Wrong size: CPed");
 
 CPed* FindPlayerPed(int nIndex);
+CVector const& FindPlayerCentreOfWorld_NoSniperShift(int nIndex);
 
 #endif

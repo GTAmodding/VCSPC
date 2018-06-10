@@ -16,4 +16,6 @@ public:
 	static void Process(void);
 };
 
+extern bool bEntryExitCheck;
+
 #endif

@@ -11,7 +11,7 @@
 
 // Static variables
 float		C3dMarkers::m_PosZMult;
-const float	C3dMarkers::m_MovingMultiplier = 0.25f;
+const float	C3dMarkers::m_MovingMultiplier = 0.40f;
 
 RpClump	**C3dMarkers::m_pRpClumpArray = (RpClump**)0xC7C6DC;
 C3dMarker *C3dMarkers::m_aMarkerArray = (C3dMarker*)0xC7DD58;
@@ -37,7 +37,12 @@ C3dMarkers::Init(void)
 		marker->m_color.green = 255;
 		marker->m_color.blue = 255;
 		marker->m_color.alpha = 255;
-		marker->m_nPulsePeriod = 1024;
+
+        if (marker->m_nType == 6 || marker->m_nType == 0)
+            marker->m_nPulsePeriod = 1024;
+        else
+            marker->m_nPulsePeriod = 2048;
+
 		marker->m_nRotateRate = 5;
 		marker->m_nStartTime = 0;
 		marker->m_fPulseFraction = 0.25;
@@ -124,13 +129,77 @@ WRAPPER C3dMarker* C3dMarkers::PlaceMarker(unsigned int nIndex, unsigned short m
 
 void C3dMarkers::PlaceMarkerSet(unsigned int nIndex, unsigned short markerID, CVector& vecPos, float fSize, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha, unsigned short pulsePeriod, float pulseFraction)
 {
-	PlaceMarker(nIndex, markerID, vecPos, fSize, red, green, blue, static_cast<unsigned char>(alpha * (1.0f/3.0f)), pulsePeriod, pulseFraction, 1, 0.0, 0.0, 0.0, false);
-	PlaceMarker(nIndex, markerID, vecPos, fSize * 0.9f, red, green, blue, static_cast<unsigned char>(alpha * (1.0f/3.0f)), pulsePeriod, pulseFraction, -1, 0.0, 0.0, 0.0, false);
+    C3dMarker *marker = (C3dMarker*)0xC7DD58;
+    static int nTime;
+
+    if (marker->m_nType == 6 || marker->m_nType == 0)
+        nTime = 1024;
+    else
+        nTime = 2048;
+
+    PlaceMarker(nIndex, markerID, vecPos, fSize, red, green, blue, static_cast<unsigned char>(alpha * (1.0f/3.0f)), nTime, pulseFraction, 1, 0.0, 0.0, 0.0, false);
+	PlaceMarker(nIndex, markerID, vecPos, fSize * 0.9f, red, green, blue, static_cast<unsigned char>(alpha * (1.0f/3.0f)), nTime, pulseFraction, -1, 0.0, 0.0, 0.0, false);
+}
+
+void __cdecl C3dMarkers::PlaceMarkerCone(int id, CVector& posn, float size, char r, char g, char b, int alpha, __int16 pulsePeriod, float pulseFraction, int type, char bEnableCollision) {
+    CVector *coords;
+    C3dMarker *marker = (C3dMarker*)0xC7DD58;
+    double fX;
+    double fY; 
+    double fZ; 
+    auto m_colDiamond = *(char*)0x8D5D8B;
+    int n_RotateRate;
+
+    if (TheCamera.GetMatrix()->pMatrix)
+        coords = &(CVector)TheCamera.GetMatrix()->matrix.pos;
+    else
+        coords = &TheCamera.GetTransform().m_translate;
+    fX = posn.x - coords->x;
+    fY = posn.y - coords->y;
+    fZ = posn.z - coords->z;
+
+    if (sqrt(fZ * fZ + fX * fX + fY * fY) >= 1.6) {
+        if (bEnableCollision)
+            C3dMarkers::PlaceMarker(
+                id,
+                5u,
+                posn,
+                size,
+                0x1E,
+                0xFF,
+                0xFF,
+                m_colDiamond,
+                1024,
+                pulseFraction,
+                0,
+                0.0,
+                0.0,
+                1.0,
+                0);
+        else
+            C3dMarkers::PlaceMarker(
+                id,
+                6u,
+                posn,
+                size,
+                0x1E,
+                0xFF,
+                0xFF,
+                m_colDiamond,
+                1024,
+                pulseFraction,
+                0,
+                0.0,
+                0.0,
+                1.0,
+                0);
+    }
 }
 
 long double C3dMarker::CalculateRealSize()
 {
 	long double		fVariable = (((m_nPulsePeriod - 1)) & ( CTimer::m_snTimeInMilliseconds /*- m_nStartTime*/ ));
+
 	return (2 * M_PI) * fVariable / static_cast<long double>(m_nPulsePeriod);
 }
 
@@ -226,9 +295,10 @@ static StaticPatcher	Patcher([](){
 	// New style of markers
 	// What is this?
 	InjectHook(0x725BA0, &C3dMarkers::PlaceMarkerSet, PATCH_JUMP);
+    InjectHook(0x440F4E, &C3dMarkers::PlaceMarkerCone);
 
 	// Enex markers RGB
-	InjectHook(0x440F38, EnexMarkersColorBreak, PATCH_JUMP);
+	//InjectHook(0x440F38, EnexMarkersColorBreak, PATCH_JUMP);
 
 	// arrow.dff as marker
 	Patch<const float*>(0x725636, C3dMarkers::GetPosZMult());

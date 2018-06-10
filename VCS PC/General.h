@@ -113,7 +113,7 @@ public:
 
 class CPlaceable
 {
-private:
+public:
     CSimpleTransform				m_transform;
     CMatrix*						m_pCoords;
 
@@ -409,5 +409,7 @@ extern CCRC32				HashHelper;
 
 static_assert(sizeof(CEntity) == 0x38, "Wrong size: CEntity");
 static_assert(sizeof(CPhysical) == 0x138, "Wrong size: CPhysical");
+
+CVector *__cdecl FindPlayerCentreOfWorld(int nIndex);
 
 #endif

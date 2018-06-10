@@ -1,14 +1,38 @@
 #include "StdAfx.h"
 #include "Radar.h"
+#include "Frontend.h"
 
 #include "PlayerInfo.h"
 #include "World.h"
+#include "Hud.h"
 
-CSprite2d* const	CRadar::RadarBlipSprites = (CSprite2d*)0xBAA250;
+float &CRadar::m_radarRange = *(float *)0xBA8314;
+unsigned short *CRadar::MapLegendList = (unsigned short *)0xBA8318;
+unsigned short &CRadar::MapLegendCounter = *(unsigned short *)0xBA86B8;
+CRGBA *CRadar::ArrowBlipColour = (CRGBA *)0xBA86D4;
+tRadarTrace *CRadar::ms_RadarTrace = (tRadarTrace *)0xBA86F0;
+CVector2D &CRadar::vec2DRadarOrigin = *(CVector2D *)0xBAA248;
+CSprite2d *CRadar::RadarBlipSprites = (CSprite2d *)0xBAA250;
+CRect &CRadar::m_radarRect = *(CRect *)0x8D0920;
+unsigned char &CRadar::airstrip_location = *(unsigned char *)0xBA8300;
+int &CRadar::airstrip_blip = *(int *)0xBA8304;
 
 WRAPPER void CRadar::Initialise(void) { EAXJMP(0x587FB0); }
 WRAPPER void CRadar::ChangeBlipBrightness(int nBlipID, int nBrightness) { WRAPARG(nBlipID); WRAPARG(nBrightness); EAXJMP(0x583C70); }
 WRAPPER void CRadar::DrawRadarSection(int nX, int nY) { WRAPARG(nX); WRAPARG(nY); EAXJMP(0x586110); }
+WRAPPER void CRadar::InitFrontEndMap() { EAXJMP(0x585960); }
+WRAPPER void CRadar::DrawLegend(int x, int y, int blipType) { WRAPARG(x); WRAPARG(y);  WRAPARG(blipType); EAXJMP(0x5828A0); }
+WRAPPER void CRadar::LimitToMap(float* pX, float* pY) { WRAPARG(pX); WRAPARG(pY); EAXJMP(0x583350); }
+WRAPPER void CRadar::AddBlipToLegendList(unsigned char arg0, int blipArrId) { WRAPARG(arg0); WRAPARG(blipArrId); EAXJMP(0x5859F0); }
+WRAPPER void CRadar::DrawRadarSectionMap(int x, int y, CRect rect) { WRAPARG(x); WRAPARG(y); WRAPARG(rect); EAXJMP(0x586520); }
+WRAPPER bool CRadar::DisplayThisBlip(int spriteId, char priority) { WRAPARG(spriteId); WRAPARG(priority); EAXJMP(0x583B40); }
+WRAPPER void CRadar::TransformRealWorldPointToRadarSpace(CVector2D& out, CVector2D const& in) { WRAPARG(out); WRAPARG(in); EAXJMP(0x583530); }
+WRAPPER float CRadar::LimitRadarPoint(CVector2D& point) { WRAPARG(point); EAXJMP(0x5832F0); }
+WRAPPER void CRadar::DrawBlips() {EAXJMP(0x588050); }
+
+WRAPPER void CRadar::ClearBlip(int blipIndex) { WRAPARG(blipIndex);  EAXJMP(0x587CE0); }
+WRAPPER void CRadar::SetBlipSprite(int blipIndex, int spriteId) { WRAPARG(blipIndex); WRAPARG(spriteId); EAXJMP(0x583D70); }
+WRAPPER int CRadar::SetCoordBlip(eBlipType type, float x, float y, float z, int a5, eBlipDisplay display) { WRAPARG(type); WRAPARG(x); WRAPARG(y); WRAPARG(z);  WRAPARG(a5); WRAPARG(display); EAXJMP(0x583D70); }
 
 static const char* const RadarBlipSpriteFilenames[NUM_BLIP_SPRITES] = { "", "", "radar_centre", "arrow", 
 																		"radar_north", "", "radar_gun", "radar_bomb",
@@ -135,7 +159,7 @@ return 0x00FF00FF;
 
 void CRadar::LoadTextures()
 {
-	CPNGArchive		HudSPTA("models\\hud.spta");
+	CPNGArchive		HudSPTA("pc\\textures\\hud.spta");
 	HudSPTA.SetDirectory("blips");
 
 	for ( int i = 0; i < NUM_BLIP_SPRITES; ++i )
@@ -268,6 +292,66 @@ static void __declspec(naked)	BlipAlphaHook()
 	}
 }
 
+void CRadar::DrawRadarSprites(BYTE iconID, float x, float y, unsigned __int8 alpha) {
+
+    if (FrontEndMenuManager.m_bMenuActive) {
+        float w = _width(7.5f);
+        float h = _height(7.5f);
+
+        if (FrontEndMenuManager.drawRadarOrMap) {
+            x = (RsGlobal.MaximumWidth * 0.0015625) * x * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
+            y = RsGlobal.MaximumHeight  * 0.002232143 * y;
+            CRadar::LimitToMap(&x, &y);
+        }
+
+        if (CRadar::DisplayThisBlip(iconID, -99)) {
+            CRadar::RadarBlipSprites[iconID].Draw(CRect(x - (w), y + (h), x + (w), y - (h)), CRGBA(255, 255, 255, alpha));
+            CRadar::AddBlipToLegendList(0, iconID);
+        }
+    }
+    else
+        ((void(__cdecl*)(BYTE, float, float, unsigned __int8))0x585FF0)(iconID, x, y, alpha);
+}
+
+void CRadar::ShowRadarTraceWithHeight(float x, float y, unsigned int size, unsigned __int8 r, unsigned __int8 g, unsigned __int8 b, unsigned __int8 a, unsigned __int8 type_or_height) {
+    if (FrontEndMenuManager.m_bMenuActive) {
+        float w = _width(7.5f);
+        float h = _height(7.5f);
+
+        if (FrontEndMenuManager.drawRadarOrMap) {
+            x = (RsGlobal.MaximumWidth * 0.0015625) * x * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
+            y = RsGlobal.MaximumHeight  * 0.002232143 * y;
+            CRadar::LimitToMap(&x, &y);
+        }
+        /* // TODO: object level.
+        if (type_or_height == 0) // higher
+
+        else if (type_or_height == 1) // lower
+
+        else if (type_or_height == 2) // level
+        */
+    }
+    else
+        ((void(__cdecl*)(float, float, unsigned int, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8, unsigned __int8))0x584070)(x, y, size, r, g, b, a, type_or_height);
+}
+
+void __fastcall CRadar::DrawRadarCircle(CSprite2d *sprite, int, CRect *rect, CRGBA *color) {
+    CHud::Sprites[HUD_Radardisc].Draw(CRect(*rect), *color);
+}
+
 static StaticPatcher	Patcher([](){ 
-						//Memory::InjectHook(0x586F34, BlipAlphaHook, PATCH_JUMP); 
-									});
+				//Memory::InjectHook(0x586F34, BlipAlphaHook, PATCH_JUMP); 
+                Memory::InjectHook(0x586F3C, CRadar::DrawRadarSprites);
+                Memory::InjectHook(0x587BD9, CRadar::DrawRadarSprites);
+                Memory::InjectHook(0x588188, CRadar::DrawRadarSprites);
+
+                Memory::InjectHook(0x586FE0, CRadar::ShowRadarTraceWithHeight);
+                Memory::InjectHook(0x58736B, CRadar::ShowRadarTraceWithHeight);
+                Memory::InjectHook(0x58766E, CRadar::ShowRadarTraceWithHeight);
+                Memory::InjectHook(0x587B7C, CRadar::ShowRadarTraceWithHeight);
+
+                Memory::InjectHook(0x58A823, CRadar::DrawRadarCircle);
+                Memory::InjectHook(0x58A8CD, CRadar::DrawRadarCircle);
+                Memory::InjectHook(0x58A977, CRadar::DrawRadarCircle);
+                Memory::InjectHook(0x58AA25, CRadar::DrawRadarCircle);
+			});

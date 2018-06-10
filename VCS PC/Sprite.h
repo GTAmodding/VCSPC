@@ -32,7 +32,7 @@ public:
 
 class CSprite2d
 {
-private:
+public:
 	RwTexture*		 m_pTexture;
 
 public:
@@ -57,11 +57,14 @@ public:
 	void				Draw(const CRect& rect, const CRGBA& colour);
 	void				Draw(float fPosX, float fPosY, float fWidth, float fHeight, const CRGBA& colour);
 	void				Draw(float fX1, float fY1, float fX2, float fY2, float fX3, float fY3, float fX4, float fY4, const CRGBA& colour);
+    static void         Draw2DPolygon(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, CRGBA const&  color);
+    void                Draw(CRect const& rect, CRGBA const& color, float u1, float v1, float u2, float v2, float u3, float v3, float u4, float v4);
 
 	static void			InitPerFrame();
 	static void			SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4);
 	static void			SetVertices(const CRect&, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&, float, float, float, float, float, float, float, float);
 	static void			SetVertices(float, float, float, float, float, float, float, float, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&);
+    static void         SetVertices(int numVerts, float const& v2d1, float const& v2d2, CRGBA const& pRGBA);
 	static void			DrawRect(const CRect& rect, const CRGBA& colour);
 	static void			DrawRect(const CRect& rect, const CRGBA& c1, const CRGBA& c2, const CRGBA& c3, const CRGBA& c4);
 	static void			DrawAnyRect(float fX1, float fY1, float fX2, float fY2, float fX3, float fY3, float fX4, float fY4, const CRGBA& c1, const CRGBA& c2, const CRGBA& c3, const CRGBA& c4);

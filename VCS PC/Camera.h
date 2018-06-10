@@ -560,6 +560,7 @@ public:
 	int field_D4C;
 	int field_D50;
 
+    float Find3rdPersonQuickAimPitch(CCamera* pCamera);
 
 	// VCS PC class extension
 	static bool					bDontTouchFOVInWidescreen;

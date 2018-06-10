@@ -19,6 +19,7 @@ WRAPPER void CPed::ResetGunFlashAlpha() { EAXJMP(0x5DF4E0); }
 WRAPPER void CPed::FindWeaponLockOnTarget() { EAXJMP(0x60DC50); }
 
 WRAPPER CPed* FindPlayerPed(int nIndex) { EAXJMP(0x56E210); }
+WRAPPER CVector const& FindPlayerCentreOfWorld_NoSniperShift(int nIndex) { EAXJMP(0x56E320); }
 
 short&			CPed::m_sGunFlashBlendStart = *(short*)0x8D1370;
 

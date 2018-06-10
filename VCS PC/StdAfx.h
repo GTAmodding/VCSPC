@@ -219,6 +219,12 @@ extern char					gUString[552];
 extern CCRC32				HashHelper;
 
 extern bool                 bNoOutro;
+extern bool                 bNoAudio;
+extern void                 InitExtraStuff();
+
+extern void                 PatchStats();
+
+extern void                 RotateVertices(CVector2D *rect, unsigned int numVerts, float x, float y, float angle);
 
 #ifdef INCLUDE_MULTIFONTFILES
 extern bool					bCanReloadFonts;

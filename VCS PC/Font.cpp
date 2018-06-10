@@ -609,116 +609,116 @@ char* CFont::ParseToken(char* pText, CRGBA& rColor, bool bIgnoreColors, char* pC
 static Reversed Initialise_kill(0x5BA690, 0x5BA84F);
 void CFont::Initialise()
 {
-	int		nSlot = CTxdStore::AddTxdSlot("fonts");
-	CTxdStore::LoadTxd(nSlot, "models\\fonts.txd");
-	CTxdStore::AddRef(nSlot);
-	CTxdStore::PushCurrentTxd();
-	CTxdStore::SetCurrentTxd(nSlot);
+    int		nSlot = CTxdStore::AddTxdSlot("fonts");
+    CTxdStore::LoadTxd(nSlot, "pc\\textures\\fonts.txd");
+    CTxdStore::AddRef(nSlot);
+    CTxdStore::PushCurrentTxd();
+    CTxdStore::SetCurrentTxd(nSlot);
 
-	Sprite[0].SetTexture("font1", "");
-	Sprite[1].SetTexture("font2", "");
-	Sprite[2].SetTexture("font3", "");
-	Sprite[3].SetTexture("font4", "");
+    Sprite[0].SetTexture("fancytext", "");
+    Sprite[1].SetTexture("gametext", "");
+    Sprite[2].SetTexture("pagertext", "");
+    Sprite[3].SetTexture("bigtext", "");
 
-	/*CPNGArchive		FontsSPTA("models\\fonts.spta");
-	FontsSPTA.SetDirectory(nullptr);
+    /*CPNGArchive		FontsSPTA("models\\fonts.spta");
+    FontsSPTA.SetDirectory(nullptr);
 
-	Sprite[0].SetTextureFromSPTA(FontsSPTA, "font1");
-	Sprite[1].SetTextureFromSPTA(FontsSPTA, "font2");
-	Sprite[2].SetTextureFromSPTA(FontsSPTA, "font3");
-	Sprite[3].SetTextureFromSPTA(FontsSPTA, "font4");
+    Sprite[0].SetTextureFromSPTA(FontsSPTA, "font1");
+    Sprite[1].SetTextureFromSPTA(FontsSPTA, "font2");
+    Sprite[2].SetTextureFromSPTA(FontsSPTA, "font3");
+    Sprite[3].SetTextureFromSPTA(FontsSPTA, "font4");
 
-	FontsSPTA.CloseArchive();*/
+    FontsSPTA.CloseArchive();*/
 
-	// TODO: Dummy CFont stuff may not be needed at all?
-	LoadFontValues();
+    // TODO: Dummy CFont stuff may not be needed at all?
+    LoadFontValues();
 
-	CTxdStore::PopCurrentTxd();
+    CTxdStore::PopCurrentTxd();
 
-	InitialiseButtons();
+    InitialiseButtons();
 }
 
 void CFont::InitialiseButtons()
 {
-	int nSlot = CTxdStore::AddTxdSlot("buttons");
-	CTxdStore::LoadTxd(nSlot, bX360Buttons ? "models\\360btns.txd" : "models\\ps3btns.txd");
-	CTxdStore::AddRef(nSlot);
-	CTxdStore::PushCurrentTxd();
-	CTxdStore::SetCurrentTxd(nSlot);
+    int nSlot = CTxdStore::AddTxdSlot("buttons");
+    CTxdStore::LoadTxd(nSlot, bX360Buttons ? "pc\\textures\\buttons_360.txd" : "pc\\textures\\buttons_ps3.txd");
+    CTxdStore::AddRef(nSlot);
+    CTxdStore::PushCurrentTxd();
+    CTxdStore::SetCurrentTxd(nSlot);
 
-	PS2Sprite[BUTTON_UP].SetTexture("up", "");
-	PS2Sprite[BUTTON_DOWN].SetTexture("down", "");
-	PS2Sprite[BUTTON_LEFT].SetTexture("left", "");
-	PS2Sprite[BUTTON_RIGHT].SetTexture("right", "");
+    PS2Sprite[BUTTON_UP].SetTexture("up", "");
+    PS2Sprite[BUTTON_DOWN].SetTexture("down", "");
+    PS2Sprite[BUTTON_LEFT].SetTexture("left", "");
+    PS2Sprite[BUTTON_RIGHT].SetTexture("right", "");
 
-	PS2Sprite[BUTTON_CROSS].SetTexture("cross", "");
-	PS2Sprite[BUTTON_CIRCLE].SetTexture("circle", "");
-	PS2Sprite[BUTTON_SQUARE].SetTexture("square", "");
-	PS2Sprite[BUTTON_TRIANGLE].SetTexture("triangle", "");
+    PS2Sprite[BUTTON_CROSS].SetTexture("cross", "");
+    PS2Sprite[BUTTON_CIRCLE].SetTexture("circle", "");
+    PS2Sprite[BUTTON_SQUARE].SetTexture("square", "");
+    PS2Sprite[BUTTON_TRIANGLE].SetTexture("triangle", "");
 
-	PS2Sprite[BUTTON_L1].SetTexture("l1", "");
-	PS2Sprite[BUTTON_L2].SetTexture("l2", "");
-	PS2Sprite[BUTTON_L3].SetTexture("l3", "");
-	PS2Sprite[BUTTON_R1].SetTexture("r1", "");		
-	PS2Sprite[BUTTON_R2].SetTexture("r2", "");	
-	PS2Sprite[BUTTON_R3].SetTexture("r3", "");
+    PS2Sprite[BUTTON_L1].SetTexture("l1", "");
+    PS2Sprite[BUTTON_L2].SetTexture("l2", "");
+    PS2Sprite[BUTTON_L3].SetTexture("l3", "");
+    PS2Sprite[BUTTON_R1].SetTexture("r1", "");
+    PS2Sprite[BUTTON_R2].SetTexture("r2", "");
+    PS2Sprite[BUTTON_R3].SetTexture("r3", "");
 
-	PS2Sprite[BUTTON_START].SetTexture("start", "");
-	PS2Sprite[BUTTON_SELECT].SetTexture("select", "");
+    PS2Sprite[BUTTON_START].SetTexture("start", "");
+    PS2Sprite[BUTTON_SELECT].SetTexture("select", "");
 
-	PS2Sprite[BUTTON_UPDOWN].SetTexture("dud", "");
-	PS2Sprite[BUTTON_LEFTRIGHT].SetTexture("dlr", "");
+    PS2Sprite[BUTTON_UPDOWN].SetTexture("dud", "");
+    PS2Sprite[BUTTON_LEFTRIGHT].SetTexture("dlr", "");
 
-	PS2Sprite[BUTTON_THUMBL].SetTexture("thumbl", "");
-	PS2Sprite[BUTTON_THUMBLX].SetTexture("thumblx", "");
-	PS2Sprite[BUTTON_THUMBLXL].SetTexture("thumblxl", "");
-	PS2Sprite[BUTTON_THUMBLXR].SetTexture("thumblxr", "");
-	PS2Sprite[BUTTON_THUMBLY].SetTexture("thumbly", "");
-	PS2Sprite[BUTTON_THUMBLYU].SetTexture("thumblyu", "");
-	PS2Sprite[BUTTON_THUMBLYD].SetTexture("thumblyd", "");
+    PS2Sprite[BUTTON_THUMBL].SetTexture("thumbl", "");
+    PS2Sprite[BUTTON_THUMBLX].SetTexture("thumblx", "");
+    PS2Sprite[BUTTON_THUMBLXL].SetTexture("thumblxl", "");
+    PS2Sprite[BUTTON_THUMBLXR].SetTexture("thumblxr", "");
+    PS2Sprite[BUTTON_THUMBLY].SetTexture("thumbly", "");
+    PS2Sprite[BUTTON_THUMBLYU].SetTexture("thumblyu", "");
+    PS2Sprite[BUTTON_THUMBLYD].SetTexture("thumblyd", "");
 
-	PS2Sprite[BUTTON_THUMBR].SetTexture("thumbr", "");
-	PS2Sprite[BUTTON_THUMBRX].SetTexture("thumbrx", "");
-	PS2Sprite[BUTTON_THUMBRXL].SetTexture("thumbrxl", "");
-	PS2Sprite[BUTTON_THUMBRXR].SetTexture("thumbrxr", "");
-	PS2Sprite[BUTTON_THUMBRY].SetTexture("thumbry", "");
-	PS2Sprite[BUTTON_THUMBRYU].SetTexture("thumbryu", "");
-	PS2Sprite[BUTTON_THUMBRYD].SetTexture("thumbryd", "");
+    PS2Sprite[BUTTON_THUMBR].SetTexture("thumbr", "");
+    PS2Sprite[BUTTON_THUMBRX].SetTexture("thumbrx", "");
+    PS2Sprite[BUTTON_THUMBRXL].SetTexture("thumbrxl", "");
+    PS2Sprite[BUTTON_THUMBRXR].SetTexture("thumbrxr", "");
+    PS2Sprite[BUTTON_THUMBRY].SetTexture("thumbry", "");
+    PS2Sprite[BUTTON_THUMBRYU].SetTexture("thumbryu", "");
+    PS2Sprite[BUTTON_THUMBRYD].SetTexture("thumbryd", "");
 
-	/*nTexSlot = CTxdStore::FindTxdSlot("sixaxis");
-	if ( nTexSlot == -1 )
-		nTexSlot = CTxdStore::AddTxdSlot("sixaxis");
+    /*nTexSlot = CTxdStore::FindTxdSlot("sixaxis");
+    if ( nTexSlot == -1 )
+    nTexSlot = CTxdStore::AddTxdSlot("sixaxis");
 
-	CTxdStore::LoadTxd(nTexSlot, "models\\sixaxis.txd");
-	CTxdStore::AddRef(nTexSlot);
-	CTxdStore::SetCurrentTxd(nTexSlot);
+    CTxdStore::LoadTxd(nTexSlot, "models\\sixaxis.txd");
+    CTxdStore::AddRef(nTexSlot);
+    CTxdStore::SetCurrentTxd(nTexSlot);
 
-	PS2Sprite[BUTTON_SIXAXIS_1].SetTexture("sixaxis1", "");
-	PS2Sprite[BUTTON_SIXAXIS_2].SetTexture("sixaxis2", "");
-	PS2Sprite[BUTTON_SIXAXIS_3].SetTexture("sixaxis3", "");
-	PS2Sprite[BUTTON_SIXAXIS_4].SetTexture("sixaxis4", "");*/
+    PS2Sprite[BUTTON_SIXAXIS_1].SetTexture("sixaxis1", "");
+    PS2Sprite[BUTTON_SIXAXIS_2].SetTexture("sixaxis2", "");
+    PS2Sprite[BUTTON_SIXAXIS_3].SetTexture("sixaxis3", "");
+    PS2Sprite[BUTTON_SIXAXIS_4].SetTexture("sixaxis4", "");*/
 
-	nSlot = CTxdStore::FindTxdSlot("pcbtns");
-	if ( nSlot == -1 )
-		nSlot = CTxdStore::AddTxdSlot("pcbtns");
+    nSlot = CTxdStore::FindTxdSlot("pcbtns");
+    if (nSlot == -1)
+        nSlot = CTxdStore::AddTxdSlot("pcbtns");
 
-	CTxdStore::LoadTxd(nSlot, "models\\pcbtns.txd");
-	CTxdStore::AddRef(nSlot);
-	CTxdStore::SetCurrentTxd(nSlot);
+    CTxdStore::LoadTxd(nSlot, "pc\\textures\\buttons_pc.txd");
+    CTxdStore::AddRef(nSlot);
+    CTxdStore::SetCurrentTxd(nSlot);
 
-	PS2Sprite[BUTTON_PC_UP].SetTexture("up", "");
-	PS2Sprite[BUTTON_PC_DOWN].SetTexture("down", "");
-	PS2Sprite[BUTTON_PC_LEFT].SetTexture("left", "");
-	PS2Sprite[BUTTON_PC_RIGHT].SetTexture("right", "");
+    PS2Sprite[BUTTON_PC_UP].SetTexture("up", "");
+    PS2Sprite[BUTTON_PC_DOWN].SetTexture("down", "");
+    PS2Sprite[BUTTON_PC_LEFT].SetTexture("left", "");
+    PS2Sprite[BUTTON_PC_RIGHT].SetTexture("right", "");
 
-	CTxdStore::PopCurrentTxd();
+    CTxdStore::PopCurrentTxd();
 
-	// Recalculate widths
-	for ( int i = 1; i < NUM_BUTTON_SPRITES; i++ )
-	{
-		float	fAspectRatio = static_cast<float>(RwRasterGetWidth(RwTextureGetRaster(PS2Sprite[i].GetTexture()))) / RwRasterGetHeight(RwTextureGetRaster(PS2Sprite[i].GetTexture()));
-		PS2SpriteWidth[i] = 17.0f * fAspectRatio;
-	}
+    // Recalculate widths
+    for (int i = 1; i < NUM_BUTTON_SPRITES; i++)
+    {
+        float	fAspectRatio = static_cast<float>(RwRasterGetWidth(RwTextureGetRaster(PS2Sprite[i].GetTexture()))) / RwRasterGetHeight(RwTextureGetRaster(PS2Sprite[i].GetTexture()));
+        PS2SpriteWidth[i] = 17.0f * fAspectRatio;
+    }
 }
 
 static Reversed Shutdown_kill(0x7189B0, 0x718A0F);

@@ -122,6 +122,8 @@ enum eMenuActions
 	MENUACTION_INVERTLOOK,
 	MENUACTION_SOUTHPAW,
 	MENUACTION_BUTTONSTYLE,
+    MENUACTION_FREEAIM,
+    MENUACTION_LEFTXINVERTED,
 
 	NUM_MENU_ACTIONS
 };
@@ -200,7 +202,7 @@ public:
 	__int8 field_22[2];
 	__int32             m_dwRadarMode;
 	__int8 field_28[4];
-	__int32 field_2C;
+	int                 m_nTargetBlipIndex;
 	__int8 field_30;
 	__int8 field_31;
 	bool				m_bBackIntoGame;
@@ -504,7 +506,20 @@ public:
 	// Hacky workaround
 	float			GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition);
 
-	static void		Inject();
+    // New map screen.
+    static void             PrintMap(int x, int y, CRect rect);
+    static void             PrintMapExtra();
+    static void             PrintMapCursor(CRect const& rect, CRGBA const& rgbaColor);
+    static void             DrawYouAreHereSprite(CSprite2d * sprite, float x, float y, float angle, unsigned int width, unsigned int height, CRGBA color);
+    static void __stdcall   DrawLegendWindow(CRect * coords, char * titleKey, char fadeState, CRGBA color, int a5, char bDrawBox);
+    static void             DrawLegend2DPolygon(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, CRGBA * color);
+    static void             DrawLegendText(float x, float y, char * str);
+    static void             DrawLegend2DRect(CRect const & rect, CRGBA const & rgbaColor);
+    static void __fastcall  DrawLegend2DSprite(CSprite2d * sprite, int, CRect * rect, CRGBA * color);
+
+    static void PrintMapZones(float x, float y, char * text);
+
+    static void		Inject();
 
 //	void		SaveStatsHTML();
 };
@@ -512,18 +527,20 @@ public:
 class CLoadingScreen
 {
 public:
-	static uint8	bDrawingStyle;
-	static bool	&m_bFading;
-	static bool	&m_bFadeInNextSplashFromBlack;
-	static bool	&m_bFadeOutCurrSplashToBlack;
-	static bool	&m_bReadyToDelete;
+    static uint8	bDrawingStyle;
+    static bool	&m_bFading;
+    static bool	&m_bFadeInNextSplashFromBlack;
+    static bool	&m_bFadeOutCurrSplashToBlack;
+    static bool	&m_bReadyToDelete;
 
-	static void	RenderSplash();
-	static void	LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID);
+    static void	RenderSplash();
+    static void	LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID);
 };
+
 
 extern CMenuManager&		FrontEndMenuManager;
 
-static_assert(sizeof(CMenuManager) == 0x1B78, "Wrong size: CMenuManager");
+
+//static_assert(sizeof(CMenuManager) == 0x1B78, "Wrong size: CMenuManager");
 
 #endif

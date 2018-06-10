@@ -73,8 +73,8 @@ private:
 
 private:
 	static C3dMarker*			PlaceMarker(unsigned int nIndex, unsigned short markerID, CVector& vecPos, float fSize, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha, unsigned short pulsePeriod, float pulseFraction, short rotateRate, float normalX, float normalY, float normalZ, bool checkZ);
-	static void				User3dMarkersDraw(void);
-	static void				DirectionArrowsDraw(void);
+	static void				    User3dMarkersDraw(void);
+	static void				    DirectionArrowsDraw(void);
 	static RpClump				*LoadMarker(const char *name);
 
 public:
@@ -88,6 +88,7 @@ public:
 	static void					Render(void);
 	// Last unused param removed
 	static void					PlaceMarkerSet(unsigned int nIndex, unsigned short markerID, CVector& vecPos, float fSize, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha, unsigned short pulsePeriod, float pulseFraction);
+    static void                 PlaceMarkerCone(int id, CVector& posn, float size, char r, char g, char b, int alpha, __int16 pulsePeriod, float pulseFraction, int type, char bEnableCollision);
 };
 
 static_assert(sizeof(C3dMarker) == 0xA0, "Wrong size: C3DMarker");

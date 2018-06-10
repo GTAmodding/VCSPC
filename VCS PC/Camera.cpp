@@ -20,6 +20,7 @@ WRAPPER int CCamera::GetFadeStage() { EAXJMP(0x50AE20); }
 WRAPPER int CCamera::GetLookDirection() { EAXJMP(0x50AE90); }
 WRAPPER bool CCamera::IsPositionVisible(const CVector& vecPos, float fRadius) { WRAPARG(vecPos); WRAPARG(fRadius); EAXJMP(0x420D40); }
 WRAPPER bool CCamera::IsSphereVisible_(const CVector& center, float fRadius, RwMatrix *mat) { WRAPARG(center); WRAPARG(fRadius); WRAPARG(mat); EAXJMP(0x420C40); }
+WRAPPER float CCamera::Find3rdPersonQuickAimPitch(CCamera* pCamera) { WRAPARG(pCamera); EAXJMP(0x50AD40); }
 
 void CCamera::DrawBordersForWideScreen()
 {
@@ -302,9 +303,11 @@ toggleCamHook(void)
 static void
 processCam(void)
 {
-	CCamera *cam = (CCamera*)thisptr;
-	if(cam->WorldViewerBeingUsed)
-		cam->Cams[2].Process();
+    CCamera *cam = (CCamera*)thisptr;
+    if (cam->WorldViewerBeingUsed)
+        cam->Cams[2].Process();
+
+    InitExtraStuff();
 }
 
 static void __declspec(naked)

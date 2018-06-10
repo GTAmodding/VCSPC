@@ -26,6 +26,8 @@
 #include "RealTimeShadowMgr.h"
 #include "misc.h"
 #include "debugmenu_public.h"
+#include "Text.h"
+#include "Pad.h"
 
 GlobalScene &Scene = *(GlobalScene*)0xC17038;
 
@@ -44,6 +46,11 @@ WRAPPER void LoadingScreen(const char *str1, const char *str2, const char *unuse
 void (*DebugMenuProcess)(void);
 void (*DebugMenuRender)(void);
 static void stub(void) { }
+
+bool hide2Dstuff = false;
+bool bAirBreak = false;
+
+short EnableAirBreak() { return bAirBreak = bAirBreak == false; }
 
 void
 DebugMenuInit(void)
@@ -395,6 +402,87 @@ Render2dStuff(void)
 	EAXJMP(0x53E230);
 }
 
+void NewDebugMenuOptions() {
+    // Air Break.
+    CPed *player = FindPlayerPed(0);
+
+    if (currKeyState->enter || currKeyState->extenter)
+        bAirBreak = false;
+
+    if (bAirBreak) {
+        float Up = FindPlayerPed(0)->GetCoords().z + 1.0f;
+        float Down = FindPlayerPed(0)->GetCoords().z - 1.0f;
+
+        player->bDisableMovement = 1;
+        TheCamera.m_bCamDirectlyBehind = true;
+
+       // if (currKeyState->num8) // Forward
+
+        if (currKeyState->num9) // Up
+            player->Teleport(FindPlayerPed(0)->GetCoords().x, FindPlayerPed(0)->GetCoords().y, Up, 0);
+
+        if (currKeyState->num3) // Down
+            player->Teleport(FindPlayerPed(0)->GetCoords().x, FindPlayerPed(0)->GetCoords().y, Down, 0);
+        
+
+        if (currKeyState->num4) // Rotate left
+            player->SetHeading(player->GetHeading() + 0.1f);
+        else if (currKeyState->num6) // Rotate right
+            player->SetHeading(player->GetHeading() - 0.1f);
+
+        CHud::SetMessage("NUMPAD9 - Up, NUMPAD3 - Down, NUMPAD4 - Left, NUMPAD6 - Right, ENTER - Disable AirBreak");
+    }
+    else {
+        player->bDisableMovement = 0;
+    }
+}
+
+void DrawLoadingText() {
+    auto FadeValue = *(int*)0xC3EFAB;
+    static float alpha;
+    static bool check;
+    CFont::SetBackground(0, 0);
+    CFont::SetProportional(true);
+    CFont::SetFontStyle(FONT_RageItalic);
+    CFont::SetOrientation(ALIGN_Right);
+    CFont::SetRightJustifyWrap(0.0);
+    CFont::SetEdge(0);
+    CFont::SetScale(_width(1.3f), _height(2.1f));
+
+    if (!check) {
+        if (alpha > 0.0) {
+            alpha += CTimer::ms_fTimeScale * 0.01 * -1000.0;
+            if (alpha <= 0.0) {
+                alpha = 0.0;
+                check = true;
+            }
+        }
+        else if (alpha == 0.0) {
+            if (alpha != 255.0)
+                alpha += CTimer::ms_fTimeScale * 0.01 * 1000.0;
+        }
+    }
+    else if (FadeValue < 10)
+        alpha = 0;
+    else {
+        if (alpha < 255.0) {
+            alpha += CTimer::ms_fTimeScale * 0.01 * 1000.0;
+            if (alpha >= 255.0) {
+                alpha = 255.0;
+                check = false;
+            }
+        }
+    }
+
+    CFont::SetDropColor(CRGBA(0, 0, 0, static_cast<float>(alpha)));
+    CFont::SetColor(CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, static_cast<float>(alpha)));
+
+    if (!TheCamera.GetFading() && !FrontEndMenuManager.m_bMenuActive) {
+        if (FadeValue > 10)
+            CFont::PrintString(_x(40.0), _y(11.0f), TheText.Get("LOADCOL"));
+    }
+}
+
 void RenderFontBuffer(void)
 {
 	CFont::RenderFontBuffer();
@@ -404,6 +492,7 @@ void
 Render2dStuffAfterFade(void)
 {
 	CHud::DrawAfterFade();
+    // DrawLoadingText(); // Removed because of Ash_735 :(
 	CMessages__Display(0);
 	RenderFontBuffer();
 	// CCredits__Render();	// already rendered in Idle
@@ -449,8 +538,6 @@ RenderMenus(void)
 	if(FrontEndMenuManager.m_bMenuActive)
 		FrontEndMenuManager.DrawFrontEnd();
 }
-
-bool hide2Dstuff = false;
 
 void
 RenderDebugShit(void)
@@ -537,6 +624,11 @@ Idle(void *arg)
 
 		if(!hide2Dstuff)
 			Render2dStuff();
+
+
+        // New debug menu options.
+        NewDebugMenuOptions();
+
 	}else{
 		CDraw::CalculateAspectRatio();
 		CameraSize(Scene.camera, NULL, tan(CDraw::ms_fFOV * M_PI / 360.0f), CDraw::ms_fAspectRatio);
@@ -557,13 +649,13 @@ Idle(void *arg)
 	DoRWStuffEndOfFrame();
 }
 
-
 static StaticPatcher Patcher([](){
 	Memory::InjectHook(0x53ECBD, Idle);
 //	Memory::InjectHook(0x735D90, SetLightColoursForPedsCarsAndObjects, PATCH_JUMP);
 
 	if(DebugMenuLoad()){
 		DebugMenuAddVarBool8("Misc", "Hide 2D stuff", (int8*)&hide2Dstuff, NULL);
+        DebugMenuAddCmd("Misc", "Air Break", []() { EnableAirBreak(); });
 //		DebugMenuAddVarBool32("Rendering", "Render Transparent Entities", &renderTransparent, NULL);
 //		DebugMenuAddVarBool32("Rendering", "Render Transparent objects in two passes", &renderTwoPasses, NULL);
 	}

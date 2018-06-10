@@ -30,9 +30,9 @@ void CRGBA::BaseColors__Constructor()
 	this[3].b = 0xF1;
 	this[3].a = 0xFF;*/
 
-	this[4].r = 0xFF;
-	this[4].g = 0xFF;
-	this[4].b = 0xFF;
+	this[4].r = 0xF8;
+	this[4].g = 0xF8;
+	this[4].b = 0xF8;
 	this[4].a = 0xFF;
 
 	this[5].r = 0x00;

@@ -55,7 +55,7 @@ CGame::Initialise(const char *fileName)
 	CGame::Init1(fileName);
 	CColAccel::startCache();
 	// DLC support
-	CFileLoader::ParseLevelFile("DATA\\DEFAULT.DAT", dlcname);
+	CFileLoader::ParseLevelFile("COMMON\\DATA\\DEFAULT.DAT", dlcname);
 	CFileLoader::ParseLevelFile(fileName, dlcname);
 	CFileLoader::LoadLevels();
 	CColAccel::endCache();
@@ -86,8 +86,8 @@ CGame::Init1(const char *fileName)
 	gameTxdSlot = CTxdStore::AddTxdSlot("generic");
 	CTxdStore::Create(gameTxdSlot);
 	CTxdStore::AddRef(gameTxdSlot);
-	int particle = CTxdStore::AddTxdSlot("particle");
-	CTxdStore::LoadTxd(particle, CFileLoader::GetParticlesPath());
+    int particle = CTxdStore::AddTxdSlot("particle");
+    CTxdStore::LoadTxd(particle, "pc\\textures\\particle.txd"); 
 	CTxdStore::AddRef(particle);
 	CTxdStore::SetCurrentTxd(gameTxdSlot);
 	CGameLogic__InitAtStartOfGame();
@@ -218,7 +218,7 @@ CGame::Init2(const char *fileName)
 	LoadingScreen(0, 0, 0);
 	CCredits::bCreditsGoing = false;
 	CReplay::Init();
-	CShopping__Init();	// TODO: probably remove this
+	//CShopping__Init();	// TODO: probably remove this
 	LoadingScreen(0, 0, 0);
 	return true;
 }
@@ -369,6 +369,7 @@ CGame::Process(void)
 
 		CEmpireManager::Process();
 	}
+    PatchStats();
 
 	CWaterLevel::PreRenderWater();
 }

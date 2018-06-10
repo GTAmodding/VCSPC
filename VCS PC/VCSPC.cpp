@@ -1,5 +1,6 @@
 ﻿#include "StdAfx.h"
 
+#include "WaterLevel.h"
 #include "handlingIDs.h"
 #include "AnimMgr.h"
 #include "Ped.h"
@@ -55,9 +56,11 @@ void			DefineVariables();
 //void			CheckStructures();
 void			InjectDelayedPatches();
 void			Main_Patches();
+void            New_Main_Patches();
 void			PatchMenus();
 void			AnimationStylesPatching();
 void			UserFiles();
+void            PatchStats();
 void			HighspeedCamShake(float shake);
 void			ViceSquadCheckInjectA(int townID);
 int				ViceSquadCheckInjectB();
@@ -340,6 +343,7 @@ CCamera&					TheCamera = *(CCamera*)0xB6F028;
 CText&						TheText = *(CText*)0xC1B340;
 CRGBA*						BaseColors;
 CMenuManager&				FrontEndMenuManager = *(CMenuManager*)0xBA6748;
+CLoadingScreen              LoadScreen;
 CAudioEngine&				AudioEngine = *(CAudioEngine*)0xB6BC90;
 std::pair<void*,int>* const	materialRestoreData = (std::pair<void*,int>*)0xB4DBE8;
 CBlurStage*					blurStages;
@@ -391,6 +395,7 @@ const float					fSkyMultFix = 3.5f;
 const float					fRadarTileDimensions = 2000.0f;
 const float					fMinusRadarTileDimensions = -2000.0f;
 const float					fRadarTileDimensions2 = 7.0f;
+const float                 fRadarRange = RADAR_RANGE;
 const float					fSubtitlesWidth = 0.45f;
 const float					fSubtitlesHeight = 0.9f;
 const float					fTextBoxPosY = 20.0f;
@@ -666,6 +671,7 @@ extern "C" __declspec(dllexport) BOOL OnGameLaunch()
 #endif
 	DetermineGameVer();
 	DefineVariables();
+    New_Main_Patches();
 	Main_Patches();
 	PatchMenus();
 	AnimationStylesPatching();
@@ -2397,6 +2403,246 @@ char handlingnames[210][14] = {
 	"RCRAIDER",
 };
 
+// New Patches
+void __cdecl BlowUpAnyVeh(CEntity *newVictim, CPed *newCreator, int type, CVector2D pos, float z, int time, char usesSound, float cameraShake, char isVisible) {
+    ((char(__cdecl*)(CEntity *, CPed *, int , CVector2D , float, int, char, float, char))0x736A50)(newVictim, newCreator, 5, pos, z, time, usesSound, cameraShake, isVisible);
+}
+
+void __fastcall SetNewPlayerWeaponMode(CCamera *_this, int, __int16 a2, __int16 a3, __int16 a4) {
+    int camMode;
+    int weaponType = FindPlayerPed(0)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eWeaponType;
+    if (weaponType == WEAPONTYPE_SNIPER)
+        camMode = MODE_SNIPER;
+    else
+        camMode = a2;
+
+    ((char(__thiscall*)(CCamera *, __int16, __int16, __int16))0x50BFB0)(_this, camMode, a3, a4);
+}
+
+void __fastcall SetNewFire(CWeapon *_this, int, CPed *owner, CVector *vecOrigin, CVector *_vecEffectPosn, CEntity *targetEntity, CVector *vecTarget, CVector *arg_14) {
+    int weaponType = FindPlayerPed(0)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eWeaponType;
+    WORD Mode = TheCamera.Cams[TheCamera.ActiveCam].Mode;
+
+    if (weaponType == WEAPONTYPE_SNIPER && Mode == MODE_SNIPER) {
+        ((char(__thiscall*)(CWeapon *, CPed *, CEntity *, CVector *))0x73AAC0)(_this, owner, targetEntity, vecTarget); // FireSniper 
+        ((char(__thiscall*)(CWeapon *, CPed *, CVector *, CVector *, CEntity *, CVector *, CVector *))0x742300)(_this, owner, vecOrigin, vecOrigin, targetEntity, vecOrigin, arg_14); // Fire
+    }
+    else {
+        ((char(__thiscall*)(CWeapon *, CPed *, CVector *, CVector *, CEntity *, CVector *, CVector *))0x742300)(_this, owner, vecOrigin, _vecEffectPosn, targetEntity, vecTarget, arg_14); // Fire
+    }
+}
+
+char __fastcall GetWeaponSkillVCS(int, int, eWeaponType weaponType) {
+    return 1;
+}
+
+char *ms_aWeaponNames[]{
+    "UNARMED",
+    "BRASSKNUCKLE",
+    "GOLFCLUB",
+    "NIGHTSTICK",
+    "KNIFE",
+    "BASEBALLBAT",
+    "SHOVEL",
+    "POOLCUE",
+    "KATANA",
+    "CHAINSAW",
+    "DILDO1",
+    "DILDO2",
+    "VIBE1",
+    "VIBE2",
+    "FLOWERS",
+    "CANE",
+    "GRENADE",
+    "TEARGAS",
+    "MOLOTOV",
+    "ROCKET",
+    "ROCKET",
+    "FREEFALLBOMB",
+    "COLT45",
+    "UZI",
+    "PYTHON",
+    "SHOTGUN",
+    "STUBBYSHOTGUN",
+    "SPAS12SHOTGUN",
+    "SILENCEDINGRAM",
+    "MP5",
+    "RUGER",
+    "M4",
+    "TEC9",
+    "SNIPERRIFLE",
+    "LASERSCOPE",
+    "ROCKETLAUNCHER",
+    "M249",
+    "FLAMETHROWER",
+    "MINIGUN",
+    "SATCHELCHARGE",
+    "DETONATOR",
+    "SPRAYCAN",
+    "EXTINGUISHER",
+    "CAMERA",
+    "NIGHTVISION",
+    "INFRARED",
+    "PARACHUTE",
+};
+
+void LoadFxArchive(int index, char *filename) {
+    CTxdStore::LoadTxd(index, "pc\\textures\\particle.txd");
+}
+
+void New_Main_Patches() {
+    using namespace Memory;
+
+    // New patches
+    // No crouch moves.
+    static float fMoveOffset = 0.0f;
+    Patch<const void*>(0x687F8D + 0x2, &fMoveOffset);
+    Patch<const void*>(0x687F9B + 0x2, &fMoveOffset);
+
+    // No aiming moves.
+    Patch<const void*>(0x687CF8 + 0x2, &fMoveOffset);
+    Patch<const void*>(0x687D02 + 0x2, &fMoveOffset);
+
+    // No diving
+    Nop(0x6B21D8, 2);
+    Nop(0x688B38, 6);
+    Nop(0x68B245, 6);
+
+    static float fTiming = 6.0f;
+    Patch<const void*>(0x68A831 + 0x2, &fTiming);
+    Patch<const void*>(0x68A7EC + 0x2, &fTiming);
+    Nop(0x68A5F0, 2);
+
+    // Vehicle Mass
+    static float fVehMass = 0.005000004;
+    Patch<const void*>(0x6A8CBE + 0x2, &fVehMass);
+    Patch<const void*>(0x6A8CD2 + 0x2, &fVehMass);
+
+    // Force Vehicle floating.
+    Patch<BYTE>(0x6A8F6E, 0x74);
+
+    // Explosions - BlowAllUpInTheSameWay
+    InjectHook(0x6B3B93, BlowUpAnyVeh, PATCH_CALL); // CARS
+    InjectHook(0x6BEB08, BlowUpAnyVeh, PATCH_CALL); // BIKES
+    InjectHook(0x6CD077, BlowUpAnyVeh, PATCH_CALL); // PLANE
+    InjectHook(0x6C703D, BlowUpAnyVeh, PATCH_CALL); // HELI
+    //
+
+    // Set Radar Range
+    Patch<float>(0x586C7E + 6, RADAR_RANGE);
+    Patch<float>(0x586C95 + 6, RADAR_RANGE);
+    Patch<const void*>(0x586C66, &fRadarRange);
+
+    // Radar water color.
+    Patch<BYTE>(0x586441 + 1, 123);
+    Patch<BYTE>(0x58643C + 1, 174);
+    Patch<BYTE>(0x586437 + 1, 222);
+    Patch<BYTE>(0x586432 + 1, HUD_TRANSPARENCY_BACK);
+
+    // Weapon Fixes
+    InjectHook(0x685B97, SetNewPlayerWeaponMode);
+    InjectHook(0x61ECCD, SetNewFire);
+    InjectHook(0x628328, SetNewFire);
+    InjectHook(0x62B109, SetNewFire);
+    InjectHook(0x62B12A, SetNewFire);
+    InjectHook(0x68626D, SetNewFire);
+    InjectHook(0x686283, SetNewFire);
+    InjectHook(0x686787, SetNewFire);
+
+    InjectHook(0x5E3B60, GetWeaponSkillVCS, PATCH_JUMP);
+    //InjectHook(0x5E6580, GetWeaponSkillVCS, PATCH_JUMP); // Not needed?!?
+
+    // Weapon Data Strings
+    memcpy((char*)0x8D6150, ms_aWeaponNames, sizeof(ms_aWeaponNames));
+
+    // Part of IV folder structure
+    Patch<const char*>(0x4D563D + 1, "PC\\ANIM\\PED.IFP");
+    Patch<const char*>(0x4D5EB9 + 1, "PC\\ANIM\\CUTS.IMG");
+    Patch<const char*>(0x5AFBCB + 1, "PC\\ANIM\\CUTS.IMG");
+    Patch<const char*>(0x5AFC98 + 1, "PC\\ANIM\\CUTS.IMG");
+    Patch<const char*>(0x5B07DA + 1, "PC\\ANIM\\CUTS.IMG");
+    Patch<const char*>(0x5B1423 + 1, "PC\\ANIM\\CUTS.IMG");
+
+    Patch<const char*>(0x49EA9D + 1, "COMMON\\DATA\\particle.fxp");
+
+    InjectHook(0x5C248F, LoadFxArchive);
+    Patch<const char*>(0x6A01BE + 1, "COMMON\\TEXT\\");
+    Patch<const char*>(0x69FCE1 + 1, "COMMON\\TEXT\\");
+
+    strncpy((char*)0x85F134, "PC/AUDIO/", 13);
+
+    Patch<const char*>(0x4DFBD7 + 1, "PC\\AUDIO\\CONFIG\\BANKLKUP.DAT");
+    Patch<const char*>(0x4DFC7D + 1, "PC\\AUDIO\\CONFIG\\PAKFILES.DAT");
+    Patch<const char*>(0x4E0597 + 1, "PC\\AUDIO\\CONFIG\\BANKSLOT.DAT");
+    Patch<const char*>(0x4E0A02 + 1, "PC\\AUDIO\\CONFIG\\TRAKLKUP.DAT");
+    Patch<const char*>(0x5B9D68 + 1, "PC\\AUDIO\\CONFIG\\EVENTVOL.DAT");
+    Patch<const char*>(0x4E0982 + 1, "PC\\AUDIO\\CONFIG\\STRMPAKS.DAT");
+
+    Patch<const void*>(0x4E0DCE + 1, "PC\\AUDIO\\SFX\\");
+    Patch<const void*>(0x4E0DC4 + 1, "PC\\AUDIO\\SFX\\");
+    Patch<const void*>(0x4E0C90 + 1, "PC\\AUDIO\\SFX\\");
+    Patch<const void*>(0x4E0CCD + 1, "PC\\AUDIO\\SFX\\");
+    Patch<const void*>(0x4E0BF8 + 1, "PC\\AUDIO\\SFX\\");
+
+    Patch<const void*>(0x4E0B14 + 1, "PC\\AUDIO\\SFX\\");
+    Patch<const void*>(0x4E0B1E + 1, "PC\\AUDIO\\SFX\\");
+
+    Patch<const char*>(0x468EB5 + 1, "COMMON\\DATA\\SCRIPT\\");
+    Patch<const char*>(0x489A45 + 1, "COMMON\\DATA\\SCRIPT\\MAIN.SCM");
+
+    Patch<const char*>(0x53DF1F + 1, "COMMON\\DATA\\GTA.DAT");
+    Patch<const char*>(0x53E580 + 1, "COMMON\\DATA\\GTA.DAT");
+
+    Patch<const char*>(0x452F4F + 1, "COMMON\\DATA\\PATHS\\NODES%d.DAT");
+    Patch<const char*>(0x461118 + 1, "COMMON\\DATA\\PATHS\\ROADBLOX.DAT");
+    Patch<const char*>(0x6F746B + 1, "COMMON\\DATA\\PATHS\\TRACKS.DAT");
+    Patch<const char*>(0x6F7491 + 1, "COMMON\\DATA\\PATHS\\TRACKS3.DAT");
+    Patch<const char*>(0x6F74B7 + 1, "COMMON\\DATA\\PATHS\\TRACKS2.DAT");
+    Patch<const char*>(0x6F74DD + 1, "COMMON\\DATA\\PATHS\\TRACKS4.DAT");
+
+    Patch<const char*>(0x5BBA15 + 1, "COMMON\\DATA\\DECISION\\");
+    Patch<const char*>(0x6076B7 + 1, "COMMON\\DATA\\DECISION\\");
+
+    Patch<const char*>(0x5BC926 + 1, "COMMON\\DATA\\ANIMGRP.DAT");
+    Patch<const char*>(0x5B68A0 + 1, "COMMON\\DATA\\CARCOLS.DAT");
+    Patch<const char*>(0x5BD1A7 + 1, "COMMON\\DATA\\");
+    Patch<const char*>(0x7187D6 + 1, "COMMON\\DATA\\FONTS.DAT");
+    Patch<const char*>(0x5C028E + 1, "COMMON\\DATA\\FURNITUR.DAT");
+    Patch<const char*>(0x5BD838 + 1, "COMMON\\DATA\\");
+    Patch<const char*>(0x5BD84B + 1, "HANDLING.DAT");
+    Patch<const char*>(0x5BEEE7 + 1, "COMMON\\DATA\\MELEE.DAT");
+    Patch<const char*>(0x5B925A + 1, "COMMON\\DATA\\OBJECT.DAT");
+    Patch<const char*>(0x608B3B + 1, "COMMON\\DATA\\PED.DAT");
+    Patch<const char*>(0x5BB89A + 1, "COMMON\\DATA\\PEDSTATS.DAT");
+    Patch<const char*>(0x5A314D + 1, "COMMON\\DATA\\PROCOBJ.DAT");
+    Patch<const char*>(0x55D0FB + 1, "COMMON\\DATA\\SURFACE.DAT");
+    Patch<const char*>(0x55F2BA + 1, "COMMON\\DATA\\SURFACEAUDIO.DAT");
+    Patch<const char*>(0x55EB9D + 1, "COMMON\\DATA\\SURFACEINFO.DAT");
+    InjectHook(0x6EDDB1, CWaterLevel::WaterLevelInitialise);
+    Patch<const char*>(0x5BE685 + 1, "COMMON\\DATA\\WEAPON.DAT");
+
+    // Nop SA DATA
+    Nop(0x55C131, 5);
+    Nop(0x55C136, 5);
+    Nop(0x5B8F21, 5);
+
+    // Fighting tweaks
+    Patch<BYTE>(0x623EA7, 0x74);
+}
+
+void InitExtraStuff() {
+    // No reloading moves.
+    static float fMoveOffset_Extra = 0.016666668;
+    if (FindPlayerPed(-1)) {
+        if (FindPlayerPed(-1)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eState != 0)
+            fMoveOffset_Extra = 0.0f;
+        else
+            fMoveOffset_Extra = 0.016666668;
+    }
+
+    Memory::Patch<const void*>(0x688456 + 0x2, &fMoveOffset_Extra);
+}
+
 void Main_Patches()
 {
 	using namespace Memory;
@@ -2671,6 +2917,32 @@ void Main_Patches()
 	{
 		InjectHook(0x58FBD6, &CHud::DrawHUD);
 		InjectHook(0x58FBDB, &CHud::DrawWanted);
+        InjectHook(0x58FBBF, &CHud::DrawCrosshairs);
+        Patch(0x74378E, 5);
+        Patch(0x7438AB, 5);
+        Patch(0x7433A3, 5);
+        InjectHook(0x7434F2, &CHud::DrawTarget);
+
+        // Laser scope fix
+        Patch<BYTE>(0x73AA0C + 1, 0); // May not necessary?!?
+        Patch<BYTE>(0x73AA06 + 1, 0);
+        Patch<BYTE>(0x53E331 + 1, 0); // Borders
+
+        // Target
+        static float Offset = 0.0f;
+        Patch<const void*>(0x7432AA + 2, &Offset);
+        Patch<const void*>(0x7432A4 + 2, &Offset);
+
+        Patch<const void*>(0x7432D3 + 2, &Offset);
+        Patch<const void*>(0x7432D9 + 2, &Offset);
+
+        Patch<const void*>(0x743302 + 2, &Offset);
+        Patch<const void*>(0x743308 + 2, &Offset);
+
+        Patch<const void*>(0x743259 + 2, &Offset);
+        Patch<const void*>(0x743266 + 2, &Offset);
+
+
 		//Patch<const void*>(0x58D896, &fWeaponIconHeight);
 		//Patch<const void*>(0x58D94D, &fWeaponIconHeight);
 		//Patch<const void*>(0x58D8CB, &fWeaponIconWidth);
@@ -2733,6 +3005,11 @@ void Main_Patches()
 		Patch<const void*>(0x58A868, &fRadarPosY);
 		Patch<const void*>(0x58A913, &fRadarPosY);
 		Patch<const void*>(0x58A9C7, &fRadarPosY);
+
+        // Text box enlarger fix.
+        static float fTextBoxHeight = 144.0f;
+        Patch<const void*>(0x58BB06 + 0x2, &fTextBoxHeight);
+        Patch<const void*>(0x58BAF7 + 0x2, &fTextBoxHeight);
 	}
 	InjectHook(0x5BD76F, &CHud::Initialise);
 	InjectHook(0x53BD51, &CHud::ReInitialise);
@@ -3772,23 +4049,60 @@ void Main_Patches()
 	InjectHook(0x586500, &OpaqueRadarHack2);
 #endif
 
-	// Temp? Map screen
-	Patch<float>(0x578825, 2000.0);
+    // New map screen.
+    Patch<float>(0x578825, 2000.0);
 	Patch<float>(0x57883D, -2000.0);
 	Patch<const void*>(0x57882B, &fRadarTileDimensions);
 	Patch<const void*>(0x578856, &fRadarTileDimensions);
 	Patch<const void*>(0x578843, &fMinusRadarTileDimensions);
 	Patch<const void*>(0x578869, &fMinusRadarTileDimensions);
 	InjectHook(0x5754C0, &TempRadarFixFunc, PATCH_JUMP);
-	InjectHook(0x5756E0, &TempRadarFixFunc2);
+    InjectHook(0x5756E0, &TempRadarFixFunc2);
 	Patch<WORD>(0x5754B9, 0x02B3);
 
-	// Infinite sea at 8.0
-	Patch<float>(0x6E873F, 8.0);
+    InjectHook(0x5756E0, CMenuManager::PrintMap);
+    InjectHook(0x575BF6, CMenuManager::PrintMapExtra);
+    InjectHook(0x584A52, CMenuManager::DrawYouAreHereSprite);
+
+    // Legend
+    InjectHook(0x5760A1, CMenuManager::DrawLegendWindow);
+    InjectHook(0x582DEE, CMenuManager::DrawLegendText);
+    InjectHook(0x583067, CMenuManager::DrawLegend2DPolygon);
+    InjectHook(0x5830CC, CMenuManager::DrawLegend2DPolygon);
+    InjectHook(0x583168, CMenuManager::DrawLegend2DPolygon);
+    InjectHook(0x5831CB, CMenuManager::DrawLegend2DPolygon);
+    InjectHook(0x582F72, CMenuManager::DrawLegend2DRect);
+    InjectHook(0x582FCB, CMenuManager::DrawLegend2DRect);
+    InjectHook(0x582E58, CMenuManager::DrawLegend2DSprite);
+
+    // Borders
+    Patch(0x575E12, 5);
+    Patch(0x575DC2, 5);
+    Patch(0x575D6F, 5);
+    Patch(0x575D1F, 5);
+    Patch(0x575CCE, 5);
+    Patch(0x575C84, 5);
+    Patch(0x575C40, 5);
+
+    // Back
+    Patch(0x57549D, 5);
+
+    // Cursor
+    Patch(0x588284, 5);
+    Patch(0x5882DB, 5);
+
+	// Infinite sea at 6.0
+	Patch<float>(0x6E873F, 6.0);
 
 	// Unhidden map
 	Patch<DWORD>(0x572130, 0xC301B0);
 	Patch<WORD>(0x5759F4, 0xE990);
+
+    // Zones
+    InjectHook(0x575F89, CMenuManager::PrintMapZones);
+
+    Nop(0x57516D, 4);
+    //
 
 	// Stats.html
 	Patch<DWORD>(0x573E6C, 0x015D818A);
@@ -3868,7 +4182,7 @@ void Main_Patches()
 //	patch(0x585CD4, 0x40400000, 4); // 3.0
 
 	// Steady crosshair
-	InjectHook(0x58E26C, &CPed::GetCrosshairSize);
+	//InjectHook(0x58E26C, &CPed::GetCrosshairSize);
 
 	// No plane radar stuff
 	InjectHook(0x58A3AA, 0x58A5A8, PATCH_JUMP);
@@ -3889,18 +4203,7 @@ void Main_Patches()
 //	call(0x58FD18, &CHud::DrawDevLogos, PATCH_JUMP);
 	//call(0x58FD18, &CGridref::Draw, PATCH_JUMP);
 
-	// Bar
-	/*Patch<BYTE>(0x590376, 11);
-	Patch<BYTE>(0x590389, 11);
-	Patch<BYTE>(0x5903A1, 11);
-	Patch<const void*>(0x5903CA, &LoadingBarPosX);
-	Patch<const void*>(0x5903E8, &LoadingBarPosY);
-	Patch<const void*>(0x5903F6, &LoadingBarWidth);
-	Patch<const void*>(0x590405, &LoadingBarHeight);
-	Patch<BYTE>(0x590478, 2);
-	//patch(0x590D2B, 93, 4);
-	//patch(0x590D68, 93, 4);*/
-    //Patch<const void*>(0x5903CA, &LoadingBarPosX);
+	// Loading Bar
 	InjectHook(0x590480, &CHud::DrawSquareBar, PATCH_CALL);
 
 	// One loading music
@@ -4019,7 +4322,7 @@ void Main_Patches()
 	Patch<const void*>(0x406882, gStreamNames);
 	Patch<const void*>(0x406B81, gStreamNames);
 	Patch<const void*>(0x406B98, &gStreamNames[NUM_STREAMS]);
-	Patch<const char*>(0x406C2B, "ANIM\\ANIM.IMG");
+	Patch<const char*>(0x406C2B, "PC\\ANIM\\ANIM.IMG");
 	Nop(0x5B927D, 5);
 //	Nop(0x43E65D, 2);
 //	Nop(0x43E669, 2);
@@ -4186,8 +4489,8 @@ void Main_Patches()
 	// Good Citizen Bonus
 	InjectHook(0x68EBDD, &GoodCitizenBonusFlag, PATCH_JUMP);
 
-	// Blur replaced to cam shake
-	InjectHook(0x704E8A, &HighspeedCamShake);
+	// Blur replaced to cam shake... see PostEffects.cpp
+	//InjectHook(0x704E8A, &HighspeedCamShake);
 	//InjectHook(0x704E8A, &&[](float fShake){ CamShakeNoPos(&TheCamera, fShake * 0.025f); });
 
 	// No Heat Haze
@@ -4276,7 +4579,8 @@ void Main_Patches()
 
 	// weapon.dat names patches
 	//VirtualProtect((char*)0x872CEC, 0x1B8, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
-	strncpy((char*)0x872D64, "M249", 16);
+	//strncpy((char*)0x872D64, "M249", 16);
+
 	//VirtualProtect((char*)0x872CEC, 0x1B8, dwProtect[0], &dwProtect[1]);
 
 	// Blip textures patches
@@ -4316,40 +4620,6 @@ void Main_Patches()
 	// Fix code to find handling name
 	InjectHook(0x6F4F64, strcmp);
 	InjectHook(0x6F4F58, strcpy);
-
-    // New patches
-    // No crouch moves.
-    static float fMoveOffset = 0.0f;
-    static float fMoveOffset_Extra = 0.016666668;
-
-    Patch<const void*>(0x687F8D + 0x2, &fMoveOffset);
-    Patch<const void*>(0x687F9B + 0x2, &fMoveOffset);
-
-    // No reloading moves.
-    if (FindPlayerPed(-1)) {
-        if (FindPlayerPed(-1)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eState == 0)
-            fMoveOffset_Extra = 0.0f;
-    }
-
-    Patch<const void*>(0x688456 + 0x2, &fMoveOffset_Extra);
-
-    // No aiming moves.
-    Patch<const void*>(0x687CF8 + 0x2, &fMoveOffset);
-    Patch<const void*>(0x687D02 + 0x2, &fMoveOffset);
-
-    // No diving
-    Nop(0x688B38, 6);
-    Nop(0x68B245, 6);
-
-    static float fTiming = 6.0f;
-    Patch<const void*>(0x68A831 + 0x2, &fTiming);
-    Patch<const void*>(0x68A7EC + 0x2, &fTiming);
-
-    Nop(0x68A5F0, 2);
-
-    // Arm Aim offset. Breaks Movements.
-    // Patch<BYTE>(0x618864, 0x75);
-    //
 }
 
 void PatchMenus()
@@ -4498,6 +4768,13 @@ void AnimationStylesPatching()
 	Patch<const char*>(0x8D10F4, "Drive_L_slow");
 	Patch<const char*>(0x8D10F8, "Drive_R_slow");
 
+    // Fight anims
+    Patch<const char*>(0x8A8248, "FightA_1");
+    Patch<const char*>(0x8A824C, "FightA_1");
+    Patch<const char*>(0x8A8250, "FightA_1");
+
+    Patch<const char*>(0x8D1164, "JUMP_launch");
+
 	// Checks inject
 	InjectHook(0x6099DE, &ExtraWeaponAnimationsInject, PATCH_JUMP);
 	Nop(0x6099A5, 2);
@@ -4535,6 +4812,355 @@ void UserFiles()
 	//Patch<const char*>(0x7489A0, "gta_vcs.set");
 #endif*/
 	Patch<const char*>(0x619045, "GTAVCSsf");
+}
+
+
+void PatchStats() {
+    ((void(__cdecl*)(int, float))0x55A070)(0, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(1, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(2, 0.0f);
+    /*((void(__cdecl*)(int, float))0x55A070)(3, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(4, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(5, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(6, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(7, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(8, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(9, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(10, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(11, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(12, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(13, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(14, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(15, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(16, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(17, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(18, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(19, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(20, 0.0f);*/
+    ((void(__cdecl*)(int, float))0x55A070)(21, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(22, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(23, 0.0f);
+    //((void(__cdecl*)(int, float))0x55A070)(24, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(25, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(26, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(27, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(28, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(29, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(30, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(31, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(32, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(33, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(34, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(35, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(36, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(37, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(38, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(39, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(40, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(41, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(42, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(43, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(44, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(45, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(46, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(47, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(48, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(49, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(50, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(51, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(52, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(53, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(54, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(55, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(56, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(57, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(58, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(59, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(60, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(61, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(62, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(63, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(64, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(65, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(66, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(67, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(68, 0.0f);
+
+    ((void(__cdecl*)(int, float))0x55A070)(69, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(70, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(71, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(72, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(73, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(74, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(75, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(76, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(77, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(78, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(79, 0.0f);
+
+    ((void(__cdecl*)(int, float))0x55A070)(80, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(81, 0.0f);
+    //((void(__cdecl*)(int, float))0x55A070)(82, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(83, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(84, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(85, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(86, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(87, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(88, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(89, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(90, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(91, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(92, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(93, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(94, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(95, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(96, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(97, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(98, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(99, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(100, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(101, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(102, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(103, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(104, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(105, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(106, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(107, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(108, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(109, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(110, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(111, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(112, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(113, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(114, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(115, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(116, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(117, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(118, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(119, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(120, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(121, 0.0f);
+    /*((void(__cdecl*)(int, float))0x55A070)(122, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(123, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(124, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(125, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(126, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(127, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(128, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(129, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(130, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(131, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(132, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(133, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(134, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(135, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(136, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(137, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(138, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(139, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(140, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(141, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(142, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(143, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(144, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(145, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(146, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(147, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(148, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(149, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(150, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(151, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(152, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(153, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(154, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(155, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(156, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(157, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(158, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(159, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(160, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(161, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(162, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(163, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(164, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(165, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(166, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(167, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(168, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(169, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(170, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(171, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(172, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(173, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(174, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(175, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(176, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(177, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(178, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(179, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(180, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(181, 0.0f);*/
+    ((void(__cdecl*)(int, float))0x55A070)(182, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(183, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(184, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(185, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(186, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(187, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(188, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(189, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(190, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(191, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(192, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(193, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(194, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(195, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(196, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(197, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(198, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(199, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(200, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(201, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(202, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(203, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(204, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(205, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(206, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(207, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(208, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(209, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(210, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(211, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(212, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(213, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(214, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(215, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(216, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(217, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(218, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(219, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(220, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(221, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(222, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(223, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(224, 0.0f);
+    //((void(__cdecl*)(int, float))0x55A070)(225, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(226, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(227, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(228, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(229, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(230, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(231, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(232, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(233, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(234, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(235, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(236, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(237, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(238, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(239, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(240, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(241, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(242, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(243, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(244, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(245, 0.0f);
+    /*((void(__cdecl*)(int, float))0x55A070)(246, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(247, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(248, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(249, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(250, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(251, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(252, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(253, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(254, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(255, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(256, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(257, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(258, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(259, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(260, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(261, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(262, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(263, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(264, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(265, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(266, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(267, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(268, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(269, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(270, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(271, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(272, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(273, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(274, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(275, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(276, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(277, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(278, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(279, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(280, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(281, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(282, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(283, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(284, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(285, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(286, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(287, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(288, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(289, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(290, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(291, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(292, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(293, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(294, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(295, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(296, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(297, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(298, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(299, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(300, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(301, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(302, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(303, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(304, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(305, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(306, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(307, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(308, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(309, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(310, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(311, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(312, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(313, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(314, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(315, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(316, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(317, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(318, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(319, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(320, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(321, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(322, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(323, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(324, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(325, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(326, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(327, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(328, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(329, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(330, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(331, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(332, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(333, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(334, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(335, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(336, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(337, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(338, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(339, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(340, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(341, 0.0f);
+    ((void(__cdecl*)(int, float))0x55A070)(342, 0.0f);*/
 }
 
 extern "C" __declspec(dllimport) void LaunchSteam();
@@ -4630,7 +5256,7 @@ const char* GetFontsTXDByLanguage()
 {
 	bLastFontsID = GetFontsIDByLanguage();
 
-	static const char*	cFontsTXDNames[] = { "MODELS\\FONTS.TXD", "MODELS\\FONTSPL.TXD" };
+	static const char*	cFontsTXDNames[] = { "PC\\TEXTURES\\FONTS.TXD", "PC\\TEXTURES\\FONTSPL.TXD" };
 	return cFontsTXDNames[bLastFontsID];
 }
 

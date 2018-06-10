@@ -20,7 +20,7 @@ static inline unsigned int	PackKey(unsigned short nType, char nSubgroup, unsigne
 
 void CEmpireManager::Initialise()
 {
-	if ( FILE* hFile = CFileMgr::OpenFile("DATA\\EMPIRES.DAT", "r") )
+	if ( FILE* hFile = CFileMgr::OpenFile("COMMON\\DATA\\EMPIRES.DAT", "r") )
 	{
 		enum
 		{

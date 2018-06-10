@@ -20,6 +20,11 @@ enum eHudTextures
 	HUD_Radardisc,
 	HUD_BarOutline,
 	HUD_Pager,
+    HUD_SiteSniper,
+    HUD_SiteLaser,
+    HUD_LaserDot,
+    HUD_Triangle,
+    HUD_ViewFinder,
 	NUM_HUD_SPRITES
 };
 
@@ -27,6 +32,7 @@ enum eHudTextures
 #define	BAR_ENERGY_LOSS_FLASH_DURATION	2000
 #define HUD_TRANSPARENCY_BACK			215
 #define HUD_TRANSPARENCY_FRONT			(HUD_TRANSPARENCY_BACK+8)
+#define RADAR_RANGE                     100.0f
 
 #define HUD_POS_X						148.5f
 #define HUD_POS_Y						38.0f
@@ -68,7 +74,8 @@ private:
 	static char		m_PagerMessage[16];
 	//float			BigMessage3PosY;
 
-	static CSprite2d* const		Sprites;
+public:
+	static CSprite2d Sprites[NUM_HUD_SPRITES];
 
 private:
 	static void		PrintHealthForPlayer(int playerID, float posX, float posY);
@@ -95,6 +102,8 @@ public:
 	static void		DrawAfterFade();
 	static void		DrawHUD();
 	static void		DrawWanted();
+    static void     DrawCrosshairs();
+    static void     DrawTarget(float a1, float a2, int a3, int a4, int a5, int a6, float a7, unsigned __int8 a8, unsigned __int8 a9, unsigned __int8 a10, __int16 a11, float a12, char a13);
 	static void		DrawOnscreenTimer();
 	static void		DrawPermanentTexts();
 	static void		DrawRadioName(void* object, const char* radioName);
@@ -108,6 +117,7 @@ public:
 	static void		DrawBarChartWithRoundBorder(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor);
 	static void		DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor);
 	static void		SetHelpMessage(const char *text, bool b1, bool b2, bool b3);
+    static void     SetMessage(char* pMsg);
 	static float	GetYPosBasedOnHealth(unsigned char plrID, float position, signed char offset);
 };
 

@@ -21,6 +21,8 @@
 #include "Rs.h"
 #include "NeoCarpipe.h"
 #include "gtamain.h"
+#include "MenuSystem.h"
+#include "Radar.h"
 
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
@@ -86,8 +88,9 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 
 	{ "FEH_MAP", 42, 2, 0, 0,
-		2, "FEDS_TB", ACTION_STANDARD, 42, 57, 186, 1, 0, -1 },
-
+		//2, "FEDS_TB", ACTION_STANDARD, 42, 57, 186, 1, 0, -1 
+    },
+    
 
 	{ "FEH_NGA", 1, 0, 0, 0,
 		1, "FESZ_QR", ACTION_NONE, 0, 0, 0, 0, 0, 0,
@@ -428,7 +431,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	{ "FEH_CTL", MENU_PAGE_CONTROLLER_SETUP, 3, 0, 0,
 		MENUACTION_INVERTLOOK, "FEC_ILU", ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, -164, 2, 0, 0,
 		MENUACTION_SOUTHPAW, "FEC_SOU", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
-		MENUACTION_BUTTONSTYLE, "CABBIE",  ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, 0, 2, 0, 0,
+		MENUACTION_BUTTONSTYLE, "FEC_STL",  ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, 0, 2, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 182, 3, 0, 0
 	},
 };
@@ -713,8 +716,8 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	{
 		if ( aScreens[m_bCurrentMenuPage].name[0] )
 		{
-			if ( m_bCurrentMenuPage != 5 || !m_bMapLoaded )
-			{
+			//if ( m_bCurrentMenuPage != 5 || !m_bMapLoaded )
+			//{
 				CFont::SetOrientation(1);
 				CFont::SetFontStyle(FONT_RageItalic);
 				CFont::SetScale(_width(1.3f), _height(2.1f));
@@ -722,7 +725,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				CFont::SetColor(CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B));
 				CFont::SetDropColor(CRGBA(0, 0, 0));
 				CFont::PrintString(_xleft(40.0f), _y(11.0f), TheText.Get(aScreens[m_bCurrentMenuPage].name));
-			}
+			//}
 		}
 	}
 
@@ -1138,7 +1141,15 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				pTextToShow_RightColumn = TheText.Get(CPad::bSouthpaw ? "FEM_ON" : "FEM_OFF");
 				break;
 			case MENUACTION_BUTTONSTYLE:
-				pTextToShow_RightColumn = TheText.Get(CFont::bX360Buttons ? "FEM_ON" : "FEM_OFF");
+                switch (CFont::bX360Buttons)
+                {
+                case 1:
+                    pTextToShow_RightColumn = "XBOX";
+                    break;
+                case 0:
+                    pTextToShow_RightColumn = "PLAYSTATION";
+                    break;
+                }
 				break;
 			}
 
@@ -1374,6 +1385,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 	case 0:
 	case 3:
 	case 4:
+    case 5:
 	case 26:
 	case 27:
 	case 36:
@@ -1387,7 +1399,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 static Reversed DisplayHelperText_kill(0x57E245, 0x57E4CF);
 void CMenuManager::DisplayHelperText(const char* pText)
 {
-	CFont::SetScale(_width(0.4f), _height(m_bCurrentMenuPage != 5 ? 0.6f : 0.5f));
+	CFont::SetScale(_width(0.4f), _height(0.6f));
 	CFont::SetFontStyle(FONT_Eurostile);
 	CFont::SetEdge(0);
 	CFont::SetOrientation(ALIGN_Right);
@@ -1512,7 +1524,11 @@ void CMenuManager::DisplayHelperText(const char* pText)
 			}
 		}
 
-		CFont::PrintStringFromBottom(_x(30.0f), _ydown(m_bCurrentMenuPage != 5 ? 10.0f : 2.0f), TheText.Get(pTextToDisplay));
+        if (FrontEndMenuManager.m_bCurrentMenuPage == 5) {
+            CFont::PrintStringFromBottom(_x(30.0f), _ydown(10.0f), TheText.Get(pXboxPad[0]->HasPadInHands() ? "FEH_MP2" : "FEH_MPH"));
+        }
+        else
+		    CFont::PrintStringFromBottom(_x(30.0f), _ydown(m_bCurrentMenuPage != 5 ? 10.0f : 2.0f), TheText.Get(pTextToDisplay));
 	}
 }
 
@@ -2309,63 +2325,64 @@ void CMenuManager::DrawBackEnd()
 	if ( m_bCurrentMenuPage == 44 )
 		m_apBackgroundTextures[1].Draw(CRect(_x(245.0f), _y(80.0f), _x(25.0f), _y(25.0f)), CRGBA(255, 255, 255, 255));
 
-	CFont::SetBackground(0, 0);
-	CFont::SetProportional(false);
-	CFont::SetFontStyle(FONT_PagerFont);
-	CFont::SetOrientation(ALIGN_Left);
-	CFont::SetRightJustifyWrap(0.0);
-	CFont::SetEdge(1);
-	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
-	CFont::SetScale(_width(0.25f), _height(0.4f));
-	CFont::SetColor(BaseColors[11]);
-	CFont::PrintString(_xleft(2.5f), _ydown(13.0f), MOD_VERSION " BUILD " BUILDNUMBER_STR);
+    if (FrontEndMenuManager.m_bCurrentMenuPage != 5) {
+        CFont::SetBackground(0, 0);
+        CFont::SetProportional(false);
+        CFont::SetFontStyle(FONT_PagerFont);
+        CFont::SetOrientation(ALIGN_Left);
+        CFont::SetRightJustifyWrap(0.0);
+        CFont::SetEdge(1);
+        CFont::SetDropColor(CRGBA(0, 0, 0, 255));
+        CFont::SetScale(_width(0.25f), _height(0.4f));
+        CFont::SetColor(BaseColors[11]);
+        CFont::PrintString(_xleft(2.5f), _ydown(13.0f), MOD_VERSION " BUILD " BUILDNUMBER_STR);
 
 #if defined DEVBUILD
-	#ifdef MAKE_ZZCOOL_MOVIE_DEMO
-		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEMONSTRATION BUILD");
-	#else
-		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEV BUILD");
-	#endif
-#elif defined COMPILE_RC
-	CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
+#ifdef MAKE_ZZCOOL_MOVIE_DEMO
+        CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEMONSTRATION BUILD");
 #else
-	CFont::PrintString(_xleft(2.5f), _ydown(20.5f), VERSION_NAME_UPPERCASE);
+        CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEV BUILD");
+#endif
+#elif defined COMPILE_RC
+        CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
+#else
+        CFont::PrintString(_xleft(2.5f), _ydown(20.5f), VERSION_NAME_UPPERCASE);
 #endif
 
-// UPDATER removed for now
-//	if ( m_bCurrentMenuPage != 44 )
-//		CUpdateManager::Display();
+        // UPDATER removed for now
+        //	if ( m_bCurrentMenuPage != 44 )
+        //		CUpdateManager::Display();
 
 #ifdef INCLUDE_PROMO_BANNER
-	if ( bCurrentScreen == 33 || bCurrentScreen == 34 || bCurrentScreen == 41 )
-	{
-		int			nDaysTillDeadline = static_cast<int>(GetCurrentDate().GetSecondsLeft(CDate(21, 12, 2013, true))) / (60*60*24);
-		if ( nDaysTillDeadline >= 0 )
-		{
-			textures[16].Draw(CRect(_x(135.0f), _y(122.5f), _x(15.0f), _y(2.5f)), CRGBA(255, 255, 255, 255));
+        if (bCurrentScreen == 33 || bCurrentScreen == 34 || bCurrentScreen == 41)
+        {
+            int			nDaysTillDeadline = static_cast<int>(GetCurrentDate().GetSecondsLeft(CDate(21, 12, 2013, true))) / (60 * 60 * 24);
+            if (nDaysTillDeadline >= 0)
+            {
+                textures[16].Draw(CRect(_x(135.0f), _y(122.5f), _x(15.0f), _y(2.5f)), CRGBA(255, 255, 255, 255));
 
-			CFont::SetProportional(true);
-			CFont::SetScale(_width(0.8f), _height(1.2f));
-			CFont::SetFontStyle(FONT_RageItalic);
-			//CFont::SetDropColor(CRGBA(0, 0, 0, 255));
-			//CFont::SetEdge(1);
-			CFont::SetOrientation(ALIGN_Center);
+                CFont::SetProportional(true);
+                CFont::SetScale(_width(0.8f), _height(1.2f));
+                CFont::SetFontStyle(FONT_RageItalic);
+                //CFont::SetDropColor(CRGBA(0, 0, 0, 255));
+                //CFont::SetEdge(1);
+                CFont::SetOrientation(ALIGN_Center);
 
-			CFont::SetColor(CRGBA(MODDB_RED_R, MODDB_RED_G, MODDB_RED_B, 255));
-			CFont::PrintString(_x(75.0f), _y(115.0f), TheText.Get("FEP_MOD"));
+                CFont::SetColor(CRGBA(MODDB_RED_R, MODDB_RED_G, MODDB_RED_B, 255));
+                CFont::PrintString(_x(75.0f), _y(115.0f), TheText.Get("FEP_MOD"));
 
-			CFont::SetProportional(false);
-			CFont::SetFontStyle(FONT_PagerFont);
-			CFont::SetScale(_width(0.375f), _height(0.725f));
-			if ( nDaysTillDeadline >= 3 )
-				CFont::SetColor(CRGBA(255, 255, 255, 255));
+                CFont::SetProportional(false);
+                CFont::SetFontStyle(FONT_PagerFont);
+                CFont::SetScale(_width(0.375f), _height(0.725f));
+                if (nDaysTillDeadline >= 3)
+                    CFont::SetColor(CRGBA(255, 255, 255, 255));
 
-			CMessages::InsertNumberInString(TheText.Get(nDaysTillDeadline == 1 ? "FEP_DY2" : "FEP_DYZ"), nDaysTillDeadline, -1, -1, -1, -1, -1, gString);
-			CFont::PrintString(_x(75.0f), _y(140.0f), gString);
-		}
-	}
+                CMessages::InsertNumberInString(TheText.Get(nDaysTillDeadline == 1 ? "FEP_DY2" : "FEP_DYZ"), nDaysTillDeadline, -1, -1, -1, -1, -1, gString);
+                CFont::PrintString(_x(75.0f), _y(140.0f), gString);
+            }
+        }
 #endif
-
+    }
 	CFont::SetProportional(true);
 	CFont::SetEdge(0);
 }
@@ -2381,7 +2398,7 @@ void CMenuManager::DrawRadioStationIcons()
 
 #if defined COMPILE_BOUNCING_ICONS || defined COMPILE_SMOOTHBEATING_ICONS || defined COMPILE_BEATING_ICONS
 	static signed char	bLastRadioStation = -1;
-	static double		fRadioStationBouncingAngle = 0.0;
+	static float		fRadioStationBouncingAngle = 0.0;
 
 	//if ( (CTimer::m_snTimeInMillisecondsPauseMode - LastTimeIconsWereUpdated) > 32 )
 	//{
@@ -2706,7 +2723,7 @@ void CMenuManager::PrintControllerSetupScreen()
 		BlendColour = CRGBA(255, 255, 255);
 
 	m_apBackgroundTextures[3].Draw(CRect(_xmiddle(-175.0f), _ymiddle(140.0f), _xmiddle(175.0f), _ymiddle(-35.0f)), BlendSqr(BlendColour, CRGBA(255, 255, 255), 0.5f));
-	m_apBackgroundTextures[5].Draw(CRect(_xmiddle(-175.0f), _ymiddle(227.5f), _xmiddle(175.0f), _ymiddle(-122.5f)), CRGBA(255, 255, 255));
+	//m_apBackgroundTextures[5].Draw(CRect(_xmiddle(-175.0f), _ymiddle(227.5f), _xmiddle(175.0f), _ymiddle(-122.5f)), CRGBA(255, 255, 255));
 
 	//CLines::ImmediateLine2D( _xmiddle(-200.0f), _ymiddle(-30.0f), _xmiddle(-85.0f), _ymiddle(5.0f), 255, 0, 0, 255, 255, 0, 0, 255 );
 	//CLines::ImmediateLine2D( _xmiddle(-200.0f), _ymiddle(10.0f), _xmiddle(-85.0f), _ymiddle(5.0f), 255, 0, 0, 255, 255, 0, 0, 255 );
@@ -3250,10 +3267,10 @@ void CMenuManager::ReadFrontendTextures()
 	static const char* const	frontendpcTexNames[] = {
 									"scrollback",
 									"scrollfront",
-									"mouse",
-									"crosshair" };
+									"mousepointers_texturesheet",
+									 };
 
-	CPNGArchive			FrontendArchive("models\\frontend.spta");
+	CPNGArchive			FrontendArchive("pc\\textures\\frontend.spta");
 	CPNGArchive			DLCArchive(CFileLoader::GetFrontendPath());
 
 	// fronten1
@@ -3288,7 +3305,7 @@ void CMenuManager::ReadFrontendTextures()
 
 void CMenuManager::LoadControllerSprites()
 {
-	CPNGArchive			FrontendArchive("models\\frontend.spta");
+	CPNGArchive			FrontendArchive("pc\\textures\\frontend.spta");
 	FrontendArchive.SetDirectory("fronten2");
 
 	if ( CFont::bX360Buttons )
@@ -3532,30 +3549,205 @@ void CMenuManager::MessageScreen(const char* pMessage, bool bFullscreen, bool bW
 		DoRWStuffEndOfFrame();
 }
 
+static bool bCenteredCursor;
+
+void CenterMousePosnForMapScreen() {
+    RwV2d posn;
+    posn.x = (RsGlobal.MaximumWidth / 2) * 1.14f / ScreenAspectRatio;
+    posn.y = RsGlobal.MaximumHeight / 2;
+    ClientToScreen(RsGlobal.ps->window, (LPPOINT)&posn);
+    SetCursorPos((RsGlobal.MaximumWidth / 2) * 1.14f / ScreenAspectRatio, RsGlobal.MaximumHeight / 2);
+    RsGlobal.ps->lastMousePos_X = (RsGlobal.MaximumWidth / 2) * 1.14f / ScreenAspectRatio;
+    RsGlobal.ps->lastMousePos_Y = RsGlobal.MaximumHeight / 2;
+
+    FrontEndMenuManager.m_vMousePos.x = (RsGlobal.MaximumWidth / 2) * 1.14f / ScreenAspectRatio;
+    FrontEndMenuManager.m_vMousePos.y = (RsGlobal.MaximumHeight / 2);
+}
+
 void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* pDown)
 {
-	// Call SA AdditionalOptionInput
-	((void(__thiscall*)(CMenuManager*,unsigned char*,unsigned char*))0x5773D0)(this, pUp, pDown);
+    // Call SA AdditionalOptionInput
+    ((void(__thiscall*)(CMenuManager*, unsigned char*, unsigned char*))0x5773D0)(this, pUp, pDown);
 
-	if ( m_bCurrentMenuPage == 45 || m_bCurrentMenuPage == 46 )
-	{
-		if ( ControlsManager.GetIsKeyboardKeyJustDown(rsEND) )
-		{
-			AudioEngine.ReportFrontendAudioEvent(1, 0.0f, 1.0f);
-			SwitchToNewScreen(49);  
-		}
-	}
+    FrontEndMenuManager.field_30 = -1;
 
-	if ( m_bCurrentMenuPage == 49 )
-	{
-		// Listen for Ctrl + V
-		if ( (ControlsManager.GetIsKeyboardKeyDown(rsLCTRL) || ControlsManager.GetIsKeyboardKeyDown(rsRCTRL))
-			 && ControlsManager.GetIsKeyboardKeyJustDown(static_cast<RsKeyCodes>(0x56)) )
-		{
-			ClearSerialsBuffer();
-			LookIntoClipboardForSerial();
-		}
-	}
+    if (m_bCurrentMenuPage == 45 || m_bCurrentMenuPage == 46)
+    {
+        if (ControlsManager.GetIsKeyboardKeyJustDown(rsEND))
+        {
+            AudioEngine.ReportFrontendAudioEvent(1, 0.0f, 1.0f);
+            SwitchToNewScreen(49);
+        }
+    }
+
+    if (m_bCurrentMenuPage == 49)
+    {
+        // Listen for Ctrl + V
+        if ((ControlsManager.GetIsKeyboardKeyDown(rsLCTRL) || ControlsManager.GetIsKeyboardKeyDown(rsRCTRL))
+            && ControlsManager.GetIsKeyboardKeyJustDown(static_cast<RsKeyCodes>(0x56)))
+        {
+            ClearSerialsBuffer();
+            LookIntoClipboardForSerial();
+        }
+    }
+
+    // Map Menu
+    float fMapCenterX = 320.0f;
+    float fMapCenterY = 188.0f;
+    float fMapZoom = 310.0f;
+    float fMapMaxZoom = 648.0f;
+    float fSlideSpeed = 10.0f;
+    float MOUSEX = FrontEndMenuManager.m_vMousePos.x;
+    float MOUSEY = FrontEndMenuManager.m_vMousePos.y;
+
+    // Set Zoom / Movement... may a new set needed.
+    if (FrontEndMenuManager.m_bCurrentMenuPage == 5) {
+        if (!bCenteredCursor) {
+            CenterMousePosnForMapScreen();
+            bCenteredCursor = true;
+        }
+        //FrontEndMenuManager.m_bDrawMouse = false;
+
+
+        if (FrontEndMenuManager.m_fMapZoom > fMapZoom + 20.0f) {}
+        else {
+            FrontEndMenuManager.m_fMapBaseX = (fMapCenterX);
+            FrontEndMenuManager.m_fMapBaseY = (fMapCenterY);
+        }
+
+        // Legend key.
+       /* if (CPad::GetPad(0)->NewState.CROSS && !CPad::GetPad(0)->OldState.CROSS || (currKeyState->standardKeys[76] && !prevKeyState->standardKeys[76]))
+            FrontEndMenuManager.m_bMapLegend = FrontEndMenuManager.m_bMapLegend == 0;*/
+
+        if (FrontEndMenuManager.m_dwMousePosTop < _ydown(23.0f)) {
+
+           /* // Zoom
+            if (CPad::GetPad(0)->NewMouseControllerState.wheelUp || currKeyState->pgup || CPad::GetPad(0)->NewState.RIGHTSHOULDER2) {
+                if (FrontEndMenuManager.m_fMapZoom < fMapMaxZoom)
+                    FrontEndMenuManager.m_fMapZoom += fSlideSpeed;
+                else if (FrontEndMenuManager.m_fMapZoom >= fMapMaxZoom)
+                    FrontEndMenuManager.m_fMapZoom = fMapMaxZoom;
+
+            }
+            else if (CPad::GetPad(0)->NewMouseControllerState.wheelDown || currKeyState->pgdn || CPad::GetPad(0)->NewState.LEFTSHOULDER2) {
+                if (FrontEndMenuManager.m_fMapZoom > fMapZoom) {
+                    FrontEndMenuManager.m_fMapZoom -= fSlideSpeed;
+                }
+                else if (FrontEndMenuManager.m_fMapZoom <= fMapZoom) {
+                    FrontEndMenuManager.m_fMapZoom = fMapZoom;
+                }
+
+                // Restore posn.
+                if (FrontEndMenuManager.m_fMapBaseX != fMapCenterX) {
+                    if (FrontEndMenuManager.m_fMapBaseX > fMapCenterX)
+                        FrontEndMenuManager.m_fMapBaseX -= fSlideSpeed;
+                    else if (FrontEndMenuManager.m_fMapBaseX < fMapCenterX)
+                        FrontEndMenuManager.m_fMapBaseX += fSlideSpeed;
+                }
+
+                if (FrontEndMenuManager.m_fMapBaseY != fMapCenterY) {
+                    if (FrontEndMenuManager.m_fMapBaseY > fMapCenterY)
+                        FrontEndMenuManager.m_fMapBaseY -= fSlideSpeed;
+                    else if (FrontEndMenuManager.m_fMapBaseY < fMapCenterY)
+                        FrontEndMenuManager.m_fMapBaseY += fSlideSpeed;
+                }
+            }*/
+
+            // Position mouse.
+            if (CPad::GetPad(0)->NewState.LEFTSTICKX || CPad::GetPad(0)->NewState.LEFTSTICKY || CPad::GetPad(0)->NewState.DPADRIGHT || CPad::GetPad(0)->NewState.DPADLEFT || CPad::GetPad(0)->NewState.DPADUP || CPad::GetPad(0)->NewState.DPADDOWN || currKeyState->left || currKeyState->right || currKeyState->up || currKeyState->down) {
+                CenterMousePosnForMapScreen();
+            }
+
+            if (CPad::GetPad(0)->NewMouseControllerState.lmb) {
+                if (FrontEndMenuManager.m_fMapZoom > fMapZoom + 20.0f) {
+                    if (CPad::GetPad(0)->NewMouseControllerState.X > 0) {
+                        if (FrontEndMenuManager.m_fMapBaseX < 640.0f) // Right
+                            FrontEndMenuManager.m_fMapBaseX += CPad::GetPad(0)->NewMouseControllerState.X * 0.4f;
+                    }
+                    else if (CPad::GetPad(0)->NewMouseControllerState.X < 0) {
+                        if (FrontEndMenuManager.m_fMapBaseX > 0.0f) // Left
+                            FrontEndMenuManager.m_fMapBaseX += CPad::GetPad(0)->NewMouseControllerState.X * 0.4f;
+                    }
+
+                    if (CPad::GetPad(0)->NewMouseControllerState.Y > 0) {
+                        if (FrontEndMenuManager.m_fMapBaseY < 448.0f) // Bottom
+                            FrontEndMenuManager.m_fMapBaseY += CPad::GetPad(0)->NewMouseControllerState.Y * 0.4f;
+                    }
+                    else if (CPad::GetPad(0)->NewMouseControllerState.Y < 0) {
+                        if (FrontEndMenuManager.m_fMapBaseY > 0.0f) // Top
+                            FrontEndMenuManager.m_fMapBaseY += CPad::GetPad(0)->NewMouseControllerState.Y * 0.4f;
+                    }
+                }
+            }
+            else { // Position arrows
+                if (FrontEndMenuManager.m_fMapZoom > fMapZoom + 20.0f) {
+                    // ANALOG
+                    if (CPad::GetPad(0)->NewState.LEFTSTICKX > 0) {
+                        if (FrontEndMenuManager.m_fMapBaseX > 0.0f) // Left
+                            FrontEndMenuManager.m_fMapBaseX -= CPad::GetPad(0)->NewState.LEFTSTICKX * 0.06f;
+                    }
+                    else if (CPad::GetPad(0)->NewState.LEFTSTICKX < 0) {
+                        if (FrontEndMenuManager.m_fMapBaseX < 640.0f) // Right
+                            FrontEndMenuManager.m_fMapBaseX -= CPad::GetPad(0)->NewState.LEFTSTICKX * 0.06f;
+                    }
+                    if (CPad::GetPad(0)->NewState.LEFTSTICKY > 0) {
+                        if (FrontEndMenuManager.m_fMapBaseY > 0.0f) // Top
+                            FrontEndMenuManager.m_fMapBaseY -= CPad::GetPad(0)->NewState.LEFTSTICKY * 0.06f;
+                    }
+                    else if (CPad::GetPad(0)->NewState.LEFTSTICKY < 0) {
+                        if (FrontEndMenuManager.m_fMapBaseY < 448.0f) // Bottom
+                            FrontEndMenuManager.m_fMapBaseY -= CPad::GetPad(0)->NewState.LEFTSTICKY * 0.06f;
+                    }
+                    // DPAD
+                    if (CPad::GetPad(0)->NewState.DPADRIGHT) {
+                        if (FrontEndMenuManager.m_fMapBaseX > 0.0f) // Left
+                            FrontEndMenuManager.m_fMapBaseX -= CPad::GetPad(0)->NewState.DPADRIGHT * 0.03f;
+                    }
+                    else if (CPad::GetPad(0)->NewState.DPADLEFT) {
+                        if (FrontEndMenuManager.m_fMapBaseX < 640.0f) // Right
+                            FrontEndMenuManager.m_fMapBaseX += CPad::GetPad(0)->NewState.DPADLEFT * 0.03f;
+                    }
+                    if (CPad::GetPad(0)->NewState.DPADDOWN) {
+                        if (FrontEndMenuManager.m_fMapBaseY > 0.0f) // Top
+                            FrontEndMenuManager.m_fMapBaseY -= CPad::GetPad(0)->NewState.DPADDOWN * 0.03f;
+                    }
+                    else if (CPad::GetPad(0)->NewState.DPADUP) {
+                        if (FrontEndMenuManager.m_fMapBaseY < 448.0f) // Bottom
+                            FrontEndMenuManager.m_fMapBaseY += CPad::GetPad(0)->NewState.DPADUP * 0.03f;
+                    }
+                    // WASD
+                    if (currKeyState->right) {
+                        if (FrontEndMenuManager.m_fMapBaseX > 0.0f) // Left
+                            FrontEndMenuManager.m_fMapBaseX -= currKeyState->right * 0.03f;
+                    }
+                    else if (currKeyState->left) {
+                        if (FrontEndMenuManager.m_fMapBaseX < 640.0f) // Right
+                            FrontEndMenuManager.m_fMapBaseX += currKeyState->left * 0.03f;
+                    }
+                    if (currKeyState->down) {
+                        if (FrontEndMenuManager.m_fMapBaseY > 0.0f) // Top
+                            FrontEndMenuManager.m_fMapBaseY -= currKeyState->down * 0.03f;
+                    }
+                    else if (currKeyState->up) {
+                        if (FrontEndMenuManager.m_fMapBaseY < 448.0f) // Bottom
+                            FrontEndMenuManager.m_fMapBaseY += currKeyState->up * 0.03f;
+                    }
+                }
+                else {
+                    FrontEndMenuManager.m_fMapBaseX = (fMapCenterX);
+                    FrontEndMenuManager.m_fMapBaseY = (fMapCenterY);
+                }
+            }
+        }
+    }
+    else {
+        bCenteredCursor = false;
+       // FrontEndMenuManager.m_bDrawMouse = FrontEndMenuManager.m_bDrawMouse;
+
+        FrontEndMenuManager.m_fMapZoom = (fMapZoom);
+        FrontEndMenuManager.m_fMapBaseX = (fMapCenterX);
+        FrontEndMenuManager.m_fMapBaseY = (fMapCenterY);
+    }
 }
 
 void CMenuManager::TypingKeyboardInput(wchar_t wKey)
@@ -3765,26 +3957,152 @@ static void __stdcall DisplayHelperText_Wrap1(const char*)
 	FrontEndMenuManager.DisplayHelperText(pXboxPad[0]->HasPadInHands() ? "FET_CI2" : "FET_CIG");
 }
 
+void CMenuManager::PrintMap(int x, int y, CRect rect) {
+    CRadar::DrawRadarSectionMap(x - 2, y - 2, CRect(rect.x1 + _xmiddle(-274.0f), rect.y1, rect.x2 + _xmiddle(-274.0f), rect.y2));
+}
+
+void CMenuManager::PrintMapExtra() {
+    float MOUSEX = FrontEndMenuManager.m_dwMousePosLeft;
+    float MOUSEY = FrontEndMenuManager.m_dwMousePosTop;
+    static bool bShowCursor;
+    if (CPad::GetPad(0)->NewMouseControllerState.X || CPad::GetPad(0)->NewMouseControllerState.Y)
+        bShowCursor = false;
+    else if (CPad::GetPad(0)->GetPedWalkLeftRight() || CPad::GetPad(0)->GetPedWalkUpDown() || currKeyState->up || currKeyState->down || currKeyState->left || currKeyState->right)
+        bShowCursor = true;
+
+    // Cursor
+    if (MOUSEY > _ydown(23.0f)) {}
+    else {
+        if (bShowCursor) {
+            CRect rect;
+            rect.x1 = NULL;
+            rect.x2 = RsGlobal.MaximumWidth;
+            rect.y1 = MOUSEY - _height(2.0f);
+            rect.y2 = rect.y1 + _height(2.0f);
+            CSprite2d::DrawRect(CRect(rect), CRGBA(170, 120, 20, 200)); // Hor
+            rect.x1 = MOUSEX + _xmiddle(-274.0f) - _height(2.0f);
+            rect.x2 = rect.x1 + _height(2.0f);
+            rect.y1 = NULL;
+            rect.y2 = _ydown(23.0f);
+            CSprite2d::DrawRect(CRect(rect.x1, rect.y1, rect.x2, rect.y2), CRGBA(170, 120, 20, 200)); // Vert
+        }
+    }
+
+    // Status bar.
+    CSprite2d::DrawRect(CRect(-1.0f, RsGlobal.MaximumHeight + 1.0f, RsGlobal.MaximumWidth + 1.0f, RsGlobal.MaximumHeight * 0.95f - 1.0f), CRGBA(7, 7, 7, 255));
+}
+
+void RotateVertices(CVector2D *rect, unsigned int numVerts, float x, float y, float angle) {
+    float xold, yold;
+    float _cos = cosf(angle);
+    float _sin = sinf(angle);
+    for (unsigned int i = 0; i < numVerts; i++) {
+        xold = rect[i].x;
+        yold = rect[i].y;
+        rect[i].x = x + (xold - x) * _cos + (yold - y) * _sin;
+        rect[i].y = y - (xold - x) * _sin + (yold - y) * _cos;
+    }
+}
+
+void DrawRotatingRadarSprite(CSprite2d *texture, float x, float y, float r_angle, unsigned int width, unsigned int height, CRGBA const& color) {
+    if (FrontEndMenuManager.drawRadarOrMap) {
+        x = (RsGlobal.MaximumWidth * 0.0015625) * x * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
+        y = RsGlobal.MaximumHeight  * 0.002232143 * y;
+        CRadar::LimitToMap(&x, &y);
+    }
+
+    CVector2D posn[4];
+
+    posn[0].x = x - width / 1.2f;
+
+    posn[0].y = y + height / 1.2f;
+
+    posn[1].x = x + width / 1.2f;
+
+    posn[1].y = y + height / 1.2f;
+
+    posn[2].x = x - width / 1.2f;
+
+    posn[2].y = y - height / 1.2f;
+
+    posn[3].x = x + width / 1.2f;
+
+    posn[3].y = y - height / 1.2f;
+
+    RotateVertices(posn, 4, x, y, r_angle);
+
+    texture->Draw(posn[2].x, posn[2].y, posn[3].x, posn[3].y, posn[0].x, posn[0].y, posn[1].x, posn[1].y, CRGBA(color));
+}
+
+void CMenuManager::DrawYouAreHereSprite(CSprite2d* sprite, float x, float y, float angle, unsigned int width, unsigned int height, CRGBA color) {
+    DrawRotatingRadarSprite(sprite, x, y, angle, width, height, color);
+}
+
+void __stdcall CMenuManager::DrawLegendWindow(CRect *coords, char *titleKey, char fadeState, CRGBA color, int a5, char bDrawBox) {
+    CSprite2d::DrawRect(CRect(coords->x1 + _xmiddle(-320.0f), coords->y1, coords->x2 + _xmiddle(-320.0f), coords->y2), CRGBA(30, 30, 30, 245));
+}
+
+void __cdecl CMenuManager::DrawLegend2DPolygon(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, CRGBA *color) {
+    CSprite2d::Draw2DPolygon(x1 + _xmiddle(-320.0f), y1, x2 + _xmiddle(-320.0f), y2, x3 + _xmiddle(-320.0f), y3, x4 + _xmiddle(-320.0f), y4, *color);
+}
+
+void __cdecl CMenuManager::DrawLegendText(float x, float y, char *str) {
+    CFont::SetColor(CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 255));
+
+    CFont::PrintString(x +_xmiddle(-320.0f), y, str);
+}
+
+void CMenuManager::DrawLegend2DRect(CRect const& rect, CRGBA const& rgbaColor) {
+    CSprite2d::DrawRect(CRect(rect.x1 + _xmiddle(-320.0f), rect.y1, rect.x2 + _xmiddle(-320.0f), rect.y2), rgbaColor);
+}
+
+void __fastcall CMenuManager::DrawLegend2DSprite(CSprite2d *sprite, int, CRect *rect, CRGBA *color) {
+    sprite->Draw(CRect(rect->x1 + _xmiddle(-320.0f), rect->y1, rect->x2 + _xmiddle(-320.0f), rect->y2), *color);
+}
+
+void CMenuManager::PrintMapZones(float x, float y, char *text) {
+    CFont::PrintString(_xleft(32.0f), _ydown(20.0f), text);
+}
+
+void DrawMouse() {
+    CFont::RenderFontBuffer();
+
+    if (FrontEndMenuManager.m_bCurrentMenuPage == 5) {
+        if (CPad::GetPad(0)->NewMouseControllerState.lmb)
+            FrontEndMenuManager.m_apMouseTextures[2].Draw(CRect(FrontEndMenuManager.m_dwMousePosLeft + _xmiddle(-274.0f), FrontEndMenuManager.m_dwMousePosTop + _height(24.0f), FrontEndMenuManager.m_dwMousePosLeft + _xmiddle(-274.0f) + _width(26.0f), FrontEndMenuManager.m_dwMousePosTop), CRGBA(255, 255, 255, 255), 0.69f, 0.01f, 1.00f, 0.01f, 0.69f, 1.00f, 1.00f, 1.00f);
+        else
+            FrontEndMenuManager.m_apMouseTextures[2].Draw(CRect(FrontEndMenuManager.m_dwMousePosLeft + _xmiddle(-274.0f), FrontEndMenuManager.m_dwMousePosTop + _height(24.0f), FrontEndMenuManager.m_dwMousePosLeft + _xmiddle(-274.0f) + _width(26.0f), FrontEndMenuManager.m_dwMousePosTop), CRGBA(255, 255, 255, 255), 0.35f, 0.01f, 0.65f, 0.01f, 0.35f, 1.00f, 0.65f, 1.00f);
+    }
+    else
+        FrontEndMenuManager.m_apMouseTextures[2].Draw(CRect(FrontEndMenuManager.m_dwMousePosLeft, FrontEndMenuManager.m_dwMousePosTop + _height(24.0f), FrontEndMenuManager.m_dwMousePosLeft + _width(26.0f), FrontEndMenuManager.m_dwMousePosTop), CRGBA(255, 255, 255, 255), 0.054f, 0.10f, 0.30f, 0.10f, 0.054f, 1.00f, 0.30f, 1.00f);
+}
 
 void CMenuManager::Inject()
 {
-	Memory::InjectHook(0x57BA58, &DrawStandardMenus);
-	Memory::InjectHook(0x57B66F, &ProcessMenuOptions);
-	Memory::InjectHook(0x57B702, &ProcessMenuOptions);
+    Memory::InjectHook(0x57BA58, &DrawStandardMenus);
+    Memory::InjectHook(0x57B66F, &ProcessMenuOptions);
+    Memory::InjectHook(0x57B702, &ProcessMenuOptions);
 
-	Memory::InjectHook(0x57B70A, &CheckSliderMovement);
-	Memory::InjectHook(0x580215, &CheckSliderMovement);
-	Memory::InjectHook(0x57E240, &DisplayHelperText, PATCH_JUMP);
+    Memory::InjectHook(0x57B70A, &CheckSliderMovement);
+    Memory::InjectHook(0x580215, &CheckSliderMovement);
+    Memory::InjectHook(0x57E240, &DisplayHelperText, PATCH_JUMP);
 
-	// Hook helpers
-	Memory::InjectHook(0x57ED7F, DisplayHelperText_Wrap1);
-	Memory::InjectHook(0x57ED94, DisplayHelperText_Wrap1);
+    // Hook helpers
+    Memory::InjectHook(0x57ED7F, DisplayHelperText_Wrap1);
+    Memory::InjectHook(0x57ED94, DisplayHelperText_Wrap1);
+
+    // Mouse Pointers
+    Memory::InjectHook(0x57BF70, DrawMouse);
+    Memory::Patch<BYTE>(0x57C099 + 1, 0);
+    Memory::Patch<BYTE>(0x57C0FF + 1, 0);
+    Memory::Patch<BYTE>(0x57C18F + 1, 0);
+    Memory::Patch<BYTE>(0x57C1F5 + 1, 0);
+
 }
 
 //
 // CLoadingScreen
 //
-
 
 uint8	CLoadingScreen::bDrawingStyle;
 bool	&CLoadingScreen::m_bFading = *(bool*)0xBAB31C;
@@ -3794,93 +4112,93 @@ bool	&CLoadingScreen::m_bReadyToDelete = *(bool*)0xBAB33D;
 
 void CLoadingScreen::LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID)
 {
-	unsigned char		bTempIndexes[NUM_LOADING_SPLASHES], bFinalIndexes[NUM_LOADING_SPLASHES];
-	LARGE_INTEGER		lPerformanceCount;
+    unsigned char		bTempIndexes[NUM_LOADING_SPLASHES], bFinalIndexes[NUM_LOADING_SPLASHES];
+    LARGE_INTEGER		lPerformanceCount;
 
-//	memset(bTempIndexes, 0, sizeof(bTempIndexes));
-	for ( unsigned char i = 0; i < NUM_LOADING_SPLASHES; ++i )
-		bTempIndexes[i] = i;
+    //	memset(bTempIndexes, 0, sizeof(bTempIndexes));
+    for (unsigned char i = 0; i < NUM_LOADING_SPLASHES; ++i)
+        bTempIndexes[i] = i;
 
-	CPNGArchive		LoadscsArchive("models\\txd\\loadscs.spta");
-	LoadscsArchive.SetDirectory(nullptr);
+    CPNGArchive		LoadscsArchive("pc\\textures\\loadscreens.spta");
+    LoadscsArchive.SetDirectory(nullptr);
 
-	QueryPerformanceCounter(&lPerformanceCount);
-	srand(lPerformanceCount.LowPart);
+    QueryPerformanceCounter(&lPerformanceCount);
+    srand(lPerformanceCount.LowPart);
 
-	for ( int i = 0, j = NUM_LOADING_SPLASHES-2; i < NUM_LOADING_SPLASHES; ++i, --j )
-	{
-		int		nRandomNumber;
+    for (int i = 0, j = NUM_LOADING_SPLASHES - 2; i < NUM_LOADING_SPLASHES; ++i, --j)
+    {
+        int		nRandomNumber;
 
-		if ( i )
-			nRandomNumber = static_cast<int>(rand() * (1.0f/(RAND_MAX+1.0f)) * (j+1));
-		else
-			nRandomNumber = 0;
+        if (i)
+            nRandomNumber = static_cast<int>(rand() * (1.0f / (RAND_MAX + 1.0f)) * (j + 1));
+        else
+            nRandomNumber = 0;
 
-		bFinalIndexes[i] = bTempIndexes[nRandomNumber];
-		if ( nRandomNumber < j )
-			memcpy(&bTempIndexes[nRandomNumber], &bTempIndexes[nRandomNumber+1], j - nRandomNumber);
-	}
+        bFinalIndexes[i] = bTempIndexes[nRandomNumber];
+        if (nRandomNumber < j)
+            memcpy(&bTempIndexes[nRandomNumber], &bTempIndexes[nRandomNumber + 1], j - nRandomNumber);
+    }
 
-	for ( int i = 0; i < 7; ++i )
-	{
-		char		SplashName[20];
-		bDrawingStyle = bIntroSplash != 0;
-		if ( bIntroSplash )
-		{
-			if ( nIntroSplashID == 1 )
-				strncpy(SplashName, "intro", sizeof(SplashName));
-			else
-				strncpy(SplashName, "outro", sizeof(SplashName));
-		}
-		else
-		{
-			if ( i )
-				_snprintf(SplashName, sizeof(SplashName), "loadsc%d", bFinalIndexes[i]);
-			else
-				strncpy(SplashName, GetTitlePCByLanguage(), sizeof(SplashName));
-		}
-		LoadingSprites[i].SetTextureFromSPTA(LoadscsArchive, SplashName);
-	}
-	LoadscsArchive.CloseArchive();
+    for (int i = 0; i < 7; ++i)
+    {
+        char		SplashName[20];
+        bDrawingStyle = bIntroSplash != 0;
+        if (bIntroSplash)
+        {
+            if (nIntroSplashID == 1)
+                strncpy(SplashName, "intro", sizeof(SplashName));
+            else
+                strncpy(SplashName, "outro", sizeof(SplashName));
+        }
+        else
+        {
+            if (i)
+                _snprintf(SplashName, sizeof(SplashName), "loadsc%d", bFinalIndexes[i]);
+            else
+                strncpy(SplashName, GetTitlePCByLanguage(), sizeof(SplashName));
+        }
+        LoadingSprites[i].SetTextureFromSPTA(LoadscsArchive, SplashName);
+    }
+    LoadscsArchive.CloseArchive();
 }
 
 void CLoadingScreen::RenderSplash()
 {
-	CSprite2d::InitPerFrame();
-	RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS, reinterpret_cast<void*>(rwTEXTUREADDRESSCLAMP));
+    CSprite2d::InitPerFrame();
+    RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS, reinterpret_cast<void*>(rwTEXTUREADDRESSCLAMP));
     CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(640.0f / 448.0f, WidescreenSupport::SetAspectRatio(), true);
 
-	if ( m_bFading )
-	{
-		if ( bDrawingStyle == 1 )
-		{
-			// Logo (small)
-			LoadingSprites[CurrentLoadingSprite].Draw(CRect(_xmiddle(-175.0f), _ymiddle(175.0f), _xmiddle(175.0f), _ymiddle(-175.0f)), CRGBA(255, 255, 255, 255));
-		}
-		else
-		{
-			if ( !CurrentLoadingSprite )
-			{
-				// title_pc
+    if (m_bFading)
+    {
+        if (bDrawingStyle == 1)
+        {
+            // Logo (small)
+            LoadingSprites[CurrentLoadingSprite].Draw(CRect(_xmiddle(-175.0f), _ymiddle(175.0f), _xmiddle(175.0f), _ymiddle(-175.0f)), CRGBA(255, 255, 255, 255));
+        }
+        else
+        {
+            if (!CurrentLoadingSprite)
+            {
+                // title_pc
 
-				LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
-			}
-			else
-			{
-				// Regular
                 LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
             }
-		}
+            else
+            {
+                // Regular
+                LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
+            }
+        }
 
-		if ( m_bFadeInNextSplashFromBlack || m_bFadeOutCurrSplashToBlack )
-			CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, *(bool*)0xBAB31E ? 255 - *(unsigned char*)0xBAB320 : *(unsigned char*)0xBAB320));
-		else
+        if (m_bFadeInNextSplashFromBlack || m_bFadeOutCurrSplashToBlack)
+            CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, *(bool*)0xBAB31E ? 255 - *(unsigned char*)0xBAB320 : *(unsigned char*)0xBAB320));
+        else
             LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
-			//LoadingSprites[CurrentLoadingSprite-1].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255 - *(unsigned char*)0xBAB320));
-	}
-	else
-	{
-		if ( !m_bReadyToDelete )
+        //LoadingSprites[CurrentLoadingSprite-1].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255 - *(unsigned char*)0xBAB320));
+    }
+    else
+    {
+        if (!m_bReadyToDelete)
             LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
     }
 }

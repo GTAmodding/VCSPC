@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 #include "PostEffects.h"
+#include "PlayerInfo.h"
+#include "Camera.h"
 
 #include "Rs.h"
 #include "TimeCycle.h"
@@ -369,18 +371,33 @@ if(0){
 	CPostEffects::ImmediateModeRenderStatesReStore();
 }
 
+void PerformCamShake() {
+    CVehicle *vehicle = FindPlayerVehicle(-1, true);
+
+    if (vehicle && vehicle->GetSubClass() != VEHICLE_PLANE && vehicle->GetSubClass() != VEHICLE_HELI
+        && vehicle->GetSubClass() != VEHICLE_BOAT && vehicle->GetSubClass() != VEHICLE_BMX &&
+        vehicle->GetSubClass() != VEHICLE_TRAIN) {
+        float speed = vehicle->m_vecLinearVelocity.Magnitude();
+
+        if (speed > 0.75f)
+            CamShakeNoPos(&TheCamera, FindPlayerVehicle(-1, 0)->m_vecLinearVelocity.Magnitude() * 0.035f);
+    }
+}
 
 void CPostEffects::Render()
 {
-	RwRGBA blurcol;
-	if(m_bTrailsEnabled)
-		Radiosity(CTimeCycle::GetRadiosityLimit(), CTimeCycle::GetRadiosityIntensity());
-	if(blurEnabled){
-		blurcol.red = CTimeCycle::GetBlurRed();
-		blurcol.green = CTimeCycle::GetBlurGreen();
-		blurcol.blue = CTimeCycle::GetBlurBlue();
-		BlurOverlay(CTimeCycle::GetBlurAlpha(), CTimeCycle::GetBlurOffset(), blurcol);
-	}
+    RwRGBA blurcol;
+    if (m_bTrailsEnabled)
+        Radiosity(CTimeCycle::GetRadiosityLimit(), CTimeCycle::GetRadiosityIntensity());
+    if (blurEnabled) {
+        blurcol.red = CTimeCycle::GetBlurRed();
+        blurcol.green = CTimeCycle::GetBlurGreen();
+        blurcol.blue = CTimeCycle::GetBlurBlue();
+        BlurOverlay(CTimeCycle::GetBlurAlpha(), CTimeCycle::GetBlurOffset(), blurcol);
+    }
+
+    // Shake cam at high speed.
+    PerformCamShake();
 }
 
 void CPostEffects::Initialise()

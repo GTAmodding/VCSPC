@@ -19,7 +19,6 @@ WRAPPER void CSprite::RenderBufferedOneXLUSprite2D(float, float, float, float, c
 
 WRAPPER float CSprite::CalcHorizonCoors() { EAXJMP(0x70E3E0); }
 
-
 // Arguments:
 // 0---1
 // |   |
@@ -29,8 +28,20 @@ WRAPPER void CSprite2d::SetVertices(const CRect& rect, const CRGBA& rgb1, const 
 // TODO: Name params
 WRAPPER void CSprite2d::SetVertices(const CRect&, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&, float, float, float, float, float, float, float, float) { EAXJMP(0x727710); }
 WRAPPER void CSprite2d::SetVertices(float, float, float, float, float, float, float, float, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&) { EAXJMP(0x727590); }
+WRAPPER void CSprite2d::SetVertices(int numVerts, float const& v2d1, float const& v2d2, CRGBA const& pRGBA) { WRAPARG(numVerts);  WRAPARG(v2d1);  WRAPARG(v2d2);  WRAPARG(pRGBA); EAXJMP(0x727890); }
 
 WRAPPER void CSprite2d::InitPerFrame() { EAXJMP(0x727350); }
+
+WRAPPER void CSprite2d::Draw2DPolygon(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, CRGBA const& color) {
+    WRAPARG(x1); WRAPARG(y1); WRAPARG(x2); WRAPARG(y2); WRAPARG(x3); WRAPARG(y3); WRAPARG(x4);
+    WRAPARG(y4); WRAPARG(color); EAXJMP(0x7285B0);
+}
+
+WRAPPER void CSprite2d::Draw(CRect const& rect, CRGBA const& color, float u1, float v1, float u2, float v2, float u3, float v3, float u4, float v4) {
+    WRAPARG(rect); WRAPARG(color); WRAPARG(u1); WRAPARG(v1); WRAPARG(u2); WRAPARG(v2); WRAPARG(u3);
+    WRAPARG(v3); WRAPARG(u4); WRAPARG(v4); WRAPARG(color); EAXJMP(0x728420);
+}
+
 
 void CSprite2d::SetTexture(const char* name, const char* maskName)
 {

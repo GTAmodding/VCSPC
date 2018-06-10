@@ -4,7 +4,7 @@
 class CWaterLevel
 {
 public:
-	static void WaterLevelInitialise(void);
+	static void WaterLevelInitialise();
 	static bool GetWaterLevel(float x, float y, float z, float *level, char wave, CVector *w);
 	static void PreRenderWater(void);
 	static void RenderWaterFog(void);
