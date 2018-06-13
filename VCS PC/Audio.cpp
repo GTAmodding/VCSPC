@@ -50,7 +50,7 @@ void CAEVehicleAudioEntity::GetVehicleAudioSettings(short nModelID)
 
 void CAEVehicleAudioEntity::LoadVehicleAudioSettings()
 {
-	LoadVehicleAudioSettings("COMMON\\DATA\\VEHAUDIO.DAT");
+	LoadVehicleAudioSettings("DATA\\VEHAUDIO.DAT");
 
 	if ( auto* pAudioSets = CFileLoader::GetVehAudioList() )
 	{

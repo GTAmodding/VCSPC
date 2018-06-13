@@ -8,12 +8,11 @@
 enum
 {
 	LANGUAGE_English,
-	LANGUAGE_German,
+	//LANGUAGE_German,
 	//LANGUAGE_Spanish,
+    //LANGUAGE_Italian,
 	LANGUAGE_Brazilian,
 	LANGUAGE_Polish,
-	LANGUAGE_Hungarian,
-	LANGUAGE_Romanian,
 	NUM_LANGUAGES
 };
 

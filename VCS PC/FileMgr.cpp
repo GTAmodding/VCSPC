@@ -20,10 +20,10 @@ tFileLoaderList*		CFileLoader::m_pCollisionsList;
 tFileLoaderList*		CFileLoader::m_pCarcolsList;
 tFileLoaderList*		CFileLoader::m_pVehAudioList;
 
-char					CFileLoader::m_cParticlesPath[64] = "PC\\TEXTURES\\PARTICLE.TXD";
-char					CFileLoader::m_cPedgrpPath[64] = "COMMON\\DATA\\PEDGRP.DAT";
-char					CFileLoader::m_cPopcyclePath[64] = "COMMON\\DATA\\POPCYCLE.DAT";
-char					CFileLoader::m_cTimecycPath[64] = "PC\\DATA\\TIMECYC.DAT";
+char					CFileLoader::m_cParticlesPath[64] = "MODELS\\PARTICLE.TXD";
+char					CFileLoader::m_cPedgrpPath[64] = "DATA\\PEDGRP.DAT";
+char					CFileLoader::m_cPopcyclePath[64] = "DATA\\POPCYCLE.DAT";
+char					CFileLoader::m_cTimecycPath[64] = "DATA\\TIMECYC.DAT";
 char					CFileLoader::m_cFrontendPath[64] = "";
 char					CFileLoader::m_cP2dfxPath[64];
 

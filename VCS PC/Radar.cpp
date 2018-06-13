@@ -159,7 +159,7 @@ return 0x00FF00FF;
 
 void CRadar::LoadTextures()
 {
-	CPNGArchive		HudSPTA("pc\\textures\\hud.spta");
+	CPNGArchive		HudSPTA("models\\hud.spta");
 	HudSPTA.SetDirectory("blips");
 
 	for ( int i = 0; i < NUM_BLIP_SPRITES; ++i )

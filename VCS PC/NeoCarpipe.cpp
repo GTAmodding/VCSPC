@@ -472,7 +472,7 @@ CarPipe::LoadTweakingTable(void)
 {
 	char *path;
 	FILE *dat;
-	dat = fopen("common/data/carTweakingTable.dat", "r");
+	dat = fopen("data/carTweakingTable.dat", "r");
 	assert(dat);
 	neoReadWeatherTimeBlock(dat, &fresnel);
 	neoReadWeatherTimeBlock(dat, &power);

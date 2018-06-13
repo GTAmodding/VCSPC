@@ -269,12 +269,12 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	// Language
 	{ "FEH_LAN", 33, 4, 0, 0,
 		37, "FEL_ENG", ACTION_STANDARD, 28, 0, -72, 3, 0, 0,
-		38, "FEL_GER", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		39, "FEL_BRA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		//38, "FEL_SPA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		40, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		41, "FEL_HUN", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		MENUACTION_TOGGLE_LANGUAGE_6, "FEL_RON", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		//38, "FEL_GER", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+        //39, "FEL_SPA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+        //40, "FEL_ITA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		38, "FEL_BRA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		39, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+
 		2, "FEDS_TB", ACTION_STANDARD, 4, 0, 0, 3, 0, 0 },
 
 
@@ -945,7 +945,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 				case 1:
 					pTextToShow_RightColumn = TheText.Get("FEC_CF2");
 					break;
-				case 2:
+				case 3:
 					pTextToShow_RightColumn = TheText.Get("FEC_CF3");
 					break;
 				}
@@ -1582,15 +1582,27 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 	case MENUACTION_CTRL_TYPE:
 		if ( nArrowsInput >= 0 )
 		{
-			if ( ++CPad::SavedMode > PAD_IV_CONTROLS_MODE )
-				CPad::SavedMode = 0;
-		}
+			if (CPad::SavedMode == 0 )
+				CPad::SavedMode = 1;
+            else if (CPad::SavedMode == 1)
+                CPad::SavedMode = 3;
+            else if (CPad::SavedMode == 2)
+                CPad::SavedMode = 3;
+            else if (CPad::SavedMode == 3)
+                CPad::SavedMode = 0;
+        }
 		else
 		{
-			if ( CPad::SavedMode > 0 )
-				--CPad::SavedMode;
-			else
-				CPad::SavedMode = PAD_IV_CONTROLS_MODE;
+            if (CPad::SavedMode == 0)
+                CPad::SavedMode = 3;
+            else if (CPad::SavedMode == 1)
+                CPad::SavedMode = 0;
+            else if (CPad::SavedMode == 2)
+                CPad::SavedMode = 1;
+            else if (CPad::SavedMode == 3)
+                CPad::SavedMode = 1;
+
+
 		}
 		if ( pXboxPad[0]->HasPadInHands() )
 			CPad::GetPad(0)->Mode = CPad::SavedMode;
@@ -2033,7 +2045,7 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 			SaveSettings();
 		}
 		return;
-	case MENUACTION_TOGGLE_LANGUAGE_6:
+	case MENUACTION_TOGGLE_LANGUAGE_5:
 		if ( m_nLanguage != 5 )
 		{
 			m_nLanguage = 5;
@@ -2341,7 +2353,8 @@ void CMenuManager::DrawBackEnd()
 #ifdef MAKE_ZZCOOL_MOVIE_DEMO
         CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEMONSTRATION BUILD");
 #else
-        CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEV BUILD");
+        //CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "DEV BUILD");
+		CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "E3 2018 BUILD");
 #endif
 #elif defined COMPILE_RC
         CFont::PrintString(_xleft(2.5f), _ydown(20.5f), "RELEASE CANDIDATE "RELEASE_CANDIDATE);
@@ -2508,6 +2521,7 @@ void CMenuManager::DrawOutroSplash()
 
     if (bNoOutro) 
     {
+        RsEventHandler(rsQUITAPP, nullptr);
         exit(0);
     }
     else 
@@ -3270,7 +3284,7 @@ void CMenuManager::ReadFrontendTextures()
 									"mousepointers_texturesheet",
 									 };
 
-	CPNGArchive			FrontendArchive("pc\\textures\\frontend.spta");
+	CPNGArchive			FrontendArchive("models\\frontend.spta");
 	CPNGArchive			DLCArchive(CFileLoader::GetFrontendPath());
 
 	// fronten1
@@ -3305,7 +3319,7 @@ void CMenuManager::ReadFrontendTextures()
 
 void CMenuManager::LoadControllerSprites()
 {
-	CPNGArchive			FrontendArchive("pc\\textures\\frontend.spta");
+	CPNGArchive			FrontendArchive("models\\frontend.spta");
 	FrontendArchive.SetDirectory("fronten2");
 
 	if ( CFont::bX360Buttons )
@@ -3567,7 +3581,8 @@ void CenterMousePosnForMapScreen() {
 void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* pDown)
 {
     // Call SA AdditionalOptionInput
-    ((void(__thiscall*)(CMenuManager*, unsigned char*, unsigned char*))0x5773D0)(this, pUp, pDown);
+    if (!CPad::GetPad(0)->NewMouseControllerState.lmb)
+        ((void(__thiscall*)(CMenuManager*, unsigned char*, unsigned char*))0x5773D0)(this, pUp, pDown);
 
     FrontEndMenuManager.field_30 = -1;
 
@@ -3670,11 +3685,11 @@ void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* p
                     }
 
                     if (CPad::GetPad(0)->NewMouseControllerState.Y > 0) {
-                        if (FrontEndMenuManager.m_fMapBaseY < 448.0f) // Bottom
+                        if (FrontEndMenuManager.m_fMapBaseY < 640.0f) // Bottom
                             FrontEndMenuManager.m_fMapBaseY += CPad::GetPad(0)->NewMouseControllerState.Y * 0.4f;
                     }
                     else if (CPad::GetPad(0)->NewMouseControllerState.Y < 0) {
-                        if (FrontEndMenuManager.m_fMapBaseY > 0.0f) // Top
+                        if (FrontEndMenuManager.m_fMapBaseY > -128.0f) // Top
                             FrontEndMenuManager.m_fMapBaseY += CPad::GetPad(0)->NewMouseControllerState.Y * 0.4f;
                     }
                 }
@@ -3691,11 +3706,11 @@ void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* p
                             FrontEndMenuManager.m_fMapBaseX -= CPad::GetPad(0)->NewState.LEFTSTICKX * 0.06f;
                     }
                     if (CPad::GetPad(0)->NewState.LEFTSTICKY > 0) {
-                        if (FrontEndMenuManager.m_fMapBaseY > 0.0f) // Top
+                        if (FrontEndMenuManager.m_fMapBaseY > -128.0f) // Top
                             FrontEndMenuManager.m_fMapBaseY -= CPad::GetPad(0)->NewState.LEFTSTICKY * 0.06f;
                     }
                     else if (CPad::GetPad(0)->NewState.LEFTSTICKY < 0) {
-                        if (FrontEndMenuManager.m_fMapBaseY < 448.0f) // Bottom
+                        if (FrontEndMenuManager.m_fMapBaseY < 640.0f) // Bottom
                             FrontEndMenuManager.m_fMapBaseY -= CPad::GetPad(0)->NewState.LEFTSTICKY * 0.06f;
                     }
                     // DPAD
@@ -3708,11 +3723,11 @@ void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* p
                             FrontEndMenuManager.m_fMapBaseX += CPad::GetPad(0)->NewState.DPADLEFT * 0.03f;
                     }
                     if (CPad::GetPad(0)->NewState.DPADDOWN) {
-                        if (FrontEndMenuManager.m_fMapBaseY > 0.0f) // Top
+                        if (FrontEndMenuManager.m_fMapBaseY > -128.0f) // Top
                             FrontEndMenuManager.m_fMapBaseY -= CPad::GetPad(0)->NewState.DPADDOWN * 0.03f;
                     }
                     else if (CPad::GetPad(0)->NewState.DPADUP) {
-                        if (FrontEndMenuManager.m_fMapBaseY < 448.0f) // Bottom
+                        if (FrontEndMenuManager.m_fMapBaseY < 640.0f) // Bottom
                             FrontEndMenuManager.m_fMapBaseY += CPad::GetPad(0)->NewState.DPADUP * 0.03f;
                     }
                     // WASD
@@ -3725,11 +3740,11 @@ void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* p
                             FrontEndMenuManager.m_fMapBaseX += currKeyState->left * 0.03f;
                     }
                     if (currKeyState->down) {
-                        if (FrontEndMenuManager.m_fMapBaseY > 0.0f) // Top
+                        if (FrontEndMenuManager.m_fMapBaseY > -128.0f) // Top
                             FrontEndMenuManager.m_fMapBaseY -= currKeyState->down * 0.03f;
                     }
                     else if (currKeyState->up) {
-                        if (FrontEndMenuManager.m_fMapBaseY < 448.0f) // Bottom
+                        if (FrontEndMenuManager.m_fMapBaseY < 640.0f) // Bottom
                             FrontEndMenuManager.m_fMapBaseY += currKeyState->up * 0.03f;
                     }
                 }
@@ -4119,7 +4134,7 @@ void CLoadingScreen::LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashI
     for (unsigned char i = 0; i < NUM_LOADING_SPLASHES; ++i)
         bTempIndexes[i] = i;
 
-    CPNGArchive		LoadscsArchive("pc\\textures\\loadscreens.spta");
+    CPNGArchive		LoadscsArchive("splash\\loadscs.spta");
     LoadscsArchive.SetDirectory(nullptr);
 
     QueryPerformanceCounter(&lPerformanceCount);

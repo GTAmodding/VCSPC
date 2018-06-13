@@ -429,7 +429,7 @@ void CVehicleModelInfo::ResetEditableMaterials()
 
 void CPedModelInfoVCS::LoadPedColours()
 {
-	if ( FILE* hFile = CFileMgr::OpenFile("COMMON\\DATA\\PEDCOLS.DAT", "r") )
+	if ( FILE* hFile = CFileMgr::OpenFile("DATA\\PEDCOLS.DAT", "r") )
 	{
 		enum
 		{

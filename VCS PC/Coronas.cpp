@@ -253,7 +253,7 @@ void CCoronas::UpdateCoronaCoors(unsigned int nID, const CVector& vecPosition, f
 
 void CCoronas::ReadFlareDef()
 {
-	if ( FILE* hFile = fopen("common\\data\\flaredef.dat", "r") )
+	if ( FILE* hFile = fopen("data\\flaredef.dat", "r") )
 	{
 		DWORD	dwCurrentParserState = 0;
 		DWORD	dwCurrentFlareDef = 0;

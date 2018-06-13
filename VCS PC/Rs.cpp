@@ -373,7 +373,7 @@ void* RwD3D9CreateVertexShaderFromResource(WORD wResource)
 
 void* RwD3D9CreatePixelShaderFromFile(const char* pFileName)
 {
-	sprintf(gString, "common\\shaders\\%sPS.cso", pFileName);
+	sprintf(gString, "shaders\\%sPS.cso", pFileName);
 
 	HANDLE	hFile = CreateFile(gString, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	HANDLE	hMapping = CreateFileMapping(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
@@ -395,7 +395,7 @@ void* RwD3D9CreatePixelShaderFromFile(const char* pFileName)
 
 void* RwD3D9CreateVertexShaderFromFile(const char* pFileName)
 {
-	sprintf(gString, "common\\shaders\\%sVS.cso", pFileName);
+	sprintf(gString, "shaders\\%sVS.cso", pFileName);
 
 	HANDLE	hFile = CreateFile(gString, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	HANDLE	hMapping = CreateFileMapping(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);

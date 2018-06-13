@@ -610,7 +610,7 @@ static Reversed Initialise_kill(0x5BA690, 0x5BA84F);
 void CFont::Initialise()
 {
     int		nSlot = CTxdStore::AddTxdSlot("fonts");
-    CTxdStore::LoadTxd(nSlot, "pc\\textures\\fonts.txd");
+    CTxdStore::LoadTxd(nSlot, "models\\fonts.txd");
     CTxdStore::AddRef(nSlot);
     CTxdStore::PushCurrentTxd();
     CTxdStore::SetCurrentTxd(nSlot);
@@ -641,7 +641,7 @@ void CFont::Initialise()
 void CFont::InitialiseButtons()
 {
     int nSlot = CTxdStore::AddTxdSlot("buttons");
-    CTxdStore::LoadTxd(nSlot, bX360Buttons ? "pc\\textures\\buttons_360.txd" : "pc\\textures\\buttons_ps3.txd");
+    CTxdStore::LoadTxd(nSlot, bX360Buttons ? "models\\360btns.txd" : "models\\ps3btns.txd");
     CTxdStore::AddRef(nSlot);
     CTxdStore::PushCurrentTxd();
     CTxdStore::SetCurrentTxd(nSlot);
@@ -702,7 +702,7 @@ void CFont::InitialiseButtons()
     if (nSlot == -1)
         nSlot = CTxdStore::AddTxdSlot("pcbtns");
 
-    CTxdStore::LoadTxd(nSlot, "pc\\textures\\buttons_pc.txd");
+    CTxdStore::LoadTxd(nSlot, "models\\pcbtns.txd");
     CTxdStore::AddRef(nSlot);
     CTxdStore::SetCurrentTxd(nSlot);
 

@@ -114,6 +114,7 @@ public:
 	static void		DrawBigMessage1();
 	static void		DrawBigMessage2();
 	static void		DrawBigMessage3();
+    static void	    DrawSubtitles(float x, float y, char* str);
 	static void		DrawBarChartWithRoundBorder(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor);
 	static void		DrawSquareBar(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawShadow, BYTE drawBorder, CRGBA dwColour, CRGBA dwForeColor);
 	static void		SetHelpMessage(const char *text, bool b1, bool b2, bool b3);

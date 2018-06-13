@@ -8,9 +8,7 @@ WRAPPER void CWaterLevel::RenderWaterFog(void) { EAXJMP(0x6E7760); }
 WRAPPER void CWaterLevel::RenderWater(void) { EAXJMP(0x6EF650); }
 
 void CWaterLevel::WaterLevelInitialise() {
-    CFileMgr::SetDir("COMMON");
     ((char(__cdecl*)())0x6EAE80)();
-    CFileMgr::SetDir("");
 }
 
 static StaticPatcher Patcher([](){

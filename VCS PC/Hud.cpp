@@ -77,7 +77,7 @@ void CHud::GetRidOfAllCustomHUDMessages()
 
 void CHud::Initialise()
 {
-	CPNGArchive		HudSPTA("pc\\textures\\hud.spta");
+	CPNGArchive		HudSPTA("models\\hud.spta");
 
 	// Temp
 	HudSPTA.SetDirectory("weapons");
@@ -221,8 +221,8 @@ void CHud::DrawHUD()
 		p2ndVehicle = secondPlayerPed->GetVehiclePtr();
 
 	if (	playerPed->GetPedIntelligencePtr()->GetTaskSwim() ||
-			(pVehicle && pVehicle->GetVehicleFlags().bIsDrowning) ||
-			CStats::CalcPlayerStat(8) > CWorld::Players[CWorld::PlayerInFocus].GetPlayerData().m_fBreath )
+			(pVehicle && pVehicle->bTouchingWater) 
+			)//CStats::CalcPlayerStat(8) > CWorld::Players[CWorld::PlayerInFocus].GetPlayerData().m_fBreath )
 	{
 		bDraw1stPlayerOxygenBar = 1;
 	}
@@ -1223,6 +1223,14 @@ void CHud::DrawBigMessage3()
 	CFont::SetColor(CRGBA(BaseColors[10], BigMessage3Alpha));
 	CFont::PrintStringFromBottom(RsGlobal.MaximumWidth / 2, _ymiddle(-30.0), StyledText_3);
 }
+
+void CHud::DrawSubtitles(float x, float y, char* str) {
+    if (!TheCamera.m_WideScreenOn)
+        CFont::SetCentreSize(RsGlobal.MaximumWidth - _width(320.0f));
+
+    CFont::PrintString(RsGlobal.MaximumWidth / 2, y, str);
+}
+
 
 /*void CHud::DrawDevLogos()
 {

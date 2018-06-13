@@ -9,7 +9,7 @@ WRAPPER const char* CKeyArray::Search(const char* pKey, unsigned char* bFound) {
 
 const char*	(__thiscall *CLEOGetTextFunc)(CText*, const char*);
 
-static const char	TheLanguageNames[NUM_LANGUAGES][2] = { { 'E', 'N' }, { 'D', 'E' }, { 'B', 'R' }, { 'P', 'L' }, { 'H', 'U' }, { 'R', 'O' } };
+static const char	TheLanguageNames[NUM_LANGUAGES][2] = { { 'E', 'N' }, { 'B', 'R' }, { 'P', 'L' } };
 
 const char* CText::Get(const char* pEntry)
 {

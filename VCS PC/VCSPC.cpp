@@ -107,6 +107,7 @@ void			InCarKilledCounterBreak();
 void			Language_CASE_English();
 void			Language_CASE_German();
 void			Language_CASE_Spanish();
+void			Language_CASE_Italian();
 void			Language_CASE_Brazilian();
 void			Language_CASE_Polish();
 void			Language_CASE_Hungarian();
@@ -115,6 +116,7 @@ void			MissionLanguage_CASE_English();
 void			MissionLanguage_CASE_German();
 void			MissionLanguage_CASE_Brazilian();
 void			MissionLanguage_CASE_Spanish();
+void			MissionLanguage_CASE_Italian();
 void			MissionLanguage_CASE_Polish();
 void			MissionLanguage_CASE_Hungarian();
 void			MissionLanguage_CASE_Romanian();
@@ -414,9 +416,8 @@ static const char			aEnglish_gxt[] = "ENGLISH.GXT";
 static const char			aGerman_gxt[] = "GERMAN.GXT";
 static const char			aBrazilian_gxt[] = "BRAZILIAN.GXT";
 static const char			aSpanish_gxt[] = "SPANISH.GXT";
+static const char			aItalian_gxt[] = "ITALIAN.GXT";
 static const char			aPolish_gxt[] = "POLISH.GXT";
-static const char			aHungarian_gxt[] = "HUNGARIAN.GXT";
-static const char			aRomanian_gxt[] = "ROMANIAN.GXT";
 
 static const char			aWindowed[] = "WINDOWED";
 
@@ -509,8 +510,8 @@ const CutsceneData			cutsceneStreams[] = { { "JERA1", CUTSCENE_OFFSET+CUT_JERA1 
 												{ "MARA1", CUTSCENE_OFFSET+CUT_MARA1 }, { "MARA2", CUTSCENE_OFFSET+CUT_MARA2 }, { "MARA5", CUTSCENE_OFFSET+CUT_MARA5 },
 												{ "PHILA1", CUTSCENE_OFFSET+CUT_PHILA1 },  { "PHILA2", CUTSCENE_OFFSET+CUT_PHILA2 },  { "PHILA3", CUTSCENE_OFFSET+CUT_PHILA3 },  { "PHILA4", CUTSCENE_OFFSET+CUT_PHILA4 } };
 
-const void*	const			_CText__load_Jumptable[] = { Language_CASE_English, (void*)0x6A01F1,/*Language_CASE_Spanish,*/ Language_CASE_Brazilian, Language_CASE_Polish, Language_CASE_Hungarian, Language_CASE_Romanian };
-const void*	const			_CText__loadMission_Jumptable[] = { MissionLanguage_CASE_English, (void*)0x69FD14, /*MissionLanguage_CASE_Spanish,*/ MissionLanguage_CASE_Brazilian, MissionLanguage_CASE_Polish, MissionLanguage_CASE_Hungarian, MissionLanguage_CASE_Romanian };
+const void*	const			_CText__load_Jumptable[] = { Language_CASE_English, /*Language_CASE_German, Language_CASE_Spanish, Language_CASE_Italian, */Language_CASE_Brazilian, Language_CASE_Polish };
+const void*	const			_CText__loadMission_Jumptable[] = { MissionLanguage_CASE_English, /*MissionLanguage_CASE_German, MissionLanguage_CASE_Spanish, MissionLanguage_CASE_Italian,*/ MissionLanguage_CASE_Brazilian, MissionLanguage_CASE_Polish };
 
 /*const void*					HJ_Stats_Jumptable[] =  { (void*)0x55AC7E, FlamingStunt, (void*)0x55AC97,
 													(void*)0x55ACB0, DoubleFlamingStunt, (void*)0x55ACC9,
@@ -2487,7 +2488,7 @@ char *ms_aWeaponNames[]{
 };
 
 void LoadFxArchive(int index, char *filename) {
-    CTxdStore::LoadTxd(index, "pc\\textures\\particle.txd");
+    CTxdStore::LoadTxd(index, "models\\particle.txd");
 }
 
 void New_Main_Patches() {
@@ -2507,6 +2508,9 @@ void New_Main_Patches() {
     Nop(0x6B21D8, 2);
     Nop(0x688B38, 6);
     Nop(0x68B245, 6);
+
+    // Stamina
+    Patch<float>(0x68B358 + 3, 0.0);
 
     static float fTiming = 6.0f;
     Patch<const void*>(0x68A831 + 0x2, &fTiming);
@@ -2555,71 +2559,71 @@ void New_Main_Patches() {
     // Weapon Data Strings
     memcpy((char*)0x8D6150, ms_aWeaponNames, sizeof(ms_aWeaponNames));
 
-    // Part of IV folder structure
-    Patch<const char*>(0x4D563D + 1, "PC\\ANIM\\PED.IFP");
-    Patch<const char*>(0x4D5EB9 + 1, "PC\\ANIM\\CUTS.IMG");
-    Patch<const char*>(0x5AFBCB + 1, "PC\\ANIM\\CUTS.IMG");
-    Patch<const char*>(0x5AFC98 + 1, "PC\\ANIM\\CUTS.IMG");
-    Patch<const char*>(0x5B07DA + 1, "PC\\ANIM\\CUTS.IMG");
-    Patch<const char*>(0x5B1423 + 1, "PC\\ANIM\\CUTS.IMG");
+    // Part of VCS folder structure
+    Patch<const char*>(0x4D563D + 1, "ANIM\\PED.IFP");
+    Patch<const char*>(0x4D5EB9 + 1, "ANIM\\CUTS.IMG");
+    Patch<const char*>(0x5AFBCB + 1, "ANIM\\CUTS.IMG");
+    Patch<const char*>(0x5AFC98 + 1, "ANIM\\CUTS.IMG");
+    Patch<const char*>(0x5B07DA + 1, "ANIM\\CUTS.IMG");
+    Patch<const char*>(0x5B1423 + 1, "ANIM\\CUTS.IMG");
 
-    Patch<const char*>(0x49EA9D + 1, "COMMON\\DATA\\particle.fxp");
+    Patch<const char*>(0x49EA9D + 1, "DATA\\particle.fxp");
 
     InjectHook(0x5C248F, LoadFxArchive);
-    Patch<const char*>(0x6A01BE + 1, "COMMON\\TEXT\\");
-    Patch<const char*>(0x69FCE1 + 1, "COMMON\\TEXT\\");
+    Patch<const char*>(0x6A01BE + 1, "TEXT");
+    Patch<const char*>(0x69FCE1 + 1, "TEXT");
 
-    strncpy((char*)0x85F134, "PC/AUDIO/", 13);
+    strncpy((char*)0x85F134, "AUDIO\\SFX\\", 13);
 
-    Patch<const char*>(0x4DFBD7 + 1, "PC\\AUDIO\\CONFIG\\BANKLKUP.DAT");
-    Patch<const char*>(0x4DFC7D + 1, "PC\\AUDIO\\CONFIG\\PAKFILES.DAT");
-    Patch<const char*>(0x4E0597 + 1, "PC\\AUDIO\\CONFIG\\BANKSLOT.DAT");
-    Patch<const char*>(0x4E0A02 + 1, "PC\\AUDIO\\CONFIG\\TRAKLKUP.DAT");
-    Patch<const char*>(0x5B9D68 + 1, "PC\\AUDIO\\CONFIG\\EVENTVOL.DAT");
-    Patch<const char*>(0x4E0982 + 1, "PC\\AUDIO\\CONFIG\\STRMPAKS.DAT");
+    Patch<const char*>(0x4DFBD7 + 1, "AUDIO\\CONFIG\\BANKLKUP.DAT");
+    Patch<const char*>(0x4DFC7D + 1, "AUDIO\\CONFIG\\PAKFILES.DAT");
+    Patch<const char*>(0x4E0597 + 1, "AUDIO\\CONFIG\\BANKSLOT.DAT");
+    Patch<const char*>(0x4E0A02 + 1, "AUDIO\\CONFIG\\TRAKLKUP.DAT");
+    Patch<const char*>(0x5B9D68 + 1, "AUDIO\\CONFIG\\EVENTVOL.DAT");
+    Patch<const char*>(0x4E0982 + 1, "AUDIO\\CONFIG\\STRMPAKS.DAT");
 
-    Patch<const void*>(0x4E0DCE + 1, "PC\\AUDIO\\SFX\\");
-    Patch<const void*>(0x4E0DC4 + 1, "PC\\AUDIO\\SFX\\");
-    Patch<const void*>(0x4E0C90 + 1, "PC\\AUDIO\\SFX\\");
-    Patch<const void*>(0x4E0CCD + 1, "PC\\AUDIO\\SFX\\");
-    Patch<const void*>(0x4E0BF8 + 1, "PC\\AUDIO\\SFX\\");
+    Patch<const void*>(0x4E0DCE + 1, "AUDIO\\STREAMS\\");
+    Patch<const void*>(0x4E0DC4 + 1, "AUDIO\\STREAMS\\");
+    Patch<const void*>(0x4E0C90 + 1, "AUDIO\\STREAMS\\");
+    Patch<const void*>(0x4E0CCD + 1, "AUDIO\\STREAMS\\");
+    Patch<const void*>(0x4E0BF8 + 1, "AUDIO\\STREAMS\\");
 
-    Patch<const void*>(0x4E0B14 + 1, "PC\\AUDIO\\SFX\\");
-    Patch<const void*>(0x4E0B1E + 1, "PC\\AUDIO\\SFX\\");
+    Patch<const void*>(0x4E0B14 + 1, "AUDIO\\STREAMS\\");
+    Patch<const void*>(0x4E0B1E + 1, "AUDIO\\STREAMS\\");
 
-    Patch<const char*>(0x468EB5 + 1, "COMMON\\DATA\\SCRIPT\\");
-    Patch<const char*>(0x489A45 + 1, "COMMON\\DATA\\SCRIPT\\MAIN.SCM");
+    Patch<const char*>(0x468EB5 + 1, "DATA\\");
+    Patch<const char*>(0x489A45 + 1, "DATA\\MAIN.SCM");
 
-    Patch<const char*>(0x53DF1F + 1, "COMMON\\DATA\\GTA.DAT");
-    Patch<const char*>(0x53E580 + 1, "COMMON\\DATA\\GTA.DAT");
+    Patch<const char*>(0x53DF1F + 1, "DATA\\GTA_VC.DAT");
+    Patch<const char*>(0x53E580 + 1, "DATA\\GTA_VC.DAT");
 
-    Patch<const char*>(0x452F4F + 1, "COMMON\\DATA\\PATHS\\NODES%d.DAT");
-    Patch<const char*>(0x461118 + 1, "COMMON\\DATA\\PATHS\\ROADBLOX.DAT");
-    Patch<const char*>(0x6F746B + 1, "COMMON\\DATA\\PATHS\\TRACKS.DAT");
-    Patch<const char*>(0x6F7491 + 1, "COMMON\\DATA\\PATHS\\TRACKS3.DAT");
-    Patch<const char*>(0x6F74B7 + 1, "COMMON\\DATA\\PATHS\\TRACKS2.DAT");
-    Patch<const char*>(0x6F74DD + 1, "COMMON\\DATA\\PATHS\\TRACKS4.DAT");
+    Patch<const char*>(0x452F4F + 1, "DATA\\PATHS\\NODES%d.DAT");
+    Patch<const char*>(0x461118 + 1, "DATA\\PATHS\\ROADBLOX.DAT");
+    Patch<const char*>(0x6F746B + 1, "DATA\\PATHS\\TRACKS.DAT");
+    Patch<const char*>(0x6F7491 + 1, "DATA\\PATHS\\TRACKS3.DAT");
+    Patch<const char*>(0x6F74B7 + 1, "DATA\\PATHS\\TRACKS2.DAT");
+    Patch<const char*>(0x6F74DD + 1, "DATA\\PATHS\\TRACKS4.DAT");
 
-    Patch<const char*>(0x5BBA15 + 1, "COMMON\\DATA\\DECISION\\");
-    Patch<const char*>(0x6076B7 + 1, "COMMON\\DATA\\DECISION\\");
+    Patch<const char*>(0x5BBA15 + 1, "DATA\\DECISION\\");
+    Patch<const char*>(0x6076B7 + 1, "DATA\\DECISION\\");
 
-    Patch<const char*>(0x5BC926 + 1, "COMMON\\DATA\\ANIMGRP.DAT");
-    Patch<const char*>(0x5B68A0 + 1, "COMMON\\DATA\\CARCOLS.DAT");
-    Patch<const char*>(0x5BD1A7 + 1, "COMMON\\DATA\\");
-    Patch<const char*>(0x7187D6 + 1, "COMMON\\DATA\\FONTS.DAT");
-    Patch<const char*>(0x5C028E + 1, "COMMON\\DATA\\FURNITUR.DAT");
-    Patch<const char*>(0x5BD838 + 1, "COMMON\\DATA\\");
+    Patch<const char*>(0x5BC926 + 1, "DATA\\ANIMGRP.DAT");
+    Patch<const char*>(0x5B68A0 + 1, "DATA\\CARCOLS.DAT");
+    Patch<const char*>(0x5BD1A7 + 1, "DATA\\");
+    Patch<const char*>(0x7187D6 + 1, "DATA\\FONTS.DAT");
+    Patch<const char*>(0x5C028E + 1, "DATA\\FURNITUR.DAT");
+    Patch<const char*>(0x5BD838 + 1, "DATA\\");
     Patch<const char*>(0x5BD84B + 1, "HANDLING.DAT");
-    Patch<const char*>(0x5BEEE7 + 1, "COMMON\\DATA\\MELEE.DAT");
-    Patch<const char*>(0x5B925A + 1, "COMMON\\DATA\\OBJECT.DAT");
-    Patch<const char*>(0x608B3B + 1, "COMMON\\DATA\\PED.DAT");
-    Patch<const char*>(0x5BB89A + 1, "COMMON\\DATA\\PEDSTATS.DAT");
-    Patch<const char*>(0x5A314D + 1, "COMMON\\DATA\\PROCOBJ.DAT");
-    Patch<const char*>(0x55D0FB + 1, "COMMON\\DATA\\SURFACE.DAT");
-    Patch<const char*>(0x55F2BA + 1, "COMMON\\DATA\\SURFACEAUDIO.DAT");
-    Patch<const char*>(0x55EB9D + 1, "COMMON\\DATA\\SURFACEINFO.DAT");
+    Patch<const char*>(0x5BEEE7 + 1, "DATA\\MELEE.DAT");
+    Patch<const char*>(0x5B925A + 1, "DATA\\OBJECT.DAT");
+    Patch<const char*>(0x608B3B + 1, "DATA\\PED.DAT");
+    Patch<const char*>(0x5BB89A + 1, "DATA\\PEDSTATS.DAT");
+    Patch<const char*>(0x5A314D + 1, "DATA\\PROCOBJ.DAT");
+    Patch<const char*>(0x55D0FB + 1, "DATA\\SURFACE.DAT");
+    Patch<const char*>(0x55F2BA + 1, "DATA\\SURFACEAUDIO.DAT");
+    Patch<const char*>(0x55EB9D + 1, "DATA\\SURFACEINFO.DAT");
     InjectHook(0x6EDDB1, CWaterLevel::WaterLevelInitialise);
-    Patch<const char*>(0x5BE685 + 1, "COMMON\\DATA\\WEAPON.DAT");
+    Patch<const char*>(0x5BE685 + 1, "DATA\\WEAPON.DAT");
 
     // Nop SA DATA
     Nop(0x55C131, 5);
@@ -3060,6 +3064,7 @@ void Main_Patches()
 	Patch<const void*>(0x58C387, &fSubtitlesHeight);
 	Patch<const void*>(0x58C40F, &fSubtitlesHeight);
 	Patch<const void*>(0x58C4CE, &fSubtitlesHeight);
+    InjectHook(0x58C68A, CHud::DrawSubtitles);
 
 	// User display
 	InjectHook(0x588B50, &CHud::HelpMessageShown, PATCH_JUMP);
@@ -4322,7 +4327,7 @@ void Main_Patches()
 	Patch<const void*>(0x406882, gStreamNames);
 	Patch<const void*>(0x406B81, gStreamNames);
 	Patch<const void*>(0x406B98, &gStreamNames[NUM_STREAMS]);
-	Patch<const char*>(0x406C2B, "PC\\ANIM\\ANIM.IMG");
+	Patch<const char*>(0x406C2B, "ANIM\\ANIM.IMG");
 	Nop(0x5B927D, 5);
 //	Nop(0x43E65D, 2);
 //	Nop(0x43E669, 2);
@@ -5256,7 +5261,7 @@ const char* GetFontsTXDByLanguage()
 {
 	bLastFontsID = GetFontsIDByLanguage();
 
-	static const char*	cFontsTXDNames[] = { "PC\\TEXTURES\\FONTS.TXD", "PC\\TEXTURES\\FONTSPL.TXD" };
+	static const char*	cFontsTXDNames[] = { "MODELS\\FONTS.TXD", "MODELS\\FONTSPL.TXD" };
 	return cFontsTXDNames[bLastFontsID];
 }
 
@@ -5295,23 +5300,20 @@ void InitialiseLanguage()
 
 	switch ( LCID_PRIMARY_LANG(LanguageCode) )
 	{
-	case LANG_GERMAN:
+	/*case LANG_GERMAN:
 		FrontEndMenuManager.SetLanguage(LCID_SUBLANG(LanguageCode) == SUBLANG_GERMAN || LCID_SUBLANG(LanguageCode) == SUBLANG_GERMAN_AUSTRIAN || LCID_SUBLANG(LanguageCode) == SUBLANG_GERMAN_LIECHTENSTEIN ? LANGUAGE_German : LANGUAGE_English);
 		break;
-	//case LANG_SPANISH:
-	//	FrontEndMenuManager.SetLanguage(LANGUAGE_Spanish);
-	//	break;
+	case LANG_SPANISH:
+		FrontEndMenuManager.SetLanguage(LANGUAGE_Spanish);
+		break;
+    case LANG_ITALIAN:
+        FrontEndMenuManager.SetLanguage(LANGUAGE_Italian);
+        break;*/
+    case LANG_PORTUGUESE:
+        FrontEndMenuManager.SetLanguage(LCID_SUBLANG(LanguageCode) == SUBLANG_PORTUGUESE_BRAZILIAN ? LANGUAGE_Brazilian : LANGUAGE_English);
+        break;
 	case LANG_POLISH:
 		FrontEndMenuManager.SetLanguage(LANGUAGE_Polish);
-		break;
-	case LANG_PORTUGUESE:
-		FrontEndMenuManager.SetLanguage(LCID_SUBLANG(LanguageCode) == SUBLANG_PORTUGUESE_BRAZILIAN ? LANGUAGE_Brazilian : LANGUAGE_English);
-		break;
-	case LANG_HUNGARIAN:
-		FrontEndMenuManager.SetLanguage(LANGUAGE_Hungarian);
-		break;
-	case LANG_ROMANIAN:
-		FrontEndMenuManager.SetLanguage(LANGUAGE_Romanian);
 		break;
 	default:
 		FrontEndMenuManager.SetLanguage(LANGUAGE_English);
@@ -5888,6 +5890,16 @@ void __declspec(naked) Language_CASE_Spanish()
 	}
 }
 
+void __declspec(naked) Language_CASE_Italian()
+{
+    _asm
+    {
+        push	offset aItalian_gxt
+        mov		edx, 6A020Eh
+        jmp		edx
+    }
+}
+
 void __declspec(naked) Language_CASE_Brazilian()
 {
 	_asm
@@ -5903,26 +5915,6 @@ void __declspec(naked) Language_CASE_Polish()
 	_asm
 	{
 		push	offset aPolish_gxt
-		mov		edx, 6A020Eh
-		jmp		edx
-	}
-}
-
-void __declspec(naked) Language_CASE_Hungarian()
-{
-	_asm
-	{
-		push	offset aHungarian_gxt
-		mov		edx, 6A020Eh
-		jmp		edx
-	}
-}
-
-void __declspec(naked) Language_CASE_Romanian()
-{
-	_asm
-	{
-		push	offset aRomanian_gxt
 		mov		edx, 6A020Eh
 		jmp		edx
 	}
@@ -5958,6 +5950,16 @@ void __declspec(naked) MissionLanguage_CASE_Spanish()
 	}
 }
 
+void __declspec(naked) MissionLanguage_CASE_Italian()
+{
+    _asm
+    {
+        push	offset aItalian_gxt
+        mov		eax, 69FD31h
+        jmp		eax
+    }
+}
+
 void __declspec(naked) MissionLanguage_CASE_Brazilian()
 {
 	_asm
@@ -5973,26 +5975,6 @@ void __declspec(naked) MissionLanguage_CASE_Polish()
 	_asm
 	{
 		push	offset aPolish_gxt
-		mov		eax, 69FD31h
-		jmp		eax
-	}
-}
-
-void __declspec(naked) MissionLanguage_CASE_Hungarian()
-{
-	_asm
-	{
-		push	offset aHungarian_gxt
-		mov		eax, 69FD31h
-		jmp		eax
-	}
-}
-
-void __declspec(naked) MissionLanguage_CASE_Romanian()
-{
-	_asm
-	{
-		push	offset aRomanian_gxt
 		mov		eax, 69FD31h
 		jmp		eax
 	}

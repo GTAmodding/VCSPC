@@ -107,7 +107,7 @@ void CGroupedBuildings::Initialise()
 {
 	m_nGroupsCount = 0;
 
-	if ( FILE* hFile = CFileMgr::OpenFile("COMMON\\DATA\\GROUPED_BUILDINGS.DAT", "r") )
+	if ( FILE* hFile = CFileMgr::OpenFile("DATA\\GROUPED_BUILDINGS.DAT", "r") )
 	{
 		while ( const char* pLine = CFileLoader::LoadLine(hFile) )
 		{

@@ -71,7 +71,7 @@ void LoadINIFile()
 			i = 1;*/
 
 		bSwapSticksDuringAiming[i] = GetPrivateProfileIntW(wcSectionName, L"SwapSticksDuringAiming", FALSE, wcModulePath) != FALSE;		
-		CPad::SavedMode = static_cast<WORD>(GetPrivateProfileIntW(wcSectionName, L"ControlsSet", 1, wcModulePath) - 1);
+		//CPad::SavedMode = static_cast<WORD>(GetPrivateProfileIntW(wcSectionName, L"ControlsSet", 1, wcModulePath) - 1);
 		//bInvertLook[i] = GetPrivateProfileIntW(wcSectionName, L"InvertLook", FALSE, wcModulePath) == FALSE;
 
 		bPadLeftXInverted[i] = GetPrivateProfileIntW(wcSectionName, L"InvertLeftXAxis", FALSE, wcModulePath) != FALSE;
