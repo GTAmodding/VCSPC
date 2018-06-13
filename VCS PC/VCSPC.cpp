@@ -2573,23 +2573,23 @@ void New_Main_Patches() {
     Patch<const char*>(0x6A01BE + 1, "TEXT");
     Patch<const char*>(0x69FCE1 + 1, "TEXT");
 
-    strncpy((char*)0x85F134, "AUDIO\\SFX\\", 13);
+    strncpy((char*)0x85F134, "AUDIO\\", 13);
 
-    Patch<const char*>(0x4DFBD7 + 1, "AUDIO\\CONFIG\\BANKLKUP.DAT");
-    Patch<const char*>(0x4DFC7D + 1, "AUDIO\\CONFIG\\PAKFILES.DAT");
-    Patch<const char*>(0x4E0597 + 1, "AUDIO\\CONFIG\\BANKSLOT.DAT");
-    Patch<const char*>(0x4E0A02 + 1, "AUDIO\\CONFIG\\TRAKLKUP.DAT");
-    Patch<const char*>(0x5B9D68 + 1, "AUDIO\\CONFIG\\EVENTVOL.DAT");
-    Patch<const char*>(0x4E0982 + 1, "AUDIO\\CONFIG\\STRMPAKS.DAT");
+    Patch<const char*>(0x4DFBD7 + 1, "AUDIO\\BANKLKUP.DAT");
+    Patch<const char*>(0x4DFC7D + 1, "AUDIO\\PAKFILES.DAT");
+    Patch<const char*>(0x4E0597 + 1, "AUDIO\\BANKSLOT.DAT");
+    Patch<const char*>(0x4E0A02 + 1, "AUDIO\\TRAKLKUP.DAT");
+    Patch<const char*>(0x5B9D68 + 1, "AUDIO\\EVENTVOL.DAT");
+    Patch<const char*>(0x4E0982 + 1, "AUDIO\\STRMPAKS.DAT");
 
-    Patch<const void*>(0x4E0DCE + 1, "AUDIO\\STREAMS\\");
-    Patch<const void*>(0x4E0DC4 + 1, "AUDIO\\STREAMS\\");
-    Patch<const void*>(0x4E0C90 + 1, "AUDIO\\STREAMS\\");
-    Patch<const void*>(0x4E0CCD + 1, "AUDIO\\STREAMS\\");
-    Patch<const void*>(0x4E0BF8 + 1, "AUDIO\\STREAMS\\");
+    Patch<const void*>(0x4E0DCE + 1, "AUDIO\\");
+    Patch<const void*>(0x4E0DC4 + 1, "AUDIO\\");
+    Patch<const void*>(0x4E0C90 + 1, "AUDIO\\");
+    Patch<const void*>(0x4E0CCD + 1, "AUDIO\\");
+    Patch<const void*>(0x4E0BF8 + 1, "AUDIO\\");
 
-    Patch<const void*>(0x4E0B14 + 1, "AUDIO\\STREAMS\\");
-    Patch<const void*>(0x4E0B1E + 1, "AUDIO\\STREAMS\\");
+    Patch<const void*>(0x4E0B14 + 1, "AUDIO\\");
+    Patch<const void*>(0x4E0B1E + 1, "AUDIO\\");
 
     Patch<const char*>(0x468EB5 + 1, "DATA\\");
     Patch<const char*>(0x489A45 + 1, "DATA\\MAIN.SCM");
