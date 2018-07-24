@@ -24,6 +24,7 @@
 #include "MenuSystem.h"
 #include "Radar.h"
 
+CLoadingScreen		SplashScreen;
 CSprite2d* const	LoadingSprites = (CSprite2d*)0xBAB35C;
 int&				CurrentLoadingSprite = *(int*)0x8D093C;
 
@@ -436,10 +437,11 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 	},
 };
 
-static inline const char* GetTitlePCByLanguage()
-{
-	static const char* const	cTitlePCNames[] = { "title_pc_EN", "title_pc_EN", /*"title_pc_ES",*/ "title_pc_PL", "title_pc_EN", "title_pc_EN" };
-	return cTitlePCNames[FrontEndMenuManager.GetLanguage()];
+// ENGLISH, BRAZILIAN, POLISH
+const char* cTitlePCNames[NUM_LANGUAGES] = { "title_pc_EN", "title_pc_EN", "title_pc_PL" };
+
+const char* GetTitlePCByLanguage() {
+	return cTitlePCNames[FrontEndMenuManager.m_nLanguage];
 }
 
 WRAPPER void CMenuManager::Process(void) { EAXJMP(0x57B440); }
@@ -2329,8 +2331,8 @@ void CMenuManager::DrawBackEnd()
 {
 	// Calculate proper dimensions
 	// Displayed image is 16:9
-	CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(16.0f/9.0f, ScreenAspectRatio, false);
-	
+	CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(16.0f / 9.0f, ScreenAspectRatio, false);
+
 	CSprite2d::DrawRect(CRect(-1.0f, RsGlobal.MaximumHeight + 1.0f, RsGlobal.MaximumWidth + 1.0f, RsGlobal.MaximumHeight * 0.95f - 1.0f), CRGBA(7, 7, 7, 255));
 	m_apBackgroundTextures[0].Draw(CRect(-1.0f - (vecSplashScale.x-RsGlobal.MaximumWidth), RsGlobal.MaximumHeight * 0.95f, RsGlobal.MaximumWidth + 1.0f, -1.0f - (vecSplashScale.y-RsGlobal.MaximumHeight)), CRGBA(255, 255, 255, 255));
 
@@ -2519,46 +2521,46 @@ void CMenuManager::DrawOutroSplash()
 	static bool		bOutroSplashLoaded = false;
 	static CRect	rectSpriteDimensions;
 
-    if (bNoOutro) 
-    {
-        RsEventHandler(rsQUITAPP, nullptr);
-        exit(0);
-    }
-    else 
-    {
-        if (!bOutroSplashLoaded)
-        {
-            CLoadingScreen::LoadSplashes(true, 0);
+	if (bNoOutro)
+	{
+		RsEventHandler(rsQUITAPP, nullptr);
+		exit(0);
+	}
+	else
+	{
+		if (!bOutroSplashLoaded)
+		{
+			CLoadingScreen::LoadSplashes(true, 0);
 
-            CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(512.0f / 400.0f, ScreenAspectRatio, true);
+			CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(512.0f / 400.0f, ScreenAspectRatio, true);
 
-            rectSpriteDimensions.x1 = 0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x);
-            rectSpriteDimensions.y1 = 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y);
-            rectSpriteDimensions.x2 = 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x);
-            rectSpriteDimensions.y2 = 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y);
+			rectSpriteDimensions.x1 = 0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x) - SplashScreen.vec_mOutroPosn[0].x;
+			rectSpriteDimensions.y1 = 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y) + SplashScreen.vec_mOutroPosn[0].y;
+			rectSpriteDimensions.x2 = 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x) + SplashScreen.vec_mOutroPosn[0].x;
+			rectSpriteDimensions.y2 = 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y) - SplashScreen.vec_mOutroPosn[0].y;
 
-            bOutroSplashLoaded = true;
-        }
+			bOutroSplashLoaded = true;
+		}
 
-        // TODO: Smooth when CTimer is rewritten
-        if (CTimer::m_snTimeInMillisecondsPauseMode - outroTimer > 15)
-        {
-            if (outroPageAlpha != 255)
-            {
-                outroPageAlpha += 25;
-                if (outroPageAlpha > 255)
-                    outroPageAlpha = 255;
-            }
-            else
-                ++outroPageFrameCounter;
-            outroTimer = CTimer::m_snTimeInMillisecondsPauseMode;
-        }
+		// TODO: Smooth when CTimer is rewritten
+		if (CTimer::m_snTimeInMillisecondsPauseMode - outroTimer > 15)
+		{
+			if (outroPageAlpha != 255)
+			{
+				outroPageAlpha += 25;
+				if (outroPageAlpha > 255)
+					outroPageAlpha = 255;
+			}
+			else
+				++outroPageFrameCounter;
+			outroTimer = CTimer::m_snTimeInMillisecondsPauseMode;
+		}
 
-        CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, static_cast<BYTE>(outroPageAlpha)));
-        LoadingSprites[0].Draw(rectSpriteDimensions, CRGBA(255, 255, 255, static_cast<BYTE>(outroPageAlpha)));
-        if (outroPageAlpha == 255 && outroPageFrameCounter == 90)
-            RsEventHandler(rsQUITAPP, nullptr);
-    }
+		CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, static_cast<BYTE>(outroPageAlpha)));
+		SplashScreen.m_nSplashes[OUTRO].Draw(rectSpriteDimensions, CRGBA(255, 255, 255, static_cast<BYTE>(outroPageAlpha)));
+		if (outroPageAlpha == 255 && outroPageFrameCounter == 90)
+			RsEventHandler(rsQUITAPP, nullptr);
+	}
 }
 
 void CMenuManager::PrintStats()
@@ -4019,38 +4021,9 @@ void RotateVertices(CVector2D *rect, unsigned int numVerts, float x, float y, fl
     }
 }
 
-void DrawRotatingRadarSprite(CSprite2d *texture, float x, float y, float r_angle, unsigned int width, unsigned int height, CRGBA const& color) {
-    if (FrontEndMenuManager.drawRadarOrMap) {
-        x = (RsGlobal.MaximumWidth * 0.0015625) * x * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
-        y = RsGlobal.MaximumHeight  * 0.002232143 * y;
-        CRadar::LimitToMap(&x, &y);
-    }
-
-    CVector2D posn[4];
-
-    posn[0].x = x - width / 1.2f;
-
-    posn[0].y = y + height / 1.2f;
-
-    posn[1].x = x + width / 1.2f;
-
-    posn[1].y = y + height / 1.2f;
-
-    posn[2].x = x - width / 1.2f;
-
-    posn[2].y = y - height / 1.2f;
-
-    posn[3].x = x + width / 1.2f;
-
-    posn[3].y = y - height / 1.2f;
-
-    RotateVertices(posn, 4, x, y, r_angle);
-
-    texture->Draw(posn[2].x, posn[2].y, posn[3].x, posn[3].y, posn[0].x, posn[0].y, posn[1].x, posn[1].y, CRGBA(color));
-}
 
 void CMenuManager::DrawYouAreHereSprite(CSprite2d* sprite, float x, float y, float angle, unsigned int width, unsigned int height, CRGBA color) {
-    DrawRotatingRadarSprite(sprite, x, y, angle, width, height, color);
+    CRadar::DrawRotatingRadarSprite(sprite, x, y, angle, width, height, color);
 }
 
 void __stdcall CMenuManager::DrawLegendWindow(CRect *coords, char *titleKey, char fadeState, CRGBA color, int a5, char bDrawBox) {
@@ -4081,6 +4054,8 @@ void CMenuManager::PrintMapZones(float x, float y, char *text) {
 
 void DrawMouse() {
     CFont::RenderFontBuffer();
+
+	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERNAFILTERMODE);
 
     if (FrontEndMenuManager.m_bCurrentMenuPage == 5) {
         if (CPad::GetPad(0)->NewMouseControllerState.lmb)
@@ -4118,104 +4093,297 @@ void CMenuManager::Inject()
 //
 // CLoadingScreen
 //
-
 uint8	CLoadingScreen::bDrawingStyle;
 bool	&CLoadingScreen::m_bFading = *(bool*)0xBAB31C;
 bool	&CLoadingScreen::m_bFadeInNextSplashFromBlack = *(bool*)0xBAB31E;
 bool	&CLoadingScreen::m_bFadeOutCurrSplashToBlack = *(bool*)0xBAB31F;
 bool	&CLoadingScreen::m_bReadyToDelete = *(bool*)0xBAB33D;
 
-void CLoadingScreen::LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID)
-{
-    unsigned char		bTempIndexes[NUM_LOADING_SPLASHES], bFinalIndexes[NUM_LOADING_SPLASHES];
-    LARGE_INTEGER		lPerformanceCount;
+void CLoadingScreen::Init() {
+	if (FILE* hFile = CFileMgr::OpenFile("DATA\\SPLASH.DAT", "r")) {
+		enum {
+			SPLASH_NOTHING,
+			SPLASH_INTRO,
+			SPLASH_LEGAL,
+			SPLASH_LOADSCS,
+			SPLASH_OUTRO
+		} curFileSection = SPLASH_NOTHING;
 
-    //	memset(bTempIndexes, 0, sizeof(bTempIndexes));
-    for (unsigned char i = 0; i < NUM_LOADING_SPLASHES; ++i)
-        bTempIndexes[i] = i;
+		while (const char* pLine = CFileLoader::LoadLine(hFile)) {
+			if (pLine[0] && pLine[0] != '#') {
+				switch (curFileSection) {
+				case SPLASH_NOTHING:
+					if (SECTION5(pLine, 'i', 'n', 't', 'r', 'o'))
+						curFileSection = SPLASH_INTRO;
+					else if (SECTION5(pLine, 'l', 'e', 'g', 'a', 'l'))
+						curFileSection = SPLASH_LEGAL;
+					else if (SECTION7(pLine, 'l', 'o', 'a', 'd', 's', 'c', 's'))
+						curFileSection = SPLASH_LOADSCS;
+					else if (SECTION5(pLine, 'o', 'u', 't', 'r', 'o'))
+						curFileSection = SPLASH_OUTRO;
+					break;
+				case SPLASH_INTRO:
+					if (SECTION3(pLine, 'e', 'n', 'd'))
+						curFileSection = SPLASH_NOTHING;
+					else {
+						int nIntroIndex;
+						CVector2D vec_temp_IntroPosn;
+						CVector2D vec_temp_IntroScale;
 
-    CPNGArchive		LoadscsArchive("splash\\loadscs.spta");
-    LoadscsArchive.SetDirectory(nullptr);
+						sscanf(pLine, "%d %f %f %f %f", &nIntroIndex, &vec_temp_IntroPosn.x, &vec_temp_IntroPosn.y, &vec_temp_IntroScale.x, &vec_temp_IntroScale.y);
 
-    QueryPerformanceCounter(&lPerformanceCount);
-    srand(lPerformanceCount.LowPart);
+						SplashScreen.vec_mIntroPosn[nIntroIndex] = vec_temp_IntroPosn;
+						SplashScreen.vec_mIntroScale[nIntroIndex] = vec_temp_IntroScale;
+					}
+					break;
+				case SPLASH_LEGAL:
+					if (SECTION3(pLine, 'e', 'n', 'd'))
+						curFileSection = SPLASH_NOTHING;
+					else {
+						int nLegalIndex;
+						CVector2D vec_temp_LegalPosn;
+						CVector2D vec_temp_LegalScale;
 
-    for (int i = 0, j = NUM_LOADING_SPLASHES - 2; i < NUM_LOADING_SPLASHES; ++i, --j)
-    {
-        int		nRandomNumber;
+						sscanf(pLine, "%d %f %f %f %f", &nLegalIndex, &vec_temp_LegalPosn.x, &vec_temp_LegalPosn.y, &vec_temp_LegalScale.x, &vec_temp_LegalScale.y);
 
-        if (i)
-            nRandomNumber = static_cast<int>(rand() * (1.0f / (RAND_MAX + 1.0f)) * (j + 1));
-        else
-            nRandomNumber = 0;
+						SplashScreen.vec_mLegalPosn[nLegalIndex] = vec_temp_LegalPosn;
+						SplashScreen.vec_mLegalScale[nLegalIndex] = vec_temp_LegalScale;
+					}
+					break;
+				case SPLASH_LOADSCS:
+					if (SECTION3(pLine, 'e', 'n', 'd'))
+						curFileSection = SPLASH_NOTHING;
+					else {
+						int nLoadScreensIndex;
+						CVector2D vec_temp_LoadPosn;
+						CVector2D vec_temp_LoadScale;
 
-        bFinalIndexes[i] = bTempIndexes[nRandomNumber];
-        if (nRandomNumber < j)
-            memcpy(&bTempIndexes[nRandomNumber], &bTempIndexes[nRandomNumber + 1], j - nRandomNumber);
-    }
+						sscanf(pLine, "%d %f %f %f %f", &nLoadScreensIndex, &vec_temp_LoadPosn.x, &vec_temp_LoadPosn.y, &vec_temp_LoadScale.x, &vec_temp_LoadScale.y);
 
-    for (int i = 0; i < 7; ++i)
-    {
-        char		SplashName[20];
-        bDrawingStyle = bIntroSplash != 0;
-        if (bIntroSplash)
-        {
-            if (nIntroSplashID == 1)
-                strncpy(SplashName, "intro", sizeof(SplashName));
-            else
-                strncpy(SplashName, "outro", sizeof(SplashName));
-        }
-        else
-        {
-            if (i)
-                _snprintf(SplashName, sizeof(SplashName), "loadsc%d", bFinalIndexes[i]);
-            else
-                strncpy(SplashName, GetTitlePCByLanguage(), sizeof(SplashName));
-        }
-        LoadingSprites[i].SetTextureFromSPTA(LoadscsArchive, SplashName);
-    }
-    LoadscsArchive.CloseArchive();
+						SplashScreen.vec_mLoadPosn[nLoadScreensIndex] = vec_temp_LoadPosn;
+						SplashScreen.vec_mLoadScale[nLoadScreensIndex] = vec_temp_LoadScale;
+					}
+					break;
+				case SPLASH_OUTRO:
+					if (SECTION3(pLine, 'e', 'n', 'd'))
+						curFileSection = SPLASH_NOTHING;
+					else {
+						int nOutroIndex;
+						CVector2D vec_temp_OutroPosn;
+						CVector2D vec_temp_OutroScale;
+
+						sscanf(pLine, "%d %f %f %f %f", &nOutroIndex, &vec_temp_OutroPosn.x, &vec_temp_OutroPosn.y, &vec_temp_OutroScale.x, &vec_temp_OutroScale.y);
+
+						SplashScreen.vec_mOutroPosn[nOutroIndex] = vec_temp_OutroPosn;
+						SplashScreen.vec_mOutroScale[nOutroIndex] = vec_temp_OutroScale;
+					}
+					break;
+				};
+			}
+		}
+
+		CFileMgr::CloseFile(hFile);
+	}
 }
 
-void CLoadingScreen::RenderSplash()
-{
-    CSprite2d::InitPerFrame();
-    RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS, reinterpret_cast<void*>(rwTEXTUREADDRESSCLAMP));
-    CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(640.0f / 448.0f, WidescreenSupport::SetAspectRatio(), true);
+void CLoadingScreen::LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID) {
+	CLoadingScreen::Init();
+	bDrawingStyle = bIntroSplash != 0;
 
-    if (m_bFading)
-    {
-        if (bDrawingStyle == 1)
-        {
-            // Logo (small)
-            LoadingSprites[CurrentLoadingSprite].Draw(CRect(_xmiddle(-175.0f), _ymiddle(175.0f), _xmiddle(175.0f), _ymiddle(-175.0f)), CRGBA(255, 255, 255, 255));
-        }
-        else
-        {
-            if (!CurrentLoadingSprite)
-            {
-                // title_pc
+	// LEGAL
+	CPNGArchive		LegalSPTA("splash\\legal.spta");
+	LegalSPTA.SetDirectory(nullptr);
 
-                LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
-            }
-            else
-            {
-                // Regular
-                LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
-            }
-        }
+	SplashScreen.m_nSplashes[LEGAL_EN].SetTextureFromSPTA(LegalSPTA, "legal_en");
+	SplashScreen.m_nSplashes[LEGAL_TITLE].SetTextureFromSPTA(LegalSPTA, "legal_title");
 
-        if (m_bFadeInNextSplashFromBlack || m_bFadeOutCurrSplashToBlack)
-            CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, *(bool*)0xBAB31E ? 255 - *(unsigned char*)0xBAB320 : *(unsigned char*)0xBAB320));
-        else
-            LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
-        //LoadingSprites[CurrentLoadingSprite-1].Draw(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(255, 255, 255, 255 - *(unsigned char*)0xBAB320));
-    }
-    else
-    {
-        if (!m_bReadyToDelete)
-            LoadingSprites[CurrentLoadingSprite].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
-    }
+	LegalSPTA.CloseArchive();
+
+	// OUTRO
+	CPNGArchive		OutroSPTA("splash\\outro.spta");
+	OutroSPTA.SetDirectory(nullptr);
+
+	SplashScreen.m_nSplashes[OUTRO].SetTextureFromSPTA(OutroSPTA, "outro");
+
+	OutroSPTA.CloseArchive();
+
+	// LOGOS
+	CPNGArchive		LogosSPTA("splash\\logos.spta");
+	LogosSPTA.SetDirectory(nullptr);
+
+	SplashScreen.m_nSplashes[VCS_LOGO].SetTextureFromSPTA(LogosSPTA, "vcs_logo");
+	SplashScreen.m_nSplashes[VCSPCE_LOGO].SetTextureFromSPTA(LogosSPTA, "vcspce_logo");
+
+	LogosSPTA.CloseArchive();
+
+	// LOADSC0
+	CPNGArchive		LoadSC0SPTA("splash\\loadsc0.spta");
+	LoadSC0SPTA.SetDirectory(nullptr);
+
+	SplashScreen.m_nSplashes[LOADSC0_bk].SetTextureFromSPTA(LoadSC0SPTA, "LOADSC0_bk");
+	SplashScreen.m_nSplashes[LOADSC0_fr].SetTextureFromSPTA(LoadSC0SPTA, "LOADSC0_fr");
+
+	LoadSC0SPTA.CloseArchive();
+
+	// LOADSC1
+	CPNGArchive		LoadSC1SPTA("splash\\loadsc1.spta");
+	LoadSC1SPTA.SetDirectory(nullptr);
+
+	SplashScreen.m_nSplashes[LOADSC1_bk].SetTextureFromSPTA(LoadSC1SPTA, "LOADSC1_bk");
+	SplashScreen.m_nSplashes[LOADSC1_fr].SetTextureFromSPTA(LoadSC1SPTA, "LOADSC1_fr");
+
+	LoadSC1SPTA.CloseArchive();
+
+	// LOADSC2
+	CPNGArchive		LoadSC2SPTA("splash\\loadsc2.spta");
+	LoadSC2SPTA.SetDirectory(nullptr);
+
+	SplashScreen.m_nSplashes[LOADSC2_bk].SetTextureFromSPTA(LoadSC2SPTA, "LOADSC2_bk");
+	SplashScreen.m_nSplashes[LOADSC2_fr].SetTextureFromSPTA(LoadSC2SPTA, "LOADSC2_fr");
+
+	LoadSC2SPTA.CloseArchive();
+
+	// LOADSC3
+	CPNGArchive		LoadSC3SPTA("splash\\loadsc3.spta");
+	LoadSC3SPTA.SetDirectory(nullptr);
+
+	SplashScreen.m_nSplashes[LOADSC3_bk].SetTextureFromSPTA(LoadSC3SPTA, "LOADSC3_bk");
+	SplashScreen.m_nSplashes[LOADSC3_fr].SetTextureFromSPTA(LoadSC3SPTA, "LOADSC3_fr");
+
+	LoadSC3SPTA.CloseArchive();
+
+	// LOADSC4
+	CPNGArchive		LoadSC4SPTA("splash\\loadsc4.spta");
+	LoadSC4SPTA.SetDirectory(nullptr);
+
+	SplashScreen.m_nSplashes[LOADSC4_bk].SetTextureFromSPTA(LoadSC4SPTA, "LOADSC4_bk");
+	SplashScreen.m_nSplashes[LOADSC4_fr].SetTextureFromSPTA(LoadSC4SPTA, "LOADSC4_fr");
+
+	LoadSC4SPTA.CloseArchive();
+
+	// LOADSC5
+	CPNGArchive		LoadSC5SPTA("splash\\loadsc5.spta");
+	LoadSC5SPTA.SetDirectory(nullptr);
+
+	SplashScreen.m_nSplashes[LOADSC5_bk].SetTextureFromSPTA(LoadSC5SPTA, "LOADSC5_bk");
+	SplashScreen.m_nSplashes[LOADSC5_fr].SetTextureFromSPTA(LoadSC5SPTA, "LOADSC5_fr");
+
+	LoadSC5SPTA.CloseArchive();
+}
+
+void CLoadingScreen::RenderSplash() {
+	CSprite2d::InitPerFrame();
+	RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS, reinterpret_cast<void*>(rwTEXTUREADDRESSCLAMP));
+	CVector2D				vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(640.0f / 448.0f, WidescreenSupport::SetAspectRatio(), true);
+
+	if (m_bFading) {
+		// Back screen.
+		CSprite2d::DrawRect(CRect(0, RsGlobal.MaximumHeight, RsGlobal.MaximumWidth, 0), CRGBA(0, 0, 0, 255));
+
+		if (bDrawingStyle == 1) { // Intro small logo
+			SplashScreen.m_nSplashes[VCSPCE_LOGO].Draw(CRect(_xmiddle(SplashScreen.vec_mIntroPosn[0].x), _ymiddle(SplashScreen.vec_mIntroPosn[0].y) + _height(SplashScreen.vec_mIntroScale[0].y), _xmiddle(SplashScreen.vec_mIntroPosn[0].x) + _width(SplashScreen.vec_mIntroScale[0].x), _ymiddle(SplashScreen.vec_mIntroPosn[0].y)), CRGBA(255, 255, 255, 255));
+		}
+		else {
+			if (!CurrentLoadingSprite) { // Legal Title
+				SplashScreen.m_nSplashes[LEGAL_TITLE].Draw(CRect(_xmiddle(SplashScreen.vec_mLegalPosn[0].x), _ymiddle(SplashScreen.vec_mLegalPosn[0].y) + _height(SplashScreen.vec_mLegalScale[0].y), _xmiddle(SplashScreen.vec_mLegalPosn[0].x) + _width(SplashScreen.vec_mLegalScale[0].x), _ymiddle(SplashScreen.vec_mLegalPosn[0].y)), CRGBA(255, 255, 255, 255));
+				SplashScreen.m_nSplashes[VCS_LOGO].Draw(CRect(_xmiddle(SplashScreen.vec_mLegalPosn[1].x), _ymiddle(SplashScreen.vec_mLegalPosn[1].y) + _height(SplashScreen.vec_mLegalScale[1].y), _xmiddle(SplashScreen.vec_mLegalPosn[1].x) + _width(SplashScreen.vec_mLegalScale[1].x), _ymiddle(SplashScreen.vec_mLegalPosn[1].y)), CRGBA(255, 255, 255, 255));
+				SplashScreen.m_nSplashes[LEGAL_EN].Draw(CRect(_xmiddle(SplashScreen.vec_mLegalPosn[2].x), _ymiddle(SplashScreen.vec_mLegalPosn[2].y) + _height(SplashScreen.vec_mLegalScale[2].y), _xmiddle(SplashScreen.vec_mLegalPosn[2].x) + _width(SplashScreen.vec_mLegalScale[2].x), _ymiddle(SplashScreen.vec_mLegalPosn[2].y)), CRGBA(255, 255, 255, 255));
+				//SplashScreen.m_nSplashes[TITLE_PC].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
+			}
+			else // Loading splashes
+				CLoadingScreen::RenderNewLoadingScreens(CurrentLoadingSprite - 1);
+		}
+
+		// Fading
+		if (m_bFadeInNextSplashFromBlack || m_bFadeOutCurrSplashToBlack)
+			CSprite2d::DrawRect(CRect(-5.0f, RsGlobal.MaximumHeight + 5.0f, RsGlobal.MaximumWidth + 5.0f, -5.0f), CRGBA(0, 0, 0, *(bool*)0xBAB31E ? 255 - *(unsigned char*)0xBAB320 : *(unsigned char*)0xBAB320));
+	}
+}
+
+void DrawLoadingBar(float x, float y, float width, float height, float progress, bool border, bool shadow) {
+	// Shadow
+	if (shadow)
+		CSprite2d::DrawRect(CRect((x + _coords(10.0f)), (y + _coords(10.0f)), (x + _coords(10.0f) + width + _coords(2.0f)), (y + _coords(10.0f) + height + _coords(4.0f))),
+			CRGBA(0, 0, 0, 205));
+	// Border
+	if (border)
+		CSprite2d::DrawRect(CRect((x - _coords(5.0f)), (y - _coords(5.0f)), (x - _coords(5.0f) + width + _coords(9.0f)), (y - _coords(5.0f) + height + _coords(9.0f))),
+			CRGBA(0, 0, 0, 255));
+	// progress value is 0.0 - 100.0
+	if (progress >= 100.0f)
+		progress = 100.0f;
+	else {
+		// Back
+		CSprite2d::DrawRect(CRect((x), (y), (x + width), (y + height)),
+			CRGBA(255, 255, 255, 255));
+	}
+	if (progress > 0.0f) {
+		CSprite2d::DrawRect(CRect((x), (y), (x + width * (progress / 100.f)),
+			(y + height)), CRGBA(237, 130, 180, 255));
+	}
+}
+
+void CLoadingScreen::RenderNewLoadingScreens(char ScreenId) {
+	CVector2D vecSplashScale = WidescreenSupport::GetFullscreenImageDimensions(21.0f / 9.0f, ScreenAspectRatio, false);
+	auto  gfLoadingPercentage = *(float*)0xBAB330;
+
+	// Percentage...
+	if (gfLoadingPercentage >= 1.0) {
+		if (SplashScreen.fLoadingPercentage <= 100.0f)
+			SplashScreen.fLoadingPercentage = SplashScreen.fLoadingPercentage + CTimer::ms_fTimeStep * 1.6;
+		else
+			SplashScreen.fLoadingPercentage = 100.0f;
+
+		if (SplashScreen.fLoadingPercentage >= 100.0f)
+			SplashScreen.fLoadingPercentage = 100.0f;
+	}
+
+	// Start Drawings.
+	// Back screen.
+	CSprite2d::DrawRect(CRect(0, RsGlobal.MaximumHeight, RsGlobal.MaximumWidth, 0), CRGBA(0, 0, 0, 255));
+
+	// Start loading tune.
+	((char(__thiscall*)(CAudioEngine*, int, float, float))0x4DD4A0)(&AudioEngine + 180, 0x32, 0.0, 1.0);
+
+	if (CurrentLoadingSprite > 6)
+		CurrentLoadingSprite = 2;
+
+	if (ScreenId == 0) {
+		SplashScreen.m_nSplashes[LOADSC0_bk].Draw(CRect(-1.0f - ((vecSplashScale.x / 2) - RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) + vecSplashScale.y / 2, ((vecSplashScale.x / 2) + RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) - vecSplashScale.y / 2), CRGBA(255, 255, 255, 255));
+		SplashScreen.m_nSplashes[LOADSC0_fr].Draw(CRect(_xmiddle(SplashScreen.vec_mLoadPosn[0].x), _ymiddle(SplashScreen.vec_mLoadPosn[0].y) + _height(SplashScreen.vec_mLoadScale[0].y), _xmiddle(SplashScreen.vec_mLoadPosn[0].x) + _width(SplashScreen.vec_mLoadScale[0].x), _ymiddle(SplashScreen.vec_mLoadPosn[0].y)), CRGBA(255, 255, 255, 255));
+	}
+	else if (ScreenId == 1) {
+		SplashScreen.m_nSplashes[LOADSC1_bk].Draw(CRect(-1.0f - ((vecSplashScale.x / 2) - RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) + vecSplashScale.y / 2, ((vecSplashScale.x / 2) + RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) - vecSplashScale.y / 2), CRGBA(255, 255, 255, 255));
+		SplashScreen.m_nSplashes[LOADSC1_fr].Draw(CRect(_xmiddle(SplashScreen.vec_mLoadPosn[1].x), _ymiddle(SplashScreen.vec_mLoadPosn[1].y) + _height(SplashScreen.vec_mLoadScale[1].y), _xmiddle(SplashScreen.vec_mLoadPosn[1].x) + _width(SplashScreen.vec_mLoadScale[1].x), _ymiddle(SplashScreen.vec_mLoadPosn[1].y)), CRGBA(255, 255, 255, 255));
+	}
+	else if (ScreenId == 2) {
+		SplashScreen.m_nSplashes[LOADSC2_bk].Draw(CRect(-1.0f - ((vecSplashScale.x / 2) - RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) + vecSplashScale.y / 2, ((vecSplashScale.x / 2) + RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) - vecSplashScale.y / 2), CRGBA(255, 255, 255, 255));
+		SplashScreen.m_nSplashes[LOADSC2_fr].Draw(CRect(_xmiddle(SplashScreen.vec_mLoadPosn[2].x), _ymiddle(SplashScreen.vec_mLoadPosn[2].y) + _height(SplashScreen.vec_mLoadScale[2].y), _xmiddle(SplashScreen.vec_mLoadPosn[2].x) + _width(SplashScreen.vec_mLoadScale[2].x), _ymiddle(SplashScreen.vec_mLoadPosn[2].y)), CRGBA(255, 255, 255, 255));
+	}
+	else if (ScreenId == 3) {
+		SplashScreen.m_nSplashes[LOADSC3_bk].Draw(CRect(-1.0f - ((vecSplashScale.x / 2) - RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) + vecSplashScale.y / 2, ((vecSplashScale.x / 2) + RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) - vecSplashScale.y / 2), CRGBA(255, 255, 255, 255));
+		SplashScreen.m_nSplashes[LOADSC3_fr].Draw(CRect(_x(SplashScreen.vec_mLoadPosn[3].x), _ymiddle(SplashScreen.vec_mLoadPosn[3].y) + _height(SplashScreen.vec_mLoadScale[3].y), _x(SplashScreen.vec_mLoadPosn[3].x) + _width(SplashScreen.vec_mLoadScale[3].x), _ymiddle(SplashScreen.vec_mLoadPosn[3].y)), CRGBA(255, 255, 255, 255));
+	}
+	else if (ScreenId == 4) {
+		SplashScreen.m_nSplashes[LOADSC4_bk].Draw(CRect(-1.0f - ((vecSplashScale.x / 2) - RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) + vecSplashScale.y / 2, ((vecSplashScale.x / 2) + RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) - vecSplashScale.y / 2), CRGBA(255, 255, 255, 255));
+		SplashScreen.m_nSplashes[LOADSC4_fr].Draw(CRect(_xmiddle(SplashScreen.vec_mLoadPosn[4].x), _ymiddle(SplashScreen.vec_mLoadPosn[4].y) + _height(SplashScreen.vec_mLoadScale[4].y), _xmiddle(SplashScreen.vec_mLoadPosn[4].x) + _width(SplashScreen.vec_mLoadScale[4].x), _ymiddle(SplashScreen.vec_mLoadPosn[4].y)), CRGBA(255, 255, 255, 255));
+	}
+	else {
+		SplashScreen.m_nSplashes[LOADSC5_bk].Draw(CRect(-1.0f - ((vecSplashScale.x / 2) - RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) + vecSplashScale.y / 2, ((vecSplashScale.x / 2) + RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) - vecSplashScale.y / 2), CRGBA(255, 255, 255, 255));
+		SplashScreen.m_nSplashes[LOADSC5_fr].Draw(CRect(_xmiddle(SplashScreen.vec_mLoadPosn[5].x), _ymiddle(SplashScreen.vec_mLoadPosn[5].y) + _height(SplashScreen.vec_mLoadScale[5].y), _xmiddle(SplashScreen.vec_mLoadPosn[5].x) + _width(SplashScreen.vec_mLoadScale[5].x), _ymiddle(SplashScreen.vec_mLoadPosn[5].y)), CRGBA(255, 255, 255, 255));
+	}
+
+	// Loading Bar
+	DrawLoadingBar(_xleft(41.0f), _ydown(43.0f), _width(154.0f), _height(13.0f), SplashScreen.fLoadingPercentage, 1, 1);
+
+	// Logo
+	SplashScreen.m_nSplashes[VCS_LOGO].Draw(CRect(_xleft(28.0f), _ydown(196.0f) + _height(159.0f), _xleft(28.0f) + _width(181.0f), _ydown(196.0f)), CRGBA(255, 255, 255, 255));
+
+	// Maybe find a better solution for this...
+	if (SplashScreen.fLoadingPercentage >= 100.0f)
+		Memory::Patch<BYTE>(0x590DAF, 0x75);
+	else
+		Memory::Patch<BYTE>(0x590DAF, 0x74);
 }
 
 static void __declspec(naked) UserInputArrowSoundMenus()

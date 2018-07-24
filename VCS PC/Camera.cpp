@@ -7,6 +7,7 @@
 #include "Pad.h"
 #include "Ped.h"
 #include "PlayerInfo.h"
+#include "debugmenu_public.h"
 
 bool CCamera::bDontTouchFOVInWidescreen;
 float& CCamera::m_fMouseAccelHorzntl = *(float*)0xB6EC1C;
@@ -439,5 +440,14 @@ static StaticPatcher	Patcher([](){
 	Memory::InjectHook(0x52C3D9, copyVectorsHook, PATCH_JUMP);
 	Memory::InjectHook(0x52C98B, copyToRWHook, PATCH_JUMP);
 	Memory::InjectHook(0x527C5D, switchDefaultHook, PATCH_JUMP);
+
+	if (DebugMenuLoad()) {
+		DebugMenuEntry *e;
+		static const char *controlStr[] = { "Camera", "Player" };
+		DebugMenuAddCmd("Debug", "Toggle Debug Camera", []() { toggleDebugCam = 1; });
+		e = DebugMenuAddVar("Debug", "Debug Camera Control", &controlMode, NULL, 1, CONTROL_CAMERA, CONTROL_PLAYER, controlStr);
+		DebugMenuEntrySetWrap(e, true);
+		DebugMenuAddVar("Debug", "Debug Camera FOV", &gFOV, NULL, 1.0f, 5.0f, 180.0f);
+	}
 
 });

@@ -28,13 +28,14 @@ void CMenuSystem::DisplayStandardMenu(unsigned char nMenuID, bool bActiveColour)
 		FrontEndMenuManager.DrawWindow(
 			CRect(_xleft(pCurrentMenu->m_fPosX), _y(pCurrentMenu->m_nNumItems * 16.0f + fHorMargin + pCurrentMenu->m_fPosY),
 			_xleft(8.0f + fTotalWidth + pCurrentMenu->m_fPosX), _y(pCurrentMenu->m_fPosY)), 
-			pCurrentMenu->m_aTitle, nColourDesaturation, CRGBA(0, 0, 0, 200), false, true);
+			pCurrentMenu->m_aTitle, nColourDesaturation, CRGBA(0, 0, 0, 125), false, true);
 	}
 
 	CFont::SetFontStyle(FONT_Eurostile);
-	CFont::SetScale(_width(0.52f), _height(1.0f));
-	CFont::SetDropShadowPosition(1);
-	CFont::SetDropColor(CRGBA(0, 0, 0, 200));
+	//CFont::SetScale(_width(0.52f), _height(1.0f));
+	CFont::SetDropShadowPosition(0);
+	CFont::SetEdge(1);
+	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 	CFont::SetProportional(true);
 
 	if ( pCurrentMenu->m_nNumItems )
@@ -65,11 +66,17 @@ void CMenuSystem::DisplayStandardMenu(unsigned char nMenuID, bool bActiveColour)
 						CFont::SetColor(CRGBA(MENU_ACTIVE_R, MENU_ACTIVE_G, MENU_ACTIVE_B, 225));
 					else
 						// Grey/ menu blue for next columns
-						CFont::SetColor(i == 0 ? CRGBA(255, 255, 255, 200) : CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 200));
+						CFont::SetColor(i == 0 ? CRGBA(255, 255, 255, 255) : CRGBA(MENU_INACTIVE_R, MENU_INACTIVE_G, MENU_INACTIVE_B, 200));
 
 					// Formatting
 					CMessages::InsertNumberInString(TheText.Get(pCurrentMenu->m_aFields[i][j]), pCurrentMenu->m_nNumber[0][i][j], pCurrentMenu->m_nNumber[1][i][j], -1, -1, -1, -1, gString);
 					CMessages::InsertPlayerControlKeysInString(gString);
+
+					CFont::SetScale(_width(0.48f), _height(1.0f));
+					float LeftWidth = CFont::GetStringWidth(gString, true, false);
+					if (LeftWidth > _width(140.0f))
+						CFont::SetScale(_width(0.48f) * _width(140.0f / LeftWidth), _height(1.0f));
+
 
 					CFont::PrintString(_xleft(fXPosForColumn), _y(fCurrentPos), gString);
 					fCurrentPos += 16.0f;

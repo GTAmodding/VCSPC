@@ -191,7 +191,7 @@ public:
     BYTE m_bFadeDrunkenness;									// 0x41
     BYTE m_nDrugLevel;											// 0x42
     BYTE m_nScriptLimitToGangSize;								// 0x43
-    float m_fBreath;											// 0x44
+    float m_fStamina;											// 0x44
     DWORD m_MeleeWeaponAnimReferenced;							// 0x48
     DWORD m_MeleeWeaponAnimReferencedExtra;						// 0x4C
     float m_fFPSMoveHeading;									// 0x50

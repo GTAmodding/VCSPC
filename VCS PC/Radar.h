@@ -6,6 +6,9 @@
 
 #define NUM_BLIP_SPRITES	64
 
+#define RADAR_POS_X HUD_POS_X + 2.0f
+#define RADAR_POS_Y HUD_POS_Y - 4.0f
+
 struct tRadarTrace {
     unsigned int   m_dwColour; // see eBlipColour
     unsigned int   m_dwEntityHandle;
@@ -95,9 +98,12 @@ public:
 	static void				TransformRadarPointToScreenSpace(CVector2D& vecOut, const CVector2D& vecIn);
 	static void				Set3DVerts(int nVerts, float* pX, float* pY, const CRGBA& rgb);
 	static void				Render3D(void*, void*, int nVerts);
-    static void             DrawRadarSprites(BYTE iconID, float x, float y, unsigned __int8 alpha);
+	static void				DrawRotatingRadarSprite(CSprite2d * texture, float x, float y, float r_angle, unsigned int width, unsigned int height, CRGBA const & color);
+	static void				DrawRadarCentre(CSprite2d * sprite, float x, float y, float angle, unsigned int width, unsigned int height, CRGBA color);
+	static void             DrawRadarSprites(BYTE iconID, float x, float y, unsigned __int8 alpha);
     static void             ShowRadarTraceWithHeight(float x, float y, unsigned int size, unsigned __int8 r, unsigned __int8 g, unsigned __int8 b, unsigned __int8 a, unsigned __int8 type_or_height);
     static void __fastcall  DrawRadarCircle(CSprite2d *sprite, int, CRect *rect, CRGBA *color);
+	static void				TransformRadarPointToScreenSpaceVCS(CVector2D * out, CVector2D * in);
 };
 
 #endif

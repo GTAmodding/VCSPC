@@ -155,6 +155,7 @@ public:
 	static void				RenderFontBuffer();
 	static void				SetProportional(bool bProportional);
 	static void				SetBackground(unsigned char bUseBackground, unsigned char bBackgroundType);
+	static int				SetBackgroundColor(CRGBA color);
 	static void				SetOrientation(unsigned char bOrientation);
 	static void				PrintString(float posX, float posY, const char* pText);
 	static void				PrintStringFromBottom(float posX, float posY, const char* pText);
@@ -162,6 +163,8 @@ public:
 	static void				InitPerFrame();
 	static void				SetAlphaFade(float fAlpha);
 	static int				GetNumberLines(float, float, const char* pText);
+
+	static float			GetStringWidth(char * pText, char bFull, char bScriptText);
 
 	static void	__stdcall	GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused);
 	static char*			ParseToken(char* pText, CRGBA& rColor, bool bIgnoreColors, char* pChar);

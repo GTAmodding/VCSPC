@@ -109,6 +109,7 @@ typedef int64_t int64;
 #define _ymiddle(a) ((RsGlobal.MaximumHeight / 2) + WidescreenSupport::fProperHeightMultiplier * (a))
 #define _width(a) _xleft(a)
 #define _height(a) _y(a)
+#define _coords(a) (GetCoord(a))
 
 #define MOD_VERSION	"v3.5 BETA"
 #define VERSION_NAME "Silver Palmetto"

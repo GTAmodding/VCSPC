@@ -55,7 +55,7 @@ CGame::Initialise(const char *fileName)
 	CGame::Init1(fileName);
 	CColAccel::startCache();
 	// DLC support
-	CFileLoader::ParseLevelFile("DATA\\DEFAULT.DAT", dlcname);
+	//CFileLoader::ParseLevelFile("DATA\\DEFAULT.DAT", dlcname);
 	CFileLoader::ParseLevelFile(fileName, dlcname);
 	CFileLoader::LoadLevels();
 	CColAccel::endCache();

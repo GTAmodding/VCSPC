@@ -3,6 +3,8 @@
 
 #define SECTION3(line, a, b, c) ((line)[0] == (a) && (line)[1] == (b) && (line)[2] == (c))
 #define SECTION4(line, a, b, c, d) ((line)[0] == (a) && (line)[1] == (b) && (line)[2] == (c) && (line)[3] == (d))
+#define SECTION5(line, a, b, c, d, e) ((line)[0] == (a) && (line)[1] == (b) && (line)[2] == (c) && (line)[3] == (d) && (line)[4] == (e))
+#define SECTION7(line, a, b, c, d, e, f, g) ((line)[0] == (a) && (line)[1] == (b) && (line)[2] == (c) && (line)[3] == (d) && (line)[4] == (e) && (line)[5] == (f) && (line)[6] == (g))
 
 class CFileMgr
 {

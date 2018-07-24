@@ -4,13 +4,13 @@
 #include "PNGArchive.h"
 #include "General.h"
 
-#define NUM_LOADING_SPLASHES		12
+//#define NUM_LOADING_SPLASHES		12
 
 class CSprite
 {
 public:
 	static bool		CalcScreenCoors(const RwV3d& vecIn, RwV3d* vecOut, float* fWidth, float* fHeight, bool bCheckFarClip, bool bCheckNearClip);
-	static float		CalcHorizonCoors();
+	static float	CalcHorizonCoors();
 	static void		FlushSpriteBuffer();
 
 	static void		InitSpriteBuffer2D();
@@ -59,7 +59,9 @@ public:
 	void				Draw(float fX1, float fY1, float fX2, float fY2, float fX3, float fY3, float fX4, float fY4, const CRGBA& colour);
     static void         Draw2DPolygon(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, CRGBA const&  color);
     void                Draw(CRect const& rect, CRGBA const& color, float u1, float v1, float u2, float v2, float u3, float v3, float u4, float v4);
-
+	void				SetRenderState();
+	static int			RenderVertexBuffer();
+	static int			AddToBuffer(CRect const& rect, CRGBA * color, float u1, float v1, float u2, float v2, float u3, float v3, float u4, float v4);
 	static void			InitPerFrame();
 	static void			SetVertices(const CRect& rect, const CRGBA& rgb1, const CRGBA& rgb2, const CRGBA& rgb3, const CRGBA& rgb4);
 	static void			SetVertices(const CRect&, const CRGBA&, const CRGBA&, const CRGBA&, const CRGBA&, float, float, float, float, float, float, float, float);

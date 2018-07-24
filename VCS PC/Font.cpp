@@ -30,11 +30,13 @@ WRAPPER void CFont::SetRightJustifyWrap(float fWrap) { WRAPARG(fWrap); EAXJMP(0x
 WRAPPER void CFont::SetJustify(bool bJustify) { WRAPARG(bJustify); EAXJMP(0x719600); }
 WRAPPER void CFont::SetProportional(bool bProportional) { WRAPARG(bProportional); EAXJMP(0x7195B0); }
 WRAPPER void CFont::SetBackground(unsigned char bUseBackground, unsigned char bBackgroundType) { WRAPARG(bUseBackground); WRAPARG(bBackgroundType); EAXJMP(0x7195C0); }
+WRAPPER int CFont::SetBackgroundColor(CRGBA color) { WRAPARG(color); EAXJMP(0x7195E0); }
 WRAPPER void CFont::SetOrientation(unsigned char bOrientation) { WRAPARG(bOrientation); EAXJMP(0x719610); }
 WRAPPER void CFont::PrintString(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A700); }
 WRAPPER void CFont::PrintStringFromBottom(float posX, float posY, const char* pText) { WRAPARG(posX); WRAPARG(posY); WRAPARG(pText); EAXJMP(0x71A820); }
 WRAPPER void CFont::InitPerFrame() { EAXJMP(0x719800); }
 WRAPPER int CFont::GetNumberLines(float, float, const char* pText) { WRAPARG(pText); EAXJMP(0x71A5E0); }
+WRAPPER float CFont::GetStringWidth(char *pText, char bFull, char bScriptText) { WRAPARG(pText); WRAPARG(bFull); WRAPARG(bScriptText); EAXJMP(0x71A0E0); }
 
 void CFont::GetButtonByIndex(int wButton, char* wcBuf, size_t& nStartPoint)
 {

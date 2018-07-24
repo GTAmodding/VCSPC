@@ -50,6 +50,11 @@ float WidescreenSupport::fProperHeightMultiplier = 480.0f/448.0f;
 //const float WidescreenSupport::fFOVMultiplier = 1.0f/((4.0f/3.0f)/1.1f);
 //const float WidescreenSupport::fFOVMultiplier = 1.0f/((4.0f/3.0f)/1.0f);
 
+float GetCoord(float a) {
+	float base = RsGlobal.MaximumWidth > RsGlobal.MaximumHeight ? RsGlobal.MaximumHeight : RsGlobal.MaximumWidth;
+	return static_cast<int>(a * base / 1080.0f);
+}
+
 void WidescreenSupport::Recalculate(int nWidth, int nHeight, bool bAlways)
 {
 	static int	savedResWidth = 0, savedResHeight = 0;
