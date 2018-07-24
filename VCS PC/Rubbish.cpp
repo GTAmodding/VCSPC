@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Rubbish.h"
 
+#include "Game.h"
 #include "TxdStore.h"
 #include "Camera.h"
 #include "World.h"
@@ -295,7 +296,7 @@ static RwImVertexIndex TempBufferRenderIndexList[1024];
 void
 CRubbish::Render(void)
 {
-    if (RubbishVisibility == 0)
+    if (RubbishVisibility == 0 || CGame::currArea > 0)
         return;
 
     int alphafunc;
