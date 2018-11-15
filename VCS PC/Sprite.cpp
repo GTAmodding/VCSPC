@@ -42,6 +42,11 @@ WRAPPER void CSprite2d::Draw(CRect const& rect, CRGBA const& color, float u1, fl
     WRAPARG(v3); WRAPARG(u4); WRAPARG(v4); WRAPARG(color); EAXJMP(0x728420);
 }
 
+WRAPPER void CSprite2d::SetRenderState() { EAXJMP(0x727B30); }
+WRAPPER int CSprite2d::RenderVertexBuffer() { EAXJMP(0x7273D0); }
+WRAPPER int CSprite2d::AddToBuffer(CRect const& rect, CRGBA *color, float u1, float v1, float u2, float v2, float u3, float v3, float u4, float v4) {
+	WRAPARG(rect); WRAPARG(color); WRAPARG(u1); WRAPARG(v1); WRAPARG(u2); WRAPARG(v2); WRAPARG(u3);
+	WRAPARG(v3); WRAPARG(u4); WRAPARG(v4); EAXJMP(0x728200); }
 
 void CSprite2d::SetTexture(const char* name, const char* maskName)
 {

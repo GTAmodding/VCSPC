@@ -292,31 +292,66 @@ static void __declspec(naked)	BlipAlphaHook()
 	}
 }
 
-void CRadar::DrawRadarSprites(BYTE iconID, float x, float y, unsigned __int8 alpha) {
 
-    if (FrontEndMenuManager.m_bMenuActive) {
-        float w = _width(7.5f);
-        float h = _height(7.5f);
+void __cdecl CRadar::DrawRotatingRadarSprite(CSprite2d *texture, float x, float y, float r_angle, unsigned int width, unsigned int height, CRGBA const& color) {
+	if (FrontEndMenuManager.drawRadarOrMap) {
+		x = (RsGlobal.MaximumWidth * 0.0015625) * x * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
+		y = RsGlobal.MaximumHeight  * 0.002232143 * y;
+		CRadar::LimitToMap(&x, &y);
+	}
 
-        if (FrontEndMenuManager.drawRadarOrMap) {
-            x = (RsGlobal.MaximumWidth * 0.0015625) * x * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
-            y = RsGlobal.MaximumHeight  * 0.002232143 * y;
-            CRadar::LimitToMap(&x, &y);
-        }
+	CVector2D posn[4];
 
-        if (CRadar::DisplayThisBlip(iconID, -99)) {
-            CRadar::RadarBlipSprites[iconID].Draw(CRect(x - (w), y + (h), x + (w), y - (h)), CRGBA(255, 255, 255, alpha));
-            CRadar::AddBlipToLegendList(0, iconID);
-        }
-    }
-    else
-        ((void(__cdecl*)(BYTE, float, float, unsigned __int8))0x585FF0)(iconID, x, y, alpha);
+	posn[0].x = x - width / 1.2f;
+
+	posn[0].y = y + height / 1.2f;
+
+	posn[1].x = x + width / 1.2f;
+
+	posn[1].y = y + height / 1.2f;
+
+	posn[2].x = x - width / 1.2f;
+
+	posn[2].y = y - height / 1.2f;
+
+	posn[3].x = x + width / 1.2f;
+
+	posn[3].y = y - height / 1.2f;
+
+	RotateVertices(posn, 4, x, y, r_angle);
+
+	texture->Draw(posn[2].x, posn[2].y,
+		posn[3].x, posn[3].y,
+		posn[0].x, posn[0].y,
+		posn[1].x, posn[1].y,
+		CRGBA(255, 255, 255, 255));
 }
+
+void __cdecl CRadar::DrawRadarCentre(CSprite2d* sprite, float x, float y, float angle, unsigned int width, unsigned int height, CRGBA color) {
+	DrawRotatingRadarSprite(sprite, x, y, angle, _width(7.0f), _width(8.0f), color);
+}
+
+void CRadar::DrawRadarSprites(BYTE iconID, float x, float y, unsigned __int8 alpha) {
+	float w = _width(8.0f);
+	float h = _height(8.0f);
+
+	if (FrontEndMenuManager.drawRadarOrMap) {
+		x = (RsGlobal.MaximumWidth * 0.0015625) * x * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
+		y = RsGlobal.MaximumHeight  * 0.002232143 * y;
+		CRadar::LimitToMap(&x, &y);
+	}
+
+	if (CRadar::DisplayThisBlip(iconID, -99)) {
+		CRadar::RadarBlipSprites[iconID].Draw(CRect(x - (w), y + (h), x + (w), y - (h)), CRGBA(255, 255, 255, alpha));
+		CRadar::AddBlipToLegendList(0, iconID);
+	}
+}
+
 
 void CRadar::ShowRadarTraceWithHeight(float x, float y, unsigned int size, unsigned __int8 r, unsigned __int8 g, unsigned __int8 b, unsigned __int8 a, unsigned __int8 type_or_height) {
     if (FrontEndMenuManager.m_bMenuActive) {
-        float w = _width(7.5f);
-        float h = _height(7.5f);
+        float w = _width(8.0f);
+        float h = _height(8.0f);
 
         if (FrontEndMenuManager.drawRadarOrMap) {
             x = (RsGlobal.MaximumWidth * 0.0015625) * x * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
@@ -336,7 +371,29 @@ void CRadar::ShowRadarTraceWithHeight(float x, float y, unsigned int size, unsig
 }
 
 void __fastcall CRadar::DrawRadarCircle(CSprite2d *sprite, int, CRect *rect, CRGBA *color) {
-    CHud::Sprites[HUD_Radardisc].Draw(CRect(*rect), *color);
+	float x = _xleft(RADAR_POS_X + 32.6f);
+	float y = _ydown(RADAR_POS_Y + 120.0f);
+	float w = _width(103.0f);
+	float h = _height(93.0f);
+	CHud::Sprites[HUD_Radardisc].Draw(x, y, w, h, CRGBA(0, 0, 0, HUD_TRANSPARENCY_BACK));
+}
+
+void __cdecl CRadar::TransformRadarPointToScreenSpaceVCS(CVector2D *out, CVector2D *in) {
+	__asm push edx
+	float x = _xleft(RADAR_POS_X + 84.0f);
+	float y = _ydown(RADAR_POS_Y + 74.0f);
+	float w = _width(90.0f);
+	float h = _height(82.0f);
+	if (FrontEndMenuManager.drawRadarOrMap) {
+		out->x = FrontEndMenuManager.m_fMapZoom * in->x + FrontEndMenuManager.m_fMapBaseX;
+		out->y = FrontEndMenuManager.m_fMapBaseY - FrontEndMenuManager.m_fMapZoom * in->y;
+	}
+	else {
+		out->x = (x) + in->x * (w / 2);
+		out->y = (y) - in->y * (h / 2);
+
+	}
+	__asm pop edx
 }
 
 static StaticPatcher	Patcher([](){ 
@@ -350,8 +407,10 @@ static StaticPatcher	Patcher([](){
                 Memory::InjectHook(0x58766E, CRadar::ShowRadarTraceWithHeight);
                 Memory::InjectHook(0x587B7C, CRadar::ShowRadarTraceWithHeight);
 
-                Memory::InjectHook(0x58A823, CRadar::DrawRadarCircle);
-                Memory::InjectHook(0x58A8CD, CRadar::DrawRadarCircle);
-                Memory::InjectHook(0x58A977, CRadar::DrawRadarCircle);
+				//Memory::InjectHook(0x588722, CRadar::DrawRadarCentre);
+				Memory::InjectHook(0x583480, CRadar::TransformRadarPointToScreenSpaceVCS, PATCH_JUMP);
                 Memory::InjectHook(0x58AA25, CRadar::DrawRadarCircle);
+				Memory::Nop(0x58A818, 16);
+				Memory::Nop(0x58A8C2, 16);
+				Memory::Nop(0x58A96C, 16);
 			});

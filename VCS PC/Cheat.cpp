@@ -147,6 +147,7 @@ CCheat::WeaponCheat1(void)
 	CStreaming::RequestModel(MI_AK47, StreamingModelRequested);
 	CStreaming::RequestModel(MI_FLAME, StreamingModelRequested);
 	CStreaming::RequestModel(MI_SNIPER, StreamingModelRequested);
+	CStreaming::RequestModel(MI_MOLOTOV, StreamingModelRequested);
 	CStreaming::LoadAllRequestedModels(false);
 	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_BRASSKNUCKLE, 1);
 	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_KNIFE, 1);
@@ -156,6 +157,7 @@ CCheat::WeaponCheat1(void)
 	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_AK47, 120);
 	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_FLAMETHROWER, 25);
 	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_SNIPER, 25);
+	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_MOLOTOV, 10);
 	CStreaming::SetModelIsDeletable(MI_BRASSKNUCKLE);
 	CStreaming::SetModelIsDeletable(MI_KNIFECUR);
 	CStreaming::SetModelIsDeletable(MI_BERETTA);
@@ -164,6 +166,7 @@ CCheat::WeaponCheat1(void)
 	CStreaming::SetModelIsDeletable(MI_AK47);
 	CStreaming::SetModelIsDeletable(MI_FLAME);
 	CStreaming::SetModelIsDeletable(MI_SNIPER);
+	CStreaming::SetModelIsDeletable(MI_MOLOTOV);
 }
 
 void
@@ -185,6 +188,7 @@ CCheat::WeaponCheat2(void)
 	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_INGRAMSL, 100);
 	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_M16, 150);
 	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_LASER, 21);
+	FindPlayerPed(-1)->GiveWeapon(WEAPONTYPE_ROCKETLAUNCHER, 5);
 	CStreaming::SetModelIsDeletable(MI_KATANA);
 	CStreaming::SetModelIsDeletable(MI_TEARGAS);
 	CStreaming::SetModelIsDeletable(MI_PYTHON);

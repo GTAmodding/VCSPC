@@ -36,7 +36,14 @@ public:
 
 	bool			AreMiamiViceRequired();
 
+	bool			AreSwatRequired();
+
+	bool			AreFbiRequired();
+
+	bool			AreArmyRequired();
+
 	static void		UpdateEachFrame();
+	static int		NumOfHelisRequired();
 };
 
 static_assert(sizeof(CWanted) == 0x29C, "Wrong size: CWanted");

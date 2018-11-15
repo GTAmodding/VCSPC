@@ -152,6 +152,29 @@ enum eMenuSpecialFlags
 	ACTION_SERIAL
 };
 
+enum eSplashes {
+	LOADSC0_bk,
+	LOADSC0_fr,
+	LOADSC1_bk,
+	LOADSC1_fr,
+	LOADSC2_bk,
+	LOADSC2_fr,
+	LOADSC3_bk,
+	LOADSC3_fr,
+	LOADSC4_bk,
+	LOADSC4_fr,
+	LOADSC5_bk,
+	LOADSC5_fr,
+	VCSPCE_LOGO,
+	VCS_LOGO,
+	INTRO,
+	OUTRO,
+	LEGAL_EN,
+	LEGAL_TITLE,
+	NUM_LOADING_SPLASHES
+};
+
+
 // For right column hack
 union MenuVar
 {
@@ -509,7 +532,6 @@ public:
     // New map screen.
     static void             PrintMap(int x, int y, CRect rect);
     static void             PrintMapExtra();
-    static void             PrintMapCursor(CRect const& rect, CRGBA const& rgbaColor);
     static void             DrawYouAreHereSprite(CSprite2d * sprite, float x, float y, float angle, unsigned int width, unsigned int height, CRGBA color);
     static void __stdcall   DrawLegendWindow(CRect * coords, char * titleKey, char fadeState, CRGBA color, int a5, char bDrawBox);
     static void             DrawLegend2DPolygon(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, CRGBA * color);
@@ -524,6 +546,8 @@ public:
 //	void		SaveStatsHTML();
 };
 
+#define NUM_SPLASHES 10
+
 class CLoadingScreen
 {
 public:
@@ -533,13 +557,27 @@ public:
     static bool	&m_bFadeOutCurrSplashToBlack;
     static bool	&m_bReadyToDelete;
 
+public:
+	CSprite2d m_nSplashes[NUM_LOADING_SPLASHES];
+	float fLoadingPercentage;
+	CVector2D vec_mLoadPosn[NUM_SPLASHES];
+	CVector2D vec_mLoadScale[NUM_SPLASHES];
+	CVector2D vec_mIntroPosn[4];
+	CVector2D vec_mIntroScale[4];
+	CVector2D vec_mLegalPosn[4];
+	CVector2D vec_mLegalScale[4];
+	CVector2D vec_mOutroPosn[4];
+	CVector2D vec_mOutroScale[4];
+
+	static void Init();
     static void	RenderSplash();
+	static void RenderNewLoadingScreens(char ScreenId);
     static void	LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashID);
 };
 
 
 extern CMenuManager&		FrontEndMenuManager;
-
+extern CLoadingScreen		SplashScreen;
 
 //static_assert(sizeof(CMenuManager) == 0x1B78, "Wrong size: CMenuManager");
 

@@ -2491,160 +2491,225 @@ void LoadFxArchive(int index, char *filename) {
     CTxdStore::LoadTxd(index, "models\\particle.txd");
 }
 
+bool bHandleEntryExit;
+
+CPad* EntryExitTransitionStarted() {
+	bHandleEntryExit = true;
+	return CPad::GetPad(0);
+}
+
+CPad* EntryExitTransitionFinished() {
+	bHandleEntryExit = false;
+	return CPad::GetPad(0);
+}
+
+void SetDrawWindowHeader(char bShadow) {
+	CFont::SetProportional(true);
+	CFont::SetDropShadowPosition(1);
+	CFont::SetColor(CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B));
+}
+
 void New_Main_Patches() {
-    using namespace Memory;
+	using namespace Memory;
 
-    // New patches
-    // No crouch moves.
-    static float fMoveOffset = 0.0f;
-    Patch<const void*>(0x687F8D + 0x2, &fMoveOffset);
-    Patch<const void*>(0x687F9B + 0x2, &fMoveOffset);
+	// New patches
+	// No crouch moves.
+	static float fMoveOffset = 0.0f;
+	Patch<const void*>(0x687F8D + 0x2, &fMoveOffset);
+	Patch<const void*>(0x687F9B + 0x2, &fMoveOffset);
 
-    // No aiming moves.
-    Patch<const void*>(0x687CF8 + 0x2, &fMoveOffset);
-    Patch<const void*>(0x687D02 + 0x2, &fMoveOffset);
+	// No aiming moves.
+	Patch<const void*>(0x687CF8 + 0x2, &fMoveOffset);
+	Patch<const void*>(0x687D02 + 0x2, &fMoveOffset);
 
-    // No diving
-    Nop(0x6B21D8, 2);
-    Nop(0x688B38, 6);
-    Nop(0x68B245, 6);
+	// No diving
+	Nop(0x6B21D8, 2);
+	Nop(0x688B38, 6);
+	Nop(0x68B245, 6);
 
-    // Stamina
-    Patch<float>(0x68B358 + 3, 0.0);
+	// Stamina
+	//InjectHook(0x60A8D0, HandlePlayerBreath, PATCH_JUMP);
+	Patch<float>(0x68B358 + 3, 0.6f);
+	Patch<float>(0x5E2324 + 1, 0.6f);
 
-    static float fTiming = 6.0f;
-    Patch<const void*>(0x68A831 + 0x2, &fTiming);
-    Patch<const void*>(0x68A7EC + 0x2, &fTiming);
-    Nop(0x68A5F0, 2);
+	static float fTiming = 6.0f;
+	Patch<const void*>(0x68A831 + 0x2, &fTiming);
+	Patch<const void*>(0x68A7EC + 0x2, &fTiming);
+	Nop(0x68A5F0, 2);
 
-    // Vehicle Mass
-    static float fVehMass = 0.005000004;
-    Patch<const void*>(0x6A8CBE + 0x2, &fVehMass);
-    Patch<const void*>(0x6A8CD2 + 0x2, &fVehMass);
+	// Vehicle Mass
+	static float fVehMass = 0.005000004;
+	Patch<const void*>(0x6A8CBE + 0x2, &fVehMass);
+	Patch<const void*>(0x6A8CD2 + 0x2, &fVehMass);
 
-    // Force Vehicle floating.
-    Patch<BYTE>(0x6A8F6E, 0x74);
+	// Force Vehicle floating.
+	Patch<BYTE>(0x6A8F6E, 0x74);
 
-    // Explosions - BlowAllUpInTheSameWay
-    InjectHook(0x6B3B93, BlowUpAnyVeh, PATCH_CALL); // CARS
-    InjectHook(0x6BEB08, BlowUpAnyVeh, PATCH_CALL); // BIKES
-    InjectHook(0x6CD077, BlowUpAnyVeh, PATCH_CALL); // PLANE
-    InjectHook(0x6C703D, BlowUpAnyVeh, PATCH_CALL); // HELI
-    //
+	// Explosions - BlowAllUpInTheSameWay
+	InjectHook(0x6B3B93, BlowUpAnyVeh, PATCH_CALL); // CARS
+	InjectHook(0x6BEB08, BlowUpAnyVeh, PATCH_CALL); // BIKES
+	InjectHook(0x6CD077, BlowUpAnyVeh, PATCH_CALL); // PLANE
+	InjectHook(0x6C703D, BlowUpAnyVeh, PATCH_CALL); // HELI
+	//
 
-    // Set Radar Range
-    Patch<float>(0x586C7E + 6, RADAR_RANGE);
-    Patch<float>(0x586C95 + 6, RADAR_RANGE);
-    Patch<const void*>(0x586C66, &fRadarRange);
+	// Set Radar Range
+	Patch<float>(0x586C7E + 6, RADAR_RANGE);
+	Patch<float>(0x586C95 + 6, RADAR_RANGE);
+	Patch<const void*>(0x586C66, &fRadarRange);
 
-    // Radar water color.
-    Patch<BYTE>(0x586441 + 1, 123);
-    Patch<BYTE>(0x58643C + 1, 174);
-    Patch<BYTE>(0x586437 + 1, 222);
-    Patch<BYTE>(0x586432 + 1, HUD_TRANSPARENCY_BACK);
+	// Radar water color.
+	Patch<BYTE>(0x586441 + 1, 123);
+	Patch<BYTE>(0x58643C + 1, 174);
+	Patch<BYTE>(0x586437 + 1, 222);
+	Patch<BYTE>(0x586432 + 1, HUD_TRANSPARENCY_BACK);
 
-    // Weapon Fixes
-    InjectHook(0x685B97, SetNewPlayerWeaponMode);
-    InjectHook(0x61ECCD, SetNewFire);
-    InjectHook(0x628328, SetNewFire);
-    InjectHook(0x62B109, SetNewFire);
-    InjectHook(0x62B12A, SetNewFire);
-    InjectHook(0x68626D, SetNewFire);
-    InjectHook(0x686283, SetNewFire);
-    InjectHook(0x686787, SetNewFire);
+	// Weapon Fixes
+	InjectHook(0x685B97, SetNewPlayerWeaponMode);
+	InjectHook(0x61ECCD, SetNewFire);
+	InjectHook(0x628328, SetNewFire);
+	InjectHook(0x62B109, SetNewFire);
+	InjectHook(0x62B12A, SetNewFire);
+	InjectHook(0x68626D, SetNewFire);
+	InjectHook(0x686283, SetNewFire);
+	InjectHook(0x686787, SetNewFire);
 
-    InjectHook(0x5E3B60, GetWeaponSkillVCS, PATCH_JUMP);
-    //InjectHook(0x5E6580, GetWeaponSkillVCS, PATCH_JUMP); // Not needed?!?
+	InjectHook(0x5E3B60, GetWeaponSkillVCS, PATCH_JUMP);
+	//InjectHook(0x5E6580, GetWeaponSkillVCS, PATCH_JUMP); // Not needed?!?
 
-    // Weapon Data Strings
-    memcpy((char*)0x8D6150, ms_aWeaponNames, sizeof(ms_aWeaponNames));
+	// Shotguns multiplicator
+	static float fMultiplicator = 2.0;
+	Patch<const void*>(0x73FC6A + 0x2, &fMultiplicator);
 
-    // Part of VCS folder structure
-    Patch<const char*>(0x4D563D + 1, "ANIM\\PED.IFP");
-    Patch<const char*>(0x4D5EB9 + 1, "ANIM\\CUTS.IMG");
-    Patch<const char*>(0x5AFBCB + 1, "ANIM\\CUTS.IMG");
-    Patch<const char*>(0x5AFC98 + 1, "ANIM\\CUTS.IMG");
-    Patch<const char*>(0x5B07DA + 1, "ANIM\\CUTS.IMG");
-    Patch<const char*>(0x5B1423 + 1, "ANIM\\CUTS.IMG");
+	// Weapon Data Strings
+	memcpy((char*)0x8D6150, ms_aWeaponNames, sizeof(ms_aWeaponNames));
 
-    Patch<const char*>(0x49EA9D + 1, "DATA\\particle.fxp");
+	// Part of VCS folder structure
+	Patch<const char*>(0x4D563D + 1, "ANIM\\PED.IFP");
+	Patch<const char*>(0x4D5EB9 + 1, "ANIM\\CUTS.IMG");
+	Patch<const char*>(0x5AFBCB + 1, "ANIM\\CUTS.IMG");
+	Patch<const char*>(0x5AFC98 + 1, "ANIM\\CUTS.IMG");
+	Patch<const char*>(0x5B07DA + 1, "ANIM\\CUTS.IMG");
+	Patch<const char*>(0x5B1423 + 1, "ANIM\\CUTS.IMG");
 
-    InjectHook(0x5C248F, LoadFxArchive);
-    Patch<const char*>(0x6A01BE + 1, "TEXT");
-    Patch<const char*>(0x69FCE1 + 1, "TEXT");
+	Patch<const char*>(0x49EA9D + 1, "DATA\\particle.fxp");
 
-    strncpy((char*)0x85F134, "AUDIO\\", 13);
+	InjectHook(0x5C248F, LoadFxArchive);
+	Patch<const char*>(0x6A01BE + 1, "TEXT");
+	Patch<const char*>(0x69FCE1 + 1, "TEXT");
 
-    Patch<const char*>(0x4DFBD7 + 1, "AUDIO\\BANKLKUP.DAT");
-    Patch<const char*>(0x4DFC7D + 1, "AUDIO\\PAKFILES.DAT");
-    Patch<const char*>(0x4E0597 + 1, "AUDIO\\BANKSLOT.DAT");
-    Patch<const char*>(0x4E0A02 + 1, "AUDIO\\TRAKLKUP.DAT");
-    Patch<const char*>(0x5B9D68 + 1, "AUDIO\\EVENTVOL.DAT");
-    Patch<const char*>(0x4E0982 + 1, "AUDIO\\STRMPAKS.DAT");
+	strncpy((char*)0x85F134, "AUDIO\\", 13);
 
-    Patch<const void*>(0x4E0DCE + 1, "AUDIO\\");
-    Patch<const void*>(0x4E0DC4 + 1, "AUDIO\\");
-    Patch<const void*>(0x4E0C90 + 1, "AUDIO\\");
-    Patch<const void*>(0x4E0CCD + 1, "AUDIO\\");
-    Patch<const void*>(0x4E0BF8 + 1, "AUDIO\\");
+	Patch<const char*>(0x4DFBD7 + 1, "AUDIO\\BANKLKUP.DAT");
+	Patch<const char*>(0x4DFC7D + 1, "AUDIO\\PAKFILES.DAT");
+	Patch<const char*>(0x4E0597 + 1, "AUDIO\\BANKSLOT.DAT");
+	Patch<const char*>(0x4E0A02 + 1, "AUDIO\\TRAKLKUP.DAT");
+	Patch<const char*>(0x5B9D68 + 1, "AUDIO\\EVENTVOL.DAT");
+	Patch<const char*>(0x4E0982 + 1, "AUDIO\\STRMPAKS.DAT");
 
-    Patch<const void*>(0x4E0B14 + 1, "AUDIO\\");
-    Patch<const void*>(0x4E0B1E + 1, "AUDIO\\");
+	Patch<const void*>(0x4E0DCE + 1, "AUDIO\\");
+	Patch<const void*>(0x4E0DC4 + 1, "AUDIO\\");
+	Patch<const void*>(0x4E0C90 + 1, "AUDIO\\");
+	Patch<const void*>(0x4E0CCD + 1, "AUDIO\\");
+	Patch<const void*>(0x4E0BF8 + 1, "AUDIO\\");
 
-    Patch<const char*>(0x468EB5 + 1, "DATA\\");
-    Patch<const char*>(0x489A45 + 1, "DATA\\MAIN.SCM");
+	Patch<const void*>(0x4E0B14 + 1, "AUDIO\\");
+	Patch<const void*>(0x4E0B1E + 1, "AUDIO\\");
 
-    Patch<const char*>(0x53DF1F + 1, "DATA\\GTA_VC.DAT");
-    Patch<const char*>(0x53E580 + 1, "DATA\\GTA_VC.DAT");
+	Patch<const char*>(0x468EB5 + 1, "DATA\\");
+	Patch<const char*>(0x489A45 + 1, "DATA\\MAIN.SCM");
 
-    Patch<const char*>(0x452F4F + 1, "DATA\\PATHS\\NODES%d.DAT");
-    Patch<const char*>(0x461118 + 1, "DATA\\PATHS\\ROADBLOX.DAT");
-    Patch<const char*>(0x6F746B + 1, "DATA\\PATHS\\TRACKS.DAT");
-    Patch<const char*>(0x6F7491 + 1, "DATA\\PATHS\\TRACKS3.DAT");
-    Patch<const char*>(0x6F74B7 + 1, "DATA\\PATHS\\TRACKS2.DAT");
-    Patch<const char*>(0x6F74DD + 1, "DATA\\PATHS\\TRACKS4.DAT");
+	Patch<const char*>(0x53DF1F + 1, "DATA\\GTA_VC.DAT");
+	Patch<const char*>(0x53E580 + 1, "DATA\\GTA_VC.DAT");
 
-    Patch<const char*>(0x5BBA15 + 1, "DATA\\DECISION\\");
-    Patch<const char*>(0x6076B7 + 1, "DATA\\DECISION\\");
+	Patch<const char*>(0x452F4F + 1, "DATA\\PATHS\\NODES%d.DAT");
+	Patch<const char*>(0x461118 + 1, "DATA\\PATHS\\ROADBLOX.DAT");
+	Patch<const char*>(0x6F746B + 1, "DATA\\PATHS\\TRACKS.DAT");
+	Patch<const char*>(0x6F7491 + 1, "DATA\\PATHS\\TRACKS3.DAT");
+	Patch<const char*>(0x6F74B7 + 1, "DATA\\PATHS\\TRACKS2.DAT");
+	Patch<const char*>(0x6F74DD + 1, "DATA\\PATHS\\TRACKS4.DAT");
 
-    Patch<const char*>(0x5BC926 + 1, "DATA\\ANIMGRP.DAT");
-    Patch<const char*>(0x5B68A0 + 1, "DATA\\CARCOLS.DAT");
-    Patch<const char*>(0x5BD1A7 + 1, "DATA\\");
-    Patch<const char*>(0x7187D6 + 1, "DATA\\FONTS.DAT");
-    Patch<const char*>(0x5C028E + 1, "DATA\\FURNITUR.DAT");
-    Patch<const char*>(0x5BD838 + 1, "DATA\\");
-    Patch<const char*>(0x5BD84B + 1, "HANDLING.DAT");
-    Patch<const char*>(0x5BEEE7 + 1, "DATA\\MELEE.DAT");
-    Patch<const char*>(0x5B925A + 1, "DATA\\OBJECT.DAT");
-    Patch<const char*>(0x608B3B + 1, "DATA\\PED.DAT");
-    Patch<const char*>(0x5BB89A + 1, "DATA\\PEDSTATS.DAT");
-    Patch<const char*>(0x5A314D + 1, "DATA\\PROCOBJ.DAT");
-    Patch<const char*>(0x55D0FB + 1, "DATA\\SURFACE.DAT");
-    Patch<const char*>(0x55F2BA + 1, "DATA\\SURFACEAUDIO.DAT");
-    Patch<const char*>(0x55EB9D + 1, "DATA\\SURFACEINFO.DAT");
-    InjectHook(0x6EDDB1, CWaterLevel::WaterLevelInitialise);
-    Patch<const char*>(0x5BE685 + 1, "DATA\\WEAPON.DAT");
+	Patch<const char*>(0x5BBA15 + 1, "DATA\\DECISION\\");
+	Patch<const char*>(0x6076B7 + 1, "DATA\\DECISION\\");
 
-    // Nop SA DATA
-    Nop(0x55C131, 5);
-    Nop(0x55C136, 5);
-    Nop(0x5B8F21, 5);
+	Patch<const char*>(0x5BC926 + 1, "DATA\\ANIMGRP.DAT");
+	Patch<const char*>(0x5B68A0 + 1, "DATA\\CARCOLS.DAT");
+	Patch<const char*>(0x5BD1A7 + 1, "DATA\\");
+	Patch<const char*>(0x7187D6 + 1, "DATA\\FONTS.DAT");
+	Patch<const char*>(0x5C028E + 1, "DATA\\FURNITUR.DAT");
+	Patch<const char*>(0x5BD838 + 1, "DATA\\");
+	Patch<const char*>(0x5BD84B + 1, "HANDLING.DAT");
+	Patch<const char*>(0x5BEEE7 + 1, "DATA\\MELEE.DAT");
+	Patch<const char*>(0x5B925A + 1, "DATA\\OBJECT.DAT");
+	Patch<const char*>(0x608B3B + 1, "DATA\\PED.DAT");
+	Patch<const char*>(0x5BB89A + 1, "DATA\\PEDSTATS.DAT");
+	Patch<const char*>(0x5A314D + 1, "DATA\\PROCOBJ.DAT");
+	Patch<const char*>(0x55D0FB + 1, "DATA\\SURFACE.DAT");
+	Patch<const char*>(0x55F2BA + 1, "DATA\\SURFACEAUDIO.DAT");
+	Patch<const char*>(0x55EB9D + 1, "DATA\\SURFACEINFO.DAT");
+	InjectHook(0x6EDDB1, CWaterLevel::WaterLevelInitialise);
+	Patch<const char*>(0x5BE685 + 1, "DATA\\WEAPON.DAT");
 
-    // Fighting tweaks
-    Patch<BYTE>(0x623EA7, 0x74);
+	// Nop SA DATA
+	Nop(0x55C131, 5);
+	Nop(0x55C136, 5);
+	Nop(0x5B8F21, 5);
+
+	// Fighting tweaks
+	Patch<BYTE>(0x623EA7, 0x74);
+
+	// Entry Exit Transition
+	InjectHook(0x440404, EntryExitTransitionStarted);
+	InjectHook(0x4406FD, EntryExitTransitionFinished);
+
+	// Move camera while swimming.
+	//Patch<BYTE>(0x5E1B3A, 0x74);
+
+	// Set shadow to draw window header
+	InjectHook(0x573F61, SetDrawWindowHeader);
+
+	// No light cones.
+	Nop(0x6E1EDE, 6);
+	Nop(0x6E1F17, 6);
+}
+
+void HandlePlayerStamina(float fMultiplicator) {
+	if (FindPlayerPed(-1)->bSubmergedInWater) {
+		if (FindPlayerPed(-1)->GetPlayerData()->m_fStamina <= 0.1f) { // Lose health when stamina is set to zero.
+			FindPlayerPed(-1)->fHealth = FindPlayerPed(-1)->fHealth - CTimer::ms_fTimeStep * fMultiplicator;
+		}
+		/*else { // Lose stamina
+			float speed = FindPlayerPed(-1)->m_vecLinearVelocity.Magnitude();
+
+			FindPlayerPed(-1)->GetPlayerData()->m_fStamina = FindPlayerPed(-1)->GetPlayerData()->m_fStamina - CTimer::ms_fTimeStep * speed + fMultiplicator;
+		}
+	}
+	else { // Restore stamina.
+		if (FindPlayerPed(-1)->GetPlayerData()->m_fStamina <= 99.0f)
+		FindPlayerPed(-1)->GetPlayerData()->m_fStamina = FindPlayerPed(-1)->GetPlayerData()->m_fStamina + CTimer::ms_fTimeStep * fMultiplicator;*/
+	}
 }
 
 void InitExtraStuff() {
-    // No reloading moves.
-    static float fMoveOffset_Extra = 0.016666668;
-    if (FindPlayerPed(-1)) {
-        if (FindPlayerPed(-1)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eState != 0)
-            fMoveOffset_Extra = 0.0f;
-        else
-            fMoveOffset_Extra = 0.016666668;
-    }
+	if (FindPlayerPed(-1)) {
+		// No reloading moves.
+		static float fMoveOffset_Extra = 0.016666668;
+		if (FindPlayerPed(-1)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eState != 0 || bHandleEntryExit)
+			fMoveOffset_Extra = 0.0f;
+		else
+			fMoveOffset_Extra = 0.016666668;
 
-    Memory::Patch<const void*>(0x688456 + 0x2, &fMoveOffset_Extra);
+		Memory::Patch<const void*>(0x688456 + 0x2, &fMoveOffset_Extra);
+
+
+		// Handle Player Stamina.
+		HandlePlayerStamina(0.6f);
+
+
+		// Stop player when entry/exit from enex.
+		if (bHandleEntryExit) {
+			FindPlayerPed(-1)->Teleport(FindPlayerPed(0)->GetCoords().x, FindPlayerPed(-1)->GetCoords().y, FindPlayerPed(-1)->GetCoords().z, 1);
+		}
+	}
 }
 
 void Main_Patches()
@@ -2741,7 +2806,7 @@ void Main_Patches()
 #endif
 
 #ifdef TRACE_FUCKING_TEXTURES
-//	InjectHook(0x5B6449, &TraceTXDLoads);
+	//	InjectHook(0x5B6449, &TraceTXDLoads);
 	InjectHook(0x731CCB, &TraceTXDLoads2, PATCH_JUMP);
 #endif
 
@@ -2761,10 +2826,10 @@ void Main_Patches()
 #ifdef TRACE_STREAMING2
 	InjectHook(0x40CB83, &TraceStreamingRequests, PATCH_JUMP);
 #endif
-/*#if DEBUG
-	// Resolution selection box
-	Nop(0x746225, 2);
-#endif*/
+	/*#if DEBUG
+		// Resolution selection box
+		Nop(0x746225, 2);
+	#endif*/
 
 	// Crash fix
 //	call(0x552CD0, &NodeCrashFix, PATCH_JUMP);
@@ -2804,28 +2869,28 @@ void Main_Patches()
 
 	// Fixes a crash when game is launched for the second time and first instance has no created window yet
 	// aap: removed code so linked list of calls keeps working, what was the fix here?
-	IsAlreadyRunning_orig = (int(*)())(*(int*)(0x74872D+1) + 0x74872D + 5);
+	IsAlreadyRunning_orig = (int(*)())(*(int*)(0x74872D + 1) + 0x74872D + 5);
 	InjectHook(0x74872D, &IsAlreadyRunning);
 
 	Patch<const void*>(0x7486C1, WindowProc);
 
 	// Don't catch WM_SYSKEYDOWN and WM_SYSKEYUP
-	InjectHook( 0x748220, 0x748446, PATCH_JUMP );
-	InjectHook( 0x74826A, 0x748446, PATCH_JUMP );
+	InjectHook(0x748220, 0x748446, PATCH_JUMP);
+	InjectHook(0x74826A, 0x748446, PATCH_JUMP);
 
-	Patch<BYTE>( 0x7481E3, 0x5C );
-	Patch<BYTE>( 0x7481EA, 0x53 );
-	Patch<BYTE>( 0x74820D, 0xFB );
-	Patch<BYTE>( 0x7481EF, 0x54-0x3C );
-	Patch<BYTE>( 0x748200, 0x4C-0x3C );
-	Patch<BYTE>( 0x748214, 0x4C-0x3C );
+	Patch<BYTE>(0x7481E3, 0x5C);
+	Patch<BYTE>(0x7481EA, 0x53);
+	Patch<BYTE>(0x74820D, 0xFB);
+	Patch<BYTE>(0x7481EF, 0x54 - 0x3C);
+	Patch<BYTE>(0x748200, 0x4C - 0x3C);
+	Patch<BYTE>(0x748214, 0x4C - 0x3C);
 
-	Patch<BYTE>( 0x74822D, 0x5C );
-	Patch<BYTE>( 0x748234, 0x53 );
-	Patch<BYTE>( 0x748257, 0xFB );
-	Patch<BYTE>( 0x748239, 0x54-0x3C );
-	Patch<BYTE>( 0x74824A, 0x4C-0x3C );
-	Patch<BYTE>( 0x74825E, 0x4C-0x3C );
+	Patch<BYTE>(0x74822D, 0x5C);
+	Patch<BYTE>(0x748234, 0x53);
+	Patch<BYTE>(0x748257, 0xFB);
+	Patch<BYTE>(0x748239, 0x54 - 0x3C);
+	Patch<BYTE>(0x74824A, 0x4C - 0x3C);
+	Patch<BYTE>(0x74825E, 0x4C - 0x3C);
 
 	// CConfiscatedWeapons injectors
 	InjectHook(0x442D06, &CGameLogic__Update_Wasted);
@@ -2833,7 +2898,7 @@ void Main_Patches()
 
 	// DOUBLE_RWHEELS SA bug fix
 	Patch<WORD>(0x4C9290, 0xE281);
-	Patch<int>(0x4C9292, ~(rwMATRIXTYPEMASK|rwMATRIXINTERNALIDENTITY));
+	Patch<int>(0x4C9292, ~(rwMATRIXTYPEMASK | rwMATRIXINTERNALIDENTITY));
 
 	// Bumped up shadows quality
 	/*Memory::Patch<BYTE>(0x706825, 8);
@@ -2917,104 +2982,42 @@ void Main_Patches()
 
 
 	// VCS HUD
-	if ( !IVHudPresent() )
-	{
-		InjectHook(0x58FBD6, &CHud::DrawHUD);
-		InjectHook(0x58FBDB, &CHud::DrawWanted);
-        InjectHook(0x58FBBF, &CHud::DrawCrosshairs);
-        Patch(0x74378E, 5);
-        Patch(0x7438AB, 5);
-        Patch(0x7433A3, 5);
-        InjectHook(0x7434F2, &CHud::DrawTarget);
+	InjectHook(0x58FBD6, &CHud::DrawHUD);
+	InjectHook(0x58FBDB, &CHud::DrawWanted);
+	InjectHook(0x58FBBF, &CHud::DrawCrosshairs);
+	InjectHook(0x71A7DD, &CHud::DrawWindowRect);
+	//InjectHook(0x71A7EE, &CHud::DrawWindowRect);
+	InjectHook(0x58FCFA, &CHud::DrawHelpText);
 
-        // Laser scope fix
-        Patch<BYTE>(0x73AA0C + 1, 0); // May not necessary?!?
-        Patch<BYTE>(0x73AA06 + 1, 0);
-        Patch<BYTE>(0x53E331 + 1, 0); // Borders
+	// Targetting
+	Patch(0x74378E, 5);
+	Patch(0x7438AB, 5);
+	Patch(0x7433A3, 5);
+	InjectHook(0x7434F2, &CHud::DrawTarget);
 
-        // Target
-        static float Offset = 0.0f;
-        Patch<const void*>(0x7432AA + 2, &Offset);
-        Patch<const void*>(0x7432A4 + 2, &Offset);
+	static float fTargetHeadRange = 0.2;
+	Patch<const void*>(0x60EE7A + 0x2, &fTargetHeadRange);
+	Patch<BYTE>(0x60EE6D + 3, 3);
 
-        Patch<const void*>(0x7432D3 + 2, &Offset);
-        Patch<const void*>(0x7432D9 + 2, &Offset);
+	// Laser scope fix
+	Patch<BYTE>(0x73AA0C + 1, 0); // May not necessary?!?
+	Patch<BYTE>(0x73AA06 + 1, 0);
+	Patch<BYTE>(0x53E331 + 1, 0); // Borders
 
-        Patch<const void*>(0x743302 + 2, &Offset);
-        Patch<const void*>(0x743308 + 2, &Offset);
+	// Target
+	static float Offset = 0.0f;
+	Patch<const void*>(0x7432AA + 2, &Offset);
+	Patch<const void*>(0x7432A4 + 2, &Offset);
 
-        Patch<const void*>(0x743259 + 2, &Offset);
-        Patch<const void*>(0x743266 + 2, &Offset);
+	Patch<const void*>(0x7432D3 + 2, &Offset);
+	Patch<const void*>(0x7432D9 + 2, &Offset);
 
+	Patch<const void*>(0x743302 + 2, &Offset);
+	Patch<const void*>(0x743308 + 2, &Offset);
 
-		//Patch<const void*>(0x58D896, &fWeaponIconHeight);
-		//Patch<const void*>(0x58D94D, &fWeaponIconHeight);
-		//Patch<const void*>(0x58D8CB, &fWeaponIconWidth);
-		//Patch<const void*>(0x58D935, &fWeaponIconWidth);
-		//Patch<DWORD>(0x58D89B, HUD_TRANSPARENCY);
+	Patch<const void*>(0x743259 + 2, &Offset);
+	Patch<const void*>(0x743266 + 2, &Offset);
 
-		/*Patch<WORD>(0x58DF18, 0xE990);
-		Patch<BYTE>(0x58DE23, 0xEB);
-		InjectHook(0x588B60, &CHud::GetYPosBasedOnHealth, PATCH_JUMP);
-		Patch<BYTE>(0x58DD41, 0);
-		Nop(0x58DE84, 6);
-		Nop(0x58DE9F, 6);
-		Nop(0x58DEBA, 6);
-		Patch<char>(0x58DCEF, '\\');
-		Patch<BYTE>(0x58DCDB, FONT_Hud);
-		Patch<void*>(0x58DE77, &BaseColors[12].b);
-		Patch<void*>(0x58DE92, &BaseColors[12].g);
-		Patch<void*>(0x58DEAD, &BaseColors[12].r);
-		Patch<const void*>(0x58DDFC, &fWLStarPosY);
-		Patch<const void*>(0x58DEF5, &fWLStarPosY);
-		Patch<const void*>(0x58DD0F, &fWLStarPosX);
-		Patch<const void*>(0x58DCAA, &fWLStarHeight);
-		Patch<const void*>(0x58DD70, &fWLStarHeight);
-		Patch<const void*>(0x58DCC0, &fWLStarWidth);
-		Patch<const void*>(0x58DD86, &fWLStarWidth);
-		Patch<const void*>(0x58DFED, &fWLStarDistance);
-		Patch<const void*>(0x58D9BA, &fWLStarAlpha);*/
-		/*Patch<const void*>(0x5834C2, &fRadarWidth);
-		Patch<const void*>(0x58781B, &fRadarWidth);
-		Patch<const void*>(0x58A449, &fRadarWidth);
-		Patch<const void*>(0x58A7E9, &fRadarWidth);
-		Patch<const void*>(0x58A840, &fRadarWidth);
-		Patch<const void*>(0x58A943, &fRadarWidth);
-		Patch<const void*>(0x58A99D, &fRadarWidth);*/
-
-		Patch<const void*>(0x5834F6, &fRadarHeight);
-		Patch<const void*>(0x58A47D, &fRadarHeight);
-		Patch<const void*>(0x58A632, &fRadarHeight);
-		Patch<const void*>(0x58A6AB, &fRadarHeight);
-		Patch<const void*>(0x58A70E, &fRadarHeight);
-		Patch<const void*>(0x58A801, &fRadarHeight);
-		Patch<const void*>(0x58A8AB, &fRadarHeight);
-		Patch<const void*>(0x58A921, &fRadarHeight);
-		Patch<const void*>(0x58A9D5, &fRadarHeight);
-
-		Patch<const void*>(0x5834D4, &fRadarPosX);
-		Patch<const void*>(0x58A469, &fRadarPosX);
-		Patch<const void*>(0x58A5E2, &fRadarPosX);
-		Patch<const void*>(0x58A6E6, &fRadarPosX);
-		Patch<const void*>(0x58A79B, &fRadarPosX);
-		Patch<const void*>(0x58A836, &fRadarPosX);
-		Patch<const void*>(0x58A8E9, &fRadarPosX);
-		Patch<const void*>(0x58A98A, &fRadarPosX);
-
-		Patch<const void*>(0x583500, &fRadarPosY);
-		Patch<const void*>(0x58A499, &fRadarPosY);
-		Patch<const void*>(0x58A60E, &fRadarPosY);
-		Patch<const void*>(0x58A71E, &fRadarPosY);
-		Patch<const void*>(0x58A7C7, &fRadarPosY);
-		Patch<const void*>(0x58A868, &fRadarPosY);
-		Patch<const void*>(0x58A913, &fRadarPosY);
-		Patch<const void*>(0x58A9C7, &fRadarPosY);
-
-        // Text box enlarger fix.
-        static float fTextBoxHeight = 144.0f;
-        Patch<const void*>(0x58BB06 + 0x2, &fTextBoxHeight);
-        Patch<const void*>(0x58BAF7 + 0x2, &fTextBoxHeight);
-	}
 	InjectHook(0x5BD76F, &CHud::Initialise);
 	InjectHook(0x53BD51, &CHud::ReInitialise);
 	InjectHook(0x53CA84, &CHud::ReInitialise);
@@ -3058,12 +3061,6 @@ void Main_Patches()
 	Patch<void*>(0x58CB44, &hud.BigMessage3PosY);*/
 	Patch<BYTE>(0x58C8F1, 9);
 
-	Patch<const void*>(0x58C39D, &fSubtitlesWidth);
-	Patch<const void*>(0x58C425, &fSubtitlesWidth);
-	Patch<const void*>(0x58C4E4, &fSubtitlesWidth);
-	Patch<const void*>(0x58C387, &fSubtitlesHeight);
-	Patch<const void*>(0x58C40F, &fSubtitlesHeight);
-	Patch<const void*>(0x58C4CE, &fSubtitlesHeight);
     InjectHook(0x58C68A, CHud::DrawSubtitles);
 
 	// User display
@@ -3466,6 +3463,7 @@ void Main_Patches()
 	// SPTA support
 	InjectHook(0x5900B0, &CLoadingScreen::LoadSplashes, PATCH_JUMP);
 	InjectHook(0x58FF60, &CLoadingScreen::RenderSplash, PATCH_JUMP);
+	Patch<BYTE>(0x507417 + 1, -1); // Mute old loading tune.
 
 	Nop(0x574673, 5);
 	Nop(0x5746A0, 5);
@@ -3791,6 +3789,8 @@ void Main_Patches()
 
 	Patch<DWORD>(0x746363, desktop.right);
 	Patch<DWORD>(0x746368, desktop.bottom);
+	Patch<DWORD>(0x74636D, 32);
+
 	Patch<const char*>(0x7463C8, aNoDesktopMode);
 
 	// BINK video player
@@ -4039,10 +4039,10 @@ void Main_Patches()
 	Patch<BYTE>(0x584B7D, 0x09);
 	Patch<signed char>(0x584D9A, -4);
 	Patch<DWORD>(0x584DA2, 3);
-	Patch<DWORD>(0x586433, 0x8D * HUD_TRANSPARENCY_BACK / 0xFF);
+	/*Patch<DWORD>(0x586433, 0x8D * HUD_TRANSPARENCY_BACK / 0xFF);
 	Patch<DWORD>(0x586438, 0xE0);
 	Patch<DWORD>(0x58643D, 0xAE);
-	Patch<BYTE>(0x586442, 0x7F);
+	Patch<BYTE>(0x586442, 0x7F);*/
 	Patch<DWORD>(0x58647C, HUD_TRANSPARENCY_BACK);
 	Patch<DWORD>(0x5864BD, HUD_TRANSPARENCY_BACK);
 	Patch<DWORD>(0x58A789, HUD_TRANSPARENCY_FRONT);
@@ -4209,7 +4209,7 @@ void Main_Patches()
 	//call(0x58FD18, &CGridref::Draw, PATCH_JUMP);
 
 	// Loading Bar
-	InjectHook(0x590480, &CHud::DrawSquareBar, PATCH_CALL);
+	Nop(0x590480, 5);
 
 	// One loading music
 	Patch<WORD>(0x5B9B1F, 0xC030);
@@ -4766,13 +4766,14 @@ void AnimationStylesPatching()
 	animationStyles[120].unkDataPtr = (CAnimationStyleUnkData*)0x8A7788;
 
 	// Driving anims
+	Patch<const char*>(0x8D1284, "CAR_sit");
 	Patch<const char*>(0x8D108C, "CAR_sit");
 	Patch<const char*>(0x8D10B0, "Drive_L");
 	Patch<const char*>(0x8D10B4, "Drive_R");
 	Patch<const char*>(0x8D10D0, "CAR_LB");
 	Patch<const char*>(0x8D10F4, "Drive_L_slow");
 	Patch<const char*>(0x8D10F8, "Drive_R_slow");
-
+	
     // Fight anims
     Patch<const char*>(0x8A8248, "FightA_1");
     Patch<const char*>(0x8A824C, "FightA_1");

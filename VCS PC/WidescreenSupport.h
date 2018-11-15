@@ -71,4 +71,6 @@ public:
 	static CVector2D		GetFullscreenImageDimensions(float fImageAspectRatio, float fScreenAspectRatio, bool bFitToScreen);
 };
 
+extern float GetCoord(float a);
+
 #endif
