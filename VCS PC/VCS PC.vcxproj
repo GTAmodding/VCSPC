@@ -133,12 +133,12 @@
       <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
 copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
-copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\data\shaders\*.cso"
+copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\shaders\*.cso"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
 copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
-copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\data\shaders\*.cso"
+copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\shaders\*.cso"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -197,17 +197,17 @@ popd</Command>
       <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
 copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
-copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\data\shaders\*.cso"
+copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\shaders\*.cso"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
 copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
-copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\data\shaders\*.cso"
+copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\shaders\*.cso"
 )
 
 if "%COMPUTERNAME%" == "SOMA" (
 copy /y "$(TargetPath)" "C:\Users\aap\games\VCSPC-dev\VCSPC.dll"
-copy /y "$(OutDir)\*.cso" ""C:\Users\aap\games\VCSPC-dev\data\shaders\*.cso"
+copy /y "$(OutDir)\*.cso" ""C:\Users\aap\games\VCSPC-dev\shaders\*.cso"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -268,12 +268,12 @@ popd</Command>
       <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
 copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
-copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\data\shaders\*.cso"
+copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\shaders\*.cso"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
 copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
-copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\data\shaders\*.cso"
+copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\shaders\*.cso"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -334,12 +334,12 @@ popd</Command>
       <Command>@echo off
 if "%COMPUTERNAME%" == "ADRIAN-PC" (
 copy /y "$(TargetPath)" "D:\gry\VCSPC-dev\VCSPC.dll"
-copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\data\shaders\*.cso"
+copy /y "$(OutDir)\*.cso" "D:\gry\VCSPC-dev\shaders\*.cso"
 )
 
 if "%COMPUTERNAME%" == "FALLARBOR" (
 copy /y "$(TargetPath)" "Q:\Games\VCSPC-dev\VCSPC.dll"
-copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\data\shaders\*.cso"
+copy /y "$(OutDir)\*.cso" ""Q:\Games\VCSPC-dev\shaders\*.cso"
 )</Command>
     </PostBuildEvent>
     <PreBuildEvent>

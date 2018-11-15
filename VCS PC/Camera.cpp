@@ -303,11 +303,11 @@ toggleCamHook(void)
 static void
 processCam(void)
 {
-    CCamera *cam = (CCamera*)thisptr;
-    if (cam->WorldViewerBeingUsed)
-        cam->Cams[2].Process();
-
-    InitExtraStuff();
+	CCamera *cam = (CCamera*)thisptr;
+	if(cam->WorldViewerBeingUsed)
+		cam->Cams[2].Process();
+	
+	InitExtraStuff();
 }
 
 static void __declspec(naked)

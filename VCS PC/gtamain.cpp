@@ -29,6 +29,8 @@
 #include "Text.h"
 #include "Pad.h"
 
+#define USESASKY
+
 GlobalScene &Scene = *(GlobalScene*)0xC17038;
 
 RpLight *&pAmbient = *(RpLight**)0xC886E8;
@@ -261,7 +263,9 @@ RenderScene(void)
 	if(CMirrors::TypeOfMirror == 0){
 		CMovingThings__Render_BeforeClouds();
 		CClouds::Render();
+#ifndef USESASKY
 		CClouds::RenderHorizon();	// for old background
+#endif
 	}
 
 	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)1);
@@ -516,8 +520,27 @@ DoRWStuffStartOfFrame_Horizon(uint16 topr, uint16 topg, uint16 topb, uint16 botr
 	DefinedState();
 	TheCamera.m_viewMatrix.Update();
 
+//	Doesn't look too good from far up
+#ifndef USESASKY
 	CClouds::RenderBackground(topr, topg, topb, botr, botg, botb, alpha);	// old gradient
-	//CClouds::RenderSkyPolys();
+#else
+	// Make sure we get the lightning flash right
+	CTimeCycle::m_CurrentColours_exe.skytopr = topr;
+	CTimeCycle::m_CurrentColours_exe.skytopg = topg;
+	CTimeCycle::m_CurrentColours_exe.skytopb = topb;
+	CTimeCycle::m_CurrentColours_exe.skybotr = botr;
+	CTimeCycle::m_CurrentColours_exe.skybotg = botg;
+	CTimeCycle::m_CurrentColours_exe.skybotb = botb;
+	// Is this even used?
+	CTimeCycle::m_CurrentColours.skytopr = topr;
+	CTimeCycle::m_CurrentColours.skytopg = topg;
+	CTimeCycle::m_CurrentColours.skytopb = topb;
+	CTimeCycle::m_CurrentColours.skybotr = botr;
+	CTimeCycle::m_CurrentColours.skybotg = botg;
+	CTimeCycle::m_CurrentColours.skybotb = botb;
+	CClouds::RenderSkyPolys();
+#endif
+
 	return true;
 }
 
@@ -655,7 +678,7 @@ static StaticPatcher Patcher([](){
 
 	if(DebugMenuLoad()){
 		DebugMenuAddVarBool8("Misc", "Hide 2D stuff", (int8*)&hide2Dstuff, NULL);
-        DebugMenuAddCmd("Misc", "Air Break", []() { EnableAirBreak(); });
+		DebugMenuAddCmd("Misc", "Air Break", []() { EnableAirBreak(); });
 //		DebugMenuAddVarBool32("Rendering", "Render Transparent Entities", &renderTransparent, NULL);
 //		DebugMenuAddVarBool32("Rendering", "Render Transparent objects in two passes", &renderTwoPasses, NULL);
 	}
