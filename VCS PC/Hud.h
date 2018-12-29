@@ -30,14 +30,15 @@ enum eHudTextures
 	NUM_HUD_SPRITES
 };
 
+#define UI_SAFEZONE						-CMenuManager::m_fSafeZone
 
 #define	BAR_ENERGY_LOSS_FLASH_DURATION	2000
 #define HUD_TRANSPARENCY_BACK			215
 #define HUD_TRANSPARENCY_FRONT			(HUD_TRANSPARENCY_BACK+8)
 #define RADAR_RANGE                     100.0f
 
-#define HUD_POS_X						-3.0f
-#define HUD_POS_Y						-7.0f
+#define HUD_POS_X						UI_SAFEZONE * 1.0f
+#define HUD_POS_Y						UI_SAFEZONE * 1.0f
 
 // For 2p HUD
 #define HUD_POS_Y_2P_OFFSET				100.0f

@@ -670,6 +670,12 @@ void CCoronas::UpdatePointersInCode()
 	Memory::Patch<DWORD>(0x6FAF4A, nSize);
 }*/
 
+void __cdecl RenderMoon(float x, float y, float z, float halfWidth, float halfHeight,
+	unsigned char red, unsigned char green, unsigned char blue, short alpha, float rhw,
+	unsigned char intensity, unsigned char udir, unsigned char vdir) {
+	CSprite::RenderOneXLUSprite(x, y, z, halfWidth * (1.0f) / ScreenAspectRatio, halfHeight * (1.3333334f) / ScreenAspectRatio, red, green, blue, alpha, rhw, intensity, udir, vdir);
+}
+
 void CCoronas::Inject()
 {
 	using namespace Memory;
@@ -695,6 +701,8 @@ void CCoronas::Inject()
 	static const float coronaSz = 20.0f/10.0;
 	Patch(0x6FC65C + 2, &coreSz);
 	Patch(0x6FC6E8 + 2, &coronaSz);
+
+	InjectHook(0x713D02, RenderMoon);
 }
 
 static StaticPatcher	Patcher([](){ 

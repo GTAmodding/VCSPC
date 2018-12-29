@@ -28,6 +28,7 @@
 #include "debugmenu_public.h"
 #include "Text.h"
 #include "Pad.h"
+#include "Radar.h"
 
 #define USESASKY
 
@@ -51,8 +52,10 @@ static void stub(void) { }
 
 bool hide2Dstuff = false;
 bool bAirBreak = false;
+bool bTeleport = false;
 
 short EnableAirBreak() { return bAirBreak = bAirBreak == false; }
+short Teleport() { return bTeleport = bTeleport == false; }
 
 void
 DebugMenuInit(void)
@@ -439,52 +442,59 @@ void NewDebugMenuOptions() {
     else {
         player->bDisableMovement = 0;
     }
+
+	// Teleport
+	CVector destPosn = CRadar::ms_RadarTrace[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_vPosition;
+
+	if (bTeleport) {
+		FindPlayerPed(-1)->Teleport(destPosn.x, destPosn.y, FindPlayerPed(-1)->GetCoords().z + (destPosn.z + 2.0f), 1);
+		bTeleport = bTeleport == false;
+	}
 }
 
 void DrawLoadingText() {
     auto FadeValue = *(int*)0xC3EFAB;
     static float alpha;
     static bool check;
-    CFont::SetBackground(0, 0);
-    CFont::SetProportional(true);
-    CFont::SetFontStyle(FONT_RageItalic);
-    CFont::SetOrientation(ALIGN_Right);
-    CFont::SetRightJustifyWrap(0.0);
-    CFont::SetEdge(0);
-    CFont::SetScale(_width(1.3f), _height(2.1f));
 
-    if (!check) {
-        if (alpha > 0.0) {
-            alpha += CTimer::ms_fTimeScale * 0.01 * -1000.0;
-            if (alpha <= 0.0) {
-                alpha = 0.0;
-                check = true;
-            }
-        }
-        else if (alpha == 0.0) {
-            if (alpha != 255.0)
-                alpha += CTimer::ms_fTimeScale * 0.01 * 1000.0;
-        }
-    }
-    else if (FadeValue < 10)
-        alpha = 0;
-    else {
-        if (alpha < 255.0) {
-            alpha += CTimer::ms_fTimeScale * 0.01 * 1000.0;
-            if (alpha >= 255.0) {
-                alpha = 255.0;
-                check = false;
-            }
-        }
-    }
+	CFont::SetBackground(0, 0);
+	CFont::SetProportional(true);
+	CFont::SetFontStyle(FONT_RageItalic);
+	CFont::SetOrientation(ALIGN_Right);
+	CFont::SetRightJustifyWrap(0.0);
+	CFont::SetEdge(0);
+	CFont::SetScale(_width(1.25f), _height(2.1f));
 
-    CFont::SetDropColor(CRGBA(0, 0, 0, static_cast<float>(alpha)));
-    CFont::SetColor(CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, static_cast<float>(alpha)));
+	static bool reset;
+	if (!reset) {
+		if (alpha < 255.0f)
+			alpha += CTimer::ms_fTimeScale * 0.01 * 1000.0;
+
+		if (alpha >= 255.0f)
+			reset = true;
+	}
+	else {
+		if (alpha > 0.0f)
+			alpha += CTimer::ms_fTimeScale * 0.01 * -1000.0;
+
+		if (alpha <= 0.0f)
+			reset = false;
+	}
+
+	if (alpha >= 255)
+		alpha = 255;
+	if (alpha <= 0)
+		alpha = 0;
+
+	CFont::SetDropColor(CRGBA(0, 0, 0, static_cast<float>(alpha)));
+	CFont::SetColor(CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, static_cast<float>(alpha)));
 
     if (!TheCamera.GetFading() && !FrontEndMenuManager.m_bMenuActive) {
-        if (FadeValue > 10)
-            CFont::PrintString(_x(40.0), _y(11.0f), TheText.Get("LOADCOL"));
-    }
+		if (FadeValue > 10)
+			CFont::PrintString(_x(40.0 + (UI_SAFEZONE * 1.8f)), _y(18.0f + (UI_SAFEZONE)), TheText.Get("LOADCOL"));
+		else
+			alpha = 0;
+	}
 }
 
 void RenderFontBuffer(void)
@@ -496,7 +506,8 @@ void
 Render2dStuffAfterFade(void)
 {
 	CHud::DrawAfterFade();
-    // DrawLoadingText(); // Removed because of Ash_735 :(
+	if (FrontEndMenuManager.m_bEnableSkyMenu)
+		DrawLoadingText();
 	CMessages__Display(0);
 	RenderFontBuffer();
 	// CCredits__Render();	// already rendered in Idle
@@ -679,6 +690,8 @@ static StaticPatcher Patcher([](){
 	if(DebugMenuLoad()){
 		DebugMenuAddVarBool8("Misc", "Hide 2D stuff", (int8*)&hide2Dstuff, NULL);
 		DebugMenuAddCmd("Misc", "Air Break", []() { EnableAirBreak(); });
+		DebugMenuAddCmd("Misc", "Teleport To Marker", []() { Teleport(); });
+
 //		DebugMenuAddVarBool32("Rendering", "Render Transparent Entities", &renderTransparent, NULL);
 //		DebugMenuAddVarBool32("Rendering", "Render Transparent objects in two passes", &renderTwoPasses, NULL);
 	}

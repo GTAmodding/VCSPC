@@ -437,7 +437,7 @@ void D3D9CreateDisplayModesList()
 			break;
 	}
 
-	for ( UINT format = 0; format < 3; format++ )
+	for ( UINT format = 1; format < 3; format++ )
 	{
 		UINT numModes = pDirect3D9->GetAdapterModeCount( ActiveAdapter, FormatsToEnumerate[format] );
 		for ( UINT i = 0; i < numModes; i++ )

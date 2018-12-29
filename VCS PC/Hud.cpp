@@ -69,13 +69,15 @@ static unsigned short	CounterFlashTimer[NUM_ONSCREEN_COUNTERS], PlaceFlashTimer;
 
 // Wrappers
 WRAPPER void CHud::DrawBarChart(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor)
-{	WRAPARG(fX); WRAPARG(fY); WRAPARG(wWidth); WRAPARG(wHeight); WRAPARG(fPercentage); WRAPARG(drawBlueLine); WRAPARG(drawPercentage); WRAPARG(drawBorder); WRAPARG(dwColor); WRAPARG(dwForeColor);
-	EAXJMP(0x728640); }
+{
+	WRAPARG(fX); WRAPARG(fY); WRAPARG(wWidth); WRAPARG(wHeight); WRAPARG(fPercentage); WRAPARG(drawBlueLine); WRAPARG(drawPercentage); WRAPARG(drawBorder); WRAPARG(dwColor); WRAPARG(dwForeColor);
+	EAXJMP(0x728640);
+}
 WRAPPER void CHud::DrawAfterFade(void) { EAXJMP(0x58D490); }
 WRAPPER void CHud::SetHelpMessage(const char *text, bool b1, bool b2, bool b3) { EAXJMP(0x588BE0); }
 WRAPPER void CHud::SetMessage(char *text) { EAXJMP(0x588F60); }
 
-static const char* const			HudSpriteFilenames[NUM_HUD_SPRITES] = { "fist", "siteM16", "siterocket", "radardisc", "barInside", "barOutline", "pager", "sitesniper", "sitelaser", "laserdot", "triangle_64", "viewfinder_128", "hudnumbers"};
+static const char* const			HudSpriteFilenames[NUM_HUD_SPRITES] = { "fist", "siteM16", "siterocket", "radardisc", "barInside", "barOutline", "pager", "sitesniper", "sitelaser", "laserdot", "triangle_64", "viewfinder_128", "hudnumbers" };
 
 void CHud::GetRidOfAllCustomHUDMessages()
 {
@@ -99,10 +101,10 @@ void CHud::Initialise()
 	// Temp
 	HudSPTA.SetDirectory("weapons");
 
-	for ( int i = 0; i < NUM_HUD_SPRITES; ++i )
+	for (int i = 0; i < NUM_HUD_SPRITES; ++i)
 	{
 		Sprites[i].SetTextureFromSPTA(HudSPTA, HudSpriteFilenames[i]);
-		if ( i == 0 )
+		if (i == 0)
 			HudSPTA.SetDirectory("overlays");
 	}
 
@@ -115,14 +117,14 @@ void CHud::ReInitialise()
 	// Call SA ReInitialise function
 	((void(*)())0x588880)();
 
-//#ifndef DEVBUILD
+	//#ifndef DEVBUILD
 #if 1
 	bShouldFPSBeDisplayed = false;
 #else
 	bShouldFPSBeDisplayed = true;
 #endif
 	bLCSPS2Style = false;
-//	bDrawDevLogos = false;
+	//	bDrawDevLogos = false;
 
 	CarNameStage = 0;
 	pLastCarName = nullptr;
@@ -139,7 +141,7 @@ void CHud::ReInitialise()
 	PagerSoundPlayed = false;
 	PagerXOffset = 200.0f;
 
-	for ( int i = 0; i < NUM_ONSCREEN_COUNTERS; ++i )
+	for (int i = 0; i < NUM_ONSCREEN_COUNTERS; ++i)
 	{
 		CounterOnLastFrame[i] = false;
 		CounterFlashTimer[i] = 0;
@@ -151,7 +153,7 @@ void CHud::ReInitialise()
 
 void CHud::Shutdown()
 {
-	for ( int i = 0; i < NUM_HUD_SPRITES; ++i )
+	for (int i = 0; i < NUM_HUD_SPRITES; ++i)
 		Sprites[i].Delete();
 }
 
@@ -162,16 +164,16 @@ void CHud::SetVehicleName(char* carName)
 
 void CHud::SetZoneName(char* zoneName, bool bIgnoreIntID)
 {
-	if ( (bIgnoreIntID || !*activeInterior && !m_ZoneState) && (!zoneName || strncmp(zoneName, "DUMMY", 5)) )
+	if ((bIgnoreIntID || !*activeInterior && !m_ZoneState) && (!zoneName || strncmp(zoneName, "DUMMY", 5)))
 		m_pZoneName = zoneName;
 }
 
 void CHud::SetPagerMessage(char* pMsg)
 {
 	unsigned short	wLoopCounter = 0;
-	while ( wLoopCounter < sizeof(m_PagerMessage) )
+	while (wLoopCounter < sizeof(m_PagerMessage))
 	{
-		if ( !pMsg[wLoopCounter] )
+		if (!pMsg[wLoopCounter])
 			break;
 		m_PagerMessage[wLoopCounter] = pMsg[wLoopCounter];
 		++wLoopCounter;
@@ -194,8 +196,8 @@ void CHud::DrawHUD() {
 
 	if (CWorld::Players[0].pPed) {
 		if (!CDLCManager::GetDLC(DLC_HALLOWEEN)->IsEnabled()) {
-			DrawWeaponIcon(0, _x(HUD_POS_X + 94.0f), _y(HUD_POS_Y + 24.0f), _width(76.0f), _height(72.0f));
-			DrawWeaponAmmo(0, _x(HUD_POS_X + 40.0f), _y(HUD_POS_Y + 66.0f), false, _xleft(24.5f), _width(0.34f), _height(0.767f));
+			DrawWeaponIcon(0, _x((HUD_POS_X * 2.30f) + 104.0f), _y((HUD_POS_Y * 0.9f) + 24.5f), _width(76.0f), _height(72.0f));
+			DrawWeaponAmmo(0, _x((HUD_POS_X * 2.30f) + 50.0f), _y((HUD_POS_Y * 0.9f) + 66.5f), false, _xleft(24.5f), _width(0.34f), _height(0.767f));
 
 			// Clock
 			char* am_pm;
@@ -213,10 +215,10 @@ void CHud::DrawHUD() {
 			}
 
 			CHud::SetFontScale(_width(0.912f), _height(0.776f));
-			CHud::PrintString(_x(HUD_POS_X + 110.5f), _y(HUD_POS_Y + 26.0f), am_pm, CRGBA(193, 140, 44, HUD_TRANSPARENCY_BACK)); // AM_PM
+			CHud::PrintString(_x((HUD_POS_X * 2.30f) + 120.5f), _y((HUD_POS_Y * 0.9f) + 26.5f), am_pm, CRGBA(193, 140, 44, HUD_TRANSPARENCY_BACK)); // AM_PM
 
 			CHud::SetFontScale(_width(FrontEndMenuManager.GetHudMode() == 2 ? 0.702f : 0.954f), _height((FrontEndMenuManager.GetHudMode() == 2 ? 0.728f : 0.748f)));
-			CHud::PrintString(_x(HUD_POS_X + 153.5f), _y(HUD_POS_Y + 26.0f), ms_nGameClock, CRGBA(193, 140, 44, HUD_TRANSPARENCY_BACK)); // HOUR_MINUTES
+			CHud::PrintString(_x((HUD_POS_X * 2.30f) + 163.5f), _y((HUD_POS_Y * 0.9f) + 26.5f), ms_nGameClock, CRGBA(193, 140, 44, HUD_TRANSPARENCY_BACK)); // HOUR_MINUTES
 		}
 
 		// Money
@@ -239,12 +241,12 @@ void CHud::DrawHUD() {
 		_snprintf(m_dwMoneyString, sizeof(m_dwMoneyString), str, m_dwMoney);
 
 		CHud::SetFontScale(_width(0.968f), _height(0.742f));
-		CHud::PrintString(_x(HUD_POS_X + 153.5f), _y(HUD_POS_Y + 85.0f), m_dwMoneyString, CRGBA(color));
+		CHud::PrintString(_x((HUD_POS_X * 2.30f) + 163.5f), _y((HUD_POS_Y * 0.9f) + 85.5f), m_dwMoneyString, CRGBA(color));
 
 		// Info Bars
-		PrintHealthBar(0, _x(HUD_POS_X + 152.2f), _y(HUD_POS_Y + 65.0f), _width(56.2f), _height(16.8f));
-		PrintArmourBar(0, _x(HUD_POS_X + 152.2f), _y(HUD_POS_Y + 45.0f), _width(56.2f), _height(16.8f));
-		PrintStaminaBar(0, _x(HUD_POS_X + 152.2f), _y(HUD_POS_Y + 45.0f), _width(56.2f), _height(16.8f));
+		PrintHealthBar(0, _x((HUD_POS_X * 2.30f) + 162.2f), _y((HUD_POS_Y * 0.9f) + 65.5f), _width(56.2f), _height(16.8f));
+		PrintArmourBar(0, _x((HUD_POS_X * 2.30f) + 162.2f), _y((HUD_POS_Y * 0.9f) + 45.5f), _width(56.2f), _height(16.8f));
+		PrintStaminaBar(0, _x((HUD_POS_X * 2.30f) + 162.2f), _y((HUD_POS_Y * 0.9f) + 45.5f), _width(56.2f), _height(16.8f));
 	}
 
 	// Pager
@@ -310,14 +312,14 @@ void CHud::DrawPager() {
 		else
 			fTextBoxOffset = 0.0f;
 
-		Sprites[HUD_Pager].Draw(CRect(_xleft(33.0f - PagerXOffset), _y(98.5f + fTextBoxOffset), _xleft(204.0f - PagerXOffset), _y(24.0f + fTextBoxOffset)), CRGBA(255, 255, 255, 255));
+		Sprites[HUD_Pager].Draw(CRect(_xleft(42.5f + ((HUD_POS_X * 2.15f) * 0.9f) - PagerXOffset), _y(102.0f + ((HUD_POS_Y * 0.85f) * 1.2f) + fTextBoxOffset), _xleft(213.0f + ((HUD_POS_X * 2.15f) * 0.9f) - PagerXOffset), _y(27.0f + ((HUD_POS_Y * 0.85f) * 1.2f) + fTextBoxOffset)), CRGBA(255, 255, 255, 255));
 
 		CFont::SetProportional(false);
 		CFont::SetScale(_width(0.5f), _height(1.1f));
 		CFont::SetOrientation(ALIGN_Left);
 		CFont::SetColor(CRGBA(7, 7, 7, 205));
 		CFont::SetFontStyle(FONT_PagerFont);
-		CFont::PrintString(_xleft(50.0f - PagerXOffset), _y(37.0f + fTextBoxOffset), m_PagerMessage);
+		CFont::PrintString(_xleft(59.5f + ((HUD_POS_X * 2.15f) * 0.9f) - PagerXOffset), _y(40.0f + ((HUD_POS_Y * 0.85f) * 1.2f) + fTextBoxOffset), m_PagerMessage);
 	}
 }
 
@@ -326,91 +328,91 @@ void CHud::DrawWanted() {
 	int		nWantedLevelParole = FindPlayerWanted(-1)->GetWantedLevelBeforeParole();
 	int		nTimeOfWLChange = FindPlayerWanted(-1)->GetTimeWantedLevelChanged();
 
-	if ( nWantedLevel > 0 || nWantedLevelParole > 0 ) {
+	if (nWantedLevel > 0 || nWantedLevelParole > 0) {
 		CHud::SetFontScale(_width(0.804f), _height(1.30f));
 
-		float fCurrentPos = _x(HUD_POS_X + 57.5f);
+		float fCurrentPos = _x((HUD_POS_X * 2.30f) + 66.59f);
 		for (int i = 0; i < 6; ++i, fCurrentPos -= _width(19.4f)) {
-			if (nWantedLevel > i && ( CTimer::m_snTimeInMilliseconds > nTimeOfWLChange + 2000 || ShowFlashingItem(150, 150))) {
-				CHud::PrintString(fCurrentPos, _y(HUD_POS_Y + 100.0f), "*", CRGBA(207, 149, 54, HUD_TRANSPARENCY_BACK));
+			if (nWantedLevel > i && (CTimer::m_snTimeInMilliseconds > nTimeOfWLChange + 2000 || ShowFlashingItem(150, 150))) {
+				CHud::PrintString(fCurrentPos, _y((HUD_POS_Y * 0.9f) + 103.0f), "*", CRGBA(207, 149, 54, HUD_TRANSPARENCY_BACK));
 			}
 			else if (nWantedLevelParole > i && ShowFlashingItem(150, 150)) {
-				CHud::PrintString(fCurrentPos, _y(HUD_POS_Y + 100.0f), "*", CRGBA(BaseColors[12], HUD_TRANSPARENCY_BACK));
+				CHud::PrintString(fCurrentPos, _y((HUD_POS_Y * 0.9f) + 103.0f), "*", CRGBA(BaseColors[12], HUD_TRANSPARENCY_BACK));
 			}
 		}
 	}
 }
 
 char LaserScopeDot(CVector2D const& coords, float const& fDotSize) {
-    return ((char(__thiscall*)(eWeaponType const&, CVector2D const&, float const&))0x73A8D0)(FindPlayerPed(0)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eWeaponType, coords, fDotSize);
+	return ((char(__thiscall*)(eWeaponType const&, CVector2D const&, float const&))0x73A8D0)(FindPlayerPed(0)->weaponSlots[FindPlayerPed(0)->m_bActiveWeapon].m_eWeaponType, coords, fDotSize);
 }
 
 void __cdecl CHud::DrawCrosshairs() {
-    CPed *player = FindPlayerPed(-1);
-    int GetWeaponInfo = CWeaponInfo::GetWeaponInfo((eWeaponType)player->weaponSlots[player->m_bActiveWeapon].m_eWeaponType, 1)->dwModelID;
-    WORD Mode = TheCamera.Cams[TheCamera.ActiveCam].Mode;
+	CPed *player = FindPlayerPed(-1);
+	int GetWeaponInfo = CWeaponInfo::GetWeaponInfo((eWeaponType)player->weaponSlots[player->m_bActiveWeapon].m_eWeaponType, 1)->dwModelID;
+	WORD Mode = TheCamera.Cams[TheCamera.ActiveCam].Mode;
 
-    float m_f3rdPersonCHairMultX = *(float*)0xB6EC14;
-    float m_f3rdPersonCHairMultY = *(float*)0xB6EC10;
+	float m_f3rdPersonCHairMultX = *(float*)0xB6EC14;
+	float m_f3rdPersonCHairMultY = *(float*)0xB6EC10;
 
-    float x = RsGlobal.MaximumWidth * m_f3rdPersonCHairMultX;
-    float y = RsGlobal.MaximumHeight * m_f3rdPersonCHairMultY;
+	float x = RsGlobal.MaximumWidth * m_f3rdPersonCHairMultX;
+	float y = RsGlobal.MaximumHeight * m_f3rdPersonCHairMultY;
 
-    float fHalfSize = 326.0f;
-    CVector2D coords;
-    float fRealDotSize;
-    float f2DDotSizeW;
-    float f2DDotSizeH;
+	float fHalfSize = 326.0f;
+	CVector2D coords;
+	float fRealDotSize;
+	float f2DDotSizeW;
+	float f2DDotSizeH;
 
-    if (!FindPlayerPed(0)->pPlayerData->m_bHaveTargetSelected) {
-        if (Mode != 53 || !TheCamera.m_bUseTransitionBeta || *(int*)0xA44490) {
-            if (Mode == MODE_AIMWEAPON_FROMCAR || Mode == MODE_AIMWEAPON || Mode == MODE_AIMWEAPON_ATTACHED || Mode == MODE_ROCKETLAUNCHER || Mode == MODE_ROCKETLAUNCHER_HS || Mode == MODE_SNIPER || Mode == MODE_CAMERA) {
-                switch (GetWeaponInfo) {
-                case 357: // Sniper
-                    Sprites[HUD_SiteSniper].Draw(_xmiddle(-fHalfSize), _ymiddle(-fHalfSize), _width(fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Left Top
-                    Sprites[HUD_SiteSniper].Draw(_xmiddle(fHalfSize), _ymiddle(-fHalfSize), _width(-fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Right Top
-                    Sprites[HUD_SiteSniper].Draw(_xmiddle(-fHalfSize), _ymiddle(fHalfSize), _width(fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Left Bottom
-                    Sprites[HUD_SiteSniper].Draw(_xmiddle(fHalfSize), _ymiddle(fHalfSize), _width(-fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Right Bottom
+	if (!FindPlayerPed(0)->pPlayerData->m_bHaveTargetSelected) {
+		if (Mode != 53 || !TheCamera.m_bUseTransitionBeta || *(int*)0xA44490) {
+			if (Mode == MODE_AIMWEAPON_FROMCAR || Mode == MODE_AIMWEAPON || Mode == MODE_AIMWEAPON_ATTACHED || Mode == MODE_ROCKETLAUNCHER || Mode == MODE_ROCKETLAUNCHER_HS || Mode == MODE_SNIPER || Mode == MODE_CAMERA) {
+				switch (GetWeaponInfo) {
+				case 357: // Sniper
+					Sprites[HUD_SiteSniper].Draw(_xmiddle(-fHalfSize), _ymiddle(-fHalfSize), _width(fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Left Top
+					Sprites[HUD_SiteSniper].Draw(_xmiddle(fHalfSize), _ymiddle(-fHalfSize), _width(-fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Right Top
+					Sprites[HUD_SiteSniper].Draw(_xmiddle(-fHalfSize), _ymiddle(fHalfSize), _width(fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Left Bottom
+					Sprites[HUD_SiteSniper].Draw(_xmiddle(fHalfSize), _ymiddle(fHalfSize), _width(-fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Right Bottom
 
-                    // PILLAR BOX
-                    CSprite2d::DrawRect(CRect(-2.0f, -2.0f, (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) + 2.0f + _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
-                    CSprite2d::DrawRect(CRect(RsGlobal.MaximumWidth, -2.0, RsGlobal.MaximumWidth - (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) - 2.0f - _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
-                    break;
-                case 358: // Laser
-                    Sprites[HUD_SiteLaser].Draw(_xmiddle(-fHalfSize), _ymiddle(-fHalfSize), _width(fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Left Top
-                    Sprites[HUD_SiteLaser].Draw(_xmiddle(fHalfSize), _ymiddle(-fHalfSize), _width(-fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Right Top
-                    Sprites[HUD_SiteLaser].Draw(_xmiddle(-fHalfSize), _ymiddle(fHalfSize), _width(fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Left Bottom
-                    Sprites[HUD_SiteLaser].Draw(_xmiddle(fHalfSize), _ymiddle(fHalfSize), _width(-fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Right Bottom
+					// PILLAR BOX
+					CSprite2d::DrawRect(CRect(-2.0f, -2.0f, (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) + 2.0f + _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
+					CSprite2d::DrawRect(CRect(RsGlobal.MaximumWidth, -2.0, RsGlobal.MaximumWidth - (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) - 2.0f - _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
+					break;
+				case 358: // Laser
+					Sprites[HUD_SiteLaser].Draw(_xmiddle(-fHalfSize), _ymiddle(-fHalfSize), _width(fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Left Top
+					Sprites[HUD_SiteLaser].Draw(_xmiddle(fHalfSize), _ymiddle(-fHalfSize), _width(-fHalfSize), _height(fHalfSize), CRGBA(150, 255, 150, 255)); // Right Top
+					Sprites[HUD_SiteLaser].Draw(_xmiddle(-fHalfSize), _ymiddle(fHalfSize), _width(fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Left Bottom
+					Sprites[HUD_SiteLaser].Draw(_xmiddle(fHalfSize), _ymiddle(fHalfSize), _width(-fHalfSize), _height(-fHalfSize), CRGBA(150, 255, 150, 255)); // Right Bottom
 
-                    RwRenderStateSet(rwRENDERSTATESRCBLEND, reinterpret_cast<void *>(2));
-                    fRealDotSize = 25.0f;
-                    LaserScopeDot(coords, fRealDotSize);
-                    f2DDotSizeW = RsGlobal.MaximumWidth *  0.0015625 * 1.3334 / ScreenAspectRatio * fRealDotSize;
-                    f2DDotSizeH = RsGlobal.MaximumHeight * 0.002232143 * fRealDotSize;
+					RwRenderStateSet(rwRENDERSTATESRCBLEND, reinterpret_cast<void *>(2));
+					fRealDotSize = 25.0f;
+					LaserScopeDot(coords, fRealDotSize);
+					f2DDotSizeW = RsGlobal.MaximumWidth *  0.0015625 * 1.3334 / ScreenAspectRatio * fRealDotSize;
+					f2DDotSizeH = RsGlobal.MaximumHeight * 0.002232143 * fRealDotSize;
 
-                    Sprites[HUD_LaserDot].Draw(coords.x - f2DDotSizeW / 2, coords.y - f2DDotSizeH / 2, f2DDotSizeW, f2DDotSizeH, CRGBA(155, 0, 0, 105)); // Laser Dot
-                    RwRenderStateSet(rwRENDERSTATESRCBLEND, reinterpret_cast<void *>(-1));
+					Sprites[HUD_LaserDot].Draw(coords.x - f2DDotSizeW / 2, coords.y - f2DDotSizeH / 2, f2DDotSizeW, f2DDotSizeH, CRGBA(155, 0, 0, 105)); // Laser Dot
+					RwRenderStateSet(rwRENDERSTATESRCBLEND, reinterpret_cast<void *>(-1));
 
-                    // PILLAR BOX
-                    CSprite2d::DrawRect(CRect(-2.0f, -2.0f, (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) + 2.0f + _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
-                    CSprite2d::DrawRect(CRect(RsGlobal.MaximumWidth, -2.0, RsGlobal.MaximumWidth - (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) - 2.0f - _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
-                    break;
-                case 359: // Rocketla
-                    Sprites[HUD_Siterocket].Draw(_xmiddle(-68.0f / 2), _ymiddle(-68.0f / 2), _width(68.0f), _height(68.0f), CRGBA(150, 255, 150, 255));
-                    break;
-                case 367: // Camera
-                    Sprites[HUD_ViewFinder].Draw(CRect(0.0f, 0.0f + RsGlobal.MaximumHeight / 2, 0.0f + RsGlobal.MaximumWidth / 2, 0.0f), CRGBA(255, 255, 255, 255)); // Left Top
-                    Sprites[HUD_ViewFinder].Draw(CRect(RsGlobal.MaximumWidth, 0.0f + RsGlobal.MaximumHeight / 2, RsGlobal.MaximumWidth - RsGlobal.MaximumWidth / 2, 0.0f), CRGBA(255, 255, 255, 255)); // Right Top
-                    Sprites[HUD_ViewFinder].Draw(CRect(0.0f, RsGlobal.MaximumHeight - RsGlobal.MaximumHeight / 2, 0.0f + RsGlobal.MaximumWidth / 2, RsGlobal.MaximumHeight), CRGBA(255, 255, 255, 255)); // Left Bottom
-                    Sprites[HUD_ViewFinder].Draw(CRect(RsGlobal.MaximumWidth, RsGlobal.MaximumHeight - RsGlobal.MaximumHeight / 2, RsGlobal.MaximumWidth - RsGlobal.MaximumWidth / 2, RsGlobal.MaximumHeight), CRGBA(255, 255, 255, 255)); // Right Bottom
-                    break;
-                default:
-                    Sprites[HUD_SiteM16].Draw(x - _width(31.0f / 2), y - _height(29.0f / 2), _width(31.0f), _height(29.0f), CRGBA(255, 255, 255, 255));
-                    break;
-                }
-            }
-        }
-    }
+					// PILLAR BOX
+					CSprite2d::DrawRect(CRect(-2.0f, -2.0f, (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) + 2.0f + _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
+					CSprite2d::DrawRect(CRect(RsGlobal.MaximumWidth, -2.0, RsGlobal.MaximumWidth - (RsGlobal.MaximumWidth * 1.33334 / RsGlobal.MaximumWidth / 640.0f) - 2.0f - _xmiddle(-320), RsGlobal.MaximumHeight + 2.0f), CRGBA(0, 0, 0, 255));
+					break;
+				case 359: // Rocketla
+					Sprites[HUD_Siterocket].Draw(_xmiddle(-68.0f / 2), _ymiddle(-68.0f / 2), _width(68.0f), _height(68.0f), CRGBA(150, 255, 150, 255));
+					break;
+				case 367: // Camera
+					Sprites[HUD_ViewFinder].Draw(CRect(0.0f, 0.0f + RsGlobal.MaximumHeight / 2, 0.0f + RsGlobal.MaximumWidth / 2, 0.0f), CRGBA(255, 255, 255, 255)); // Left Top
+					Sprites[HUD_ViewFinder].Draw(CRect(RsGlobal.MaximumWidth, 0.0f + RsGlobal.MaximumHeight / 2, RsGlobal.MaximumWidth - RsGlobal.MaximumWidth / 2, 0.0f), CRGBA(255, 255, 255, 255)); // Right Top
+					Sprites[HUD_ViewFinder].Draw(CRect(0.0f, RsGlobal.MaximumHeight - RsGlobal.MaximumHeight / 2, 0.0f + RsGlobal.MaximumWidth / 2, RsGlobal.MaximumHeight), CRGBA(255, 255, 255, 255)); // Left Bottom
+					Sprites[HUD_ViewFinder].Draw(CRect(RsGlobal.MaximumWidth, RsGlobal.MaximumHeight - RsGlobal.MaximumHeight / 2, RsGlobal.MaximumWidth - RsGlobal.MaximumWidth / 2, RsGlobal.MaximumHeight), CRGBA(255, 255, 255, 255)); // Right Bottom
+					break;
+				default:
+					Sprites[HUD_SiteM16].Draw(x - _width(31.0f / 2), y - _height(29.0f / 2), _width(31.0f), _height(29.0f), CRGBA(255, 255, 255, 255));
+					break;
+				}
+			}
+		}
+	}
 }
 
 void __stdcall CHud::DrawWindowRect(CRect *coords, char *titleKey, char fadeState, CRGBA rgba, int a5, char bDrawBox) {
@@ -437,7 +439,7 @@ Ret CallMethodAndReturn(C _this, Args... args) {
 #include "Garages.h"
 
 void CHud::DrawHelpText() {
-	CVector2D	vecTextBoxPosn = (CVector2D(HUD_POS_X + 44.0f, HUD_POS_Y + 26.0f));
+	CVector2D	vecTextBoxPosn = (CVector2D(((HUD_POS_X * 2.15f) * 0.9f) + 48.50f, ((HUD_POS_Y * 0.85f) * 1.2f) + 29.25f));
 	CVector2D	vecTextBoxFontScale = (CVector2D(0.48f, 1.08f));
 	float		fTextBoxWidth = (287.0f);
 
@@ -448,7 +450,7 @@ void CHud::DrawHelpText() {
 				m_nHelpMessageState = 2;
 				m_nHelpMessageTimer = 0;
 				m_nHelpMessageFadeTimer = 0;
-				CMessages::StringCopy(m_pHelpMessageToPrint, m_pHelpMessage, 400);		
+				CMessages::StringCopy(m_pHelpMessageToPrint, m_pHelpMessage, 400);
 				m_fTextBoxNumLines = CFont::GetNumberLines(_xleft(vecTextBoxPosn.x), _y(vecTextBoxPosn.y), m_pHelpMessageToPrint) + 3;
 				CallMethod<0x506EA0>(0xB6BC90, 32, 0.0f, 1.0f);
 				break;
@@ -479,7 +481,7 @@ void CHud::DrawHelpText() {
 					alpha = m_nHelpMessageFadeTimer * 0.001f * 255.0f;
 				}
 				break;
-			case 3: 
+			case 3:
 				m_nHelpMessageFadeTimer -= 2 * (CTimer::ms_fTimeStep * 0.02f * 1000.0f);
 				if (m_nHelpMessageFadeTimer < 0 || TheCamera.m_WideScreenOn) {
 					m_nHelpMessageFadeTimer = 0;
@@ -496,7 +498,7 @@ void CHud::DrawHelpText() {
 				}
 				alpha = m_nHelpMessageFadeTimer * 0.001f * 255.0f;
 				break;
-			case 1: 
+			case 1:
 				alpha = 255.0f;
 				m_nHelpMessageFadeTimer = 600;
 				if (!m_bHelpMessagePermanent) {
@@ -532,7 +534,7 @@ void CHud::DrawHelpText() {
 
 				CFont::SetScale(_width(vecTextBoxFontScale.x), _height(vecTextBoxFontScale.y));
 				CFont::PrintString(_xleft(vecTextBoxPosn.x), _y(vecTextBoxPosn.y), m_pHelpMessageToPrint);
-			
+
 				CFont::SetWrapx(RsGlobal.MaximumWidth);
 				CFont::SetAlphaFade(255.0f);
 				return;
@@ -544,31 +546,31 @@ void CHud::DrawHelpText() {
 }
 
 void __cdecl DrawSpriteWithAngle(CSprite2d sprite, float x, float y, float r_angle, unsigned int width, unsigned int height, CRGBA const& color) {
-    CVector2D posn[4];
+	CVector2D posn[4];
 
-    posn[0].x = x - width / 1.2f;
+	posn[0].x = x - width / 1.2f;
 
-    posn[0].y = y + height / 1.2f;
+	posn[0].y = y + height / 1.2f;
 
-    posn[1].x = x + width / 1.2f;
+	posn[1].x = x + width / 1.2f;
 
-    posn[1].y = y + height / 1.2f;
+	posn[1].y = y + height / 1.2f;
 
-    posn[2].x = x - width / 1.2f;
+	posn[2].x = x - width / 1.2f;
 
-    posn[2].y = y - height / 1.2f;
+	posn[2].y = y - height / 1.2f;
 
-    posn[3].x = x + width / 1.2f;
+	posn[3].x = x + width / 1.2f;
 
-    posn[3].y = y - height / 1.2f;
+	posn[3].y = y - height / 1.2f;
 
-    RotateVertices(posn, 4, x, y, r_angle);
+	RotateVertices(posn, 4, x, y, r_angle);
 
-    sprite.Draw(posn[2].x, posn[2].y, posn[3].x, posn[3].y, posn[0].x, posn[0].y, posn[1].x, posn[1].y, CRGBA(color));
+	sprite.Draw(posn[2].x, posn[2].y, posn[3].x, posn[3].y, posn[0].x, posn[0].y, posn[1].x, posn[1].y, CRGBA(color));
 }
 
 void __cdecl CHud::DrawTarget(float a1, float a2, int a3, int a4, int a5, int a6, float a7, unsigned __int8 a8, unsigned __int8 a9, unsigned __int8 a10, __int16 a11, float a12, char a13) {
-    WORD Mode = TheCamera.Cams[TheCamera.ActiveCam].Mode;
+	WORD Mode = TheCamera.Cams[TheCamera.ActiveCam].Mode;
 
 	if (a7 >= 0.0 && a7 <= 1.0)
 		a7 = 1.35;
@@ -607,18 +609,18 @@ void __cdecl CHud::DrawTarget(float a1, float a2, int a3, int a4, int a5, int a6
 	else
 		a7 = 0.50;
 
-    float size = 6.8f;
-    if (Mode == MODE_AIMWEAPON) {
-        DrawSpriteWithAngle(Sprites[HUD_Triangle], a1 - _coords(32.0f * a7), a2 - _coords(6.0f * a7), -0.6, _width(size), _width(size), CRGBA(a8, a9, a10, a11)); // Left
-        DrawSpriteWithAngle(Sprites[HUD_Triangle], a1 + _coords(32.0f * a7), a2 - _coords(6.0f * a7), 3.8, _width(size), _width(size), CRGBA(a8, a9, a10, a11)); // Right
+	float size = 6.8f;
+	if (Mode == MODE_AIMWEAPON) {
+		DrawSpriteWithAngle(Sprites[HUD_Triangle], a1 - _coords(32.0f * a7), a2 - _coords(6.0f * a7), -0.6, _width(size), _width(size), CRGBA(a8, a9, a10, a11)); // Left
+		DrawSpriteWithAngle(Sprites[HUD_Triangle], a1 + _coords(32.0f * a7), a2 - _coords(6.0f * a7), 3.8, _width(size), _width(size), CRGBA(a8, a9, a10, a11)); // Right
 
-        DrawSpriteWithAngle(Sprites[HUD_Triangle], a1, a2 + _coords(52.0f * a7), 1.6, _width(size), _width(size), CRGBA(a8, a9, a10, a11)); // Bottom
-    }
+		DrawSpriteWithAngle(Sprites[HUD_Triangle], a1, a2 + _coords(52.0f * a7), 1.6, _width(size), _width(size), CRGBA(a8, a9, a10, a11)); // Bottom
+	}
 }
 
 void CHud::DrawOnscreenTimer()
 {
-	if ( CUserDisplay::OnscnTimer.IsEnabled() && !StyledText_5[0] && !Garage_MessageIDString[0] )
+	if (CUserDisplay::OnscnTimer.IsEnabled() && !StyledText_5[0] && !Garage_MessageIDString[0])
 	{
 		CFont::SetBackground(0, 0);
 		CFont::SetScale(_width(0.5f), _height(1.0f));
@@ -630,7 +632,7 @@ void CHud::DrawOnscreenTimer()
 		static int				nCounterTimer = 0;
 		bool					bRecalculateStuffThisTick;
 
-		if ( CTimer::m_snTimeInMillisecondsPauseMode - nCounterTimer > 40 )	// Cap it at 25 FPS
+		if (CTimer::m_snTimeInMillisecondsPauseMode - nCounterTimer > 40)	// Cap it at 25 FPS
 		{
 			bRecalculateStuffThisTick = true;
 			++dwTicksCounter;
@@ -643,51 +645,51 @@ void CHud::DrawOnscreenTimer()
 		COnscreenTimerEntry*	pTimer = CUserDisplay::OnscnTimer.GetTimer();
 		unsigned char			bChildrenEntries = 0;
 
-		for ( int i = 0; i < NUM_ONSCREEN_COUNTERS; ++i )
+		for (int i = 0; i < NUM_ONSCREEN_COUNTERS; ++i)
 		{
-			if ( !pCounters[i].m_bShown || pCounters[i].m_bForceRecheck )
+			if (!pCounters[i].m_bShown || pCounters[i].m_bForceRecheck)
 			{
 				pCounters[i].m_bForceRecheck = false;
 				CounterOnLastFrame[i] = false;
 			}
 
-			if ( pCounters[i].m_bShown )
+			if (pCounters[i].m_bShown)
 			{
-				if ( pCounters[i].m_wOwnsWhat != 0xFFFF )
+				if (pCounters[i].m_wOwnsWhat != 0xFFFF)
 					bChildrenEntries += 3;
 			}
 		}
 
-		if ( pTimer->m_bShown )
+		if (pTimer->m_bShown)
 		{
 			int		nRemainder = *pTimer->m_pVariable % 1000;
-			if ( !pTimer->m_bFlashing || (*pTimer->m_pVariable < 750 || ( nRemainder < 750 && nRemainder > 250 )) )
+			if (!pTimer->m_bFlashing || (*pTimer->m_pVariable < 750 || (nRemainder < 750 && nRemainder > 250)))
 			{
 				CFont::SetProportional(false);
 				CFont::SetDropColor(pTimer->m_shadowColour);
 				CFont::SetColor(pTimer->m_colour);
 
-				CFont::PrintString(_x(32.0f), _y(bChildrenEntries * 20.0f + 148.0f), pTimer->m_cDisplayedText);
-				if ( pTimer->m_cGXTentry[0] )
+				CFont::PrintString(_x(46.0f + (HUD_POS_X * 2.30f)), _y((HUD_POS_Y * 0.9f) + bChildrenEntries * 20.0f + 148.0f), pTimer->m_cDisplayedText);
+				if (pTimer->m_cGXTentry[0])
 				{
 					float		fPosXOffset;
 					int			nTextLength = strlen(pTimer->m_cDisplayedText);
-					if ( nTextLength > 4 )
+					if (nTextLength > 4)
 						fPosXOffset = 12.5f * (nTextLength - 4);
 					else
 						fPosXOffset = 0.0f;
 
 					CFont::SetProportional(true);
-					CFont::PrintString(_x(87.5f + fPosXOffset), _y(bChildrenEntries * 20.0f + 148.0f), TheText.Get(pTimer->m_cGXTentry));
+					CFont::PrintString(_x((HUD_POS_X * 2.30f) + 102.5f + fPosXOffset), _y((HUD_POS_Y * 0.9f) + bChildrenEntries * 20.0f + 148.0f), TheText.Get(pTimer->m_cGXTentry));
 				}
 			}
 		}
 
-		for ( int i = 0; i < NUM_ONSCREEN_COUNTERS; ++i )
+		for (int i = 0; i < NUM_ONSCREEN_COUNTERS; ++i)
 		{
-			if ( pCounters[i].m_bShown )
+			if (pCounters[i].m_bShown)
 			{
-				if ( !CounterOnLastFrame[i] && pCounters[i].m_bFlashing )
+				if (!CounterOnLastFrame[i] && pCounters[i].m_bFlashing)
 					CounterFlashTimer[i] = 1;
 
 				CounterOnLastFrame[i] = true;
@@ -698,48 +700,48 @@ void CHud::DrawOnscreenTimer()
 						CounterFlashTimer[i] = 0;
 				}*/
 
-				if ( CounterFlashTimer[i] )
+				if (CounterFlashTimer[i])
 				{
-					if ( bRecalculateStuffThisTick )
+					if (bRecalculateStuffThisTick)
 					{
-						if ( ++CounterFlashTimer[i] > 50 )
+						if (++CounterFlashTimer[i] > 50)
 							CounterFlashTimer[i] = 0;
 					}
 				}
 
-				if ( dwTicksCounter & 4 || !CounterFlashTimer[i] )
+				if (dwTicksCounter & 4 || !CounterFlashTimer[i])
 				{
 					CFont::SetDropColor(pCounters[i].m_shadowColour);
 					CFont::SetColor(pCounters[i].m_colour);
 
-					if ( pCounters[i].m_wType != 3 )
+					if (pCounters[i].m_wType != 3)
 					{
-						if ( pCounters[i].m_wType == 1 )
-							DrawBarChart(	_x(93.0f), _y(i * 20.0f + 173.0f), _width(61.0f),
-											_height(18.0), pCounters[i].m_counterData.nBarFill,
-											0, 0, 1, pCounters[i].m_colour,
-											CRGBA(0, 0, 0, 0));
+						if (pCounters[i].m_wType == 1)
+							DrawBarChart(_x((HUD_POS_X * 2.30f) + 110.0f), _y((HUD_POS_Y * 0.9f) + i * 20.0f + 173.0f), _width(61.0f),
+								_height(18.0), pCounters[i].m_counterData.nBarFill,
+								0, 0, 1, pCounters[i].m_colour,
+								CRGBA(0, 0, 0, 0));
 						else
 						{
 							CFont::SetProportional(false);
-							CFont::PrintString(_x(32.0f), _y(i * 20.0f + 173.0f), pCounters[i].m_counterData.cDisplayedText);
+							CFont::PrintString(_x((HUD_POS_X * 2.30f) + 47.0f), _y((HUD_POS_Y * 0.9f) + i * 20.0f + 173.0f), pCounters[i].m_counterData.cDisplayedText);
 						}
 					}
 
-					if ( pCounters[i].m_cGXTentry[0] )
+					if (pCounters[i].m_cGXTentry[0])
 					{
 						float		fPosXOffset;
 						int			nTextLength = pCounters[i].m_wType == 1 ? 5 : strlen(pCounters[i].m_counterData.cDisplayedText);
-						if ( nTextLength > 4 )
+						if (nTextLength > 4)
 							fPosXOffset = 12.5f * (nTextLength - 4);
 						else
 							fPosXOffset = 0.0f;
 
 						CFont::SetProportional(true);
-						if ( pCounters[i].m_wType != 3 )
-							CFont::PrintString(_x(87.5f + fPosXOffset), _y(i * 20.0f + 173.0f), TheText.Get(pCounters[i].m_cGXTentry));
+						if (pCounters[i].m_wType != 3)
+							CFont::PrintString(_x((HUD_POS_X * 2.30f) + 102.5f + fPosXOffset), _y((HUD_POS_Y * 0.9f) + i * 20.0f + 173.0f), TheText.Get(pCounters[i].m_cGXTentry));
 						else
-							CFont::PrintString(_x(32.0f), _y(i * 20.0f + 160.0f), TheText.Get(pCounters[i].m_cGXTentry));
+							CFont::PrintString(_x((HUD_POS_X * 2.30f) + 47.0f), _y((HUD_POS_Y * 0.9f) + i * 20.0f + 160.0f), TheText.Get(pCounters[i].m_cGXTentry));
 					}
 				}
 			}
@@ -751,10 +753,10 @@ void CHud::DrawPermanentTexts()
 {
 #if !defined NDEBUG && !defined SKIP_DEBUG_TEXTS
 #if !defined COMPILE_RC && !defined MAKE_ZZCOOL_MOVIE_DEMO
-	if ( bShouldFPSBeDisplayed && !InAmazingScreenshotMode )
+	if (bShouldFPSBeDisplayed && !InAmazingScreenshotMode)
 	{
 		char		debugText[64];
-		if ( !CUpdateManager::AnyTextDisplaysNow() )
+		if (!CUpdateManager::AnyTextDisplaysNow())
 		{
 			_snprintf(debugText, sizeof(debugText), "%d FPS", static_cast<int>(*currentFPS));
 			CFont::SetBackground(0, 0);
@@ -769,7 +771,7 @@ void CHud::DrawPermanentTexts()
 		}
 
 #if defined INCLUDE_STREAMING_TEXT
-		long double	percentUsage = ((long double)(*memoryUsed) / * memoryAvailable) * 100.0;
+		long double	percentUsage = ((long double)(*memoryUsed) / *memoryAvailable) * 100.0;
 
 		sprintf(debugText, "STREAMING %dKB/%dKB (%d%% USED)", *memoryUsed / 1024, *memoryAvailable / 1024, (int)percentUsage);
 		CFont::SetScale(_width(0.35f), _height(0.65f));
@@ -789,7 +791,7 @@ void CHud::DrawPermanentTexts()
 		CFont::PrintString(_xleft(10.0f), _y(3.5f), debugText);
 #endif
 
-		if ( CPed* pPlayerPed = CWorld::Players[0].GetPed() )
+		if (CPed* pPlayerPed = CWorld::Players[0].GetPed())
 		{
 			CVector&	coords = pPlayerPed->GetCoords();
 
@@ -807,7 +809,7 @@ void CHud::DrawPermanentTexts()
 		CFont::SetEdge(0);
 	}
 #else
-	if ( !CUpdateManager::AnyTextDisplaysNow() )
+	if (!CUpdateManager::AnyTextDisplaysNow())
 	{
 		CFont::SetBackground(0, 0);
 		CFont::SetProportional(true);
@@ -833,8 +835,8 @@ void CHud::DrawPermanentTexts()
 #endif
 #endif
 
-// UPDATER removed for now
-//	CUpdateManager::Display();
+	// UPDATER removed for now
+	//	CUpdateManager::Display();
 }
 
 void CHud::DrawProgressBarWithSprites(float x, float y, float width, float height, float progress, CRGBA color) {
@@ -842,10 +844,10 @@ void CHud::DrawProgressBarWithSprites(float x, float y, float width, float heigh
 		progress = 100.0f;
 	else if (progress <= 0.0f)
 		progress = 0.0f;
-	
+
 	// Back
-	Sprites[HUD_BarInside].Draw(CRect((x + width * (progress / 100.f)), (y), (x + width ), (y + height)), CRGBA(color.r * 0.50, color.g * 0.50, color.b * 0.50, color.a), progress / 100.f, 1.0f, 1.0f, 1.0f, progress / 100.f, 0.0f, 1.0f, 0.0f);
-	
+	Sprites[HUD_BarInside].Draw(CRect((x + width * (progress / 100.f)), (y), (x + width), (y + height)), CRGBA(color.r * 0.50, color.g * 0.50, color.b * 0.50, color.a), progress / 100.f, 1.0f, 1.0f, 1.0f, progress / 100.f, 0.0f, 1.0f, 0.0f);
+
 	if (progress > 0.0f) {
 		Sprites[HUD_BarInside].Draw(CRect((x), (y), (x + width * (progress / 100.f)), (y + height)), CRGBA(color.r, color.g, color.b, color.a), 0.0f, 1.0f, progress / 100.f, 1.0f, 0.0f, 0.0f, progress / 100.f, 0.0f);
 	}
@@ -871,7 +873,7 @@ void CHud::PrintHealthBar(int playerID, float x, float y, float width, float hei
 
 void CHud::PrintArmourBar(int playerID, float x, float y, float width, float height) {
 	if (m_ItemToFlash != FLASH_Armourbar || ShowFlashingItem(300, 300)) {
-		if ( CWorld::Players[playerID].GetLastTimeArmourLost() == 0 || CWorld::Players[playerID].GetLastTimeArmourLost() + BAR_ENERGY_LOSS_FLASH_DURATION < CTimer::m_snTimeInMilliseconds || ShowFlashingItem(150, 150)) {	
+		if (CWorld::Players[playerID].GetLastTimeArmourLost() == 0 || CWorld::Players[playerID].GetLastTimeArmourLost() + BAR_ENERGY_LOSS_FLASH_DURATION < CTimer::m_snTimeInMilliseconds || ShowFlashingItem(150, 150)) {
 			if (CWorld::Players[playerID].GetPed()->GetArmour() >= 1.0 && (!CWorld::Players[playerID].GetPed()->bSubmergedInWater || CWorld::Players[playerID].GetPed()->GetVehiclePtr() && !CWorld::Players[playerID].GetPed()->GetVehiclePtr()->bTouchingWater)) {
 				DrawProgressBarWithSprites(x, y, width, height, CWorld::Players[playerID].GetPed()->GetArmour() / CWorld::Players[playerID].GetMaxArmour() * 100.0, CRGBA(9, 255, 250, HUD_TRANSPARENCY_BACK));
 
@@ -991,33 +993,33 @@ void CHud::DrawWeaponAmmo(int playerID, float x, float y, bool bPS2Behaviour, fl
 }
 
 void CHud::DrawRadioName(void* object, const char* radioName) {
+	CFont::SetBackground(0, 0);
+	CFont::SetProportional(true);
+	CFont::SetCentreSize(RsGlobal.MaximumWidth);
 	CFont::SetFontStyle(FONT_RageItalic);
 	CFont::SetJustify(false);
-	CFont::SetBackground(0, 0);
-	CFont::SetScale(_width(0.8f), _height(1.7f));
-	CFont::SetProportional(true);
+	CFont::SetScale(_width(0.85f), _height(1.8f));
 	CFont::SetOrientation(ALIGN_Center);
 	CFont::SetDropShadowPosition(1);
 	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
-
 	CFont::SetColor(BaseColors[*((DWORD*)object + 27) || *((DWORD*)object + 28) ? 12 : 2]);
-	CFont::PrintString(RsGlobal.MaximumWidth * 0.5f, _y(12.0f), radioName);
-	CFont::RenderFontBuffer();
+
+	CFont::PrintString(RsGlobal.MaximumWidth * 0.5f, _y(22.0f + UI_SAFEZONE), radioName);
 }
 
 void CHud::DrawVehicleName()
 {
-	if ( pCarName )
+	if (pCarName)
 	{
 		int			tmpStage = CarNameStage;
 		const char* tmpCarName = pLastCarName;
 		float		alpha = 0.0;
 
-		if ( pCarName != pLastCarName )
+		if (pCarName != pLastCarName)
 		{
-			if ( tmpStage )
+			if (tmpStage)
 			{
-				if ( tmpStage <= 4 )
+				if (tmpStage <= 4)
 				{
 					tmpStage = 4;
 					CarNameStage = 4;
@@ -1035,56 +1037,56 @@ void CHud::DrawVehicleName()
 			pLastCarName = pCarName;
 		}
 
-		if ( tmpStage )
+		if (tmpStage)
 		{
-			switch ( tmpStage )
+			switch (tmpStage)
 			{
-				case 2:
-					CarNameFadingTime += CTimer::ms_fTimeStep * 0.02 * 1000.0;
-					if ( CarNameFadingTime > 1000 )
-					{
-						CarNameFadingTime = 1000;
-						CarNameStage = 1;
-					}
-					alpha = CarNameFadingTime * 0.001 * 255.0;
-					break;
+			case 2:
+				CarNameFadingTime += CTimer::ms_fTimeStep * 0.02 * 1000.0;
+				if (CarNameFadingTime > 1000)
+				{
+					CarNameFadingTime = 1000;
+					CarNameStage = 1;
+				}
+				alpha = CarNameFadingTime * 0.001 * 255.0;
+				break;
 
-				case 3:
-					CarNameFadingTime += CTimer::ms_fTimeStep * 0.02 * -1000.0;
-					if ( CarNameFadingTime < 0 )
-					{
-						CarNameFadingTime = 0;
-						CarNameStage = 0;
-					}
-					alpha = CarNameFadingTime * 0.001 * 255.0;
-					break;
+			case 3:
+				CarNameFadingTime += CTimer::ms_fTimeStep * 0.02 * -1000.0;
+				if (CarNameFadingTime < 0)
+				{
+					CarNameFadingTime = 0;
+					CarNameStage = 0;
+				}
+				alpha = CarNameFadingTime * 0.001 * 255.0;
+				break;
 
-				case 4:
-					CarNameFadingTime += CTimer::ms_fTimeStep * 0.02 * -1000.0;
-					if ( CarNameFadingTime < 0 )
-					{
-						CarNameShowingTime = 0;
-						CarNameStage = 2;
-						pCarNameToDisplay = tmpCarName;
-						CarNameFadingTime = 0;
-					}
-					alpha = CarNameFadingTime * 0.001 * 255.0;
-					break;
+			case 4:
+				CarNameFadingTime += CTimer::ms_fTimeStep * 0.02 * -1000.0;
+				if (CarNameFadingTime < 0)
+				{
+					CarNameShowingTime = 0;
+					CarNameStage = 2;
+					pCarNameToDisplay = tmpCarName;
+					CarNameFadingTime = 0;
+				}
+				alpha = CarNameFadingTime * 0.001 * 255.0;
+				break;
 
-				case 1:
-					if ( CarNameShowingTime > 10000 )
-					{
-						CarNameStage = 3;
-						CarNameFadingTime = 1000;
-					}
-					alpha = 255.0;
-					break;
+			case 1:
+				if (CarNameShowingTime > 10000)
+				{
+					CarNameStage = 3;
+					CarNameFadingTime = 1000;
+				}
+				alpha = 255.0;
+				break;
 
-				default:
-					break;
+			default:
+				break;
 			}
 		}
-		if ( !PriorityText[0] )
+		if (!PriorityText[0])
 		{
 			CarNameShowingTime += CTimer::ms_fTimeStep * 0.02 * 1000.0;
 
@@ -1100,8 +1102,8 @@ void CHud::DrawVehicleName()
 #endif
 			CFont::SetDropColor(CRGBA(0, 0, 0, (BYTE)alpha));
 			CFont::SetColor(CRGBA(BaseColors[4], (BYTE)alpha));
-			if( *bWants_To_Draw_Hud && alpha )
-				CFont::PrintString(_x(HUD_POS_X + 38.0f), _ydown(HUD_POS_Y + 96.0f), pCarNameToDisplay);
+			if (*bWants_To_Draw_Hud && alpha)
+				CFont::PrintString(_x((HUD_POS_X * 2.30f) + 52.0f), _ydown((HUD_POS_Y * 0.9f) + 88.0f), pCarNameToDisplay);
 
 #ifdef COMPILE_SLANTED_TEXT
 			CFont::SetSlant(0.0);
@@ -1119,108 +1121,108 @@ void CHud::DrawVehicleName()
 
 void CHud::DrawAreaName()
 {
-	if ( m_pZoneName )
+	if (m_pZoneName)
 	{
 		int tmpStage = m_ZoneState;
 		float alpha = 0.0;
 
-		if ( m_pZoneName != m_pLastZoneName )
+		if (m_pZoneName != m_pLastZoneName)
 		{
-			switch ( m_ZoneState )
+			switch (m_ZoneState)
 			{
-				case 0:
-					if( !*radarGrey && *bWants_To_Draw_Hud || *PlayerEnexEntryStage == 1 || *PlayerEnexEntryStage == 2)
-					{
-						tmpStage = 2;
-						m_ZoneState = 2;
-						m_ZoneNameTimer = 0;
-						m_ZoneFadeTimer = 0;
-						m_ZoneToPrint = m_pZoneName;
-					}
-					break;
-				case 1:
-				case 2:
-				case 3:
-					tmpStage = 4;
-					m_ZoneState = 4;
-				case 4:
+			case 0:
+				if (!*radarGrey && *bWants_To_Draw_Hud || *PlayerEnexEntryStage == 1 || *PlayerEnexEntryStage == 2)
+				{
+					tmpStage = 2;
+					m_ZoneState = 2;
 					m_ZoneNameTimer = 0;
-					break;
-				default:
-					break;
+					m_ZoneFadeTimer = 0;
+					m_ZoneToPrint = m_pZoneName;
+				}
+				break;
+			case 1:
+			case 2:
+			case 3:
+				tmpStage = 4;
+				m_ZoneState = 4;
+			case 4:
+				m_ZoneNameTimer = 0;
+				break;
+			default:
+				break;
 			}
 			m_pLastZoneName = m_pZoneName;
 		}
 
 		alpha = 255.0;
 
-		if ( tmpStage )
+		if (tmpStage)
 		{
-			switch ( tmpStage )
+			switch (tmpStage)
 			{
-				case 1:
-					alpha = 255.0;
+			case 1:
+				alpha = 255.0;
+				m_ZoneFadeTimer = 1000;
+
+				if (m_ZoneNameTimer > 10000)
+				{
+					m_ZoneState = 3;
 					m_ZoneFadeTimer = 1000;
-
-					if( m_ZoneNameTimer > 10000 )
-					{
-						m_ZoneState = 3;
-						m_ZoneFadeTimer = 1000;
-					}
-					break;
-				case 2:
-					if ( !TheCamera.GetFading() )
-					{
-						if ( TheCamera.GetFadeStage() != 2 )
-							m_ZoneFadeTimer += CTimer::ms_fTimeStep * 0.02 * 1000.0;
-					}
-					if ( m_ZoneFadeTimer > 1000 )
-					{
-						m_ZoneFadeTimer = 1000;
-						m_ZoneState = 1;
-					}
-					if ( TheCamera.GetFadeStage() != 2 )
-						alpha = m_ZoneFadeTimer * 0.001 * 255.0;
-					else
-					{
-						alpha = 255.0;
-						m_ZoneState = 3;
-						m_ZoneFadeTimer = 1000;
-					}
-					break;
-				case 3:
-					if ( !TheCamera.GetFading() )
-					{
-						if ( TheCamera.GetFadeStage() != 2 )
-							m_ZoneFadeTimer += CTimer::ms_fTimeStep * 0.02 * -1000.0;
-					}
-					if ( m_ZoneFadeTimer < 0 )
-					{
-						m_ZoneFadeTimer = 0;
-						m_ZoneState = 0;
-					}
-					if ( TheCamera.GetFadeStage() != 2 )
-						alpha = m_ZoneFadeTimer * 0.001 * 255.0;
-					else
-					{
-						m_ZoneFadeTimer = 1000;
-						alpha = 255.0;
-					}
-					break;
-				case 4:
-					m_ZoneFadeTimer += CTimer::ms_fTimeStep * 0.02 * -1000.0;
-
-					if( m_ZoneFadeTimer < 0 )
-					{
-						m_ZoneFadeTimer = 0;
-						m_ZoneState = 2;
-						m_ZoneToPrint = m_pZoneName;
-					}
-
+				}
+				break;
+			case 2:
+				if (!TheCamera.GetFading())
+				{
+					if (TheCamera.GetFadeStage() != 2)
+						m_ZoneFadeTimer += CTimer::ms_fTimeStep * 0.02 * 1000.0;
+				}
+				if (m_ZoneFadeTimer > 1000)
+				{
+					m_ZoneFadeTimer = 1000;
+					m_ZoneState = 1;
+				}
+				if (TheCamera.GetFadeStage() != 2)
 					alpha = m_ZoneFadeTimer * 0.001 * 255.0;
-					break;
+				else
+				{
+					alpha = 255.0;
+					m_ZoneState = 3;
+					m_ZoneFadeTimer = 1000;
+				}
+				break;
+			case 3:
+				if (!TheCamera.GetFading())
+				{
+					if (TheCamera.GetFadeStage() != 2)
+						m_ZoneFadeTimer += CTimer::ms_fTimeStep * 0.02 * -1000.0;
+				}
+				if (m_ZoneFadeTimer < 0)
+				{
+					m_ZoneFadeTimer = 0;
+					m_ZoneState = 0;
+				}
+				if (TheCamera.GetFadeStage() != 2)
+					alpha = m_ZoneFadeTimer * 0.001 * 255.0;
+				else
+				{
+					m_ZoneFadeTimer = 1000;
+					alpha = 255.0;
+				}
+				break;
+			case 4:
+				m_ZoneFadeTimer += CTimer::ms_fTimeStep * 0.02 * -1000.0;
+
+				if (m_ZoneFadeTimer < 0)
+				{
+					m_ZoneFadeTimer = 0;
+					m_ZoneState = 2;
+					m_ZoneToPrint = m_pZoneName;
+				}
+
+				alpha = m_ZoneFadeTimer * 0.001 * 255.0;
+				break;
 			}
-			if( PriorityText[0] || *(float*)0xBAA3E0 != 0.0 || *(float*)0xBAA3E4 != 0.0 )
+			if (PriorityText[0] || *(float*)0xBAA3E0 != 0.0 || *(float*)0xBAA3E4 != 0.0)
 			{
 				m_ZoneState = 3;
 			}
@@ -1238,7 +1240,7 @@ void CHud::DrawAreaName()
 				CFont::SetDropColor(CRGBA(0, 0, 0, alpha));
 				CFont::SetScale(_width(1.0f), _height(2.0f));
 				CFont::SetColor(CRGBA(BaseColors[4], alpha));
-				CFont::PrintString(_x(HUD_POS_X + 38.0f), _ydown(HUD_POS_Y + 60.0f), m_ZoneToPrint);
+				CFont::PrintString(_x((HUD_POS_X * 2.30f) + 52.0f), _ydown((HUD_POS_Y * 0.9f) + 56.0f), m_ZoneToPrint);
 				CFont::SetDropShadowPosition(0);
 #ifdef COMPILE_SLANTED_TEXT
 				CFont::SetSlant(0.0);
@@ -1250,18 +1252,18 @@ void CHud::DrawAreaName()
 
 void CHud::DrawBigMessage(bool bHideOnFade)
 {
-	if ( bHideOnFade == *bHideStyledTextWhileFading )
+	if (bHideOnFade == *bHideStyledTextWhileFading)
 	{
 		// Big message 5
-		if ( !StyledText_2[0] && StyledText_5[0] )
+		if (!StyledText_2[0] && StyledText_5[0])
 		{
 		}
 	}
 
-	if ( bHideOnFade )
+	if (bHideOnFade)
 	{
 		// Styled text 7
-		if ( StyledText_7[0] )
+		if (StyledText_7[0])
 		{
 			CFont::SetBackground(0, 0);
 			CFont::SetJustify(false);
@@ -1277,7 +1279,7 @@ void CHud::DrawBigMessage(bool bHideOnFade)
 		}
 
 		// Styled text 4
-		if ( StyledText_4[0] )
+		if (StyledText_4[0])
 		{
 			CFont::SetBackground(0, 0);
 			CFont::SetJustify(false);
@@ -1314,11 +1316,11 @@ void CHud::DrawBigMessage2() {
 	CFont::SetRightJustifyWrap(0.0);
 	CFont::SetOrientation(ALIGN_Right);
 	CFont::SetFontStyle(FONT_RageItalic);
-	CFont::SetScale(_width(1.4f), _height(2.2f));
+	CFont::SetScale(_width(1.2f), _height(2.4f));
 	CFont::SetDropShadowPosition(2);
 	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 	CFont::SetColor(CRGBA(0xDA, 0xA8, 0x02, 255));
-	CFont::PrintStringFromBottom(_x(36.0f), _ydown(38.0f - 23.5f), StyledText_2);
+	CFont::PrintString(_x((HUD_POS_X * 2.30f) + 52.0f), _ydown((HUD_POS_Y * 0.9f) + 58.0f), StyledText_2);
 }
 
 void CHud::DrawBigMessage3()
@@ -1340,21 +1342,24 @@ void CHud::DrawSubtitles(float x, float y, char* str) {
 
 	if (TheCamera.m_WideScreenOn) {
 		fPositionX = RsGlobal.MaximumWidth * 0.50f;
-		fPositionY = 91.5f;
+		fPositionY = 71.5f;
 	}
 	else {
-		if (CFont::GetStringWidth(str, true, false) > (RsGlobal.MaximumWidth * 0.80f) * ScreenAspectRatio)
-			fPositionX = RsGlobal.MaximumWidth * 0.60f;
+		if (CFont::GetStringWidth(str, true, false) > (RsGlobal.MaximumWidth * 0.45f) * ScreenAspectRatio)
+			fPositionX = RsGlobal.MaximumWidth * 0.55f;
 		else
 			fPositionX = RsGlobal.MaximumWidth * 0.50f;
 
-		fPositionY = 84.5f;
+		fPositionY = 64.5f;
 	}
 
+	CFont::SetDropColor(CRGBA(0, 0, 0));
+	CFont::SetColor(CRGBA(255, 255, 255));
 	CFont::SetEdge(1);
 	CFont::SetScale(_width(0.5f), _height(1.0f));
+	CFont::SetCentreSize(RsGlobal.MaximumWidth - _xleft(260.0f));
 
-    CFont::PrintString(fPositionX, _ydown(HUD_POS_Y + fPositionY), str);
+	CFont::PrintStringFromBottom(fPositionX, _ydown(((HUD_POS_Y * 1.0f) * 3.6f) + fPositionY), str);
 }
 
 
@@ -1376,8 +1381,8 @@ void CHud::DrawSubtitles(float x, float y, char* str) {
 											_y(450.0) - _height(45.0)),
 										&RwRGBA(255, 255, 255, 255));*/
 
-/*#endif
-}*/
+										/*#endif
+										}*/
 
 
 void CHud::DrawBarChartWithRoundBorder(float fX, float fY, WORD wWidth, WORD wHeight, float fPercentage, BYTE drawBlueLine, BYTE drawPercentage, BYTE drawBorder, CRGBA dwColor, CRGBA dwForeColor)
@@ -1386,7 +1391,7 @@ void CHud::DrawBarChartWithRoundBorder(float fX, float fY, WORD wWidth, WORD wHe
 
 	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, FALSE);
 
-	Sprites[HUD_BarOutline].Draw(CRect(fX - _width(2.0f), fY - _height(1.5f), fX + wWidth + _width(2.0f), fY + wHeight + _height(1.5f)), CRGBA(0, 0, 0, dwColor.a+8));
+	Sprites[HUD_BarOutline].Draw(CRect(fX - _width(2.0f), fY - _height(1.5f), fX + wWidth + _width(2.0f), fY + wHeight + _height(1.5f)), CRGBA(0, 0, 0, dwColor.a + 8));
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, FALSE);
 }
 

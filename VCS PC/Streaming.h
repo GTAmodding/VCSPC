@@ -56,9 +56,11 @@ public:
 
 public:
 	static void		RequestModel(int nIndex, int nPriority);
+	static void		RemoveTxdModel(int nIndex);
 	static void		SetModelIsDeletable(int nIndex);
 	static void		RequestSpecialModel(int nIndex, const char* pName, int nPriority);
 	static void		LoadAllRequestedModels(bool bPriorityOnly);
+	static void		LoadRequestedModels();
 	static void		LoadInitialVehicles(void);
 	static void		LoadInitialPeds(void);
 	static void		LoadInitialWeapons(void);

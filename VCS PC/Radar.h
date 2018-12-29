@@ -6,8 +6,8 @@
 
 #define NUM_BLIP_SPRITES	64
 
-#define RADAR_POS_X HUD_POS_X + 2.0f
-#define RADAR_POS_Y HUD_POS_Y - 4.0f
+#define RADAR_POS_X ((HUD_POS_X * 1.95f))
+#define RADAR_POS_Y (HUD_POS_Y * 1.15f)
 
 struct tRadarTrace {
     unsigned int   m_dwColour; // see eBlipColour
@@ -72,8 +72,18 @@ public:
     // blip handle
     static int &airstrip_blip;
 
+	static RwTexture *gMiniMapTextures[64];
+	static RwTexture *gFrontEndMapTextures[64];
+
 public:
-	static void				Initialise(void);
+	static void				Initialise();
+	static void				InitRadarTiles();
+	static void				Shutdown();
+	static char				Load();
+	static void				RequestMapSection(int dwModelId, int flags);
+	static void				RemoveMapSection(int dwModelId, int flags);
+	static void				StreamRadarSection(CVector const& worldPosn);
+	static void				RemoveRadarSections();
 	static void				ChangeBlipBrightness(int nBlipID, int nBrightness);
 	static void				DrawRadarSection(int nX, int nY);
     static void             InitFrontEndMap();

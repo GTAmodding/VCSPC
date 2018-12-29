@@ -145,7 +145,11 @@ void OnModeChangePatches()
 {
 	using namespace Memory;
 
-	if ( CPad::SavedMode == PAD_IV_CONTROLS_MODE )
+	// Waypoint marker
+	Patch<BYTE>(0x577496, offsetof(CPad, NewState.SQUARE));
+	Patch<BYTE>(0x57749D, offsetof(CPad, OldState.SQUARE));
+
+	/*if ( CPad::SavedMode == PAD_IV_CONTROLS_MODE )
 	{
 		// Circle/B goes back in menu
 		Patch<BYTE>(0x58035B, offsetof(CPad, OldState.CIRCLE));
@@ -167,7 +171,7 @@ void OnModeChangePatches()
 		// Waypoint marker
 		Patch<BYTE>(0x577496, offsetof(CPad, NewState.CIRCLE));
 		Patch<BYTE>(0x57749D, offsetof(CPad, OldState.CIRCLE));
-	}
+	}*/
 }
 
 static void InitXInputPad()

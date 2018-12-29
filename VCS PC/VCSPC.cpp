@@ -2647,7 +2647,6 @@ void New_Main_Patches() {
 	Patch<const char*>(0x55F2BA + 1, "DATA\\SURFACEAUDIO.DAT");
 	Patch<const char*>(0x55EB9D + 1, "DATA\\SURFACEINFO.DAT");
 	InjectHook(0x6EDDB1, CWaterLevel::WaterLevelInitialise);
-	Patch<const char*>(0x5BE685 + 1, "DATA\\WEAPON.DAT");
 
 	// Nop SA DATA
 	Nop(0x55C131, 5);
@@ -2670,6 +2669,16 @@ void New_Main_Patches() {
 	// No light cones.
 	Nop(0x6E1EDE, 6);
 	Nop(0x6E1F17, 6);
+
+	/*// Set Gamma - Deprectated it require higher brightness level.
+	static float fGamma = 1.05f;
+	Patch<const void*>(0x747257 + 0x02, &fGamma);
+
+	static float fMultGamma = 0.10f;
+	Patch<const void*>(0x747210 + 0x02, &fMultGamma);*/
+
+	// No gamma fix, from SkyGfx
+	InjectHook(0x74721C, 0x7472F3, PATCH_JUMP);
 }
 
 void HandlePlayerStamina(float fMultiplicator) {
@@ -2704,10 +2713,34 @@ void InitExtraStuff() {
 		// Handle Player Stamina.
 		HandlePlayerStamina(0.6f);
 
-
 		// Stop player when entry/exit from enex.
 		if (bHandleEntryExit) {
 			FindPlayerPed(-1)->Teleport(FindPlayerPed(0)->GetCoords().x, FindPlayerPed(-1)->GetCoords().y, FindPlayerPed(-1)->GetCoords().z, 1);
+		}
+
+		// Use 2 sets of weapon data.
+		static char* pDataName;
+		static bool  m_bResetData;
+		if (FindPlayerVehicle(-1, 0))
+			pDataName = "data\\weapon.dat";
+		else
+			pDataName = "data\\weapon.dat";
+
+		Memory::Patch<const char*>(0x5BE685 + 1, pDataName);
+
+		if (FindPlayerVehicle(-1, 0)) {
+			if (m_bResetData) {
+				((int(__cdecl*)())0x5BF750)(); // ReInit
+
+				m_bResetData = false;
+			}
+		}
+		else {
+			if (!m_bResetData) {
+				((int(__cdecl*)())0x5BF750)(); // ReInit
+
+				m_bResetData = true;
+			}
 		}
 	}
 }
@@ -3967,7 +4000,7 @@ void Main_Patches()
 //	patch(0x52C9DB, &WidescreenSupport::fSpawningFix, 4);	// Tmp
 	///Patch<const void*>(0x514986, &WidescreenSupport::fAimpointFix);
 	//Patch<const void*>(0x50AD53, &WidescreenSupport::fAimpointFix);		// Not needed?
-	Patch<const void*>(0x58BBCB, &fTextBoxPosY);
+	//Patch<const void*>(0x58BBCB, &fTextBoxPosY); Reversed
 	/*patch(0x58C0DE, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C12D, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);
 	patch(0x58C144, &WidescreenSupport::fTextDrawsWidthMultiplier, 4);*/
@@ -4634,43 +4667,43 @@ void PatchMenus()
 #endif
 	using namespace Memory;
 
-	Patch<void*>(0x57370A, &MenuEntriesList->startingMenuEntry);
-	Patch<void*>(0x573713, &MenuEntriesList->prevMenu);
-	Patch<void*>(0x573728, &MenuEntriesList->prevMenu);
-	Patch<void*>(0x57373D, &MenuEntriesList->prevMenu);
-	Patch<void*>(0x573752, &MenuEntriesList->prevMenu);
-	Patch<void*>(0x573772, &MenuEntriesList->entryList->targetMenu);
-	Patch<void*>(0x573EA9, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x576B08, &MenuEntriesList->entryList[1].targetMenu);
-	Patch<void*>(0x576B1E, &MenuEntriesList->entryList[1].targetMenu);
-	Patch<void*>(0x576B38, MenuEntriesList);
-	Patch<void*>(0x576B58, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57B4F2, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B519, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B52A, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B534, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B588, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B5A4, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B5C9, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B5E9, &MenuEntriesList->entryList[1].action);
-	Patch<void*>(0x57B601, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B629, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57B69C, &MenuEntriesList->entryList->specialDescFlag);
-	Patch<void*>(0x57B6F1, &MenuEntriesList->entryList->specialDescFlag);
-	Patch<void*>(0x57C313, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57D6D8, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57D701, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57FE0A, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57FE25, &MenuEntriesList->entryList->entry);
-	Patch<void*>(0x57FF5F, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x57FFAE, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x580316, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x580496, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x5804EB, &MenuEntriesList->entryList->action);
-	Patch<void*>(0x5805D3, &MenuEntriesList->entryList->action);
+	Patch<void*>(0x57370A, &FrontEndMenuManager._aScreens->startingMenuEntry);
+	Patch<void*>(0x573713, &FrontEndMenuManager._aScreens->prevMenu);
+	Patch<void*>(0x573728, &FrontEndMenuManager._aScreens->prevMenu);
+	Patch<void*>(0x57373D, &FrontEndMenuManager._aScreens->prevMenu);
+	Patch<void*>(0x573752, &FrontEndMenuManager._aScreens->prevMenu);
+	Patch<void*>(0x573772, &FrontEndMenuManager._aScreens->entryList->targetMenu);
+	Patch<void*>(0x573EA9, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x576B08, &FrontEndMenuManager._aScreens->entryList[1].targetMenu);
+	Patch<void*>(0x576B1E, &FrontEndMenuManager._aScreens->entryList[1].targetMenu);
+	Patch<void*>(0x576B38, FrontEndMenuManager._aScreens);
+	Patch<void*>(0x576B58, &FrontEndMenuManager._aScreens->entryList->entry);
+	Patch<void*>(0x57B4F2, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57B519, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57B52A, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57B534, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57B588, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57B5A4, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57B5C9, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57B5E9, &FrontEndMenuManager._aScreens->entryList[1].action);
+	Patch<void*>(0x57B601, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57B629, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57B69C, &FrontEndMenuManager._aScreens->entryList->specialDescFlag);
+	Patch<void*>(0x57B6F1, &FrontEndMenuManager._aScreens->entryList->specialDescFlag);
+	Patch<void*>(0x57C313, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57D6D8, &FrontEndMenuManager._aScreens->entryList->entry);
+	Patch<void*>(0x57D701, &FrontEndMenuManager._aScreens->entryList->entry);
+	Patch<void*>(0x57FE0A, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57FE25, &FrontEndMenuManager._aScreens->entryList->entry);
+	Patch<void*>(0x57FF5F, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x57FFAE, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x580316, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x580496, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x5804EB, &FrontEndMenuManager._aScreens->entryList->action);
+	Patch<void*>(0x5805D3, &FrontEndMenuManager._aScreens->entryList->action);
 
-	Patch<void*>(0x57FE57, &MenuEntriesList->entryList);
-	Patch<void*>(0x57FE96, &MenuEntriesList->entryList);
+	Patch<void*>(0x57FE57, &FrontEndMenuManager._aScreens->entryList);
+	Patch<void*>(0x57FE96, &FrontEndMenuManager._aScreens->entryList);
 
 	Patch<const char*>(0x57F75D, "FEM_CCR");
 	Patch<const char*>(0x57F79C, "FEM_CFT");

@@ -76,8 +76,8 @@
 #endif
 
 // Macroes
-#define MenuEntriesList (CMenuManager::ms_pMenus)
-#define aScreens (CMenuManager::ms_pMenus)
+//#define MenuEntriesList (FrontEndMenuManager.ms_pMenus)
+//#define aScreens (FrontEndMenuManager.ms_pMenus)
 
 enum eMenuPages
 {
@@ -94,7 +94,7 @@ enum eMenuPages
 	MENU_PAGE_DLC,
 	MENU_PAGE_ACTIVATE_SERIAL = 49,
 	MENU_PAGE_RESTORE_GRAPHICS,
-	MENU_PAGE_ADDITIONAL_CONTROLLER,
+	MENU_PAGE_ADDITIONAL_CONTROLLER
 };
 
 enum eMenuActions
@@ -124,6 +124,8 @@ enum eMenuActions
 	MENUACTION_BUTTONSTYLE,
     MENUACTION_FREEAIM,
     MENUACTION_LEFTXINVERTED,
+	MENUACTION_SKY_MENU,
+	MENUACTION_SAFEZONE,
 
 	NUM_MENU_ACTIONS
 };
@@ -256,7 +258,7 @@ public:
 	__int8 field_58;
 	__int8 drawRadarOrMap;
 	__int8 field_5A;
-	__int8 field_5B;
+	__int8				m_bAllStreamingStuffLoaded;
 	bool                m_bMenuActive;
 	__int8 doGameReload;
 	__int8 field_5E;
@@ -430,6 +432,27 @@ public:
 	static short		m_nNumMenuEntries;
 	static float		m_fScrollerOffset;
 
+	static MenuItem		_aScreens[52];
+	static MenuItem		_MenuEntriesList[52];
+	static MenuItem		m_SkyMenus[];
+	CVector2D			m_vecMenuColumnPosn[2];
+	CVector2D			m_vecMenuColumnSize;
+
+	static bool			m_bSwitchToSkyMenu;
+	static bool			m_bEnableSkyMenu;
+	static int			m_nSelectedSkyMenuItem;
+	static bool			m_bIsMenuSwitched;
+	static float		m_fSafeZone;
+	static bool			m_bControlSafeZone;
+	static float		SafeZoneHideStuffAlpha;
+
+	bool				m_bBottomMenu;
+	bool				m_bCanReturnToBottomMenu;
+	bool				m_bIsMouseInPosition;
+	bool				m_bIsPauseMenu;
+	CRGBA				m_nBackgroundColor;
+	bool				m_bPCFrontEnd;
+
 public:
 	static MenuItem		ms_pMenus[];
 
@@ -448,7 +471,7 @@ private:
 	void			DrawStandardMenus(bool bDrawMenu);
 	void			DrawRadioStationIcons();
 	float			DisplaySlider(float posX, float posY, float height, float distBetweenRects, float filledAmount, float width, bool bLocked);
-	void			PrintControllerMapping(ControllerField* pMappings, size_t nCount);
+	void			PrintControllerMapping(ControllerField* pMappings, size_t nCount, const float fReduction);
 	const char*		GetActionNameForFrontend( int button );
 	const char*		GetActionNameForFrontend_OnFoot( int button );
 	const char*		GetActionNameForFrontend_InCar( int button );
@@ -532,6 +555,7 @@ public:
     // New map screen.
     static void             PrintMap(int x, int y, CRect rect);
     static void             PrintMapExtra();
+	static void				DrawSkyLegend();
     static void             DrawYouAreHereSprite(CSprite2d * sprite, float x, float y, float angle, unsigned int width, unsigned int height, CRGBA color);
     static void __stdcall   DrawLegendWindow(CRect * coords, char * titleKey, char fadeState, CRGBA color, int a5, char bDrawBox);
     static void             DrawLegend2DPolygon(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, CRGBA * color);
@@ -539,9 +563,15 @@ public:
     static void             DrawLegend2DRect(CRect const & rect, CRGBA const & rgbaColor);
     static void __fastcall  DrawLegend2DSprite(CSprite2d * sprite, int, CRect * rect, CRGBA * color);
 
-    static void PrintMapZones(float x, float y, char * text);
+    static void				PrintMapZones(float x, float y, char * text);
 
-    static void		Inject();
+    static void				Inject();
+
+	static void				SkyMenuHelpText(char nID);
+
+	static void				DrawSkyMenu();
+
+	static void				DrawSafeZoneScreen();
 
 //	void		SaveStatsHTML();
 };

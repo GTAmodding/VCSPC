@@ -607,7 +607,7 @@ static void BuildingShadowsKeep()
 
 RwRaster* ShadowRasterCreateHook(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags)
 {
-	return RwRasterCreate( width, height, depth, flags | rwRASTERFORMATLUM8 );
+	return RwRasterCreate( width, height, depth, flags | rwRASTERFORMATDEFAULT /*rwRASTERFORMATLUM8*/ );
 }
 
 static void __declspec(naked) ReturnShadowHack()

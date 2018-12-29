@@ -5,6 +5,8 @@
 #include "PlayerInfo.h"
 #include "World.h"
 #include "Hud.h"
+#include "TxdStore.h"
+#include "Streaming.h"
 
 float &CRadar::m_radarRange = *(float *)0xBA8314;
 unsigned short *CRadar::MapLegendList = (unsigned short *)0xBA8318;
@@ -16,8 +18,16 @@ CSprite2d *CRadar::RadarBlipSprites = (CSprite2d *)0xBAA250;
 CRect &CRadar::m_radarRect = *(CRect *)0x8D0920;
 unsigned char &CRadar::airstrip_location = *(unsigned char *)0xBA8300;
 int &CRadar::airstrip_blip = *(int *)0xBA8304;
+int *gRadarTextures = (int*)0xBA8478;
 
 WRAPPER void CRadar::Initialise(void) { EAXJMP(0x587FB0); }
+WRAPPER void CRadar::Shutdown(void) { EAXJMP(0x585940); }
+WRAPPER char CRadar::Load() { EAXJMP(0x5D53C0); }
+WRAPPER void CRadar::RequestMapSection(int dwModelId, int flags) { WRAPARG(dwModelId); WRAPARG(flags); EAXJMP(0x584B50); }
+WRAPPER void CRadar::RemoveMapSection(int dwModelId, int flags) { WRAPARG(dwModelId), WRAPARG(flags); EAXJMP(0x584BB0); }
+
+WRAPPER void CRadar::StreamRadarSection(CVector const& worldPosn) { WRAPARG(worldPosn); EAXJMP(0x5858D0); }
+WRAPPER void CRadar::RemoveRadarSections(void) { EAXJMP(0x584BF0); }
 WRAPPER void CRadar::ChangeBlipBrightness(int nBlipID, int nBrightness) { WRAPARG(nBlipID); WRAPARG(nBrightness); EAXJMP(0x583C70); }
 WRAPPER void CRadar::DrawRadarSection(int nX, int nY) { WRAPARG(nX); WRAPARG(nY); EAXJMP(0x586110); }
 WRAPPER void CRadar::InitFrontEndMap() { EAXJMP(0x585960); }
@@ -32,7 +42,7 @@ WRAPPER void CRadar::DrawBlips() {EAXJMP(0x588050); }
 
 WRAPPER void CRadar::ClearBlip(int blipIndex) { WRAPARG(blipIndex);  EAXJMP(0x587CE0); }
 WRAPPER void CRadar::SetBlipSprite(int blipIndex, int spriteId) { WRAPARG(blipIndex); WRAPARG(spriteId); EAXJMP(0x583D70); }
-WRAPPER int CRadar::SetCoordBlip(eBlipType type, float x, float y, float z, int a5, eBlipDisplay display) { WRAPARG(type); WRAPARG(x); WRAPARG(y); WRAPARG(z);  WRAPARG(a5); WRAPARG(display); EAXJMP(0x583D70); }
+WRAPPER int CRadar::SetCoordBlip(eBlipType type, float x, float y, float z, int a5, eBlipDisplay display) { WRAPARG(type); WRAPARG(x); WRAPARG(y); WRAPARG(z);  WRAPARG(a5); WRAPARG(display); EAXJMP(0x583820); }
 
 static const char* const RadarBlipSpriteFilenames[NUM_BLIP_SPRITES] = { "", "", "radar_centre", "arrow", 
 																		"radar_north", "", "radar_gun", "radar_bomb",
@@ -328,12 +338,12 @@ void __cdecl CRadar::DrawRotatingRadarSprite(CSprite2d *texture, float x, float 
 }
 
 void __cdecl CRadar::DrawRadarCentre(CSprite2d* sprite, float x, float y, float angle, unsigned int width, unsigned int height, CRGBA color) {
-	DrawRotatingRadarSprite(sprite, x, y, angle, _width(7.0f), _width(8.0f), color);
+	DrawRotatingRadarSprite(sprite, x, y, angle, _width(8.5f), _width(8.5f), color);
 }
 
 void CRadar::DrawRadarSprites(BYTE iconID, float x, float y, unsigned __int8 alpha) {
-	float w = _width(8.0f);
-	float h = _height(8.0f);
+	float w = _width(9.0f);
+	float h = _width(9.0f);
 
 	if (FrontEndMenuManager.drawRadarOrMap) {
 		x = (RsGlobal.MaximumWidth * 0.0015625) * x * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
@@ -346,7 +356,6 @@ void CRadar::DrawRadarSprites(BYTE iconID, float x, float y, unsigned __int8 alp
 		CRadar::AddBlipToLegendList(0, iconID);
 	}
 }
-
 
 void CRadar::ShowRadarTraceWithHeight(float x, float y, unsigned int size, unsigned __int8 r, unsigned __int8 g, unsigned __int8 b, unsigned __int8 a, unsigned __int8 type_or_height) {
     if (FrontEndMenuManager.m_bMenuActive) {
@@ -371,19 +380,20 @@ void CRadar::ShowRadarTraceWithHeight(float x, float y, unsigned int size, unsig
 }
 
 void __fastcall CRadar::DrawRadarCircle(CSprite2d *sprite, int, CRect *rect, CRGBA *color) {
-	float x = _xleft(RADAR_POS_X + 32.6f);
-	float y = _ydown(RADAR_POS_Y + 120.0f);
-	float w = _width(103.0f);
-	float h = _height(93.0f);
+	float x = _xleft(RADAR_POS_X + 41.6f);
+	float y = _ydown(RADAR_POS_Y + 119.6f);
+	float w = _width(99.2f);
+	float h = _height(92.0f);
 	CHud::Sprites[HUD_Radardisc].Draw(x, y, w, h, CRGBA(0, 0, 0, HUD_TRANSPARENCY_BACK));
 }
 
 void __cdecl CRadar::TransformRadarPointToScreenSpaceVCS(CVector2D *out, CVector2D *in) {
 	__asm push edx
-	float x = _xleft(RADAR_POS_X + 84.0f);
-	float y = _ydown(RADAR_POS_Y + 74.0f);
-	float w = _width(90.0f);
-	float h = _height(82.0f);
+	float x = _xleft(RADAR_POS_X + 91.0f);
+	float y = _ydown(RADAR_POS_Y + 73.8f);
+	float w = _width(86.7f);
+	float h = _height(80.6f);
+
 	if (FrontEndMenuManager.drawRadarOrMap) {
 		out->x = FrontEndMenuManager.m_fMapZoom * in->x + FrontEndMenuManager.m_fMapBaseX;
 		out->y = FrontEndMenuManager.m_fMapBaseY - FrontEndMenuManager.m_fMapZoom * in->y;
@@ -394,6 +404,61 @@ void __cdecl CRadar::TransformRadarPointToScreenSpaceVCS(CVector2D *out, CVector
 
 	}
 	__asm pop edx
+}
+
+void CRadar::InitRadarTiles() {
+	char* m_nSpriteName;
+	char m_nSlot[16];
+
+	if (FrontEndMenuManager.m_bMenuActive)
+		m_nSpriteName = "m_radar%02d";
+	else
+		m_nSpriteName = "radar%02d";
+
+	for (int i = 0; i < 64; i++) {
+		sprintf(m_nSlot, m_nSpriteName, i);
+		gRadarTextures[i] = CTxdStore::FindTxdSlot(m_nSlot);
+	}
+}
+
+void RequestMapSection(int x, int y) {
+	if (x >= 0 && x < 8
+		&& y >= 0 && y < 8)
+	{
+		int TXD_ID = gRadarTextures[y * 8 + x];
+
+		if (TXD_ID != -1)
+			CStreaming::RequestModel(TXD_ID + 20000, 10);
+	}
+}
+
+void RemoveMapSection(int x, int y) {
+	if (x >= 0 && x < 8
+		&& y >= 0 && y < 8)
+	{
+		int TXD_ID = gRadarTextures[y * 8 + x];
+
+		if (TXD_ID != -1)
+			CStreaming::RemoveTxdModel(TXD_ID);
+	}
+}
+
+void __fastcall ProcessStreaming(CMenuManager *_this, int, unsigned __int8 a2) {
+	if (FrontEndMenuManager.m_bMenuActive && FrontEndMenuManager.m_bCurrentMenuPage == 5 && FrontEndMenuManager.m_bMapLoaded && !FrontEndMenuManager.field_5A) {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++)
+				RequestMapSection(i, j);
+		}
+
+		CStreaming::LoadAllRequestedModels(0);
+		FrontEndMenuManager.m_bAllStreamingStuffLoaded = 0;	
+	}
+	else {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++)
+				RemoveMapSection(i, j);
+		}
+	}
 }
 
 static StaticPatcher	Patcher([](){ 
@@ -407,10 +472,15 @@ static StaticPatcher	Patcher([](){
                 Memory::InjectHook(0x58766E, CRadar::ShowRadarTraceWithHeight);
                 Memory::InjectHook(0x587B7C, CRadar::ShowRadarTraceWithHeight);
 
-				//Memory::InjectHook(0x588722, CRadar::DrawRadarCentre);
+				Memory::InjectHook(0x588722, CRadar::DrawRadarCentre);
 				Memory::InjectHook(0x583480, CRadar::TransformRadarPointToScreenSpaceVCS, PATCH_JUMP);
                 Memory::InjectHook(0x58AA25, CRadar::DrawRadarCircle);
 				Memory::Nop(0x58A818, 16);
 				Memory::Nop(0x58A8C2, 16);
 				Memory::Nop(0x58A96C, 16);
-			});
+
+				//Memory::InjectHook(0x573E04, RequestMapSection, PATCH_CALL);
+				//Memory::InjectHook(0x573E0D, RemoveMapSection, PATCH_CALL);
+
+				//Memory::InjectHook(0x57B450, ProcessStreaming, PATCH_CALL);
+});
