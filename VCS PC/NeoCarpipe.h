@@ -6,6 +6,17 @@ extern int iCanHasNeoCar;
 
 #define NUMWEATHERS 23
 
+enum eEnvMapSize {
+	REFLECTION_QUALITY_LOW = 128,
+	REFLECTION_QUALITY_MEDIUM = 256,
+	REFLECTION_QUALITY_HIGH = 512,
+	REFLECTION_QUALITY_HIGHEST = 1024
+};
+
+enum ePipeStyle {
+	PIPE_NEO,
+	PIPE_VCS
+};
 
 struct Color
 {
@@ -78,6 +89,7 @@ class CarPipe : public CustomPipe
 	static void MakeQuadTexCoords(bool textureSpace);
 public:
 	static int PipeSwitch;
+	static int envMapSize;
 	static InterpolatedFloat fresnel;
 	static InterpolatedFloat power;
 	static InterpolatedLight diffColor;

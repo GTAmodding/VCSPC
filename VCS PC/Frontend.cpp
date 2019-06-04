@@ -49,6 +49,7 @@ bool				CMenuManager::m_bVSync;
 
 bool				CMenuManager::m_bSwitchToSkyMenu;
 bool				CMenuManager::m_bEnableSkyMenu;
+bool				CMenuManager::m_bMenuPagesHasBeenStored;
 int					CMenuManager::m_nSelectedSkyMenuItem = 0;
 bool				CMenuManager::m_bIsMenuSwitched = false;
 float				CMenuManager::m_fSafeZone;
@@ -61,11 +62,12 @@ static int	nTimeToStopPadShake;
 extern float&		ms_lodDistScale;
 
 //short			CMenuManager::nColourMenuEntries;
+#define MENUPAGES 53
+MenuItem		CMenuManager::_aScreensNone[MENUPAGES];
+MenuItem		CMenuManager::_aScreens[MENUPAGES];
+MenuItem		CMenuManager::_MenuEntriesList[MENUPAGES];
 
-MenuItem		CMenuManager::_aScreens[52];
-MenuItem		CMenuManager::_MenuEntriesList[52];
-
-MenuItem		CMenuManager::ms_pMenus[] = {
+MenuItem		CMenuManager::ms_pMenus[MENUPAGES] = {
 	// Stats
 	{ "FEH_STA", 42, 3, 0, 0,
 		21, "FEDS_TB", ACTION_CLICKORARROWS, 0, 0, 69, 3, 1, 0 },
@@ -106,7 +108,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 
 
 	{ "FEH_MAP", 42, 2, 0, 0,
-		//2, "FEDS_TB", ACTION_STANDARD, 42, 57, 186, 1, 0, -1 
+		//2, "FEDS_TB", ACTION_STANDARD, 42, 57, 141, 1, 0, 
     },
     
 
@@ -275,6 +277,7 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		24, "FEM_FRM", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_EFFECTS_QUALITY, "FED_EFF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_SHADOWS_QUALITY, "FED_SHA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		MENUACTION_PIPE_QUALITY, "FED_RFQ", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		61, "FEM_LOD", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_SHADOWS_DISTANCE, "FED_SHD", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
@@ -289,9 +292,9 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		37, "FEL_ENG", ACTION_STANDARD, 28, 0, -72, 3, 0, 0,
 		//38, "FEL_GER", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
         //39, "FEL_SPA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-        //40, "FEL_ITA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		38, "FEL_BRA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		39, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+        38, "FEL_ITA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		39, "FEL_BRA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		40, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
 
 		2, "FEDS_TB", ACTION_STANDARD, 4, 0, 0, 3, 0, 0 },
 
@@ -452,6 +455,12 @@ MenuItem		CMenuManager::ms_pMenus[] = {
 		MENUACTION_BUTTONSTYLE, "FEC_STL",  ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, 0, 2, 0, 0,
 		2, "FEDS_TB", ACTION_STANDARD, 0, 0, 182, 3, 0, 0
 	},
+
+	// 52 VCS Map Menu
+	{ "FEH_MAP", 42, 2, 0, 0,
+
+	},
+    
 };
 
 MenuItem		CMenuManager::m_SkyMenus[] = {
@@ -639,6 +648,7 @@ MenuItem		CMenuManager::m_SkyMenus[] = {
 		24, "FEM_FRM", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_EFFECTS_QUALITY, "FED_EFF", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_SHADOWS_QUALITY, "FED_SHA", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
+		MENUACTION_PIPE_QUALITY, "FED_RFQ", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		61, "FEM_LOD", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		MENUACTION_SHADOWS_DISTANCE, "FED_SHD", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
 		44, "FED_AAS", ACTION_CLICKORARROWS, 27, 0, 0, 2, 0, 0,
@@ -651,9 +661,9 @@ MenuItem		CMenuManager::m_SkyMenus[] = {
 		37, "FEL_ENG", ACTION_STANDARD, 28, 0, -72, 3, 0, 0,
 		//38, "FEL_GER", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
         //39, "FEL_SPA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-        //40, "FEL_ITA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		38, "FEL_BRA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
-		39, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0 },
+        38, "FEL_ITA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		39, "FEL_BRA", ACTION_STANDARD, 28, 0, 0, 3, 0, 0,
+		40, "FEL_POL", ACTION_STANDARD, 28, 0, 0, 3, 0, 0 },
 
 	// 29
 	{ "FET_SG", 1, 0, 0, 0,
@@ -796,14 +806,15 @@ MenuItem		CMenuManager::m_SkyMenus[] = {
 		MENUACTION_INVERTLOOK, "FEC_ILU", ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, -70, 2, 0, 0,
 		MENUACTION_SOUTHPAW, "FEC_SOU", ACTION_CLICKORARROWS, MENU_PAGE_CONTROLLER_SETUP, 0, 0, 2, 0, 0,
 		MENUACTION_BUTTONSTYLE, "FEC_STL",  ACTION_CLICKORARROWS, MENU_PAGE_ADDITIONAL_CONTROLLER, 0, 0, 2, 0, 0 },
+
+	// 52 VCS Map Menu
+	{ "FEH_MAP", 42, 2, 0, 0,
+
+	},
 };
 
-// ENGLISH, BRAZILIAN, POLISH
-const char* cTitlePCNames[NUM_LANGUAGES] = { "title_pc_EN", "title_pc_EN", "title_pc_PL" };
-
-const char* GetTitlePCByLanguage() {
-	return cTitlePCNames[FrontEndMenuManager.m_nLanguage];
-}
+// ENGLISH, ITALIAN, BRAZILIAN, POLISH
+const char* legal_lang[NUM_LANGUAGES] = { "legal_EN", "legal_IT", "legal_BR", "legal_PL" };
 
 WRAPPER void CMenuManager::Process(void) { EAXJMP(0x57B440); }
 WRAPPER void CMenuManager::DrawFrontEnd(void) { EAXJMP(0x57C290); }
@@ -841,6 +852,10 @@ void CMenuManager::SaveSettings()
 		CFileMgr::Write(hFile, &swapPadAxis1, sizeof(swapPadAxis1));
 		CFileMgr::Write(hFile, &swapPadAxis2, sizeof(swapPadAxis2));
 		CFileMgr::Write(hFile, &CPad::SavedMode, sizeof(CPad::SavedMode));
+		CFileMgr::Write(hFile, &m_bVibrationEnabled, sizeof(m_bVibrationEnabled));
+		CFileMgr::Write(hFile, &CPad::bInvertLook4Pad, sizeof(CPad::bInvertLook4Pad));
+		CFileMgr::Write(hFile, &CPad::bSouthpaw, sizeof(CPad::bSouthpaw));
+		CFileMgr::Write(hFile, &CFont::bX360Buttons, sizeof(CFont::bX360Buttons));
 
 		// Audio Setup
 		CFileMgr::Write(hFile, &m_nSfxVolume, sizeof(m_nSfxVolume));
@@ -888,6 +903,7 @@ void CMenuManager::SaveSettings()
 		CFileMgr::Write(hFile, &m_dwAppliedResolution, sizeof(m_dwAppliedResolution));
 		CFileMgr::Write(hFile, &nSubSystem, sizeof(nSubSystem));
 		CFileMgr::Write(hFile, &vehpipe, sizeof(vehpipe));
+		CFileMgr::Write(hFile, &CarPipe::envMapSize, sizeof(CarPipe::envMapSize));
 
 		CFileMgr::CloseFile(hFile);
 	}
@@ -921,6 +937,10 @@ void CMenuManager::LoadSettings()
 			CFileMgr::Read(hFile, &swapPadAxis1, sizeof(swapPadAxis1));
 			CFileMgr::Read(hFile, &swapPadAxis2, sizeof(swapPadAxis2));
 			CFileMgr::Read(hFile, &CPad::SavedMode, sizeof(CPad::SavedMode));
+			CFileMgr::Read(hFile, &m_bVibrationEnabled, sizeof(m_bVibrationEnabled));
+			CFileMgr::Read(hFile, &CPad::bInvertLook4Pad, sizeof(CPad::bInvertLook4Pad));
+			CFileMgr::Read(hFile, &CPad::bSouthpaw, sizeof(CPad::bSouthpaw));
+			CFileMgr::Read(hFile, &CFont::bX360Buttons, sizeof(CFont::bX360Buttons));
 
 			// Audio Setup
 			CFileMgr::Read(hFile, &m_nSfxVolume, sizeof(m_nSfxVolume));
@@ -968,6 +988,7 @@ void CMenuManager::LoadSettings()
 			CFileMgr::Read(hFile, &m_dwResolution, sizeof(m_dwAppliedResolution));
 			CFileMgr::Read(hFile, &field_DC, sizeof(field_DC));
 			CFileMgr::Read(hFile, &vehpipe, sizeof(vehpipe));
+			CFileMgr::Read(hFile, &CarPipe::envMapSize, sizeof(CarPipe::envMapSize));
 
 			// Apply sets
 			//CCamera::m_bUseMouse3rdPerson = m_nController == 0;
@@ -1086,10 +1107,26 @@ void SwitchToSkyMenuInstance() {
 			CFont::PrintString(_x(40.0 + (UI_SAFEZONE * 1.8f)), _y(18.0f + (UI_SAFEZONE)), TheText.Get("LOADCOL"));
 		}
 		else {
-			FrontEndMenuManager.m_bSwitchToSkyMenu = FrontEndMenuManager.m_bSwitchToSkyMenu == false;
-			FrontEndMenuManager.m_bEnableSkyMenu = FrontEndMenuManager.m_bEnableSkyMenu == false;
-			m_bTimingHasBeenGiven = false;
-			FrontEndMenuManager.SaveSettings();
+			int i;
+			for (i = 0; i < MENUPAGES; i++) {
+				FrontEndMenuManager._aScreens[i] = FrontEndMenuManager._aScreensNone[i];
+				FrontEndMenuManager._MenuEntriesList[i] = FrontEndMenuManager._aScreensNone[i];
+			}
+
+			if (i >= MENUPAGES) {
+				FrontEndMenuManager.m_bMenuPagesHasBeenStored = false;
+
+				FrontEndMenuManager.m_bSwitchToSkyMenu = FrontEndMenuManager.m_bSwitchToSkyMenu == false;
+				FrontEndMenuManager.m_bEnableSkyMenu = FrontEndMenuManager.m_bEnableSkyMenu == false;
+				m_bTimingHasBeenGiven = false;
+
+				if (FrontEndMenuManager.m_bEnableSkyMenu)
+					FrontEndMenuManager.m_dwSelectedMenuItem = 8;
+				else
+					FrontEndMenuManager.m_dwSelectedMenuItem = 7;
+
+				FrontEndMenuManager.SaveSettings();
+			}
 		}
 	}
 }
@@ -1116,9 +1153,12 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			FrontEndMenuManager.m_vecMenuColumnSize = CVector2D(0.64f, 1.16f);
 			m_nBackgroundColor = { 130, 130, 130, 130 };
 
-			for (int i = 0; i < 52; i++) {
-				FrontEndMenuManager._aScreens[i] = m_SkyMenus[i];
-				FrontEndMenuManager._MenuEntriesList[i] = m_SkyMenus[i];
+			if (!FrontEndMenuManager.m_bMenuPagesHasBeenStored) {
+				for (int i = 0; i < MENUPAGES; i++) {
+					FrontEndMenuManager._aScreens[i] = m_SkyMenus[i];
+					FrontEndMenuManager._MenuEntriesList[i] = m_SkyMenus[i];
+				}
+				FrontEndMenuManager.m_bMenuPagesHasBeenStored = true;
 			}
 		}
 		else {
@@ -1126,9 +1166,12 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			FrontEndMenuManager.m_vecMenuColumnSize = CVector2D(0.7f, 1.0f);
 			m_nBackgroundColor = { 255, 255, 255, 130 };
 
-			for (int i = 0; i < 52; i++) {
-				FrontEndMenuManager._aScreens[i] = ms_pMenus[i];
-				FrontEndMenuManager._MenuEntriesList[i] = ms_pMenus[i];
+			if (!FrontEndMenuManager.m_bMenuPagesHasBeenStored) {
+				for (int i = 0; i < MENUPAGES; i++) {
+					FrontEndMenuManager._aScreens[i] = ms_pMenus[i];
+					FrontEndMenuManager._MenuEntriesList[i] = ms_pMenus[i];
+				}
+				FrontEndMenuManager.m_bMenuPagesHasBeenStored = true;
 			}
 		}
 
@@ -1191,6 +1234,12 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 			/*case MENU_PAGE_ACTIVATE_SERIAL:
 				PrintActivationScreen();
 				break;*/
+		case MENU_PAGE_VCS_MAP:
+			PrintVCSMap();
+			break;
+		default:
+			ResetVCSMap();
+			break;
 		}
 
 		// Header
@@ -1526,6 +1575,22 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 						break;
 					}
 					break;
+				case MENUACTION_PIPE_QUALITY:
+					switch (CarPipe::envMapSize) {
+					case REFLECTION_QUALITY_LOW:
+						pTextToShow_RightColumn = TheText.Get("FED_FXL");
+						break;
+					case REFLECTION_QUALITY_MEDIUM:
+						pTextToShow_RightColumn = TheText.Get("FED_FXM");
+						break;
+					case REFLECTION_QUALITY_HIGH:
+						pTextToShow_RightColumn = TheText.Get("FED_FXH");
+						break;
+					case REFLECTION_QUALITY_HIGHEST:
+						pTextToShow_RightColumn = TheText.Get("FED_FXV");
+						break;
+					};
+					break;
 				case 24:
 					if (m_bFrameLimiterMode == 0)
 						pTextToShow_RightColumn = TheText.Get("FEM_OFF");
@@ -1579,21 +1644,24 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 					pTextToShow_RightColumn = cReservedSpace;
 					break;
 				}
-				if (FrontEndMenuManager.m_bEnableSkyMenu) {
 				case 37:
-					switch (FrontEndMenuManager.m_nLanguage) {
-					case 0:
-						pTextToShow_RightColumn = TheText.Get("FEL_ENG");
-						break;
-					case 1:
-						pTextToShow_RightColumn = TheText.Get("FEL_BRA");
-						break;
-					case 2:
-						pTextToShow_RightColumn = TheText.Get("FEL_POL");
-						break;
-					};
-					break;
-				}
+					if (FrontEndMenuManager.m_bEnableSkyMenu) {
+						switch (FrontEndMenuManager.m_nLanguage) {
+						case 0:
+							pTextToShow_RightColumn = TheText.Get("FEL_ENG");
+							break;
+						case 1:
+							pTextToShow_RightColumn = TheText.Get("FEL_ITA");
+							break;
+						case 2:
+							pTextToShow_RightColumn = TheText.Get("FEL_BRA");
+							break;
+						case 3:
+							pTextToShow_RightColumn = TheText.Get("FEL_POL");
+							break;
+						};
+					}
+					break;			
 				case 44:
 					if (m_dwAntiAliasingLevel <= 1)
 						pTextToShow_RightColumn = TheText.Get("FEM_OFF");
@@ -1978,10 +2046,16 @@ void CMenuManager::DisplayHelperText(const char* pText)
 	CFont::SetOrientation(ALIGN_Right);
 
 	if (!FrontEndMenuManager.m_bEnableSkyMenu) {
-		if (pText != nullptr)
-		{
+		if (pText != nullptr) {
+			float offset = 0.0f;
+
+			if (FrontEndMenuManager.m_bCurrentMenuPage == 5) {
+				offset = 20.0f;
+				CSprite2d::DrawRect(CRect(_x(340.0f), _ydown(26.0f), _x(38.0f), _ydown(88.0f)), CRGBA(MENU_BOX_BLUE_R, MENU_BOX_BLUE_G, MENU_BOX_BLUE_B, MENU_BOX_BLUE_A));
+			}
 			CFont::SetColor(CRGBA(0xFF, 0xFF, 0xFF, SafeZoneHideStuffAlpha));
-			CFont::PrintStringFromBottom(_x(30.0f), _ydown(10.0f), TheText.Get(pText));
+			CFont::PrintStringFromBottom(_x(30.0f + offset), _ydown(10.0f + offset), TheText.Get(pText));
+			CFont::DrawFonts();
 		}
 		else
 		{
@@ -2097,12 +2171,8 @@ void CMenuManager::DisplayHelperText(const char* pText)
 					break;
 				}
 			}
-
-			if (FrontEndMenuManager.m_bCurrentMenuPage == 5) {
-				CFont::PrintStringFromBottom(_x(30.0f), _ydown(10.0f), TheText.Get(pXboxPad[0]->HasPadInHands() ? "FEH_MP2" : "FEH_MPH"));
-			}
-			else
-				CFont::PrintStringFromBottom(_x(30.0f), _ydown(m_bCurrentMenuPage != 5 ? 10.0f : 2.0f), TheText.Get(pTextToDisplay));
+			if (FrontEndMenuManager.m_bCurrentMenuPage != 5)
+			CFont::PrintStringFromBottom(_x(30.0f), _ydown(m_bCurrentMenuPage != 5 ? 10.0f : 2.0f), TheText.Get(pTextToDisplay));
 		}
 	}
 }
@@ -2516,6 +2586,42 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 		CShadows::InitialiseChangedSettings();
 		SaveSettings();
 		return;
+	case MENUACTION_PIPE_QUALITY:
+		if (nArrowsInput >= 0) {
+			switch (CarPipe::envMapSize) {
+			case REFLECTION_QUALITY_LOW:
+				CarPipe::envMapSize = REFLECTION_QUALITY_MEDIUM;
+				break;
+			case REFLECTION_QUALITY_MEDIUM:
+				CarPipe::envMapSize = REFLECTION_QUALITY_HIGH;
+				break;
+			case REFLECTION_QUALITY_HIGH:
+				CarPipe::envMapSize = REFLECTION_QUALITY_HIGHEST;
+				break;
+			case REFLECTION_QUALITY_HIGHEST:
+				CarPipe::envMapSize = REFLECTION_QUALITY_LOW;
+				break;
+			};
+		}
+		else {
+			switch (CarPipe::envMapSize) {
+			case REFLECTION_QUALITY_LOW:
+				CarPipe::envMapSize = REFLECTION_QUALITY_HIGHEST;
+				break;
+			case REFLECTION_QUALITY_MEDIUM:
+				CarPipe::envMapSize = REFLECTION_QUALITY_LOW;
+				break;
+			case REFLECTION_QUALITY_HIGH:
+				CarPipe::envMapSize = REFLECTION_QUALITY_MEDIUM;
+				break;
+			case REFLECTION_QUALITY_HIGHEST:
+				CarPipe::envMapSize = REFLECTION_QUALITY_HIGH;
+				break;
+			};
+		}
+		CarPipeInit();
+		SaveSettings();
+		return;
 	case 63:
 		if ( nArrowsInput >= 0 )
 		{
@@ -2590,6 +2696,11 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 					FrontEndMenuManager.InitialiseChangedLanguageSettings(false);
 					break;
 				case 2:
+					FrontEndMenuManager.m_nLanguage = 3;
+					FrontEndMenuManager.m_bReinitLanguageSettings = true;
+					FrontEndMenuManager.InitialiseChangedLanguageSettings(false);
+					break;
+				case 3:
 					FrontEndMenuManager.m_nLanguage = 0;
 					FrontEndMenuManager.m_bReinitLanguageSettings = true;
 					FrontEndMenuManager.InitialiseChangedLanguageSettings(false);
@@ -2599,7 +2710,7 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 			else {
 				switch (FrontEndMenuManager.m_nLanguage) {
 				case 0:
-					FrontEndMenuManager.m_nLanguage = 2;
+					FrontEndMenuManager.m_nLanguage = 3;
 					FrontEndMenuManager.m_bReinitLanguageSettings = true;
 					FrontEndMenuManager.InitialiseChangedLanguageSettings(false);
 					break;
@@ -2610,6 +2721,11 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 					break;
 				case 2:
 					FrontEndMenuManager.m_nLanguage = 1;
+					FrontEndMenuManager.m_bReinitLanguageSettings = true;
+					FrontEndMenuManager.InitialiseChangedLanguageSettings(false);
+					break;
+				case 3:
+					FrontEndMenuManager.m_nLanguage = 2;
 					FrontEndMenuManager.m_bReinitLanguageSettings = true;
 					FrontEndMenuManager.InitialiseChangedLanguageSettings(false);
 					break;
@@ -3880,6 +3996,104 @@ void CMenuManager::PrintDLCScreen()
 	}
 }
 
+void CMenuManager::ResetVCSMap() {
+	m_fVCSMapBaseX = 0.0;
+	m_fVCSMapBaseY = 0.0;
+	m_fVCSMapZoom = 0.0;
+}
+
+void CMenuManager::PrintVCSMap() {
+	float MOUSEX = FrontEndMenuManager.m_dwMousePosLeft;
+	float MOUSEY = FrontEndMenuManager.m_dwMousePosTop;
+
+	if (CPad::GetPad(0)->NewMouseControllerState.wheelUp || currKeyState->pgup) {	// Zoom in.
+		if (m_fVCSMapZoom < 1600.0)
+			m_fVCSMapZoom += CTimer::ms_fTimeScale * 0.1 * 1000.0;
+
+		// Limit
+		if (m_fVCSMapZoom > 1600.0)
+			m_fVCSMapZoom = 1600.0;
+	}
+	else if (CPad::GetPad(0)->NewMouseControllerState.wheelDown || currKeyState->pgdn) { // Zoom out
+		if (m_fVCSMapZoom > 0.0)
+			m_fVCSMapZoom += CTimer::ms_fTimeScale * 0.1 * -1000.0;
+
+		if (m_fVCSMapBaseX > 0.0)
+			m_fVCSMapBaseX += CTimer::ms_fTimeScale * 0.1 * -1000.0;
+
+		if (m_fVCSMapBaseY > 0.0)
+			m_fVCSMapBaseY += CTimer::ms_fTimeScale * 0.1 * -1000.0;
+
+		// Limit
+		if (m_fVCSMapZoom < 0.0)
+			m_fVCSMapZoom = 0.0;
+	}
+
+	CPad* pad = CPad::GetPad(0);
+	int KEY_UP = pad->NewState.DPADUP || currKeyState->up || pad->NewState.LEFTSTICKY < 0;
+	int KEY_DOWN = pad->NewState.DPADDOWN || currKeyState->down || pad->NewState.LEFTSTICKY > 0;
+
+	int KEY_LEFT = pad->NewState.DPADLEFT || currKeyState->left || pad->NewState.LEFTSTICKX < 0;
+	int KEY_RIGHT = pad->NewState.DPADRIGHT || currKeyState->right || pad->NewState.LEFTSTICKX > 0;
+
+	// Movements
+	if (CPad::GetPad(0)->NewMouseControllerState.lmb) {
+		if (CPad::NewMouseControllerState.X)
+			m_fVCSMapBaseX += CTimer::ms_fTimeScale * 0.0008 * CPad::NewMouseControllerState.X * 1000.0;
+
+		if (CPad::NewMouseControllerState.Y)
+			m_fVCSMapBaseY += CTimer::ms_fTimeScale * 0.0008 * CPad::NewMouseControllerState.Y * 1000.0;
+	}
+	else {
+			m_fVCSMapBaseX += CTimer::ms_fTimeScale * 0.03 * KEY_RIGHT * -1000.0;
+			m_fVCSMapBaseX += CTimer::ms_fTimeScale * 0.03 * KEY_LEFT * 1000.0;
+
+			m_fVCSMapBaseY += CTimer::ms_fTimeScale * 0.03 * KEY_UP * 1000.0;
+			m_fVCSMapBaseY += CTimer::ms_fTimeScale * 0.03 * KEY_DOWN * -1000.0;
+	}
+
+	// Limits
+	if (m_fVCSMapBaseX > m_fVCSMapZoom)
+		m_fVCSMapBaseX = m_fVCSMapZoom;
+	if (m_fVCSMapBaseX < -m_fVCSMapZoom)
+		m_fVCSMapBaseX = -m_fVCSMapZoom;
+
+	if (m_fVCSMapBaseY > m_fVCSMapZoom)
+		m_fVCSMapBaseY = m_fVCSMapZoom;
+	if (m_fVCSMapBaseY < -m_fVCSMapZoom)
+		m_fVCSMapBaseY = -m_fVCSMapZoom;
+
+	// Draw
+	CVector2D vec = WidescreenSupport::GetFullscreenImageDimensions(1024.0f / 1024.0f, CDraw::ms_fAspectRatio, true);
+	CRect rect;
+	rect.x1 = (0.5f * (RsGlobal.MaximumWidth - vec.x)) + ((FrontEndMenuManager.m_fVCSMapBaseX - FrontEndMenuManager.m_fVCSMapZoom));
+	rect.y1 = (0.5f * (RsGlobal.MaximumHeight + vec.y)) + ((FrontEndMenuManager.m_fVCSMapBaseY + FrontEndMenuManager.m_fVCSMapZoom));
+	rect.x2 = (0.5f * (RsGlobal.MaximumWidth + vec.x)) + ((FrontEndMenuManager.m_fVCSMapBaseX + FrontEndMenuManager.m_fVCSMapZoom));
+	rect.y2 = (0.5f * (RsGlobal.MaximumHeight - vec.y)) + ((FrontEndMenuManager.m_fVCSMapBaseY - FrontEndMenuManager.m_fVCSMapZoom));
+
+	FrontEndMenuManager.m_apBackgroundTextures[2].Draw(CRect(rect), CRGBA(255, 255, 255, 255));
+
+	// Blips :(
+	//CMenuManager::DrawYouAreHereSprite(vec);
+
+	// Cursor
+	bool m_bDrawCursor = true;
+	if (m_bDrawCursor) {
+		m_bDrawMouse = false;
+		CRect rect;
+		rect.x1 = NULL;
+		rect.y1 = MOUSEY;
+		rect.x2 = _x(0.0f);
+		rect.y2 = rect.y1 + _height(3.0f);
+		CSprite2d::DrawRect(CRect(rect), CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, 200)); // Hor
+		rect.x1 = MOUSEX + _height(3.5f);
+		rect.y1 = NULL;
+		rect.x2 = rect.x1 - _height(3.5f);
+		rect.y2 = _ydown(0.0f);
+		CSprite2d::DrawRect(CRect(rect), CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, 200)); // Vert
+	}
+}
+
 void CMenuManager::PrintActivationScreen()
 {
 	if ( m_nDLCMessageTimer > CTimer::m_snTimeInMillisecondsPauseMode )
@@ -4288,12 +4502,12 @@ void CMenuManager::UserInputVCS()
 				}
 				else if (KEY_LEFT) {
 					FrontEndMenuManager.m_bIsMenuSwitched = false;
-					FrontEndMenuManager.m_nSelectedSkyMenuItem = FrontEndMenuManager.m_nSelectedSkyMenuItem - 1;
+					--FrontEndMenuManager.m_nSelectedSkyMenuItem;
 					AudioEngine.ReportFrontendAudioEvent(1, 0.0f, 1.0f);
 				}
 				else if (KEY_RIGHT) {
 					FrontEndMenuManager.m_bIsMenuSwitched = false;
-					FrontEndMenuManager.m_nSelectedSkyMenuItem = FrontEndMenuManager.m_nSelectedSkyMenuItem + 1;
+					++FrontEndMenuManager.m_nSelectedSkyMenuItem;
 					AudioEngine.ReportFrontendAudioEvent(1, 0.0f, 1.0f);
 				}
 				else if (KEY_DOWN || KEY_UP) {
@@ -4338,7 +4552,7 @@ void CMenuManager::UserInputVCS()
 					//FrontEndMenuManager.m_dwSelectedMenuItem = 0;
 
 				if (KEY_ESC) {
-					int m_dwLastPages[8] = { 5, 2 ,1 ,0, 40, 3, 4, 27 };
+					int m_dwLastPages[8] = { 5, 2 , 1, 0, 40, 3, 4, 27 };
 					for (int i = 0; i < 8; i++) {
 						if (FrontEndMenuManager.m_bLastMenuPage == m_dwLastPages[i])
 							FrontEndMenuManager.m_bBottomMenu = true;
@@ -4581,6 +4795,7 @@ void CMenuManager::AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* p
 		FrontEndMenuManager.m_fMapZoom = fMapZoom;
 }
 
+
 void CMenuManager::TypingKeyboardInput(wchar_t wKey)
 {
 	// DLC activation screen input
@@ -4679,7 +4894,8 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 		CShadows::SetShadowDistance(8.0f/16.0f);
 		CShadows::InitialiseChangedSettings();
 		CPostEffects::SetTrailsState(true);
-		CarPipe::PipeSwitch = 1; // VCS
+		CarPipe::PipeSwitch = PIPE_VCS;
+		CarPipe::envMapSize = REFLECTION_QUALITY_MEDIUM;
 
 		// Reinit widescreen and framelimit stuff
 		WidescreenSupport::Recalculate(RsGlobal.MaximumWidth, RsGlobal.MaximumHeight, true);
@@ -4694,6 +4910,11 @@ void CMenuManager::SetDefaultPreferences(signed char bScreen)
 		CVehicle::m_bEnableMouseFlying = true;
 		CCamera::m_bUseMouse3rdPerson = true;
 		CCamera::m_fMouseAccelHorzntl = 0.0025f;
+		CPad::SavedMode = 0;
+		m_bVibrationEnabled = true;
+		CPad::bInvertLook4Pad = false;
+		CPad::bSouthpaw = false;
+		CFont::bX360Buttons = false;
 
 		invertPadX1 = false;
 		invertPadY1 = false;
@@ -4792,7 +5013,14 @@ static void __stdcall DisplayHelperText_Wrap1(const char*)
 }
 
 void CMenuManager::PrintMap(int x, int y, CRect rect) {
-    CRadar::DrawRadarSectionMap(x - 2, y - 2, CRect(rect.x1 + _xmiddle(-274.0f), rect.y1, rect.x2 + _xmiddle(-274.0f), rect.y2));
+	CRect coords;
+	float v113 = FrontEndMenuManager.m_fMapZoom * 0.16666667;
+	coords.x1 = ((RsGlobal.MaximumWidth * (FrontEndMenuManager.m_fMapBaseX - (FrontEndMenuManager.m_fMapZoom * 0.68f)) * 0.0015625)) * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
+	coords.y1 = ((RsGlobal.MaximumHeight * (FrontEndMenuManager.m_fMapBaseY + (FrontEndMenuManager.m_fMapZoom* 0.68f)) * 0.002232143));
+	coords.x2 = ((RsGlobal.MaximumWidth * (FrontEndMenuManager.m_fMapBaseX + (FrontEndMenuManager.m_fMapZoom* 0.68f)) * 0.0015625)) * 1.33334 / ScreenAspectRatio + _xmiddle(-274.0f);
+	coords.y2 = ((RsGlobal.MaximumHeight * (FrontEndMenuManager.m_fMapBaseY - (FrontEndMenuManager.m_fMapZoom* 0.68f)) * 0.002232143));
+
+	FrontEndMenuManager.m_apBackgroundTextures[2].Draw(CRect(coords), CRGBA(255, 255, 255, 255));
 }
 
 void CMenuManager::PrintMapExtra() {
@@ -4801,11 +5029,11 @@ void CMenuManager::PrintMapExtra() {
     static bool bShowCursor;
     if (CPad::GetPad(0)->NewMouseControllerState.X || CPad::GetPad(0)->NewMouseControllerState.Y)
         bShowCursor = false;
-    else if (CPad::GetPad(0)->GetPedWalkLeftRight() || CPad::GetPad(0)->GetPedWalkUpDown() || currKeyState->up || currKeyState->down || currKeyState->left || currKeyState->right)
+	else if (CPad::GetPad(0)->NewState.LEFTSTICKX || CPad::GetPad(0)->NewState.LEFTSTICKY || CPad::GetPad(0)->NewState.DPADRIGHT || CPad::GetPad(0)->NewState.DPADLEFT || CPad::GetPad(0)->NewState.DPADUP || CPad::GetPad(0)->NewState.DPADDOWN || currKeyState->left || currKeyState->right || currKeyState->up || currKeyState->down)
         bShowCursor = true;
 
     // Cursor
-    if (MOUSEY > _ydown(23.0f)) {}
+	if (FrontEndMenuManager.m_bEnableSkyMenu ? MOUSEY > RsGlobal.MaximumHeight * 0.83f : MOUSEY > _ydown(23.0f)) {}
     else {
         if (!FrontEndMenuManager.m_bEnableSkyMenu && bShowCursor || FrontEndMenuManager.m_bEnableSkyMenu && !FrontEndMenuManager.m_bBottomMenu) {
             CRect rect;
@@ -4844,7 +5072,7 @@ void RotateVertices(CVector2D *rect, unsigned int numVerts, float x, float y, fl
 void CMenuManager::DrawSkyLegend() {
 	CVector2D vecScale = WidescreenSupport::GetFullscreenImageDimensions(16.0f / 9.0f, CDraw::ms_fAspectRatio, true);
 	const char *str;
-	float fX = 349.5f;
+	float fX = 349.5f * ((CDraw::ms_fAspectRatio < 16.0f / 10.0f) ? (1.0f / CDraw::ms_fAspectRatio) : 1.0f);
 	float fY = 26.5f;
 
 	if (CRadar::MapLegendCounter) {
@@ -4887,7 +5115,7 @@ void CMenuManager::DrawSkyLegend() {
 		};
 
 		// Background
-		CSprite2d::DrawRect(CRect(_xleft(20.5f) + (0.5f * (RsGlobal.MaximumWidth - vecScale.x)), _ymiddle(-90.0f) + _height(30.0f * fSpacing[static_cast<BYTE>(CRadar::MapLegendCounter) - 1]), _x(20.5f) - (0.5f * (RsGlobal.MaximumWidth - vecScale.x)), _ymiddle(-150.0f)), CRGBA(0, 0, 0, 225));
+		CSprite2d::DrawRect(CRect(_xleft(20.5f) + (0.5f * (RsGlobal.MaximumWidth - vecScale.x)), _ymiddle(-90.0f) + _height(30.0f * fSpacing[static_cast<BYTE>(CRadar::MapLegendCounter) - 1]), _x(20.5f) - (0.5f * (RsGlobal.MaximumWidth - vecScale.x)), _ymiddle(-150.0f)), CRGBA(0, 0, 0, 205));
 
 		for (int i = 0; i < CRadar::MapLegendCounter; i++) {
 			switch (CRadar::MapLegendList[i]) {
@@ -5130,7 +5358,7 @@ void CMenuManager::PrintMapZones(float x, float y, char *text) {
 		CFont::PrintStringFromBottom(_xleft(18.0f), _ydown(86.0f), text);
 	}
 	else
-		CFont::PrintString(_xleft(32.0f), _ydown(20.0f), text);
+		CFont::PrintString(_xleft(40.0f), _ydown(20.0f), text);
 }
 
 void DrawMouse() {
@@ -5161,21 +5389,6 @@ void __fastcall CheckForMenuClosing(int _this, int) {
 		FrontEndMenuManager.m_bIsMenuSwitched = false;
 		FrontEndMenuManager.m_nSelectedSkyMenuItem = 0;
 		FrontEndMenuManager.m_bBottomMenu = true;
-
-		if (m_bResetMap) {
-			CRadar::RemoveRadarSections();
-			CRadar::InitRadarTiles();
-
-			m_bResetMap = false;
-		}
-	}
-	else {
-		if (!m_bResetMap) {
-			CRadar::RemoveRadarSections();
-			CRadar::InitRadarTiles();
-
-			m_bResetMap = true;
-		}
 	}
 
 	// May find a better check!?!
@@ -5319,7 +5532,7 @@ void CLoadingScreen::LoadSplashes(bool bIntroSplash, unsigned char nIntroSplashI
 	CPNGArchive		LegalSPTA("splash\\legal.spta");
 	LegalSPTA.SetDirectory(nullptr);
 
-	SplashScreen.m_nSplashes[LEGAL_EN].SetTextureFromSPTA(LegalSPTA, "legal_en");
+	SplashScreen.m_nSplashes[LEGAL_LANG].SetTextureFromSPTA(LegalSPTA, legal_lang[FrontEndMenuManager.m_nLanguage]);
 	SplashScreen.m_nSplashes[LEGAL_TITLE].SetTextureFromSPTA(LegalSPTA, "legal_title");
 
 	LegalSPTA.CloseArchive();
@@ -5410,10 +5623,10 @@ void CLoadingScreen::RenderSplash() {
 		}
 		else {
 			if (!CurrentLoadingSprite) { // Legal Title
-				SplashScreen.m_nSplashes[LEGAL_TITLE].Draw(CRect(_xmiddle(SplashScreen.vec_mLegalPosn[0].x), _ymiddle(SplashScreen.vec_mLegalPosn[0].y) + _height(SplashScreen.vec_mLegalScale[0].y), _xmiddle(SplashScreen.vec_mLegalPosn[0].x) + _width(SplashScreen.vec_mLegalScale[0].x), _ymiddle(SplashScreen.vec_mLegalPosn[0].y)), CRGBA(255, 255, 255, 255));
-				SplashScreen.m_nSplashes[VCS_LOGO].Draw(CRect(_xmiddle(SplashScreen.vec_mLegalPosn[1].x), _ymiddle(SplashScreen.vec_mLegalPosn[1].y) + _height(SplashScreen.vec_mLegalScale[1].y), _xmiddle(SplashScreen.vec_mLegalPosn[1].x) + _width(SplashScreen.vec_mLegalScale[1].x), _ymiddle(SplashScreen.vec_mLegalPosn[1].y)), CRGBA(255, 255, 255, 255));
-				SplashScreen.m_nSplashes[LEGAL_EN].Draw(CRect(_xmiddle(SplashScreen.vec_mLegalPosn[2].x), _ymiddle(SplashScreen.vec_mLegalPosn[2].y) + _height(SplashScreen.vec_mLegalScale[2].y), _xmiddle(SplashScreen.vec_mLegalPosn[2].x) + _width(SplashScreen.vec_mLegalScale[2].x), _ymiddle(SplashScreen.vec_mLegalPosn[2].y)), CRGBA(255, 255, 255, 255));
-				//SplashScreen.m_nSplashes[TITLE_PC].Draw(CRect(0.5f * (RsGlobal.MaximumWidth - vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight + vecSplashScale.y), 0.5f * (RsGlobal.MaximumWidth + vecSplashScale.x), 0.5f * (RsGlobal.MaximumHeight - vecSplashScale.y)), CRGBA(255, 255, 255, 255));
+				SplashScreen.m_nSplashes[LEGAL_TITLE].Draw(CRect(_xmiddle(SplashScreen.vec_mLegalPosn[0].x - SplashScreen.vec_mLegalScale[0].x / 2), _ymiddle(SplashScreen.vec_mLegalPosn[0].y) + _height(SplashScreen.vec_mLegalScale[0].y), _xmiddle(SplashScreen.vec_mLegalPosn[0].x - SplashScreen.vec_mLegalScale[0].x / 2) + _width(SplashScreen.vec_mLegalScale[0].x), _ymiddle(SplashScreen.vec_mLegalPosn[0].y)), CRGBA(255, 255, 255, 255));
+				SplashScreen.m_nSplashes[VCS_LOGO].Draw(CRect(_xmiddle(SplashScreen.vec_mLegalPosn[1].x - SplashScreen.vec_mLegalScale[1].x / 2), _ymiddle(SplashScreen.vec_mLegalPosn[1].y) + _height(SplashScreen.vec_mLegalScale[1].y), _xmiddle(SplashScreen.vec_mLegalPosn[1].x - SplashScreen.vec_mLegalScale[1].x / 2) + _width(SplashScreen.vec_mLegalScale[1].x), _ymiddle(SplashScreen.vec_mLegalPosn[1].y)), CRGBA(255, 255, 255, 255));
+				if (SplashScreen.m_nSplashes[LEGAL_LANG].m_pTexture != nullptr)
+					SplashScreen.m_nSplashes[LEGAL_LANG].Draw(CRect(_xmiddle(SplashScreen.vec_mLegalPosn[2].x - SplashScreen.vec_mLegalScale[2].x / 2), _ymiddle(SplashScreen.vec_mLegalPosn[2].y) + _height(SplashScreen.vec_mLegalScale[2].y), _xmiddle(SplashScreen.vec_mLegalPosn[2].x - SplashScreen.vec_mLegalScale[2].x / 2) + _width(SplashScreen.vec_mLegalScale[2].x), _ymiddle(SplashScreen.vec_mLegalPosn[2].y)), CRGBA(255, 255, 255, 255));
 			}
 			else // Loading splashes
 				CLoadingScreen::RenderNewLoadingScreens(CurrentLoadingSprite - 1);
@@ -5599,7 +5812,7 @@ void CMenuManager::DrawSkyMenu() {
 
 				for (int i = 0; i < 8; i++) {
 					if (FrontEndMenuManager.m_nSelectedSkyMenuItem == i) {
-						FrontEndMenuManager.m_dwSelectedMenuItem = 20;
+						FrontEndMenuManager.m_dwSelectedMenuItem = -20;
 						FrontEndMenuManager.SwitchToNewScreen(m_dwPauseMenuPages[i]);
 						FrontEndMenuManager.m_bIsMenuSwitched = true;
 					}
@@ -5610,7 +5823,7 @@ void CMenuManager::DrawSkyMenu() {
 
 				for (int i = 0; i < 5; i++) {
 					if (FrontEndMenuManager.m_nSelectedSkyMenuItem == i) {
-						FrontEndMenuManager.m_dwSelectedMenuItem = 20;
+						FrontEndMenuManager.m_dwSelectedMenuItem = -20;
 						FrontEndMenuManager.SwitchToNewScreen(m_dwMainMenuPages[i]);
 						FrontEndMenuManager.m_bIsMenuSwitched = true;
 					}
@@ -5637,13 +5850,13 @@ void CMenuManager::DrawSkyMenu() {
 		CFont::SetProportional(1);
 		CFont::SetWrapx(RsGlobal.MaximumWidth * 1.5f);
 		CFont::SetDropColor(CRGBA(0, 0, 0, SafeZoneHideStuffAlpha));
-		CFont::SetScaleLang(_width(0.90f), _height(1.45f));
+		CFont::SetScaleLang(_width(0.90f * ((CDraw::ms_fAspectRatio < 16.0f / 10.0f) ? (1.0f / CDraw::ms_fAspectRatio) : 1.0f)), _height(1.45f));
 		CFont::SetOrientation(ALIGN_Left);
 		CFont::SetFontStyle(FONT_Pricedown);
 
 		int m_dwMenuSlots;
-		char *MainMenuText[5] = { "FEH_LOA", "FEH_CTL", "FEH_AUD", "FEH_DIS", "FEH_GFX" };
-		char *PauseMenuText[8] = { "FEH_MAP", "FEH_BRI", "FEH_LOA", "FEH_STA", "FEH_CTL", "FEH_AUD", "FEH_DIS", "FEH_GFX" };
+		char *MainMenuText[5] = { "FEH_LOA", "SKY_CTL", "FEH_AUD", "FEH_DIS", "FEH_GFX" };
+		char *PauseMenuText[8] = { "FEH_MAP", "FEH_BRI", "FEH_LOA", "FEH_STA", "SKY_CTL", "FEH_AUD", "FEH_DIS", "FEH_GFX" };
 		float a, b, c, d, e, f, g, h;
 
 		if (FrontEndMenuManager.m_bIsPauseMenu) {
@@ -5664,6 +5877,9 @@ void CMenuManager::DrawSkyMenu() {
 			c = CFont::GetStringWidth((char*)TheText.Get(MainMenuText[2]), 1, 0);
 			d = CFont::GetStringWidth((char*)TheText.Get(MainMenuText[3]), 1, 0);
 			e = CFont::GetStringWidth((char*)TheText.Get(MainMenuText[4]), 1, 0);
+			f = 0;
+			g = 0;
+			h = 0;
 
 			m_dwMenuSlots = 5;
 		}

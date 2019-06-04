@@ -50,14 +50,15 @@ RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData)
 
 RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 {
+	RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
+
 	if ( RpAtomicGetFlags(pAtomic) & rpATOMICRENDER )
 	{
-		RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
-		assert(pGeometry != nullptr);
+		//assert(pGeometry != nullptr);
 		RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
 		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
-						/*rpGEOMETRYNORMALS|*/rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+						rpGEOMETRYNORMALS|rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
 
 		if ( pData )
 			RxPipelineExecute(static_cast<RxPipeline*>(pData), pAtomic, TRUE);
@@ -65,6 +66,9 @@ RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 			AtomicDefaultRenderCallBack(pAtomic);
 		RpGeometrySetFlags(pGeometry, geometryFlags);
 	}
+	if (pGeometry != nullptr)
+		return false;
+
 	return pAtomic;
 }
 
@@ -96,7 +100,7 @@ RwCamera* CShadowCamera::Update(RpAtomic* pAtomic)
 			RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
 			RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
-			RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|/*rpGEOMETRYPRELIT|*/
+			RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|rpGEOMETRYNORMALS|
 							rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
 		
 			RxPipelineExecute(RpAtomicGetDefaultPipeline(), pAtomic, TRUE);
@@ -131,7 +135,7 @@ RwCamera* CShadowCamera::Update(RpClump* pClump, CEntity* pEntity)
 			else
 			{
 				LogToFile("CBuilding ended up being a RpClump in CShadowCamera::Update - model ID %d, entity type %d, clump 0x%X", pEntity->m_nModelIndex, pEntity->nType, pClump);
-				assert(!"Baad, unknown entity type in CShadowCamera::Update!");
+				//assert(!"Baad, unknown entity type in CShadowCamera::Update!");
 			}
 			gpPixelShaderForDefaultCallbacks = nullptr;
 		}
@@ -607,7 +611,7 @@ static void BuildingShadowsKeep()
 
 RwRaster* ShadowRasterCreateHook(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags)
 {
-	return RwRasterCreate( width, height, depth, flags | rwRASTERFORMATDEFAULT /*rwRASTERFORMATLUM8*/ );
+	return RwRasterCreate( width, height, depth, flags | rwRASTERFORMATDEFAULT);
 }
 
 static void __declspec(naked) ReturnShadowHack()

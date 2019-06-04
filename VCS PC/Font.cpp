@@ -37,6 +37,7 @@ WRAPPER void CFont::PrintStringFromBottom(float posX, float posY, const char* pT
 WRAPPER void CFont::InitPerFrame() { EAXJMP(0x719800); }
 WRAPPER int CFont::GetNumberLines(float, float, const char* pText) { WRAPARG(pText); EAXJMP(0x71A5E0); }
 WRAPPER float CFont::GetStringWidth(char *pText, char bFull, char bScriptText) { WRAPARG(pText); WRAPARG(bFull); WRAPARG(bScriptText); EAXJMP(0x71A0E0); }
+WRAPPER void CFont::DrawFonts() { EAXJMP(0x71A210); }
 
 void CFont::GetButtonByIndex(int wButton, char* wcBuf, size_t& nStartPoint)
 {

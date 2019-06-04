@@ -99,10 +99,9 @@ uint32 CRadar::GetRadarTraceColour(int colour, bool bDark, bool bFriend)
 		}
 	case 5:
 		{
-return 0x00FF00FF;
 			if ( bDark )
 				return 0xFFA5C9FF;
-			return 0x6E103CFF;
+			return 0x00FF00FF;
 		}
 	case 6:
 		{
@@ -404,61 +403,6 @@ void __cdecl CRadar::TransformRadarPointToScreenSpaceVCS(CVector2D *out, CVector
 
 	}
 	__asm pop edx
-}
-
-void CRadar::InitRadarTiles() {
-	char* m_nSpriteName;
-	char m_nSlot[16];
-
-	if (FrontEndMenuManager.m_bMenuActive)
-		m_nSpriteName = "m_radar%02d";
-	else
-		m_nSpriteName = "radar%02d";
-
-	for (int i = 0; i < 64; i++) {
-		sprintf(m_nSlot, m_nSpriteName, i);
-		gRadarTextures[i] = CTxdStore::FindTxdSlot(m_nSlot);
-	}
-}
-
-void RequestMapSection(int x, int y) {
-	if (x >= 0 && x < 8
-		&& y >= 0 && y < 8)
-	{
-		int TXD_ID = gRadarTextures[y * 8 + x];
-
-		if (TXD_ID != -1)
-			CStreaming::RequestModel(TXD_ID + 20000, 10);
-	}
-}
-
-void RemoveMapSection(int x, int y) {
-	if (x >= 0 && x < 8
-		&& y >= 0 && y < 8)
-	{
-		int TXD_ID = gRadarTextures[y * 8 + x];
-
-		if (TXD_ID != -1)
-			CStreaming::RemoveTxdModel(TXD_ID);
-	}
-}
-
-void __fastcall ProcessStreaming(CMenuManager *_this, int, unsigned __int8 a2) {
-	if (FrontEndMenuManager.m_bMenuActive && FrontEndMenuManager.m_bCurrentMenuPage == 5 && FrontEndMenuManager.m_bMapLoaded && !FrontEndMenuManager.field_5A) {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++)
-				RequestMapSection(i, j);
-		}
-
-		CStreaming::LoadAllRequestedModels(0);
-		FrontEndMenuManager.m_bAllStreamingStuffLoaded = 0;	
-	}
-	else {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++)
-				RemoveMapSection(i, j);
-		}
-	}
 }
 
 static StaticPatcher	Patcher([](){ 

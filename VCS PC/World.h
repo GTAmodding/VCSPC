@@ -43,6 +43,7 @@ public:
 	static unsigned char&		PlayerInFocus;
 	
 	static CSector* const		ms_aSectors;
+	static CEntity*				&pIgnoreEntity;
 
 public:
 	static void					Initialise(void);

@@ -158,7 +158,7 @@ static CEntity *gCurrentEntityStoresShadow;
 
 #define NightState (*(float *)0x8D12C0)
 
-void __declspec(naked) CompareSunZ()
+static void __declspec(naked) CompareSunZ()
 {
 	static float	gNight, sunZ;
 	__asm{

@@ -19,10 +19,6 @@ int updateEnvMap = true;
 int debugEnvTex = false;
 int drawEnvCoronas = true;
 
-enum PipeSwitch {
-	PIPE_NEO,
-	PIPE_VCS
-};
 
 RwTexDictionary *neoTxd;
 
@@ -209,7 +205,7 @@ CarPipeInit(void)
 // Reflection map
 //
 
-int envMapSize = 128;
+int CarPipe::envMapSize;
 RwTexture *coronastar;
 
 void

@@ -7,6 +7,7 @@ CPlayerInfo* const	CWorld::Players = (CPlayerInfo*)0xB7CD98;
 unsigned char&		CWorld::PlayerInFocus = *(unsigned char*)0xB7CD74;
 
 CSector* const		CWorld::ms_aSectors = (CSector*)0xB7D0B8;
+CEntity*			&CWorld::pIgnoreEntity = *(CEntity **)0xB7CD68;
 
 WRAPPER void CWorld::Initialise(void) { EAXJMP(0x5631E0); }
 WRAPPER void CWorld::Process(void) { EAXJMP(0x5684A0); }

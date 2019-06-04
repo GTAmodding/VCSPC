@@ -419,25 +419,26 @@ void NewDebugMenuOptions() {
     if (bAirBreak) {
         float Up = FindPlayerPed(0)->GetCoords().z + 1.0f;
         float Down = FindPlayerPed(0)->GetCoords().z - 1.0f;
+		CVector Forward = *FindPlayerPed(0)->m_pCoords * CVector(0, 2.0f, 0);
 
         player->bDisableMovement = 1;
         TheCamera.m_bCamDirectlyBehind = true;
 
-       // if (currKeyState->num8) // Forward
 
         if (currKeyState->num9) // Up
             player->Teleport(FindPlayerPed(0)->GetCoords().x, FindPlayerPed(0)->GetCoords().y, Up, 0);
-
         if (currKeyState->num3) // Down
             player->Teleport(FindPlayerPed(0)->GetCoords().x, FindPlayerPed(0)->GetCoords().y, Down, 0);
         
+		if (currKeyState->num8) // Forward
+			player->Teleport(Forward.x, Forward.y, Forward.z, 0);
 
         if (currKeyState->num4) // Rotate left
             player->SetHeading(player->GetHeading() + 0.1f);
         else if (currKeyState->num6) // Rotate right
             player->SetHeading(player->GetHeading() - 0.1f);
 
-        CHud::SetMessage("NUMPAD9 - Up, NUMPAD3 - Down, NUMPAD4 - Left, NUMPAD6 - Right, ENTER - Disable AirBreak");
+        CHud::SetMessage("NUMPAD9 - Up, NUMPAD3 - Down, NUMPAD4 - Left, NUMPAD6 - Right, NUMPAD8 - FORWARD, ENTER - Disable AirBreak");
     }
     else {
         player->bDisableMovement = 0;
@@ -468,14 +469,14 @@ void DrawLoadingText() {
 	static bool reset;
 	if (!reset) {
 		if (alpha < 255.0f)
-			alpha += CTimer::ms_fTimeScale * 0.01 * 1000.0;
+			alpha += CTimer::ms_fTimeStep * 0.03 * 255.0;
 
 		if (alpha >= 255.0f)
 			reset = true;
 	}
 	else {
 		if (alpha > 0.0f)
-			alpha += CTimer::ms_fTimeScale * 0.01 * -1000.0;
+			alpha += CTimer::ms_fTimeStep * 0.03 * -255.0;
 
 		if (alpha <= 0.0f)
 			reset = false;
@@ -489,11 +490,9 @@ void DrawLoadingText() {
 	CFont::SetDropColor(CRGBA(0, 0, 0, static_cast<float>(alpha)));
 	CFont::SetColor(CRGBA(MENU_PINK_R, MENU_PINK_G, MENU_PINK_B, static_cast<float>(alpha)));
 
-    if (!TheCamera.GetFading() && !FrontEndMenuManager.m_bMenuActive) {
+    if (!CTimer::m_UserPause && !CTimer::m_CodePause && !TheCamera.GetFading() && !FrontEndMenuManager.m_bMenuActive) {
 		if (FadeValue > 10)
 			CFont::PrintString(_x(40.0 + (UI_SAFEZONE * 1.8f)), _y(18.0f + (UI_SAFEZONE)), TheText.Get("LOADCOL"));
-		else
-			alpha = 0;
 	}
 }
 

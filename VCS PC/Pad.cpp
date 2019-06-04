@@ -19,7 +19,7 @@ static CPad* const	Pads = (CPad*)0xB73458;
 static CMouseControllerState&	pNewMouseControllerState = *(CMouseControllerState*)0xB73418;
 
 bool	CPad::bSouthpaw;
-bool	CPad::bInvertLook4Pad = true;
+bool	CPad::bInvertLook4Pad;
 WORD	CPad::SavedMode;
 bool	CPad::FailCameraChangeThisFrame = false;
 short	CPad::ChangeStation_HoldTimer;
@@ -51,7 +51,7 @@ void LoadINIFile()
 {
 	wchar_t*	wcModulePath = L".\\GInput.ini";
 
-	FrontEndMenuManager.m_bVibrationEnabled = GetPrivateProfileIntW(L"GInput", L"Vibration", FALSE, wcModulePath) != FALSE;
+	//FrontEndMenuManager.m_bVibrationEnabled = GetPrivateProfileIntW(L"GInput", L"Vibration", FALSE, wcModulePath) != FALSE;
 
 	//CFont::bX360Buttons = GetPrivateProfileIntW(L"GInput", L"PlayStationButtons", FALSE, wcModulePath) == FALSE;
 	/*bApplyMissionFixes = GetPrivateProfileIntW(L"GInput", L"ApplyMissionSpecificFixes", TRUE, wcModulePath) != FALSE;
@@ -2310,6 +2310,16 @@ void __declspec(naked) HandleKeyDownHack()
 	}
 }
 
+bool LegendKeyToggled()
+{
+	if (pXboxPad[0]->HasPadInHands())
+	{
+		CPad*	pPad = CPad::GetPad(0);
+		return pPad->NewState.CROSS != 0 && pPad->OldState.CROSS == 0;
+	}
+	return false;
+}
+
 void CPad::Inject()
 {
 	using namespace Memory;
@@ -2596,11 +2606,11 @@ void CPad::Inject()
 
 	InjectHook(0x578B8F, MenuOptionsToggled, PATCH_CALL);
 	Patch<DWORD>(0x578B94, 0x5075C084);
-	Patch<WORD>(0x578B98, 0x05EB);
+	Patch<WORD>(0x578B98, 0x05EB);*/
 
 	InjectHook(0x578BE8, LegendKeyToggled, PATCH_CALL);
 	Patch<DWORD>(0x578BED, 0x5F75C084);
-	Patch<WORD>(0x578BF1, 0x05EB);*/
+	Patch<WORD>(0x578BF1, 0x05EB);
 
 	// Test - free aim on joypad
 	InjectHook(0x686910, &CPad::JustLockedOn);

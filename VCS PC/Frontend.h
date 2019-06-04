@@ -13,7 +13,7 @@
 #define						MENU_SLIDER_POSY 135.0f
 
 #define						NUM_MENUS 47				// Relevant for debugging only
-#define						NUM_ENTRIES_PER_MENU 14
+#define						NUM_ENTRIES_PER_MENU 16
 
 #define						NUM_SLIDERS 8
 //#define					COMPILE_BOUNCING_ICONS
@@ -94,7 +94,8 @@ enum eMenuPages
 	MENU_PAGE_DLC,
 	MENU_PAGE_ACTIVATE_SERIAL = 49,
 	MENU_PAGE_RESTORE_GRAPHICS,
-	MENU_PAGE_ADDITIONAL_CONTROLLER
+	MENU_PAGE_ADDITIONAL_CONTROLLER,
+	MENU_PAGE_VCS_MAP
 };
 
 enum eMenuActions
@@ -117,6 +118,7 @@ enum eMenuActions
 	MENUACTION_TRAILS,
 	MENUACTION_NEOVEH,
 	MENUACTION_VSYNC,
+	MENUACTION_PIPE_QUALITY,
 
 	MENUACTION_VIBRATION,
 	MENUACTION_INVERTLOOK,
@@ -171,7 +173,7 @@ enum eSplashes {
 	VCS_LOGO,
 	INTRO,
 	OUTRO,
-	LEGAL_EN,
+	LEGAL_LANG,
 	LEGAL_TITLE,
 	NUM_LOADING_SPLASHES
 };
@@ -432,14 +434,16 @@ public:
 	static short		m_nNumMenuEntries;
 	static float		m_fScrollerOffset;
 
-	static MenuItem		_aScreens[52];
-	static MenuItem		_MenuEntriesList[52];
+	static MenuItem		_aScreensNone[];
+	static MenuItem		_aScreens[];
+	static MenuItem		_MenuEntriesList[];
 	static MenuItem		m_SkyMenus[];
 	CVector2D			m_vecMenuColumnPosn[2];
 	CVector2D			m_vecMenuColumnSize;
 
 	static bool			m_bSwitchToSkyMenu;
 	static bool			m_bEnableSkyMenu;
+	static bool			m_bMenuPagesHasBeenStored;
 	static int			m_nSelectedSkyMenuItem;
 	static bool			m_bIsMenuSwitched;
 	static float		m_fSafeZone;
@@ -467,6 +471,8 @@ private:
 	void			PrintStats();
 	void			PrintUpdaterScreen();
 	void			PrintDLCScreen();
+	void			ResetVCSMap();
+	void			PrintVCSMap();
 	void			PrintActivationScreen();
 	void			DrawStandardMenus(bool bDrawMenu);
 	void			DrawRadioStationIcons();
@@ -538,6 +544,7 @@ public:
 	void			DrawOutroSplash();
 	void			ReadFrontendTextures();
 	void			AdditionalOptionInputVCS(unsigned char* pUp, unsigned char* pDown);
+	void			ResetMap();
 	void			UserInputVCS();
 	void			MessageScreen(const char* pMessage, bool bFullscreen, bool bWithinFrame);
 	void			SaveSettings();
@@ -553,6 +560,9 @@ public:
 	float			GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition);
 
     // New map screen.
+	float m_fVCSMapZoom;
+	float m_fVCSMapBaseX;
+	float m_fVCSMapBaseY;
     static void             PrintMap(int x, int y, CRect rect);
     static void             PrintMapExtra();
 	static void				DrawSkyLegend();

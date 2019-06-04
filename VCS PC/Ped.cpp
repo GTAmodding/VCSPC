@@ -15,6 +15,8 @@ WRAPPER void CPed::GetBonePosition(RwV3d& vecOut, unsigned int nBone, bool bFlag
 WRAPPER unsigned char CPed::GetWeaponSkill() { EAXJMP(0x5E6580); }
 WRAPPER void CPed::SetCharCreatedBy(unsigned char bBy) { WRAPARG(bBy); EAXJMP(0x5E47E0); }
 WRAPPER void CPed::SetCurrentWeapon(int nSlot) { WRAPARG(nSlot); EAXJMP(0x5E61F0); }
+WRAPPER void CPed::RemoveWeaponModel(int nSlot) { WRAPARG(nSlot); EAXJMP(0x5E3990); }
+
 WRAPPER void CPed::ResetGunFlashAlpha() { EAXJMP(0x5DF4E0); }
 WRAPPER void CPed::FindWeaponLockOnTarget() { EAXJMP(0x60DC50); }
 
@@ -189,6 +191,25 @@ void RenderWeapon(CPed* pPed)
 	CVisibilityPlugins::ms_weaponPedsForPC.Insert(pPed);
 }
 
+void __fastcall CPed::RemoveWeaponWhenEnteringVehicle(CPed* pPed, int, int a2) {
+	int WeaponType = pPed->weaponSlots[4].m_eWeaponType;
+	int WeaponAmmo = pPed->weaponSlots[4].m_nAmmoTotal;
+	CWeaponInfo* WeaponInfo = CWeaponInfo::GetWeaponInfo(pPed->weaponSlots[4].m_eWeaponType, 1);
+	CWeaponInfo* ActiveWeapon = CWeaponInfo::GetWeaponInfo(pPed->weaponSlots[pPed->m_bActiveWeapon].m_eWeaponType, 1);
+
+	if (WeaponType == WEAPONTYPE_INGRAMSL || WeaponType == WEAPONTYPE_SKORPION || WeaponType == WEAPONTYPE_UZI || WeaponType == WEAPONTYPE_MP5) {
+		if (WeaponAmmo > 0) {
+			pPed->SetCurrentWeapon(WeaponInfo->nSlot);
+		}
+		else {
+			pPed->RemoveWeaponModel(ActiveWeapon->dwModelID);
+		}
+	}
+	else {
+		pPed->RemoveWeaponModel(ActiveWeapon->dwModelID);
+	}
+}
+
 static StaticPatcher	Patcher([](){ 
 						using namespace Memory;
 
@@ -198,4 +219,7 @@ static StaticPatcher	Patcher([](){
 						// Weapons rendering
 						InjectHook(0x5E7859, RenderWeapon);
 						InjectHook(0x732F30, &CVisibilityPlugins::RenderWeaponPedsForPC, PATCH_JUMP);
-									});
+
+						// Fix weapon switch.
+						Memory::InjectHook(0x5E6370, CPed::RemoveWeaponWhenEnteringVehicle, PATCH_JUMP);
+						});

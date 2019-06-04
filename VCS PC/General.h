@@ -183,6 +183,8 @@ public:
     virtual void	SetupLighting();
     virtual void	RemoveLighting(bool bRemove = true);
     virtual void	FlagToDestroyWhenNextProcessed();
+	CVector			TransformFromObjectSpace(CVector const& offset);
+
 
 //private:
 	RwObject*		m_pRwObject;						// 0x18

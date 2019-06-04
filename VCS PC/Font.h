@@ -166,6 +166,8 @@ public:
 
 	static float			GetStringWidth(char * pText, char bFull, char bScriptText);
 
+	static void				DrawFonts();
+
 	static void	__stdcall	GetButtonName(unsigned short eventNo, char* wcBuf, short nUnused);
 	static char*			ParseToken(char* pText, CRGBA& rColor, bool bIgnoreColors, char* pChar);
 	static void				Initialise();

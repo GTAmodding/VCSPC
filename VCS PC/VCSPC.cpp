@@ -510,8 +510,8 @@ const CutsceneData			cutsceneStreams[] = { { "JERA1", CUTSCENE_OFFSET+CUT_JERA1 
 												{ "MARA1", CUTSCENE_OFFSET+CUT_MARA1 }, { "MARA2", CUTSCENE_OFFSET+CUT_MARA2 }, { "MARA5", CUTSCENE_OFFSET+CUT_MARA5 },
 												{ "PHILA1", CUTSCENE_OFFSET+CUT_PHILA1 },  { "PHILA2", CUTSCENE_OFFSET+CUT_PHILA2 },  { "PHILA3", CUTSCENE_OFFSET+CUT_PHILA3 },  { "PHILA4", CUTSCENE_OFFSET+CUT_PHILA4 } };
 
-const void*	const			_CText__load_Jumptable[] = { Language_CASE_English, /*Language_CASE_German, Language_CASE_Spanish, Language_CASE_Italian, */Language_CASE_Brazilian, Language_CASE_Polish };
-const void*	const			_CText__loadMission_Jumptable[] = { MissionLanguage_CASE_English, /*MissionLanguage_CASE_German, MissionLanguage_CASE_Spanish, MissionLanguage_CASE_Italian,*/ MissionLanguage_CASE_Brazilian, MissionLanguage_CASE_Polish };
+const void*	const			_CText__load_Jumptable[] = { Language_CASE_English, /*Language_CASE_German, Language_CASE_Spanish, */ Language_CASE_Italian, Language_CASE_Brazilian, Language_CASE_Polish };
+const void*	const			_CText__loadMission_Jumptable[] = { MissionLanguage_CASE_English, /*MissionLanguage_CASE_German, MissionLanguage_CASE_Spanish,*/ MissionLanguage_CASE_Italian, MissionLanguage_CASE_Brazilian, MissionLanguage_CASE_Polish };
 
 /*const void*					HJ_Stats_Jumptable[] =  { (void*)0x55AC7E, FlamingStunt, (void*)0x55AC97,
 													(void*)0x55ACB0, DoubleFlamingStunt, (void*)0x55ACC9,
@@ -2511,7 +2511,7 @@ void SetDrawWindowHeader(char bShadow) {
 
 void New_Main_Patches() {
 	using namespace Memory;
-
+	
 	// New patches
 	// No crouch moves.
 	static float fMoveOffset = 0.0f;
@@ -2654,7 +2654,7 @@ void New_Main_Patches() {
 	Nop(0x5B8F21, 5);
 
 	// Fighting tweaks
-	Patch<BYTE>(0x623EA7, 0x74);
+	//Patch<BYTE>(0x623EA7, 0x74);
 
 	// Entry Exit Transition
 	InjectHook(0x440404, EntryExitTransitionStarted);
@@ -2679,6 +2679,12 @@ void New_Main_Patches() {
 
 	// No gamma fix, from SkyGfx
 	InjectHook(0x74721C, 0x7472F3, PATCH_JUMP);
+
+	// No cine cam message.
+	Patch<BYTE>(0x5267F0, 0xEB);
+
+	// No duck cam.
+	InjectHook(0x50CFCC, 0x50D073, PATCH_JUMP);
 }
 
 void HandlePlayerStamina(float fMultiplicator) {
@@ -2709,7 +2715,6 @@ void InitExtraStuff() {
 
 		Memory::Patch<const void*>(0x688456 + 0x2, &fMoveOffset_Extra);
 
-
 		// Handle Player Stamina.
 		HandlePlayerStamina(0.6f);
 
@@ -2718,30 +2723,13 @@ void InitExtraStuff() {
 			FindPlayerPed(-1)->Teleport(FindPlayerPed(0)->GetCoords().x, FindPlayerPed(-1)->GetCoords().y, FindPlayerPed(-1)->GetCoords().z, 1);
 		}
 
-		// Use 2 sets of weapon data.
-		static char* pDataName;
-		static bool  m_bResetData;
-		if (FindPlayerVehicle(-1, 0))
-			pDataName = "data\\weapon.dat";
-		else
-			pDataName = "data\\weapon.dat";
-
-		Memory::Patch<const char*>(0x5BE685 + 1, pDataName);
-
-		if (FindPlayerVehicle(-1, 0)) {
-			if (m_bResetData) {
-				((int(__cdecl*)())0x5BF750)(); // ReInit
-
-				m_bResetData = false;
-			}
-		}
-		else {
-			if (!m_bResetData) {
-				((int(__cdecl*)())0x5BF750)(); // ReInit
-
-				m_bResetData = true;
-			}
-		}
+		/*// Rotate Z while swimming.
+		if (FindPlayerPed(-1)->bSubmergedInWater) {
+			if (CPad::GetPad(0)->GetPedWalkLeftRight() < 0) // Rotate left
+				FindPlayerPed(-1)->SetHeading(FindPlayerPed(-1)->GetHeading() + 0.1f);
+			else if (CPad::GetPad(0)->GetPedWalkLeftRight() > 0) // Rotate right
+				FindPlayerPed(-1)->SetHeading(FindPlayerPed(-1)->GetHeading() - 0.1f);
+		}*/
 	}
 }
 

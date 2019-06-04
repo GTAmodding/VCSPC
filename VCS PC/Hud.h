@@ -30,7 +30,7 @@ enum eHudTextures
 	NUM_HUD_SPRITES
 };
 
-#define UI_SAFEZONE						-CMenuManager::m_fSafeZone
+#define UI_SAFEZONE						-FrontEndMenuManager.m_fSafeZone
 
 #define	BAR_ENERGY_LOSS_FLASH_DURATION	2000
 #define HUD_TRANSPARENCY_BACK			215

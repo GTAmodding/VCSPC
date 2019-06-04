@@ -8,10 +8,13 @@
 #include "Ped.h"
 #include "PlayerInfo.h"
 #include "debugmenu_public.h"
+#include "World.h"
 
 bool CCamera::bDontTouchFOVInWidescreen;
 float& CCamera::m_fMouseAccelHorzntl = *(float*)0xB6EC1C;
 bool& CCamera::m_bUseMouse3rdPerson = *(bool*)0xB6EC2E;
+float& CCamera::m_f3rdPersonCHairMultX = *(float*)0xB6EC14;
+float& CCamera::m_f3rdPersonCHairMultY = *(float*)0xB6EC10;
 
 WRAPPER void CamShakeNoPos(CCamera* pCamera, float fStrength) { WRAPARG(pCamera); WRAPARG(fStrength); EAXJMP(0x50A970); }
 
@@ -58,8 +61,8 @@ void CCamera::DrawBordersForWideScreen()
 void CCamera::GetScreenRect(CRect& rect)
 {
 	float			fScreenRatio = ScreenAspectRatio;
-	float			dScreenHeightWeWannaCut = ((-9.0f/16.0f) * fScreenRatio + 1.0f);
-	float			dBorderProportionsFix = ((-144643.0f/50000.0f) * fScreenRatio * fScreenRatio) + ((807321.0f/100000.0f) * fScreenRatio) - (551143.0f/100000.0f);
+	float			dScreenHeightWeWannaCut = ((-9.0f/16.0f) * fScreenRatio + 1);
+	float			dBorderProportionsFix = ((-144643.0f / 50000.0f) * fScreenRatio * fScreenRatio);
 
 	if ( dBorderProportionsFix < 0.0 )
 		dBorderProportionsFix = 0.0;
@@ -68,15 +71,15 @@ void CCamera::GetScreenRect(CRect& rect)
 	{
 		// Letterbox
 		rect.y1 = (RsGlobal.MaximumHeight / 2) * (dScreenHeightWeWannaCut - dBorderProportionsFix);
-		rect.y2 = RsGlobal.MaximumHeight - ((RsGlobal.MaximumHeight / 2) * (dScreenHeightWeWannaCut + dBorderProportionsFix));
+		rect.y2 = RsGlobal.MaximumHeight - ((RsGlobal.MaximumHeight / 2) * (dScreenHeightWeWannaCut));
 	}
 	else
 	{
 		// Pillarbox
 		dScreenHeightWeWannaCut = -dScreenHeightWeWannaCut;
 
-		rect.x1 = (RsGlobal.MaximumWidth / 4) * dScreenHeightWeWannaCut;
-		rect.x2 = RsGlobal.MaximumWidth - (RsGlobal.MaximumWidth / 4) * dScreenHeightWeWannaCut;
+		rect.x1 = (RsGlobal.MaximumWidth / 3) * dScreenHeightWeWannaCut;
+		rect.x2 = RsGlobal.MaximumWidth - (RsGlobal.MaximumWidth / 3) * dScreenHeightWeWannaCut;
 	}
 }
 
@@ -92,6 +95,8 @@ static uint32 baseptr;
 WRAPPER void CCam::Process(void) { EAXJMP(0x526FC0); }
 WRAPPER void CCam::GetVectorsReadyForRW(void) { EAXJMP(0x509CE0); }
 WRAPPER void CCamera::CopyCameraMatrixToRWCam(bool) { EAXJMP(0x50AFA0); }
+WRAPPER void CCam::Process_AimWeapon(CVector const& playerPosn, float a5, float a6, float a7) { WRAPARG(playerPosn); WRAPARG(a5); WRAPARG(a6); WRAPARG(a7); EAXJMP(0x521500); }
+WRAPPER void CCam::Process_FollowPedSA(CVector const& playerPosn, float a5, float a6, float a7, char a8) { EAXJMP(0x522D40); }
 
 static int toggleDebugCamSwitch;
 static int toggleDebugCam;
@@ -301,13 +306,19 @@ toggleCamHook(void)
 	}
 }
 
+#include "WaterLevel.h"
+
 static void
 processCam(void)
 {
 	CCamera *cam = (CCamera*)thisptr;
 	if(cam->WorldViewerBeingUsed)
 		cam->Cams[2].Process();
-	
+
+	// Part of VCS manual aiming.
+	CCamera::m_f3rdPersonCHairMultX = 0.5;
+	CCamera::m_f3rdPersonCHairMultY = 0.5;
+
 	InitExtraStuff();
 }
 
@@ -407,6 +418,14 @@ copyToRWHook(void)
 	}
 }
 
+void _fastcall Process_VCSFollowPed(CCam *cam, int, CVector const& playerPosn, float a5, float a6, float a7, char a8) {
+	TheCamera.Cams[0].Process_FollowPedSA(playerPosn, a5, a6, a7, 0);
+}
+
+void _fastcall Process_VCSAimWeapon(CCam *cam, int, CVector *playerPosn, float a5, float a6, float a7) {
+	CVector offset = FindPlayerPed(-1)->TransformFromObjectSpace(CVector(0.34, 0.40));
+	TheCamera.Cams[0].Process_AimWeapon(offset, a5, a6, a7);
+}
 
 static StaticPatcher	Patcher([](){
 	static const float	fRegularFov = CAMERA_FOV_REGULAR;
@@ -441,6 +460,10 @@ static StaticPatcher	Patcher([](){
 	Memory::InjectHook(0x52C98B, copyToRWHook, PATCH_JUMP);
 	Memory::InjectHook(0x527C5D, switchDefaultHook, PATCH_JUMP);
 
+	// Aiming
+	Memory::InjectHook(0x527A09, Process_VCSFollowPed);
+	Memory::InjectHook(0x527A95, Process_VCSAimWeapon);
+
 	if (DebugMenuLoad()) {
 		DebugMenuEntry *e;
 		static const char *controlStr[] = { "Camera", "Player" };
@@ -449,5 +472,4 @@ static StaticPatcher	Patcher([](){
 		DebugMenuEntrySetWrap(e, true);
 		DebugMenuAddVar("Debug", "Debug Camera FOV", &gFOV, NULL, 1.0f, 5.0f, 180.0f);
 	}
-
 });

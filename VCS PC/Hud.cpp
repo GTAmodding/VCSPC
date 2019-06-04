@@ -183,7 +183,6 @@ void CHud::SetPagerMessage(char* pMsg)
 }
 
 void CHud::DrawHUD() {
-	// 1st Player
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, reinterpret_cast<void*>(rwFILTERLINEARMIPLINEAR));
 
 	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, reinterpret_cast<void*>(0));
@@ -194,10 +193,11 @@ void CHud::DrawHUD() {
 	RwRenderStateSet(rwRENDERSTATEFOGENABLE, reinterpret_cast<void*>(0));
 	RwRenderStateSet(rwRENDERSTATECULLMODE, reinterpret_cast<void*>(1));
 
+	// 1st Player
 	if (CWorld::Players[0].pPed) {
 		if (!CDLCManager::GetDLC(DLC_HALLOWEEN)->IsEnabled()) {
 			DrawWeaponIcon(0, _x((HUD_POS_X * 2.30f) + 104.0f), _y((HUD_POS_Y * 0.9f) + 24.5f), _width(76.0f), _height(72.0f));
-			DrawWeaponAmmo(0, _x((HUD_POS_X * 2.30f) + 50.0f), _y((HUD_POS_Y * 0.9f) + 66.5f), false, _xleft(24.5f), _width(0.34f), _height(0.767f));
+			DrawWeaponAmmo(0, _x((HUD_POS_X * 2.30f) + 50.0f), _y((HUD_POS_Y * 0.9f) + 67.5f), FrontEndMenuManager.m_bEnableSkyMenu, _xleft(24.5f), _width(0.325f), _height(0.755f));
 
 			// Clock
 			char* am_pm;
@@ -319,7 +319,7 @@ void CHud::DrawPager() {
 		CFont::SetOrientation(ALIGN_Left);
 		CFont::SetColor(CRGBA(7, 7, 7, 205));
 		CFont::SetFontStyle(FONT_PagerFont);
-		CFont::PrintString(_xleft(59.5f + ((HUD_POS_X * 2.15f) * 0.9f) - PagerXOffset), _y(40.0f + ((HUD_POS_Y * 0.85f) * 1.2f) + fTextBoxOffset), m_PagerMessage);
+		CFont::PrintString(_xleft(59.0f + ((HUD_POS_X * 2.15f) * 0.9f) - PagerXOffset), _y(40.0f + ((HUD_POS_Y * 0.85f) * 1.2f) + fTextBoxOffset), m_PagerMessage);
 	}
 }
 
@@ -352,11 +352,8 @@ void __cdecl CHud::DrawCrosshairs() {
 	int GetWeaponInfo = CWeaponInfo::GetWeaponInfo((eWeaponType)player->weaponSlots[player->m_bActiveWeapon].m_eWeaponType, 1)->dwModelID;
 	WORD Mode = TheCamera.Cams[TheCamera.ActiveCam].Mode;
 
-	float m_f3rdPersonCHairMultX = *(float*)0xB6EC14;
-	float m_f3rdPersonCHairMultY = *(float*)0xB6EC10;
-
-	float x = RsGlobal.MaximumWidth * m_f3rdPersonCHairMultX;
-	float y = RsGlobal.MaximumHeight * m_f3rdPersonCHairMultY;
+	float x = RsGlobal.MaximumWidth * CCamera::m_f3rdPersonCHairMultX;
+	float y = RsGlobal.MaximumHeight *CCamera::m_f3rdPersonCHairMultY;
 
 	float fHalfSize = 326.0f;
 	CVector2D coords;
@@ -407,7 +404,7 @@ void __cdecl CHud::DrawCrosshairs() {
 					Sprites[HUD_ViewFinder].Draw(CRect(RsGlobal.MaximumWidth, RsGlobal.MaximumHeight - RsGlobal.MaximumHeight / 2, RsGlobal.MaximumWidth - RsGlobal.MaximumWidth / 2, RsGlobal.MaximumHeight), CRGBA(255, 255, 255, 255)); // Right Bottom
 					break;
 				default:
-					Sprites[HUD_SiteM16].Draw(x - _width(31.0f / 2), y - _height(29.0f / 2), _width(31.0f), _height(29.0f), CRGBA(255, 255, 255, 255));
+					Sprites[HUD_SiteM16].Draw(x - _width(28.0f / 2), y - _height(28.0f / 2), _width(28.0f), _height(28.0f), CRGBA(255, 255, 255, 255));
 					break;
 				}
 			}
@@ -422,21 +419,10 @@ void __stdcall CHud::DrawWindowRect(CRect *coords, char *titleKey, char fadeStat
 	RwRenderStateSet(rwRENDERSTATESHADEMODE, reinterpret_cast<void *>(rwSHADEMODEGOURAUD));
 	RwRenderStateGet(rwRENDERSTATEVERTEXALPHAENABLE, &savedAlpha);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, reinterpret_cast<void *>(TRUE));
-	CSprite2d::DrawRect(CRect((coords->x1 + _xleft(-3.35f)), (coords->y2 + _y(2.35f)), (coords->x2 + _xleft(3.35f)), (coords->y1)), CRGBA(rgba.r, rgba.g, rgba.b, 125));
+	CSprite2d::DrawRect(CRect((coords->x1 + _xleft(-3.35f)), (coords->y2 + _y(2.0f)), (coords->x2 + _xleft(3.35f)), (coords->y1)), CRGBA(rgba.r, rgba.g, rgba.b, 125));
 	RwRenderStateSet(rwRENDERSTATESHADEMODE, reinterpret_cast<void *>(savedShade));
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, reinterpret_cast<void *>(savedAlpha));
 }
-
-template <unsigned int address, typename C, typename... Args>
-void CallMethod(C _this, Args... args) {
-	reinterpret_cast<void(__thiscall *)(C, Args...)>(address)(_this, args...);
-}
-template <typename Ret, unsigned int address, typename C, typename... Args>
-Ret CallMethodAndReturn(C _this, Args... args) {
-	return reinterpret_cast<Ret(__thiscall *)(C, Args...)>(address)(_this, args...);
-}
-
-#include "Garages.h"
 
 void CHud::DrawHelpText() {
 	CVector2D	vecTextBoxPosn = (CVector2D(((HUD_POS_X * 2.15f) * 0.9f) + 48.50f, ((HUD_POS_Y * 0.85f) * 1.2f) + 29.25f));
@@ -452,7 +438,7 @@ void CHud::DrawHelpText() {
 				m_nHelpMessageFadeTimer = 0;
 				CMessages::StringCopy(m_pHelpMessageToPrint, m_pHelpMessage, 400);
 				m_fTextBoxNumLines = CFont::GetNumberLines(_xleft(vecTextBoxPosn.x), _y(vecTextBoxPosn.y), m_pHelpMessageToPrint) + 3;
-				CallMethod<0x506EA0>(0xB6BC90, 32, 0.0f, 1.0f);
+				AudioEngine.ReportFrontendAudioEvent(32, 0.0f, 1.0f);
 				break;
 			case 1:
 			case 2:
@@ -767,7 +753,7 @@ void CHud::DrawPermanentTexts()
 			CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 			CFont::SetScale(_width(0.35f), _height(0.65f));
 			CFont::SetColor(CRGBA(BaseColors[*currentFPS > 10.0f]));
-			CFont::PrintString(_x(15.0f), _y(3.5f), debugText);
+			CFont::PrintString(_x(0.0f), _y(0.0f), debugText);
 		}
 
 #if defined INCLUDE_STREAMING_TEXT
@@ -795,7 +781,7 @@ void CHud::DrawPermanentTexts()
 		{
 			CVector&	coords = pPlayerPed->GetCoords();
 
-			_snprintf(debugText, sizeof(debugText), "%.3f %.3f %.3f", coords.x, coords.y, coords.z);
+			_snprintf(debugText, sizeof(debugText), "%.3f %.3f %.3f %.3f", coords.x, coords.y, coords.z, FindPlayerPed(-1)->GetHeading());
 			CFont::SetProportional(true);
 			CFont::SetOrientation(ALIGN_Right);
 			CFont::SetColor(CRGBA(0x0A, 0x57, 0x82));
@@ -804,7 +790,7 @@ void CHud::DrawPermanentTexts()
 			CFont::SetEdge(1);
 			CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 			CFont::SetScale(_width(0.35f), _height(0.65f));
-			CFont::PrintString(_x(5.0f), _ydown(11.0f), debugText);
+			CFont::PrintString(_x(0.0f), _ydown(11.0f), debugText);
 		}
 		CFont::SetEdge(0);
 	}
@@ -1103,7 +1089,7 @@ void CHud::DrawVehicleName()
 			CFont::SetDropColor(CRGBA(0, 0, 0, (BYTE)alpha));
 			CFont::SetColor(CRGBA(BaseColors[4], (BYTE)alpha));
 			if (*bWants_To_Draw_Hud && alpha)
-				CFont::PrintString(_x((HUD_POS_X * 2.30f) + 52.0f), _ydown((HUD_POS_Y * 0.9f) + 88.0f), pCarNameToDisplay);
+				CFont::PrintString(_x((HUD_POS_X * 2.30f) + 52.0f), _ydown((HUD_POS_Y * 1.0f) + 88.0f), pCarNameToDisplay);
 
 #ifdef COMPILE_SLANTED_TEXT
 			CFont::SetSlant(0.0);
@@ -1240,7 +1226,7 @@ void CHud::DrawAreaName()
 				CFont::SetDropColor(CRGBA(0, 0, 0, alpha));
 				CFont::SetScale(_width(1.0f), _height(2.0f));
 				CFont::SetColor(CRGBA(BaseColors[4], alpha));
-				CFont::PrintString(_x((HUD_POS_X * 2.30f) + 52.0f), _ydown((HUD_POS_Y * 0.9f) + 56.0f), m_ZoneToPrint);
+				CFont::PrintString(_x((HUD_POS_X * 2.30f) + 52.0f), _ydown((HUD_POS_Y * 1.0f) + 56.0f), m_ZoneToPrint);
 				CFont::SetDropShadowPosition(0);
 #ifdef COMPILE_SLANTED_TEXT
 				CFont::SetSlant(0.0);
@@ -1320,7 +1306,7 @@ void CHud::DrawBigMessage2() {
 	CFont::SetDropShadowPosition(2);
 	CFont::SetDropColor(CRGBA(0, 0, 0, 255));
 	CFont::SetColor(CRGBA(0xDA, 0xA8, 0x02, 255));
-	CFont::PrintString(_x((HUD_POS_X * 2.30f) + 52.0f), _ydown((HUD_POS_Y * 0.9f) + 58.0f), StyledText_2);
+	CFont::PrintString(_x((HUD_POS_X * 2.30f) + 52.0f), _ydown((HUD_POS_Y * 1.0f) + 58.0f), StyledText_2);
 }
 
 void CHud::DrawBigMessage3()
@@ -1343,6 +1329,7 @@ void CHud::DrawSubtitles(float x, float y, char* str) {
 	if (TheCamera.m_WideScreenOn) {
 		fPositionX = RsGlobal.MaximumWidth * 0.50f;
 		fPositionY = 71.5f;
+		CFont::SetCentreSize(RsGlobal.MaximumWidth - _xleft(280.0f));
 	}
 	else {
 		if (CFont::GetStringWidth(str, true, false) > (RsGlobal.MaximumWidth * 0.45f) * ScreenAspectRatio)
@@ -1351,13 +1338,12 @@ void CHud::DrawSubtitles(float x, float y, char* str) {
 			fPositionX = RsGlobal.MaximumWidth * 0.50f;
 
 		fPositionY = 64.5f;
+
+		CFont::SetCentreSize(RsGlobal.MaximumWidth - _xleft(260.0f));
 	}
 
-	CFont::SetDropColor(CRGBA(0, 0, 0));
-	CFont::SetColor(CRGBA(255, 255, 255));
 	CFont::SetEdge(1);
 	CFont::SetScale(_width(0.5f), _height(1.0f));
-	CFont::SetCentreSize(RsGlobal.MaximumWidth - _xleft(260.0f));
 
 	CFont::PrintStringFromBottom(fPositionX, _ydown(((HUD_POS_Y * 1.0f) * 3.6f) + fPositionY), str);
 }

@@ -244,6 +244,8 @@ public:
 	void Process(void);
 	void GetVectorsReadyForRW(void);
 	void Process_Debug(float*, float, float, float);
+	void Process_AimWeapon(CVector const& playerPosn, float a5, float a6, float a7);
+	void Process_FollowPedSA(CVector const& playerPosn, float a5, float a6, float a7, char a8);
 };
 
 struct CQueuedMode

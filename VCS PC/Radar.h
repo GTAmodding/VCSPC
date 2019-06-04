@@ -77,7 +77,6 @@ public:
 
 public:
 	static void				Initialise();
-	static void				InitRadarTiles();
 	static void				Shutdown();
 	static char				Load();
 	static void				RequestMapSection(int dwModelId, int flags);

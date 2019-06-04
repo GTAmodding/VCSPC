@@ -20,6 +20,12 @@ WRAPPER void CEntity::PreRender() { EAXJMP(0x535FA0); }
 
 WRAPPER CVector *__cdecl FindPlayerCentreOfWorld(int nIndex) { EAXJMP(0x56E250); }
 
+CVector CEntity::TransformFromObjectSpace(CVector const& offset) {
+	CVector result;
+	((void(__thiscall *)(CEntity*, CVector*, CVector const&))0x5334F0)(this, &result, offset);
+	return result;
+}
+
 
 const unsigned int CKeyGen::keyTable[] = // 0x008CD068
 	{

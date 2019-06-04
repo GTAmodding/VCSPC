@@ -313,8 +313,11 @@ public:
 	unsigned char		GetWeaponSkill();
 	void				SetCharCreatedBy(unsigned char bBy);
 	void				SetCurrentWeapon(int nSlot);
+	void				RemoveWeaponModel(int nSlot);
 	void				ResetGunFlashAlpha();
 	void				SetGunFlashAlpha(bool bSecondWeapon);
+
+	static void __fastcall RemoveWeaponWhenEnteringVehicle(CPed* pPed, int, int a2);
 
 	long double			GetCrosshairSize();
 	void				Remap();
