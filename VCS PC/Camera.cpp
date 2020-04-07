@@ -419,12 +419,12 @@ copyToRWHook(void)
 }
 
 void _fastcall Process_VCSFollowPed(CCam *cam, int, CVector const& playerPosn, float a5, float a6, float a7, char a8) {
-	TheCamera.Cams[0].Process_FollowPedSA(playerPosn, a5, a6, a7, 0);
+	TheCamera.Cams->Process_FollowPedSA(playerPosn, a5, a6, a7, 0);
 }
 
 void _fastcall Process_VCSAimWeapon(CCam *cam, int, CVector *playerPosn, float a5, float a6, float a7) {
 	CVector offset = FindPlayerPed(-1)->TransformFromObjectSpace(CVector(0.34, 0.40));
-	TheCamera.Cams[0].Process_AimWeapon(offset, a5, a6, a7);
+	TheCamera.Cams->Process_AimWeapon(offset, a5, a6, a7);
 }
 
 static StaticPatcher	Patcher([](){

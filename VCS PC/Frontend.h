@@ -438,8 +438,8 @@ public:
 	static MenuItem		_aScreens[];
 	static MenuItem		_MenuEntriesList[];
 	static MenuItem		m_SkyMenus[];
-	CVector2D			m_vecMenuColumnPosn[2];
-	CVector2D			m_vecMenuColumnSize;
+	static CVector2D	m_vecMenuColumnPosn[2];
+	static CVector2D	m_vecMenuColumnSize;
 
 	static bool			m_bSwitchToSkyMenu;
 	static bool			m_bEnableSkyMenu;
@@ -450,12 +450,12 @@ public:
 	static bool			m_bControlSafeZone;
 	static float		SafeZoneHideStuffAlpha;
 
-	bool				m_bBottomMenu;
-	bool				m_bCanReturnToBottomMenu;
-	bool				m_bIsMouseInPosition;
-	bool				m_bIsPauseMenu;
-	CRGBA				m_nBackgroundColor;
-	bool				m_bPCFrontEnd;
+	static bool			m_bBottomMenu;
+	static bool			m_bCanReturnToBottomMenu;
+	static bool			m_bIsMouseInPosition;
+	static bool			m_bIsPauseMenu;
+	static CRGBA		m_nBackgroundColor;
+	static bool			m_bPCFrontEnd;
 
 public:
 	static MenuItem		ms_pMenus[];
@@ -532,7 +532,7 @@ public:
 	void			SwitchToNewScreen(signed char bScreen);
 	void			InitialiseChangedLanguageSettings(bool bRemapButtons);
 	void			PrintBrief();
-	void			DrawContollerScreenExtraText(int nUnk);
+	void			DrawControllerScreenExtraText(int nUnk);
 	void			DisplayHelperText(const char* pText);
 	bool			CheckHover(int, int, int, int);
 
@@ -560,9 +560,9 @@ public:
 	float			GetTextYPosNextItem(const MenuItem::MenuEntry& pPosition);
 
     // New map screen.
-	float m_fVCSMapZoom;
-	float m_fVCSMapBaseX;
-	float m_fVCSMapBaseY;
+	static float			m_fVCSMapZoom;
+	static float			m_fVCSMapBaseX;
+	static float			m_fVCSMapBaseY;
     static void             PrintMap(int x, int y, CRect rect);
     static void             PrintMapExtra();
 	static void				DrawSkyLegend();
@@ -576,6 +576,8 @@ public:
     static void				PrintMapZones(float x, float y, char * text);
 
     static void				Inject();
+
+	static void				DrawLoadingBar();
 
 	static void				SkyMenuHelpText(char nID);
 
@@ -596,6 +598,7 @@ public:
     static bool	&m_bFadeInNextSplashFromBlack;
     static bool	&m_bFadeOutCurrSplashToBlack;
     static bool	&m_bReadyToDelete;
+	static float &m_fPauseTime;
 
 public:
 	CSprite2d m_nSplashes[NUM_LOADING_SPLASHES];
@@ -619,6 +622,6 @@ public:
 extern CMenuManager&		FrontEndMenuManager;
 extern CLoadingScreen		SplashScreen;
 
-//static_assert(sizeof(CMenuManager) == 0x1B78, "Wrong size: CMenuManager");
+static_assert(sizeof(CMenuManager) == 0x1B78, "Wrong size: CMenuManager");
 
 #endif

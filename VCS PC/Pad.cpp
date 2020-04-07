@@ -2314,8 +2314,7 @@ bool LegendKeyToggled()
 {
 	if (pXboxPad[0]->HasPadInHands())
 	{
-		CPad*	pPad = CPad::GetPad(0);
-		return pPad->NewState.CROSS != 0 && pPad->OldState.CROSS == 0;
+		return Pads->NewState.CROSS != 0 && Pads->OldState.CROSS == 0;
 	}
 	return false;
 }

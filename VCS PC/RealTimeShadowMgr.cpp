@@ -50,25 +50,21 @@ RpAtomic* ShadowCameraRenderCB_Vehicle(RpAtomic* pAtomic, void* pData)
 
 RpAtomic* ShadowCameraRenderCB(RpAtomic* pAtomic, void* pData)
 {
-	RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
-
-	if ( RpAtomicGetFlags(pAtomic) & rpATOMICRENDER )
+	if (RpAtomicGetFlags(pAtomic) & rpATOMICRENDER)
 	{
-		//assert(pGeometry != nullptr);
+		RpGeometry*	pGeometry = RpAtomicGetGeometry(pAtomic);
+		assert(pGeometry != nullptr);
 		RwUInt32	geometryFlags = RpGeometryGetFlags(pGeometry);
 
-		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED|rpGEOMETRYPRELIT|
-						rpGEOMETRYNORMALS|rpGEOMETRYLIGHT|rpGEOMETRYMODULATEMATERIALCOLOR|rpGEOMETRYTEXTURED2));
+		RpGeometrySetFlags(pGeometry, geometryFlags & ~(rpGEOMETRYTEXTURED | rpGEOMETRYPRELIT |
+			/*rpGEOMETRYNORMALS|*/rpGEOMETRYLIGHT | rpGEOMETRYMODULATEMATERIALCOLOR | rpGEOMETRYTEXTURED2));
 
-		if ( pData )
+		if (pData)
 			RxPipelineExecute(static_cast<RxPipeline*>(pData), pAtomic, TRUE);
 		else
 			AtomicDefaultRenderCallBack(pAtomic);
 		RpGeometrySetFlags(pGeometry, geometryFlags);
 	}
-	if (pGeometry != nullptr)
-		return false;
-
 	return pAtomic;
 }
 

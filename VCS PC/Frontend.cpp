@@ -56,6 +56,20 @@ float				CMenuManager::m_fSafeZone;
 bool				CMenuManager::m_bControlSafeZone;
 float				CMenuManager::SafeZoneHideStuffAlpha = 255.0f;
 
+bool				CMenuManager::m_bBottomMenu;
+bool				CMenuManager::m_bCanReturnToBottomMenu;
+bool				CMenuManager::m_bIsMouseInPosition;
+bool				CMenuManager::m_bIsPauseMenu;
+CRGBA				CMenuManager::m_nBackgroundColor;
+bool				CMenuManager::m_bPCFrontEnd;
+
+CVector2D			CMenuManager::m_vecMenuColumnPosn[2];
+CVector2D			CMenuManager::m_vecMenuColumnSize;
+
+float				CMenuManager::m_fVCSMapZoom;
+float				CMenuManager::m_fVCSMapBaseX;
+float				CMenuManager::m_fVCSMapBaseY;
+
 static int	nTimeToStopPadShake;
 
 // Temp;
@@ -822,7 +836,7 @@ WRAPPER void CMenuManager::DrawWindow(const CRect& rect, const char* pKey, unsig
 WRAPPER void CMenuManager::SmallMessageScreen(const char* pMessage) { WRAPARG(pMessage); EAXJMP(0x574010); }
 WRAPPER void CMenuManager::InitialiseChangedLanguageSettings(bool bRemapButtons) { WRAPARG(bRemapButtons); EAXJMP(0x573260); }
 WRAPPER void CMenuManager::PrintBrief() { EAXJMP(0x576320); }
-WRAPPER void CMenuManager::DrawContollerScreenExtraText(int nUnk) { WRAPARG(nUnk); EAXJMP(0x57D8D0); }
+WRAPPER void CMenuManager::DrawControllerScreenExtraText(int nUnk) { WRAPARG(nUnk); EAXJMP(0x57D8D0); }
 WRAPPER bool CMenuManager::CheckHover(int, int, int, int) { EAXJMP(0x57C4F0); }
 WRAPPER void CMenuManager::ProcessMissionPackNewGame() { EAXJMP(0x57D520); }
 WRAPPER void CMenuManager::DoSettingsBeforeStartingAGame() { EAXJMP(0x573330); }
@@ -888,6 +902,7 @@ void CMenuManager::SaveSettings()
 		const RwInt32			nSubSystem = RwEngineGetCurrentSubSystem();
 		const bool				bTrailsEnabled = CPostEffects::TrailsEnabled();
 		const uint8				vehpipe = CarPipe::PipeSwitch;
+		const eEnvMapSize		nReflectionQuality = CarPipe::envMapSize;
 
 		//CFileMgr::Write(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
 		CFileMgr::Write(hFile, &m_dwAppliedAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
@@ -903,7 +918,7 @@ void CMenuManager::SaveSettings()
 		CFileMgr::Write(hFile, &m_dwAppliedResolution, sizeof(m_dwAppliedResolution));
 		CFileMgr::Write(hFile, &nSubSystem, sizeof(nSubSystem));
 		CFileMgr::Write(hFile, &vehpipe, sizeof(vehpipe));
-		CFileMgr::Write(hFile, &CarPipe::envMapSize, sizeof(CarPipe::envMapSize));
+		CFileMgr::Write(hFile, &nReflectionQuality, sizeof(nReflectionQuality));
 
 		CFileMgr::CloseFile(hFile);
 	}
@@ -973,6 +988,7 @@ void CMenuManager::LoadSettings()
 			unsigned char		nFilterQuality;
 			bool				bTrailsEnabled;
 			uint8				vehpipe;
+			eEnvMapSize			nReflectionQuality;
 
 			//CFileMgr::Read(hFile, &m_bMipMapping, sizeof(m_bMipMapping));
 			CFileMgr::Read(hFile, &m_dwAntiAliasingLevel, sizeof(m_dwAppliedAntiAliasingLevel));
@@ -988,7 +1004,7 @@ void CMenuManager::LoadSettings()
 			CFileMgr::Read(hFile, &m_dwResolution, sizeof(m_dwAppliedResolution));
 			CFileMgr::Read(hFile, &field_DC, sizeof(field_DC));
 			CFileMgr::Read(hFile, &vehpipe, sizeof(vehpipe));
-			CFileMgr::Read(hFile, &CarPipe::envMapSize, sizeof(CarPipe::envMapSize));
+			CFileMgr::Read(hFile, &nReflectionQuality, sizeof(nReflectionQuality));
 
 			// Apply sets
 			//CCamera::m_bUseMouse3rdPerson = m_nController == 0;
@@ -1006,6 +1022,7 @@ void CMenuManager::LoadSettings()
 
 			CPostEffects::SetTrailsState(bTrailsEnabled);
 			CarPipe::PipeSwitch = vehpipe;
+			CarPipe::SetReflectionQuality(nReflectionQuality);
 
 			CShadows::SetShadowQuality(nShadowQuality);
 			CShadows::SetShadowDistance(fShadowDist);
@@ -1136,7 +1153,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 {
 	static bool Once;
 
-	if (!Once) {
+	if (!Once && FrontEndMenuManager.m_bEnableSkyMenu) {
 		FrontEndMenuManager.m_bIsMenuSwitched = false;
 		FrontEndMenuManager.m_nSelectedSkyMenuItem = 0;
 		FrontEndMenuManager.m_bBottomMenu = true;
@@ -1331,7 +1348,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 		switch (m_bCurrentMenuPage)
 		{
 		case 38:
-			DrawContollerScreenExtraText(-8);
+			DrawControllerScreenExtraText(-8);
 			break;
 		case MENU_PAGE_ACTIVATE_SERIAL:
 			PrintActivationScreen();
@@ -1550,7 +1567,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 					case 2:
 						pTextToShow_RightColumn = TheText.Get("FEA_PR3");
 						break;
-					}
+					};
 					break;
 				case MENUACTION_SHADOWS_QUALITY:
 					switch (CShadows::GetShadowQuality())
@@ -1573,7 +1590,7 @@ void CMenuManager::DrawStandardMenus(bool bDrawMenu)
 					case SHADOW_QUALITY_HIGHEST:
 						pTextToShow_RightColumn = TheText.Get("FED_FXV");
 						break;
-					}
+					};
 					break;
 				case MENUACTION_PIPE_QUALITY:
 					switch (CarPipe::envMapSize) {
@@ -2055,7 +2072,6 @@ void CMenuManager::DisplayHelperText(const char* pText)
 			}
 			CFont::SetColor(CRGBA(0xFF, 0xFF, 0xFF, SafeZoneHideStuffAlpha));
 			CFont::PrintStringFromBottom(_x(30.0f + offset), _ydown(10.0f + offset), TheText.Get(pText));
-			CFont::DrawFonts();
 		}
 		else
 		{
@@ -2167,12 +2183,12 @@ void CMenuManager::DisplayHelperText(const char* pText)
 					default:
 						pTextToDisplay = m_bCurrentMenuPage != 0 ? "FET_MIG" : "FEH_SSA";
 						break;
-					}
+					};
 					break;
 				}
 			}
 			if (FrontEndMenuManager.m_bCurrentMenuPage != 5)
-			CFont::PrintStringFromBottom(_x(30.0f), _ydown(m_bCurrentMenuPage != 5 ? 10.0f : 2.0f), TheText.Get(pTextToDisplay));
+				CFont::PrintStringFromBottom(_x(30.0f), _ydown(m_bCurrentMenuPage != 5 ? 10.0f : 2.0f), TheText.Get(pTextToDisplay));
 		}
 	}
 }
@@ -2619,7 +2635,7 @@ void CMenuManager::ProcessMenuOptions(signed char nArrowsInput, bool* bReturn, b
 				break;
 			};
 		}
-		CarPipeInit();
+		CarPipe::CarPipeInit();
 		SaveSettings();
 		return;
 	case 63:
@@ -5403,7 +5419,7 @@ void __cdecl SetCoordBlipTest(eBlipType type, float x, float y, float z, int a5,
 
 void CMenuManager::Inject()
 {	
-	Memory::InjectHook(0x5775D2, &SetCoordBlipTest, PATCH_CALL);
+	//Memory::InjectHook(0x5775D2, &SetCoordBlipTest, PATCH_CALL);
 
     Memory::InjectHook(0x57BA58, &DrawStandardMenus);
     Memory::InjectHook(0x57B66F, &ProcessMenuOptions);
@@ -5668,7 +5684,7 @@ void CLoadingScreen::RenderNewLoadingScreens(char ScreenId) {
 	// Percentage...
 	if (gfLoadingPercentage >= 1.0) {
 		if (SplashScreen.fLoadingPercentage <= 100.0f)
-			SplashScreen.fLoadingPercentage = SplashScreen.fLoadingPercentage + CTimer::ms_fTimeStep * 1.6;
+			SplashScreen.fLoadingPercentage = SplashScreen.fLoadingPercentage + CTimer::ms_fTimeScale * 1.0f;
 		else
 			SplashScreen.fLoadingPercentage = 100.0f;
 
@@ -5706,7 +5722,7 @@ void CLoadingScreen::RenderNewLoadingScreens(char ScreenId) {
 		SplashScreen.m_nSplashes[LOADSC4_bk].Draw(CRect(-1.0f - ((vecSplashScale.x / 2) - RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) + vecSplashScale.y / 2, ((vecSplashScale.x / 2) + RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) - vecSplashScale.y / 2), CRGBA(255, 255, 255, 255));
 		SplashScreen.m_nSplashes[LOADSC4_fr].Draw(CRect(_xmiddle(SplashScreen.vec_mLoadPosn[4].x), _ymiddle(SplashScreen.vec_mLoadPosn[4].y) + _height(SplashScreen.vec_mLoadScale[4].y), _xmiddle(SplashScreen.vec_mLoadPosn[4].x) + _width(SplashScreen.vec_mLoadScale[4].x), _ymiddle(SplashScreen.vec_mLoadPosn[4].y)), CRGBA(255, 255, 255, 255));
 	}
-	else {
+	else if (ScreenId == 5) {
 		SplashScreen.m_nSplashes[LOADSC5_bk].Draw(CRect(-1.0f - ((vecSplashScale.x / 2) - RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) + vecSplashScale.y / 2, ((vecSplashScale.x / 2) + RsGlobal.MaximumWidth / 2), (RsGlobal.MaximumHeight / 2) - vecSplashScale.y / 2), CRGBA(255, 255, 255, 255));
 		SplashScreen.m_nSplashes[LOADSC5_fr].Draw(CRect(_xmiddle(SplashScreen.vec_mLoadPosn[5].x), _ymiddle(SplashScreen.vec_mLoadPosn[5].y) + _height(SplashScreen.vec_mLoadScale[5].y), _xmiddle(SplashScreen.vec_mLoadPosn[5].x) + _width(SplashScreen.vec_mLoadScale[5].x), _ymiddle(SplashScreen.vec_mLoadPosn[5].y)), CRGBA(255, 255, 255, 255));
 	}

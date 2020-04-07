@@ -190,9 +190,10 @@ RwIm2DVertex CarPipe::screenQuad[4];
 RwImVertexIndex CarPipe::screenindices[6] = { 0, 1, 2, 0, 2, 3 };
 
 CarPipe carpipe;
+eEnvMapSize CarPipe::envMapSize;
 
 void
-CarPipeInit(void)
+CarPipe::CarPipeInit(void)
 {
 	CTxdStore::PushCurrentTxd();
 	CTxdStore::SetCurrentTxd(CTxdStore::FindTxdSlot("particle"));
@@ -205,7 +206,6 @@ CarPipeInit(void)
 // Reflection map
 //
 
-int CarPipe::envMapSize;
 RwTexture *coronastar;
 
 void

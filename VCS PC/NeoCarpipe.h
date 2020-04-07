@@ -10,7 +10,7 @@ enum eEnvMapSize {
 	REFLECTION_QUALITY_LOW = 128,
 	REFLECTION_QUALITY_MEDIUM = 256,
 	REFLECTION_QUALITY_HIGH = 512,
-	REFLECTION_QUALITY_HIGHEST = 1024
+	REFLECTION_QUALITY_HIGHEST = 1024,
 };
 
 enum ePipeStyle {
@@ -78,9 +78,6 @@ public:
 	static RpAtomic *setatomicCB(RpAtomic *atomic, void *data);
 };
 
-void CarPipeInit(void);
-void neoInit(void);
-
 class CarPipe : public CustomPipe
 {
 	void CreateShaders(void);
@@ -89,7 +86,7 @@ class CarPipe : public CustomPipe
 	static void MakeQuadTexCoords(bool textureSpace);
 public:
 	static int PipeSwitch;
-	static int envMapSize;
+	static eEnvMapSize envMapSize;
 	static InterpolatedFloat fresnel;
 	static InterpolatedFloat power;
 	static InterpolatedLight diffColor;
@@ -114,6 +111,7 @@ public:
 	void Init(void);
 	static void LoadTweakingTable(void);
 	static void RenderEnvTex(void);
+	static void CarPipeInit(void);
 	static void SetupEnvMap(void);
 	static void RenderCallback(RwResEntry *repEntry, void *object, RwUInt8 type, RwUInt32 flags);
 	static void ShaderSetup(RpAtomic *atomic);
@@ -121,6 +119,9 @@ public:
 	static void DiffusePass(RxD3D9ResEntryHeader *header, RpAtomic *atomic);
 	static void EnvMapPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic);
 	static void SpecularPass(RxD3D9ResEntryHeader *header, RpAtomic *atomic);
+
+	static void SetReflectionQuality(eEnvMapSize nQuality)
+	{ envMapSize = nQuality; }
 };
 
 #endif __NEOCARPIPE

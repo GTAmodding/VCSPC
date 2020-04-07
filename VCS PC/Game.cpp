@@ -135,7 +135,7 @@ CGame::Init1(const char *fileName)
 	CCheat::ResetCheats();
 	g_fx.Init();	// Fx_c;
 
-	CarPipeInit();
+	CarPipe::CarPipeInit();
 
 	return true;
 }
@@ -361,7 +361,7 @@ CGame::Process(void)
 		}
 
 		float t = CTimer::ms_fTimeStep / 50.0f;
-		Fx_c::Update(TheCamera.m_pRwCamera, t);
+		//Fx_c::Update(TheCamera.m_pRwCamera, t);
 		g_breakMan.Update(CTimer::ms_fTimeStep);
 		g_interiorMan.Update();
 		g_procObjMan.Update();

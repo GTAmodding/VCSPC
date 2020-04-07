@@ -2647,6 +2647,7 @@ void New_Main_Patches() {
 	Patch<const char*>(0x55F2BA + 1, "DATA\\SURFACEAUDIO.DAT");
 	Patch<const char*>(0x55EB9D + 1, "DATA\\SURFACEINFO.DAT");
 	InjectHook(0x6EDDB1, CWaterLevel::WaterLevelInitialise);
+	Patch<const char*>(0x5BE685 + 1, "DATA\\WEAPON.DAT");
 
 	// Nop SA DATA
 	Nop(0x55C131, 5);
@@ -2667,8 +2668,8 @@ void New_Main_Patches() {
 	InjectHook(0x573F61, SetDrawWindowHeader);
 
 	// No light cones.
-	Nop(0x6E1EDE, 6);
-	Nop(0x6E1F17, 6);
+	//Nop(0x6E1EDE, 6);
+	//Nop(0x6E1F17, 6);
 
 	/*// Set Gamma - Deprectated it require higher brightness level.
 	static float fGamma = 1.05f;
@@ -2720,7 +2721,7 @@ void InitExtraStuff() {
 
 		// Stop player when entry/exit from enex.
 		if (bHandleEntryExit) {
-			FindPlayerPed(-1)->Teleport(FindPlayerPed(0)->GetCoords().x, FindPlayerPed(-1)->GetCoords().y, FindPlayerPed(-1)->GetCoords().z, 1);
+			FindPlayerPed(-1)->Teleport(FindPlayerPed(-1)->GetCoords().x, FindPlayerPed(-1)->GetCoords().y, FindPlayerPed(-1)->GetCoords().z, 1);
 		}
 
 		/*// Rotate Z while swimming.
